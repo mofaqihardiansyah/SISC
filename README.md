@@ -1,41 +1,125 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Buku Saku Proyek SISC (Sistem Informasi Seminar & Conference)
 
-## Getting Started
+Selamat datang di repositori SISC Kelompok 3! Dokumen ini adalah satu panduan lengkap yang menyatukan alur **Setup Anggota**, **Kolaborasi (Git)**, dan **Manajemen Database**.
 
-First, run the development server:
+Sistem kita berjalan dengan **Next.js (App Router)** dan **Drizzle ORM** yang terkoneksi dengan **PostgreSQL**.
 
+---
+
+## 🚀 TAHAP 1: Persiapan Software Wajib
+
+Sebelum mulai *ngoding*, pastikan 4 hal ini sudah ter-install di laptop/komputer masing-masing:
+
+1. **Node.js (Versi 20+ LTS)**
+   - Wajib untuk bisa menjalankan sintaks *Javascript* Next.js.
+   - Download di: [nodejs.org](https://nodejs.org/) (Pilih yang tengahnya ada tulisan "LTS").
+2. **Git**
+   - Wajib agar bisa menarik / mengirim kode kelompok.
+   - Download di: [git-scm.com](https://git-scm.com/) 
+3. **Code Editor (Direkomendasikan: Visual Studio Code)**
+   - Pasang ekstensi ini di VSCode biar hidup lebih gampang:
+     - `Tailwind CSS IntelliSense` -> Auto-complete warna dan desain Tailwind.
+     - `ESLint` -> Pemeriksa salah ketik/salah koding dasar otomatis.
+4. **Docker Desktop (Opsional tapi SANGAT Direkomendasikan)**
+   - Agar *database* bisa langsung nyala tanpa *setup* pgAdmin yang rumit: [docker.com](https://www.docker.com/products/docker-desktop/)
+
+---
+
+## 💻 TAHAP 2: Kloning & Install Proyek
+
+1. **Buka Terminal / Command Prompt / Git Bash**
+2. **Kloning Proyek**:
+   ```bash
+   git clone https://github.com/mofaqihardiansyah/SISC.git
+   ```
+3. **Masuk ke Dalam Folder**:
+   ```bash
+   cd SISC
+   ```
+4. **Install Dependencies**:
+   Tunggu sampai proses *download* modul selesai.
+   ```bash
+   npm install
+   ```
+
+---
+
+## 🗄️ TAHAP 3: Panduan Database & `.env`
+
+File `.env` berisi *password* dan jalur database lokal Anda. **Jangan pernah meng-commit file `.env` ke GitHub** agar tidak menabrak *settingan* teman yang lain!
+
+1. Buat file baru bernama tepat `.env` di **folder paling luar (root)** proyek.
+2. Isinya bergantung pada cara Anda menjalankan PostgreSQL:
+
+**Cara A: Memakai Docker (Sangat Direkomendasikan)**
+Jalankan kontainer dengan mengetik:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker-compose up -d
+```
+Jika sukses menyala di latar belakang, salin ini ke dalam file `.env`:
+```env
+DATABASE_URL="postgresql://sisc_user:sisc_password@localhost:5433/sisc_db"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Cara B: Memakai PostgreSQL Bawaan (Native)**
+Jika teman-teman memakai pgAdmin di komputer kampus, pakai kredensial milik Anda sendiri:
+```env
+DATABASE_URL="postgresql://NAMA_USER_ANDA:PASSWORD_ANDA@localhost:5432/NAMA_DATABASE_BIKIN_SENDIRI"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ TAHAP 4: Migrasi & Manajemen Database (Drizzle ORM)
 
-## Learn More
+Bagi yang terbiasa dengan `php artisan migrate` di Laravel, logika di sini sangat mirip:
 
-To learn more about Next.js, take a look at the following resources:
+1. **Tarik Skema Terbaru (Push Migrations)**
+   Jika ada teman satu tim yang meng-update file `src/db/schema.ts` (misal menambah tabel/kolom), kalian wajib menjalankan ini setelah `git pull`:
+   ```bash
+   npx drizzle-kit push
+   ```
+   *Drizzle ORM akan otomatis membaca kodingan dan menyesuaikan tabel PostgreSQL Anda tanpa menghapus data yang sudah ada.*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Melihat Isi Database (Pengganti PhpMyAdmin)**
+   Tidak perlu aplikasi berat, cukup jalankan perintah berikut untuk mengintip/mengedit data secara manual:
+   ```bash
+   npx drizzle-kit studio
+   ```
+   Lalu buka URL yang muncul `https://local.drizzle.studio`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Seeding (Data Dummy Dummy)**
+   Ke depan jika kita punya file seeder di `src/db/seed.ts`, tinggal jalankan:
+   ```bash
+   npx tsx src/db/seed.ts
+   ```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🌐 TAHAP 5: Menjalankan Website SISC
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# SISC
-Sistem Informasi Seminar &amp; Conference
->>>>>>> 041d5da21e711e0a89008a4094313ce275fe46e7
+Pastikan database sudah menyala (Docker / PostgreSQL aktif), lalu ketik:
+```bash
+npm run dev
+```
+Buka browser dan kunjungi `http://localhost:3000`. Jika halaman muncul, maka sistem SISC siap untuk dikerjakan!
+
+---
+
+## 🤝 PANDUAN KOLABORASI (Git Rules!)
+
+> [!CAUTION]
+> **ATURAN WAJIB GRUP:**
+> 1. Sebisa mungkin JANGAN MENULIS KODE dan KOMIT langsung di branch `main`.
+> 2. Sebelum mulai mengerjakan fitur Anda, buat *branch* baru:
+>    ```bash
+>    git checkout -b feature/nama-fitur-anda
+>    ```
+>    *(Contoh: `git checkout -b feature/cari-lokasi-seminar`)*
+> 3. Setelah fitur selesai, lakukan *commit* dan *push*, kemudian buat **Pull Request (PR)** ke `main`.
+> 4. Selalu biasakan menjalankan `git pull origin main` di *branch* utama Anda sebeum membuat *branch* baru!
+
+**Tips Tambahan:**
+- Selalu jalankan `docker-compose up -d` sebelum mengetik `npm run dev` kalau pakai Docker.
+- Jika ada *error* "*Connection refused*", cek ulang *Password* dan *Port* (`5432` / `5433`) di dalam file `.env` Anda.
+
+*Semangat menggarap SISC, tim!*
