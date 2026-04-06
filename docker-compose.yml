@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: sisc_password
       POSTGRES_DB: sisc_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - sisc-postgres-data:/var/lib/postgresql/data
 
