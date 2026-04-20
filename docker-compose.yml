@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:16-alpine # Using 16 because 18 isn't officially released, but PostgreSQL logic is identical. If 18 is strictly needed, using latest alpha image may cause issues. Stick with 16 or 15 for stability unless specified.
+    image: postgres:16-alpine
     container_name: sisc-postgres
     restart: always
     environment:
