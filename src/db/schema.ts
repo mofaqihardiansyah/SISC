@@ -1,19 +1,20 @@
 import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
-export const pengguna = pgTable('pengguna', {
+export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   namaLengkap: varchar('nama_lengkap'),
   email: varchar('email').unique(),
   password: varchar('password'),
-  noTelepon: varchar('no_telepon'),
+  nomorTelepon: varchar('nomor_telepon'),
   tanggalLahir: timestamp('tanggal_lahir'),
   jenisKelamin: varchar('jenis_kelamin'), // 'laki-laki', 'perempuan'
   nik: varchar('nik'), // NIK 
-  peran: varchar('peran'), // admin, organizer, visitor
-  urlAvatar: varchar('url_avatar'),
-  terverifikasi: boolean('terverifikasi').default(false),
+  role: varchar('role'), // admin, organizer, visitor
+  avatarUrl: varchar('avatar_url'),
+  isTerverifikasi: boolean('is_terverifikasi').default(false),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  dihapusPada: timestamp('dihapus_pada'),
 });
 
 export const provinsi = pgTable('provinsi', {
@@ -31,7 +32,7 @@ export const kategori = pgTable('kategori', {
   id: serial('id').primaryKey(),
   nama: varchar('nama'), // IT, Medis, Ekonomi, dll
   slug: varchar('slug').unique(),
-  urlIkon: varchar('url_ikon'),
+  iconUrl: varchar('icon_url'),
 });
 
 export const tag = pgTable('tag', {
@@ -48,14 +49,14 @@ export const eventTag = pgTable('event_tag', {
 
 export const event = pgTable('event', {
   id: serial('id').primaryKey(),
-  penyelenggaraId: integer('penyelenggara_id').references(() => pengguna.id), // Null jika scraping
+  organizerId: integer('organizer_id').references(() => users.id), // Null jika scraping
   kategoriId: integer('kategori_id').references(() => kategori.id),
   kotaId: integer('kota_id').references(() => kota.id),
   judul: varchar('judul'),
   slug: varchar('slug').unique(),
   deskripsi: text('deskripsi'),
-  syaratKetentuan: text('syarat_ketentuan'),
-  urlBanner: varchar('url_banner'),
+  syaratDanKetentuan: text('syarat_dan_ketentuan'),
+  bannerUrl: varchar('banner_url'),
   tanggalMulai: timestamp('tanggal_mulai'),
   tanggalSelesai: timestamp('tanggal_selesai'),
   batasRegistrasi: timestamp('batas_registrasi'),
@@ -78,11 +79,12 @@ export const event = pgTable('event', {
   
   status: varchar('status').default('pending'), // pending, published, rejected, unpublish_request
   hasilScraping: boolean('hasil_scraping').default(false),
-  sumberWebsite: varchar('sumber_website'), // Asal scraping
-  jumlahDilihat: integer('jumlah_dilihat').default(0),
+  websiteSumber: varchar('website_sumber'), // Asal scraping
+  jumlahTayangan: integer('jumlah_tayangan').default(0),
   alasanPenolakan: text('alasan_penolakan'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
+  dihapusPada: timestamp('dihapus_pada'),
 });
 
 export const sosialMediaEvent = pgTable('sosial_media_event', {
@@ -95,20 +97,20 @@ export const sosialMediaEvent = pgTable('sosial_media_event', {
 export const lampiranEvent = pgTable('lampiran_event', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
-  urlFile: varchar('url_file'),
+  fileUrl: varchar('file_url'),
   tipeFile: varchar('tipe_file'), // image, pdf
 });
 
 export const bookmark = pgTable('bookmark', {
   id: serial('id').primaryKey(),
-  penggunaId: integer('pengguna_id').references(() => pengguna.id),
+  userId: integer('user_id').references(() => users.id),
   eventId: integer('event_id').references(() => event.id),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
 export const notifikasi = pgTable('notifikasi', {
   id: serial('id').primaryKey(),
-  penggunaId: integer('pengguna_id').references(() => pengguna.id),
+  userId: integer('user_id').references(() => users.id),
   judul: varchar('judul'),
   pesan: text('pesan'),
   sudahDibaca: boolean('sudah_dibaca').default(false),
@@ -117,45 +119,54 @@ export const notifikasi = pgTable('notifikasi', {
 
 export const logAdmin = pgTable('log_admin', {
   id: serial('id').primaryKey(),
-  adminId: integer('admin_id').references(() => pengguna.id),
+  adminId: integer('admin_id').references(() => users.id),
   eventId: integer('event_id').references(() => event.id),
   aksi: varchar('aksi'), // approved, rejected, edited
   dataSebelumnya: jsonb('data_sebelumnya'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
-export const tiketEvent = pgTable('tiket_event', {
-  id: serial('id').primaryKey(),
-  eventId: integer('event_id').references(() => event.id),
-  nama: varchar('nama'), // Reguler, VIP, Early Bird
-  deskripsi: text('deskripsi'),
-  harga: integer('harga').default(0),
-  kuota: integer('kuota'),
-  tanggalMulaiPenjualan: timestamp('tanggal_mulai_penjualan'),
-  tanggalSelesaiPenjualan: timestamp('tanggal_selesai_penjualan'),
-  dibuatPada: timestamp('dibuat_pada').defaultNow(),
-});
+
 
 export const transaksi = pgTable('transaksi', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
-  penggunaId: integer('pengguna_id').references(() => pengguna.id),
+  userId: integer('user_id').references(() => users.id),
   kodeBooking: varchar('kode_booking').unique(),
-  status: varchar('status').default('pending'), // pending, confirmed, cancelled
+  metodePembayaran: varchar('metode_pembayaran'), // transfer_manual, midtrans
+  buktiPembayaranUrl: varchar('bukti_pembayaran_url'),
+  status: varchar('status').default('pending'), // pending, menunggu_verifikasi, confirmed, cancelled
+  alasanPenolakan: text('alasan_penolakan'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
+  dihapusPada: timestamp('dihapus_pada'),
 });
 
 export const peserta = pgTable('peserta', {
   id: serial('id').primaryKey(),
   transaksiId: integer('transaksi_id').references(() => transaksi.id),
-  tiketId: integer('tiket_id').references(() => tiketEvent.id),
-  kodeTiket: varchar('kode_tiket').unique(), // Khusus untuk QR Code check-in per orang
+  kodePeserta: varchar('kode_peserta').unique(), // Khusus untuk QR Code check-in per orang
   namaLengkap: varchar('nama_lengkap'),
   email: varchar('email'),
-  noTelepon: varchar('no_telepon'),
-  hadir: boolean('hadir').default(false),
-  waktuKehadiran: timestamp('waktu_kehadiran'),
+  nomorTelepon: varchar('nomor_telepon'),
+  sudahCheckIn: boolean('sudah_check_in').default(false),
+  waktuCheckIn: timestamp('waktu_check_in'),
+});
+
+export const rekeningEvent = pgTable('rekening_event', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').references(() => event.id),
+  namaBank: varchar('nama_bank'),
+  nomorRekening: varchar('nomor_rekening'),
+  atasNama: varchar('atas_nama'),
+});
+
+export const komentarEvent = pgTable('komentar_event', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').references(() => event.id),
+  userId: integer('user_id').references(() => users.id),
+  pesan: text('pesan'),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
 export const pembicaraEvent = pgTable('pembicara_event', {
@@ -163,7 +174,7 @@ export const pembicaraEvent = pgTable('pembicara_event', {
   eventId: integer('event_id').references(() => event.id),
   nama: varchar('nama'),
   peran: varchar('peran'), // Keynote Speaker, dll
-  urlFoto: varchar('url_foto'),
+  fotoUrl: varchar('foto_url'),
 });
 
 export const jadwalEvent = pgTable('jadwal_event', {
@@ -177,12 +188,13 @@ export const jadwalEvent = pgTable('jadwal_event', {
 // --- R E L A T I O N S ---
 // Defines how tables connect to each other for easy querying in Drizzle
 
-export const penggunaRelations = relations(pengguna, ({ many }) => ({
+export const usersRelations = relations(users, ({ many }) => ({
   event: many(event),
   bookmark: many(bookmark),
   notifikasi: many(notifikasi),
   logAdmin: many(logAdmin),
   transaksi: many(transaksi),
+  komentar: many(komentarEvent),
 }));
 
 export const provinsiRelations = relations(provinsi, ({ many }) => ({
@@ -217,9 +229,9 @@ export const eventTagRelations = relations(eventTag, ({ one }) => ({
 }));
 
 export const eventRelations = relations(event, ({ one, many }) => ({
-  penyelenggara: one(pengguna, {
-    fields: [event.penyelenggaraId],
-    references: [pengguna.id],
+  organizer: one(users, {
+    fields: [event.organizerId],
+    references: [users.id],
   }),
   kategori: one(kategori, {
     fields: [event.kategoriId],
@@ -234,8 +246,9 @@ export const eventRelations = relations(event, ({ one, many }) => ({
   sosialMedia: many(sosialMediaEvent),
   lampiran: many(lampiranEvent),
   logAdmin: many(logAdmin),
-  tiket: many(tiketEvent),
   transaksi: many(transaksi),
+  rekening: many(rekeningEvent),
+  komentar: many(komentarEvent),
   pembicara: many(pembicaraEvent),
   jadwal: many(jadwalEvent),
 }));
@@ -255,9 +268,9 @@ export const lampiranEventRelations = relations(lampiranEvent, ({ one }) => ({
 }));
 
 export const bookmarkRelations = relations(bookmark, ({ one }) => ({
-  pengguna: one(pengguna, {
-    fields: [bookmark.penggunaId],
-    references: [pengguna.id],
+  user: one(users, {
+    fields: [bookmark.userId],
+    references: [users.id],
   }),
   event: one(event, {
     fields: [bookmark.eventId],
@@ -266,16 +279,16 @@ export const bookmarkRelations = relations(bookmark, ({ one }) => ({
 }));
 
 export const notifikasiRelations = relations(notifikasi, ({ one }) => ({
-  pengguna: one(pengguna, {
-    fields: [notifikasi.penggunaId],
-    references: [pengguna.id],
+  user: one(users, {
+    fields: [notifikasi.userId],
+    references: [users.id],
   }),
 }));
 
 export const logAdminRelations = relations(logAdmin, ({ one }) => ({
-  admin: one(pengguna, {
+  admin: one(users, {
     fields: [logAdmin.adminId],
-    references: [pengguna.id],
+    references: [users.id],
   }),
   event: one(event, {
     fields: [logAdmin.eventId],
@@ -283,22 +296,14 @@ export const logAdminRelations = relations(logAdmin, ({ one }) => ({
   }),
 }));
 
-export const tiketEventRelations = relations(tiketEvent, ({ one, many }) => ({
-  event: one(event, {
-    fields: [tiketEvent.eventId],
-    references: [event.id],
-  }),
-  peserta: many(peserta),
-}));
-
 export const transaksiRelations = relations(transaksi, ({ one, many }) => ({
   event: one(event, {
     fields: [transaksi.eventId],
     references: [event.id],
   }),
-  pengguna: one(pengguna, {
-    fields: [transaksi.penggunaId],
-    references: [pengguna.id],
+  user: one(users, {
+    fields: [transaksi.userId],
+    references: [users.id],
   }),
   peserta: many(peserta),
 }));
@@ -308,9 +313,23 @@ export const pesertaRelations = relations(peserta, ({ one }) => ({
     fields: [peserta.transaksiId],
     references: [transaksi.id],
   }),
-  tiket: one(tiketEvent, {
-    fields: [peserta.tiketId],
-    references: [tiketEvent.id],
+}));
+
+export const rekeningEventRelations = relations(rekeningEvent, ({ one }) => ({
+  event: one(event, {
+    fields: [rekeningEvent.eventId],
+    references: [event.id],
+  }),
+}));
+
+export const komentarEventRelations = relations(komentarEvent, ({ one }) => ({
+  event: one(event, {
+    fields: [komentarEvent.eventId],
+    references: [event.id],
+  }),
+  user: one(users, {
+    fields: [komentarEvent.userId],
+    references: [users.id],
   }),
 }));
 
