@@ -17,6 +17,17 @@ export const users = pgTable('users', {
   dihapusPada: timestamp('dihapus_pada'),
 });
 
+export const profilPenyelenggara = pgTable('profil_penyelenggara', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id).unique(),
+  namaInstansi: varchar('nama_instansi'),
+  deskripsiInstansi: text('deskripsi_instansi'),
+  dokumenLegalitasUrl: varchar('dokumen_legalitas_url'),
+  websiteUrl: varchar('website_url'),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  diperbaruiPada: timestamp('diperbarui_pada'),
+});
+
 export const provinsi = pgTable('provinsi', {
   id: serial('id').primaryKey(),
   nama: varchar('nama').unique(),
@@ -63,8 +74,10 @@ export const event = pgTable('event', {
   
   // Event Classification
   isEventPolines: boolean('is_event_polines').default(false),
+  jenisEvent: varchar('jenis_event'), // 'seminar', 'conference'
   tipePlatform: varchar('tipe_platform'), // 'online', 'offline', 'hybrid'
   tipeHarga: varchar('tipe_harga'), // 'free', 'paid'
+  harga: integer('harga').default(0), // Nominal harga event jika berbayar
   detailLokasi: text('detail_lokasi'), // Alamat spesifik/Gedung
   linkEksternal: varchar('link_eksternal'), // Link pendaftaran asli
   
@@ -74,6 +87,7 @@ export const event = pgTable('event', {
   teleponKontak: varchar('telepon_kontak'),
   
   // Registration Settings
+  kuota: integer('kuota'), // Total kuota maksimal peserta
   maksTiketPerTransaksi: integer('maks_tiket_per_transaksi'),
   satuAkunSatuTransaksi: boolean('satu_akun_satu_transaksi').default(false),
   
@@ -132,8 +146,10 @@ export const transaksi = pgTable('transaksi', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
   userId: integer('user_id').references(() => users.id),
+  rekeningId: integer('rekening_id').references(() => rekeningEvent.id), // Bank/E-Wallet tujuan transfer dari peserta
   kodeBooking: varchar('kode_booking').unique(),
-  metodePembayaran: varchar('metode_pembayaran'), // transfer_manual, midtrans
+  totalHarga: integer('total_harga').default(0),
+  metodePembayaran: varchar('metode_pembayaran'), // misal: 'transfer_bank', 'gopay', 'qris'
   buktiPembayaranUrl: varchar('bukti_pembayaran_url'),
   status: varchar('status').default('pending'), // pending, menunggu_verifikasi, confirmed, cancelled
   alasanPenolakan: text('alasan_penolakan'),
@@ -156,9 +172,10 @@ export const peserta = pgTable('peserta', {
 export const rekeningEvent = pgTable('rekening_event', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
-  namaBank: varchar('nama_bank'),
-  nomorRekening: varchar('nomor_rekening'),
+  namaBank: varchar('nama_bank'), // ex: BCA, Mandiri, Gopay, QRIS
+  nomorRekening: varchar('nomor_rekening'), // nomer/id (kosongkan jika payment berupa gambar QR khusus)
   atasNama: varchar('atas_nama'),
+  qrCodeUrl: varchar('qr_code_url'), // Untuk upload gambar QR jika disediakan
 });
 
 export const komentarEvent = pgTable('komentar_event', {
@@ -188,13 +205,24 @@ export const jadwalEvent = pgTable('jadwal_event', {
 // --- R E L A T I O N S ---
 // Defines how tables connect to each other for easy querying in Drizzle
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
+  profilPenyelenggara: one(profilPenyelenggara, {
+    fields: [users.id],
+    references: [profilPenyelenggara.userId],
+  }),
   event: many(event),
   bookmark: many(bookmark),
   notifikasi: many(notifikasi),
   logAdmin: many(logAdmin),
   transaksi: many(transaksi),
   komentar: many(komentarEvent),
+}));
+
+export const profilPenyelenggaraRelations = relations(profilPenyelenggara, ({ one }) => ({
+  user: one(users, {
+    fields: [profilPenyelenggara.userId],
+    references: [users.id],
+  }),
 }));
 
 export const provinsiRelations = relations(provinsi, ({ many }) => ({
@@ -305,6 +333,10 @@ export const transaksiRelations = relations(transaksi, ({ one, many }) => ({
     fields: [transaksi.userId],
     references: [users.id],
   }),
+  rekening: one(rekeningEvent, {
+    fields: [transaksi.rekeningId],
+    references: [rekeningEvent.id],
+  }),
   peserta: many(peserta),
 }));
 
@@ -315,11 +347,12 @@ export const pesertaRelations = relations(peserta, ({ one }) => ({
   }),
 }));
 
-export const rekeningEventRelations = relations(rekeningEvent, ({ one }) => ({
+export const rekeningEventRelations = relations(rekeningEvent, ({ one, many }) => ({
   event: one(event, {
     fields: [rekeningEvent.eventId],
     references: [event.id],
   }),
+  transaksi: many(transaksi),
 }));
 
 export const komentarEventRelations = relations(komentarEvent, ({ one }) => ({

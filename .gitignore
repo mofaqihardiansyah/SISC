@@ -179,3 +179,6 @@ next-env.d.ts
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 >>>>>>> 041d5da21e711e0a89008a4094313ce275fe46e7
+
+# AI Agent Configuration
+/.ai/
