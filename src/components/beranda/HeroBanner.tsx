@@ -4,42 +4,35 @@ import React from 'react';
 import { Calendar, MapPin, Tag, Ticket, PlayCircle } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import { formatCurrency, formatEventDate } from '@/lib/formatters';
+import { ASSETS } from '@/lib/constants';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
+import Image from 'next/image';
+
+interface HeroEvent {
+  id: number;
+  judul: string | null;
+  bannerUrl: string | null;
+  tanggalMulai: Date | null;
+  tanggalSelesai: Date | null;
+  jenisEvent: string | null;
+  tipeHarga: string | null;
+  harga: number | null;
+  detailLokasi: string | null;
+  kota?: { nama: string | null } | null;
+  kategori?: { nama: string | null } | null;
+}
+
 interface HeroBannerProps {
-  events: any[]; // Using any for now to avoid complex type issues with Drizzle's nested results, or I can define a specific interface
+  events: HeroEvent[];
 }
 
 export function HeroBanner({ events }: HeroBannerProps) {
-  // Helper function for date formatting
-  const formatBannerDate = (start: Date | null, end: Date | null) => {
-    if (!start) return "Coming Soon";
-    const startDate = new Date(start);
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
-    if (!end) return `${months[startDate.getMonth()]} ${startDate.getDate()}`;
-    
-    const endDate = new Date(end);
-    if (startDate.getMonth() === endDate.getMonth()) {
-      return `${months[startDate.getMonth()]} ${startDate.getDate()}-${endDate.getDate()}`;
-    }
-    return `${months[startDate.getMonth()]} ${startDate.getDate()} - ${months[endDate.getMonth()]} ${endDate.getDate()}`;
-  };
-
-  // Helper for price
-  const formatPrice = (type: string | null, price: number | null) => {
-    if (type === 'free' || !price || price === 0) return "Gratis";
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
   // If no events, show nothing or a placeholder
   if (!events || events.length === 0) return null;
 
@@ -65,12 +58,14 @@ export function HeroBanner({ events }: HeroBannerProps) {
           <SwiperSlide key={evt.id}>
             <div className="relative w-full h-[450px]">
               {/* Background Image with Overlay */}
-              <img 
-                src={evt.bannerUrl} 
-                alt={evt.judul}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              <Image 
+                src={evt.bannerUrl || ASSETS.PLACEHOLDER_BANNER} 
+                alt={evt.judul || "Event Banner"}
+                fill
+                priority
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
 
               {/* Content */}
               <div className="absolute inset-0 flex flex-col justify-center p-12 text-white z-10">
@@ -80,12 +75,12 @@ export function HeroBanner({ events }: HeroBannerProps) {
                 </h1>
 
                 <div className="flex items-center gap-6 mb-8">
-                  <button className="bg-white text-[#0C4A8E] hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg transition shadow-lg">
+                  <button className="bg-white text-[var(--sisc-blue)] hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg transition shadow-lg">
                     Daftar Sekarang
                   </button>
                   <div className="flex items-center gap-2 text-sm text-gray-200">
                     <Calendar className="w-4 h-4" />
-                    <span>{formatBannerDate(evt.tanggalMulai, evt.tanggalSelesai)} • {evt.kota?.nama || evt.detailLokasi || "Online"}</span>
+                    <span>{formatEventDate(evt.tanggalMulai)} • {evt.kota?.nama || evt.detailLokasi || "Online"}</span>
                   </div>
                 </div>
               </div>
@@ -121,7 +116,7 @@ export function HeroBanner({ events }: HeroBannerProps) {
                     <span className="text-[10px] text-gray-500 font-semibold mb-1 uppercase tracking-wider">HARGA</span>
                     <div className="flex items-center gap-2 text-sm font-semibold whitespace-nowrap">
                       <Ticket className="w-4 h-4 text-blue-500" />
-                      {formatPrice(evt.tipeHarga, evt.harga)}
+                      {formatCurrency(evt.harga || 0)}
                     </div>
                   </div>
                 </div>
@@ -161,7 +156,7 @@ export function HeroBanner({ events }: HeroBannerProps) {
             border-radius: 5px;
           }
           .hero-pagination .swiper-pagination-bullet-active {
-            background: #0C4A8E !important;
+            background: var(--sisc-blue) !important;
             width: 28px;
           }
         `

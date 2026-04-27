@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 
 export default function Navbar() {
   return (
-    <nav className="bg-[#1e293b] text-white px-6 py-4 flex items-center justify-between">
+    <nav className="bg-[var(--brand-dark)] text-white px-6 py-4 flex items-center justify-between">
       {/* bagian logo polivents sama Search bar */}
       <div className="flex items-center gap-8">
         <h1 className="text-xl font-bold tracking-wider">POLIVENTS</h1>
@@ -23,7 +23,7 @@ export default function Navbar() {
         <a href="#" className="hover:text-gray-300">Jelajah</a>
         <a href="#" className="hover:text-gray-300">Bantuan</a>
         <a href="#" className="hover:text-gray-300">Daftar</a>
-        <button className="bg-white text-[#1e293b] px-4 py-2 rounded-md font-semibold hover:bg-gray-100 transition">
+        <button className="bg-white text-[var(--brand-dark)] px-4 py-2 rounded-md font-semibold hover:bg-gray-100 transition">
           Masuk
         </button>
       </div>

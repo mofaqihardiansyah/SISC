@@ -1,4 +1,5 @@
 import React from 'react';
+import { ASSETS } from '@/lib/constants';
 
 export interface EventCardProps {
   imageUrl?: string;
@@ -12,7 +13,7 @@ export interface EventCardProps {
 }
 
 export function EventCard({ 
-  imageUrl = "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2012&auto=format&fit=crop", 
+  imageUrl = ASSETS.PLACEHOLDER_BANNER, 
   isPolines = false, 
   kategori, 
   tanggal, 
@@ -25,12 +26,12 @@ export function EventCard({
   // Menentukan warna tag kategori secara dinamis (simulasi)
   const getCategoryColor = (kat: string) => {
     switch (kat.toLowerCase()) {
-      case 'teknologi': return 'bg-blue-500';
-      case 'desain': return 'bg-yellow-600';
+      case 'teknologi': return 'bg-orange-500';
+      case 'bisnis': return 'bg-blue-500';
+      case 'otomotif': return 'bg-yellow-400';
+      case 'ekonomi': return 'bg-teal-500';
       case 'seni': return 'bg-purple-500';
-      case 'seni budaya': return 'bg-gray-500';
-      case 'komunikasi': return 'bg-slate-600';
-      default: return 'bg-blue-500';
+      default: return 'bg-primary';
     }
   };
 
@@ -45,7 +46,7 @@ export function EventCard({
         
         {/* Tag POLINES (opsional) */}
         {isPolines && (
-          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#1e293b] text-[10px] font-bold px-2 py-1 rounded-sm uppercase">
+          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[var(--brand-dark)] text-[10px] font-bold px-2 py-1 rounded-sm uppercase">
             POLINES
           </div>
         )}
@@ -57,12 +58,12 @@ export function EventCard({
       </div>
 
       {/* Info Tanggal */}
-      <p className="text-[#0C4A8E] text-[10px] font-bold uppercase tracking-wider mb-2">
+      <p className="text-[var(--sisc-blue)] text-[10px] font-bold uppercase tracking-wider mb-2">
         {tanggal}
       </p>
 
       {/* Judul */}
-      <h3 className="font-bold text-[#1e293b] text-base leading-tight mb-3 line-clamp-2 min-h-[40px] group-hover:text-[#0C4A8E] transition-colors">
+      <h3 className="font-bold text-[var(--brand-dark)] text-base leading-tight mb-3 line-clamp-2 min-h-[40px] group-hover:text-[var(--sisc-blue)] transition-colors">
         {judul}
       </h3>
 
@@ -73,7 +74,7 @@ export function EventCard({
       </div>
 
       {/* Harga */}
-      <p className="font-bold text-[#1e293b] text-sm mt-auto">
+      <p className="font-bold text-[var(--brand-dark)] text-sm mt-auto">
         {harga}
       </p>
     </div>

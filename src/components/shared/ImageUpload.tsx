@@ -22,14 +22,14 @@ export function ImageUpload({ eventId, onUploadSuccess }: ImageUploadProps) {
             
             if (result.success) {
               if (onUploadSuccess) onUploadSuccess(url);
-              alert("Banner berhasil diunggah dan disimpan!");
+              toast.success("Banner berhasil diunggah dan disimpan!");
             } else {
-              alert(result.error || "Gagal menyimpan banner.");
+              toast.error(result.error || "Gagal menyimpan banner.");
             }
           }
         }}
         onUploadError={(error: Error) => {
-          alert(`UPLOAD ERROR: ${error.message}`);
+          toast.error(`UPLOAD ERROR: ${error.message}`);
         }}
         className="ut-label:text-blue-600 ut-button:bg-blue-600 ut-button:ut-readying:bg-blue-500"
       />

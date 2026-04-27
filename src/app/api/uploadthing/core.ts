@@ -1,4 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { UPLOAD_LIMITS } from "@/lib/constants";
 
 const f = createUploadthing();
 
@@ -7,7 +8,12 @@ const auth = (req: Request) => ({ id: "fake-user-id" });
 
 export const ourFileRouter = {
   // Define endpoint for image uploads
-  imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+  imageUploader: f({ 
+    image: { 
+      maxFileSize: UPLOAD_LIMITS.MAX_FILE_SIZE, 
+      maxFileCount: UPLOAD_LIMITS.MAX_FILE_COUNT 
+    } 
+  })
     .middleware(async ({ req }) => {
       // This code runs on your server before upload
       const user = await auth(req);
