@@ -24,7 +24,7 @@ export default function VerifyPage() {
     }
 
     setIsVerifying(true);
-    const result = await verifyOtpAction(email, otp);
+    const result = await verifyOtpAction(email, otp) as any;
     setIsVerifying(false);
 
     if (result.error) {
@@ -38,7 +38,7 @@ export default function VerifyPage() {
 
   const handleResend = async () => {
     setIsResending(true);
-    const result = await resendOtpAction(email);
+    const result = await resendOtpAction(email) as any;
     setIsResending(false);
 
     if (result.error) {
@@ -50,56 +50,58 @@ export default function VerifyPage() {
   };
 
   return (
-    <AuthLayout leftTitle="Masukan kode OTP anda dan join sebagai bagian dari POLIVENTS">
-      <div className="space-y-10">
-        <div className="text-left">
-          <h3 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
-            Masukan Kode OTP
-          </h3>
+    <AuthLayout leftTitle="Amankan akun anda dengan kode verifikasi.">
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-3xl font-heading font-black text-slate-900 mb-2 tracking-tight">
+            Verifikasi Email
+          </h2>
           <p className="text-slate-500 text-sm font-medium">
-            Satu langkah lagi! Masukkan kode OTP yang dikirim melalui E-mail untuk melanjutkan proses registrasi.
+            Kami telah mengirimkan 6 digit kode ke alamat email anda.
           </p>
         </div>
 
-        <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center gap-6">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">VERIFIKASI OTP</p>
-          <p className="text-xs text-gray-400">Masukkan 6-digit kode yang telah kami kirimkan ke alamat email anda.</p>
-          
+        <div className="flex flex-col items-center gap-8 py-4">
           <InputOTP 
             maxLength={6} 
             value={otp} 
             onChange={setOtp}
-            className="gap-2"
+            className="gap-3"
           >
-            <InputOTPGroup className="gap-2">
-              <InputOTPSlot index={0} className="w-12 h-14 text-xl font-bold rounded-lg border-2 data-[active=true]:border-primary" />
-              <InputOTPSlot index={1} className="w-12 h-14 text-xl font-bold rounded-lg border-2 data-[active=true]:border-primary" />
-              <InputOTPSlot index={2} className="w-12 h-14 text-xl font-bold rounded-lg border-2 data-[active=true]:border-primary" />
-              <InputOTPSlot index={3} className="w-12 h-14 text-xl font-bold rounded-lg border-2 data-[active=true]:border-primary" />
-              <InputOTPSlot index={4} className="w-12 h-14 text-xl font-bold rounded-lg border-2 data-[active=true]:border-primary" />
-              <InputOTPSlot index={5} className="w-12 h-14 text-xl font-bold rounded-lg border-2 data-[active=true]:border-primary" />
+            <InputOTPGroup className="gap-3">
+              {[0, 1, 2, 3, 4, 5].map((index) => (
+                <InputOTPSlot 
+                  key={index}
+                  index={index} 
+                  className="w-12 h-14 text-2xl font-bold rounded-lg border-slate-200 focus:border-[#03428B] focus:ring-1 focus:ring-[#03428B]" 
+                />
+              ))}
             </InputOTPGroup>
           </InputOTP>
 
-          <Button 
-            onClick={handleVerify}
-            className="w-full bg-[#0061E5] hover:bg-[#0052cc] h-14 text-white font-bold rounded-xl mt-2 shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
-            disabled={isVerifying || otp.length !== 6}
-          >
-            {isVerifying ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {isVerifying ? 'Memverifikasi...' : 'Verifikasi Sekarang →'}
-          </Button>
-
-          <p className="text-xs text-gray-400">
-            Belum menerima kode?{' '}
-            <button 
-              onClick={handleResend}
-              disabled={isResending}
-              className="text-[#0061E5] font-bold hover:underline disabled:opacity-50"
+          <div className="w-full space-y-4">
+            <Button 
+              onClick={handleVerify}
+              className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
+              disabled={isVerifying || otp.length !== 6}
             >
-              {isResending ? 'Mengirim...' : 'Kirim ulang kode'}
-            </button>
-          </p>
+              {isVerifying ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {isVerifying ? 'Memverifikasi...' : 'Verifikasi Kode'}
+            </Button>
+
+            <div className="text-center">
+              <p className="text-sm text-slate-500 font-medium">
+                Tidak menerima kode?{' '}
+                <button 
+                  onClick={handleResend}
+                  disabled={isResending}
+                  className="text-[#03428B] font-bold hover:underline disabled:opacity-50 cursor-pointer"
+                >
+                  {isResending ? 'Mengirim...' : 'Kirim Ulang Kode'}
+                </button>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </AuthLayout>

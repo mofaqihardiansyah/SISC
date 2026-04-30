@@ -75,51 +75,51 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthLayout leftTitle="Daftarkan akun anda dan join sebagai bagian dari POLIVENTS">
-      <div className="space-y-10">
+    <AuthLayout leftTitle="Bergabunglah dengan platform acara terbaik.">
+      <div className="space-y-6">
         <div>
-          <h3 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
-            Registrasi
-          </h3>
+          <h2 className="text-3xl font-heading font-black text-slate-900 mb-1 tracking-tight">
+            Buat Akun
+          </h2>
           <p className="text-slate-500 text-sm font-medium">
-            Langkah awal untuk pengalaman event yang tak terlupakan.
+            Gabung dengan POLIVENTS dan mulai perjalanan anda hari ini.
           </p>
         </div>
 
         <Tabs defaultValue="visitor" className="w-full" onValueChange={setRole}>
-          <TabsList className="grid w-full grid-cols-2 bg-transparent border-b border-slate-100 rounded-none h-auto p-0 mb-8">
+          <TabsList className="flex w-full bg-transparent p-0 rounded-none border-b border-slate-200 mb-8 h-auto gap-0">
             <TabsTrigger 
               value="visitor" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0061E5] data-[state=active]:text-[#0061E5] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3 px-0 text-slate-400 font-bold text-xs uppercase tracking-widest transition-all"
+              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-[#03428B] data-[state=active]:text-[#03428B] data-[state=active]:bg-transparent py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-[1px]"
             >
               Pengunjung
             </TabsTrigger>
             <TabsTrigger 
               value="organizer" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0061E5] data-[state=active]:text-[#0061E5] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3 px-0 text-slate-400 font-bold text-xs uppercase tracking-widest transition-all"
+              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-[#03428B] data-[state=active]:text-[#03428B] data-[state=active]:bg-transparent py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-[1px]"
             >
               Penyelenggara
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="visitor">
-            <form onSubmit={visitorForm.handleSubmit(onVisitorSubmit)} className="space-y-5">
+            <form onSubmit={visitorForm.handleSubmit(onVisitorSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">NAMA LENGKAP</Label>
+                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Lengkap</Label>
                 <Input 
-                  placeholder="Budi Santoso" 
-                  className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                  placeholder="Nama Pengunjung" 
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('namaLengkap')}
                 />
                 {visitorForm.formState.errors.namaLengkap && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.namaLengkap.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">EMAIL ADDRESS</Label>
+                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Alamat Email</Label>
                 <Input 
                   type="email" 
-                  placeholder="budi@email.com" 
-                  className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                  placeholder="Email Pengunjung" 
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('email')}
                 />
                 {visitorForm.formState.errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.email.message}</p>}
@@ -127,91 +127,83 @@ export default function RegisterPage() {
 
               <div className="flex gap-4">
                 <div className="flex-1 space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">NO HP</Label>
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
                   <Input 
-                    placeholder="0812..." 
-                    className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                    placeholder="Nomor Telepon" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('nomorTelepon')}
                   />
                 </div>
                 <div className="flex-1 space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">PASSWORD</Label>
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
                   <Input 
                     type="password" 
-                    placeholder="********" 
-                    className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                    placeholder="Password Minimal 8 Karakter" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('password')}
                   />
                 </div>
               </div>
               <Button 
                 type="submit" 
-                className="w-full bg-[#0061E5] hover:bg-[#0052cc] h-14 text-white font-bold rounded-xl mt-4 shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
+                className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg mt-2 shadow-none transition-all active:scale-[0.98] cursor-pointer"
                 disabled={visitorForm.formState.isSubmitting}
               >
-                {visitorForm.formState.isSubmitting ? 'Loading...' : 'Daftar Sekarang →'}
+                {visitorForm.formState.isSubmitting ? 'Mendaftar...' : 'Buat Akun'}
               </Button>
             </form>
           </TabsContent>
 
           <TabsContent value="organizer">
-            <form onSubmit={organizerForm.handleSubmit(onOrganizerSubmit)} className="space-y-5">
+            <form onSubmit={organizerForm.handleSubmit(onOrganizerSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">NAMA LENGKAP</Label>
+                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Lengkap</Label>
                 <Input 
-                  placeholder="John Doe" 
-                  className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                  placeholder="Nama Lengkap" 
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...organizerForm.register('namaLengkap')}
                 />
               </div>
               <div className="flex gap-4">
                 <div className="flex-1 space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">EMAIL</Label>
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Alamat Email</Label>
                   <Input 
                     type="email" 
-                    placeholder="name@company.com" 
-                    className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                    placeholder="Email Organisasi" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('email')}
                   />
                 </div>
                 <div className="flex-1 space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">NO HP</Label>
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
                   <Input 
-                    placeholder="08123456789" 
-                    className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                    placeholder="Nomor Telepon" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('nomorTelepon')}
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">NAMA INSTITUSI / ORGANISASI</Label>
+                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Institusi</Label>
                 <Input 
-                  placeholder="PT. Inovasi Kreasi" 
-                  className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
+                  placeholder="Nama Institusi" 
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...organizerForm.register('namaInstansi')}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">DESKRIPSI SINGKAT</Label>
-                <Input 
-                  placeholder="Ceritakan sedikit tentang visi lembaga Anda..." 
-                  className="bg-slate-50 border-none h-14 px-5 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/20 text-slate-600 font-medium placeholder:text-slate-300"
-                  {...organizerForm.register('deskripsiInstansi')}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">DOKUMEN LEGALITAS (PDF)</Label>
-                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-                  <div className="bg-white p-2 rounded-lg shadow-sm">
-                    <FileText className="w-6 h-6 text-[#0061E5]" />
+                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Dokumen Legalitas (PDF)</Label>
+                <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-slate-200 border-dashed hover:border-[#03428B]/50 transition-colors">
+                  <div className="bg-blue-50 p-2.5 rounded-lg">
+                    <FileText className="w-5 h-5 text-[#03428B]" />
                   </div>
                   <div className="flex-1">
                     {organizerForm.watch('dokumenLegalitasUrl') ? (
                       <div className="flex items-center text-xs font-bold text-green-600">
-                        <Check className="w-3 h-3 mr-1" /> Dokumen Terunggah
+                        <Check className="w-3.5 h-3.5 mr-1.5" /> Dokumen Terunggah
                       </div>
                     ) : (
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Format PDF, Maks 4MB</p>
+                      <p className="text-xs font-medium text-slate-400">PDF, Maks 4MB</p>
                     )}
                   </div>
                   <UploadButton<OurFileRouter, "pdfUploader">
@@ -228,8 +220,8 @@ export default function RegisterPage() {
                     }}
                     content={{
                       button: ({ ready }) => (
-                        <div className="text-xs font-black text-[#0061E5] uppercase tracking-wider hover:underline cursor-pointer">
-                          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Pilih File'}
+                        <div className="text-xs font-bold text-[#03428B] hover:text-[#02336B] cursor-pointer">
+                          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Pilih Berkas'}
                         </div>
                       ),
                       allowedContent: () => null
@@ -243,21 +235,18 @@ export default function RegisterPage() {
               </div>
               <Button 
                 type="submit" 
-                className="w-full bg-[#0061E5] hover:bg-[#0052cc] h-14 text-white font-bold rounded-xl mt-4 shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
+                className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg mt-2 shadow-none transition-all active:scale-[0.98] cursor-pointer"
                 disabled={organizerForm.formState.isSubmitting || isUploading}
               >
-                {organizerForm.formState.isSubmitting ? 'Mendaftarkan...' : 'Daftar Sekarang →'}
+                {organizerForm.formState.isSubmitting ? 'Memproses Akun...' : 'Buat Akun'}
               </Button>
             </form>
           </TabsContent>
         </Tabs>
 
-        <div className="text-center pt-2">
-          <p className="text-[11px] text-slate-400 font-medium mb-6 px-4 leading-relaxed">
-            Dengan mendaftar, Anda menyetujui <a href="#" className="text-[#0061E5] hover:underline">Ketentuan Layanan</a> dan <a href="#" className="text-[#0061E5] hover:underline">Kebijakan Privasi</a> POLIVENTS.
-          </p>
+        <div className="text-center pt-4 border-t border-slate-100">
           <p className="text-sm text-slate-500 font-medium">
-            Sudah punya akun? <a href="/login" className="text-[#0061E5] font-bold hover:underline">Masuk</a>
+            Sudah punya akun? <a href="/login" className="text-[#03428B] font-bold hover:underline">Masuk.</a>
           </p>
         </div>
       </div>

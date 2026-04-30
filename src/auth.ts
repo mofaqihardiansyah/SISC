@@ -15,16 +15,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       async authorize(credentials) {
         const parsedCredentials = z
-          .object({ email: z.string().email(), password: z.string().min(6) })
+          .object({ email: z.string().email(), password: z.string().min(6), role: z.string().optional() })
           .safeParse(credentials);
 
         if (parsedCredentials.success) {
-          const { email, password } = parsedCredentials.data;
+          const { email, password, role } = parsedCredentials.data;
           const user = await db.query.users.findFirst({
             where: eq(users.email, email)
           });
 
           if (!user || !user.password) return null;
+
+          // Periksa role jika dikirim dari client (contoh: tab Visitor/Organizer/Admin)
+          if (role && user.role !== role) {
+            console.log(`[AUTH] Login ditolak: Role tidak cocok. Meminta: ${role}, Aktual: ${user.role}`);
+            return null;
+          }
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
           if (passwordsMatch) return user as any;
