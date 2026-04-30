@@ -17,6 +17,13 @@ export const users = pgTable('users', {
   dihapusPada: timestamp('dihapus_pada'),
 });
 
+export const sosialMediaUser = pgTable('sosial_media_user', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  platform: varchar('platform'), // linkedin, github, instagram, etc
+  url: varchar('url'),
+});
+
 export const profilPenyelenggara = pgTable('profil_penyelenggara', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id).unique(),
@@ -122,6 +129,14 @@ export const bookmark = pgTable('bookmark', {
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
+export const userEvent = pgTable('user_event', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  eventId: integer('event_id').references(() => event.id),
+  status: varchar('status'), // interested, attending, shared
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+});
+
 export const notifikasi = pgTable('notifikasi', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
@@ -213,6 +228,15 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   logAdmin: many(logAdmin),
   transaksi: many(transaksi),
   komentar: many(komentarEvent),
+  sosialMedia: many(sosialMediaUser),
+  userEvent: many(userEvent),
+}));
+
+export const sosialMediaUserRelations = relations(sosialMediaUser, ({ one }) => ({
+  user: one(users, {
+    fields: [sosialMediaUser.userId],
+    references: [users.id],
+  }),
 }));
 
 export const profilPenyelenggaraRelations = relations(profilPenyelenggara, ({ one }) => ({
@@ -276,6 +300,18 @@ export const eventRelations = relations(event, ({ one, many }) => ({
   komentar: many(komentarEvent),
   pembicara: many(pembicaraEvent),
   jadwal: many(jadwalEvent),
+  userEvent: many(userEvent),
+}));
+
+export const userEventRelations = relations(userEvent, ({ one }) => ({
+  user: one(users, {
+    fields: [userEvent.userId],
+    references: [users.id],
+  }),
+  event: one(event, {
+    fields: [userEvent.eventId],
+    references: [event.id],
+  }),
 }));
 
 export const sosialMediaEventRelations = relations(sosialMediaEvent, ({ one }) => ({
