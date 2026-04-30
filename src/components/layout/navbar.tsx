@@ -1,6 +1,9 @@
-import { Search } from "lucide-react"; 
+import { Search, User } from "lucide-react"; 
+import Link from "next/link";
+import { auth } from "@/auth";
 
-export default function Navbar() {
+export default async function Navbar() {
+  const session = await auth();
   return (
     <nav className="bg-[var(--brand-dark)] text-white px-6 py-4 flex items-center justify-between">
       {/* bagian logo polivents sama Search bar */}
@@ -19,13 +22,25 @@ export default function Navbar() {
 
       {/* ini button buat nge-Link(?) */}
       <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="#" className="hover:text-gray-300">Beranda</a>
-        <a href="#" className="hover:text-gray-300">Jelajah</a>
-        <a href="#" className="hover:text-gray-300">Bantuan</a>
-        <a href="#" className="hover:text-gray-300">Daftar</a>
-        <button className="bg-white text-[var(--brand-dark)] px-4 py-2 rounded-md font-semibold hover:bg-gray-100 transition">
-          Masuk
-        </button>
+        <Link href="/" className="hover:text-gray-300">Beranda</Link>
+        <Link href="/explore" className="hover:text-gray-300">Jelajah</Link>
+        <Link href="/help" className="hover:text-gray-300">Bantuan</Link>
+        
+        {session ? (
+          <Link href="/dashboard" className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-md hover:bg-white/20 transition">
+            <User className="w-4 h-4" />
+            <span>{session.user?.name || "Profil"}</span>
+          </Link>
+        ) : (
+          <>
+            <Link href="/register" className="hover:text-gray-300">Daftar</Link>
+            <Link href="/login">
+              <button className="bg-white text-[var(--brand-dark)] px-6 py-2 rounded-md font-bold hover:bg-gray-100 transition">
+                Masuk
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

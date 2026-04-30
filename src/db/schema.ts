@@ -12,16 +12,26 @@ export const users = pgTable('users', {
   nik: varchar('nik'), // NIK 
   role: varchar('role'), // admin, organizer, visitor
   avatarUrl: varchar('avatar_url'),
-  isTerverifikasi: boolean('is_terverifikasi').default(false),
+  isTerverifikasi: boolean('is_terverifikasi').default(false), // Verifikasi manual admin untuk organizer
+  emailVerified: timestamp('email_verified'), // Verifikasi OTP saat registrasi
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   dihapusPada: timestamp('dihapus_pada'),
 });
 
+<<<<<<< HEAD
 export const sosialMediaUser = pgTable('sosial_media_user', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
   platform: varchar('platform'), // linkedin, github, instagram, etc
   url: varchar('url'),
+=======
+export const otpCodes = pgTable('otp_codes', {
+  id: serial('id').primaryKey(),
+  email: varchar('email').notNull(),
+  code: varchar('code', { length: 6 }).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+>>>>>>> 4be2b19165280482c69b297f3a35ad6fe340155f
 });
 
 export const profilPenyelenggara = pgTable('profil_penyelenggara', {
