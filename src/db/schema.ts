@@ -202,9 +202,6 @@ export const jadwalEvent = pgTable('jadwal_event', {
   deskripsi: text('deskripsi'), // Sesi Tanya Jawab, Pembukaan, dll
 });
 
-// --- R E L A T I O N S ---
-// Defines how tables connect to each other for easy querying in Drizzle
-
 export const usersRelations = relations(users, ({ one, many }) => ({
   profilPenyelenggara: one(profilPenyelenggara, {
     fields: [users.id],
