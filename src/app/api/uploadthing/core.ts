@@ -21,12 +21,26 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
       console.log("Upload complete for userId:", metadata.userId);
       console.log("File URL:", file.url);
-      
-      // Return data to be sent to the client-side onUploadComplete callback
       return { uploadedBy: metadata.userId, url: file.url };
+    }),
+
+  // Define endpoint for PDF/Document uploads
+  pdfUploader: f({ 
+    pdf: { 
+      maxFileSize: "4MB", 
+      maxFileCount: 1 
+    } 
+  })
+    .middleware(async ({ req }) => {
+      const user = await auth(req);
+      if (!user) throw new Error("Unauthorized");
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("PDF Upload complete:", file.url);
+      return { url: file.url };
     }),
 } satisfies FileRouter;
 
