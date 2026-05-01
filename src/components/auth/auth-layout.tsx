@@ -41,10 +41,10 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
         <div className="w-full max-w-md mx-auto my-auto py-12">
           {/* Logo Mobile */}
           <div className="md:hidden flex flex-col items-center mb-12">
-            <div className="w-12 h-12 bg-[#03428B] rounded-xl flex items-center justify-center shadow-lg mb-4">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg mb-4">
               <div className="w-6 h-6 bg-white rounded-md rotate-45" />
             </div>
-            <h1 className="text-2xl font-heading font-black text-[#03428B] tracking-tight">POLIVENTS</h1>
+            <h1 className="text-2xl font-heading font-black text-primary tracking-tight">POLIVENTS</h1>
           </div>
           
           {children}

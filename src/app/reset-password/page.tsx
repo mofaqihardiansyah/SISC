@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { resetPassword, verifyResetOtpAction, requestPasswordReset } from '@/actions/auth';
 import { Loader2 } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'Password minimal 6 karakter'),
@@ -87,8 +88,19 @@ export default function ResetPasswordPage() {
         toast.error(result.error);
         return;
       }
-      toast.success('Kata sandi berhasil direset! Silakan masuk dengan kata sandi baru Anda.');
-      router.push('/login');
+      toast.success('Kata sandi berhasil direset! Anda akan dialihkan ke beranda.');
+      
+      const signInResult = await signIn('credentials', {
+        email,
+        password: data.password,
+        redirect: false
+      });
+      
+      if (signInResult?.ok) {
+        window.location.href = '/'; // Redirect to dashboard / home
+      } else {
+        window.location.href = '/login';
+      }
     } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
