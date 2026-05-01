@@ -50,14 +50,14 @@ export default function ResetPasswordPage() {
 
     setIsVerifyingOTP(true);
     try {
-      const result = await verifyResetOtpAction(email, otp) as any;
+      const result = await verifyResetOtpAction(email, otp) as { error?: string };
       if (result.error) {
         toast.error(result.error);
       } else {
         toast.success('Kode OTP valid. Silakan masukkan kata sandi baru Anda.');
         setStep(2);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Terjadi kesalahan saat memverifikasi OTP.');
     } finally {
       setIsVerifyingOTP(false);
@@ -67,13 +67,13 @@ export default function ResetPasswordPage() {
   const handleResend = async () => {
     setIsResending(true);
     try {
-      const result = await requestPasswordReset(email) as any;
+      const result = await requestPasswordReset(email) as { error?: string };
       if (result.error) {
         toast.error(result.error);
       } else {
         toast.success('Kode OTP baru telah dikirim ke email anda.');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsResending(false);
@@ -82,14 +82,14 @@ export default function ResetPasswordPage() {
 
   const onSubmit = async (data: ResetPasswordValues) => {
     try {
-      const result = await resetPassword(email, otp, data.password) as any;
+      const result = await resetPassword(email, otp, data.password) as { error?: string };
       if (result.error) {
         toast.error(result.error);
         return;
       }
       toast.success('Kata sandi berhasil direset! Silakan masuk dengan kata sandi baru Anda.');
       router.push('/login');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
   };
@@ -123,7 +123,7 @@ export default function ResetPasswordPage() {
                     <InputOTPSlot 
                       key={index}
                       index={index} 
-                      className="w-12 h-14 text-2xl font-bold rounded-lg border-slate-200 focus:border-[#03428B] focus:ring-1 focus:ring-[#03428B]" 
+                      className="w-12 h-14 text-2xl font-bold rounded-lg border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary" 
                     />
                   ))}
                 </InputOTPGroup>
@@ -132,7 +132,7 @@ export default function ResetPasswordPage() {
 
             <Button 
               onClick={handleVerifyOTP}
-              className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
               disabled={isVerifyingOTP || otp.length !== 6}
             >
               {isVerifyingOTP ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
@@ -145,7 +145,7 @@ export default function ResetPasswordPage() {
                 <button 
                   onClick={handleResend}
                   disabled={isResending}
-                  className="text-[#03428B] font-bold hover:underline disabled:opacity-50 cursor-pointer"
+                  className="text-primary font-bold hover:underline disabled:opacity-50 cursor-pointer"
                 >
                   {isResending ? 'Mengirim...' : 'Kirim Ulang Kode'}
                 </button>
@@ -164,7 +164,7 @@ export default function ResetPasswordPage() {
                 id="password" 
                 type="password" 
                 placeholder="Minimal 6 karakter" 
-                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 {...register('password')}
               />
               {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}
@@ -178,7 +178,7 @@ export default function ResetPasswordPage() {
                 id="confirmPassword" 
                 type="password" 
                 placeholder="Masukkan ulang kata sandi baru" 
-                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 {...register('confirmPassword')}
               />
               {errors.confirmPassword && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.confirmPassword.message}</p>}
@@ -187,7 +187,7 @@ export default function ResetPasswordPage() {
             <div className="pt-2">
               <Button 
                 type="submit" 
-                className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+                className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

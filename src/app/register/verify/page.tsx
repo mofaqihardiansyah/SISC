@@ -24,7 +24,7 @@ export default function VerifyPage() {
     }
 
     setIsVerifying(true);
-    const result = await verifyOtpAction(email, otp) as any;
+    const result = await verifyOtpAction(email, otp) as { error?: string };
     setIsVerifying(false);
 
     if (result.error) {
@@ -38,7 +38,7 @@ export default function VerifyPage() {
 
   const handleResend = async () => {
     setIsResending(true);
-    const result = await resendOtpAction(email) as any;
+    const result = await resendOtpAction(email) as { error?: string };
     setIsResending(false);
 
     if (result.error) {
@@ -73,7 +73,7 @@ export default function VerifyPage() {
                 <InputOTPSlot 
                   key={index}
                   index={index} 
-                  className="w-12 h-14 text-2xl font-bold rounded-lg border-slate-200 focus:border-[#03428B] focus:ring-1 focus:ring-[#03428B]" 
+                  className="w-12 h-14 text-2xl font-bold rounded-lg border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary" 
                 />
               ))}
             </InputOTPGroup>
@@ -82,7 +82,7 @@ export default function VerifyPage() {
           <div className="w-full space-y-4">
             <Button 
               onClick={handleVerify}
-              className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
               disabled={isVerifying || otp.length !== 6}
             >
               {isVerifying ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
@@ -95,7 +95,7 @@ export default function VerifyPage() {
                 <button 
                   onClick={handleResend}
                   disabled={isResending}
-                  className="text-[#03428B] font-bold hover:underline disabled:opacity-50 cursor-pointer"
+                  className="text-primary font-bold hover:underline disabled:opacity-50 cursor-pointer"
                 >
                   {isResending ? 'Mengirim...' : 'Kirim Ulang Kode'}
                 </button>

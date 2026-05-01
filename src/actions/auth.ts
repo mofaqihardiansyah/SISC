@@ -56,7 +56,7 @@ async function sendOTPEmail(email: string, code: string) {
   }
 }
 
-export async function registerUser(values: any, role: 'visitor' | 'organizer') {
+export async function registerUser(values: { email: string; password: string; namaLengkap: string; nomorTelepon: string; namaInstansi?: string; deskripsiInstansi?: string; dokumenLegalitasUrl?: string; }, role: 'visitor' | 'organizer') {
   // 1. Check if user already exists
   const existingUser = await db.query.users.findFirst({
     where: eq(users.email, values.email),
