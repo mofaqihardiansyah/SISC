@@ -33,7 +33,6 @@ type VisitorValues = z.infer<typeof visitorSchema>;
 type OrganizerValues = z.infer<typeof organizerSchema>;
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [role, setRole] = React.useState('visitor');
 
   const [isUploading, setIsUploading] = React.useState(false);
@@ -56,7 +55,8 @@ export default function RegisterPage() {
       return;
     }
     toast.success('Pendaftaran berhasil! Periksa email anda untuk kode OTP.');
-    router.push('/register/verify?email=' + encodeURIComponent(data.email));
+    sessionStorage.setItem('temp_pass', data.password);
+    window.location.href = '/register/verify?email=' + encodeURIComponent(data.email);
   };
 
   const onOrganizerSubmit = async (data: OrganizerValues) => {
@@ -71,7 +71,8 @@ export default function RegisterPage() {
       return;
     }
     toast.success('Pendaftaran berhasil! Periksa email anda untuk kode OTP.');
-    router.push('/register/verify?email=' + encodeURIComponent(data.email));
+    sessionStorage.setItem('temp_pass', data.password);
+    window.location.href = '/register/verify?email=' + encodeURIComponent(data.email);
   };
 
   return (
@@ -90,20 +91,20 @@ export default function RegisterPage() {
           <TabsList className="flex w-full bg-transparent p-0 rounded-none border-b border-slate-200 mb-8 h-auto gap-0">
             <TabsTrigger 
               value="visitor" 
-              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-[#03428B] data-[state=active]:text-[#03428B] data-[state=active]:bg-transparent py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-[1px]"
+              className="flex-1 rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
             >
               Pengunjung
             </TabsTrigger>
             <TabsTrigger 
               value="organizer" 
-              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-[#03428B] data-[state=active]:text-[#03428B] data-[state=active]:bg-transparent py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-[1px]"
+              className="flex-1 rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
             >
               Penyelenggara
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="visitor">
-            <form onSubmit={visitorForm.handleSubmit(onVisitorSubmit)} className="space-y-4">
+            <form onSubmit={visitorForm.handleSubmit(onVisitorSubmit)} className="space-y-4" autoComplete="off">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Lengkap</Label>
                 <Input 
@@ -117,9 +118,10 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Alamat Email</Label>
                 <Input 
+                  id="visitor-email" 
                   type="email" 
-                  placeholder="Email Pengunjung" 
-                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                  placeholder="email" 
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('email')}
                 />
                 {visitorForm.formState.errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.email.message}</p>}
@@ -130,7 +132,7 @@ export default function RegisterPage() {
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
                   <Input 
                     placeholder="Nomor Telepon" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('nomorTelepon')}
                   />
                 </div>
@@ -138,15 +140,16 @@ export default function RegisterPage() {
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
                   <Input 
                     type="password" 
+                    autoComplete="new-password"
                     placeholder="Password Minimal 8 Karakter" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('password')}
                   />
                 </div>
               </div>
               <Button 
                 type="submit" 
-                className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg mt-2 shadow-none transition-all active:scale-[0.98] cursor-pointer"
+                className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg mt-2 shadow-none transition-all active:scale-[0.98] cursor-pointer"
                 disabled={visitorForm.formState.isSubmitting}
               >
                 {visitorForm.formState.isSubmitting ? 'Mendaftar...' : 'Buat Akun'}
@@ -155,12 +158,12 @@ export default function RegisterPage() {
           </TabsContent>
 
           <TabsContent value="organizer">
-            <form onSubmit={organizerForm.handleSubmit(onOrganizerSubmit)} className="space-y-4">
+            <form onSubmit={organizerForm.handleSubmit(onOrganizerSubmit)} className="space-y-4" autoComplete="off">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Lengkap</Label>
                 <Input 
                   placeholder="Nama Lengkap" 
-                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...organizerForm.register('namaLengkap')}
                 />
               </div>
@@ -169,33 +172,54 @@ export default function RegisterPage() {
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Alamat Email</Label>
                   <Input 
                     type="email" 
+                    autoComplete="off"
                     placeholder="Email Organisasi" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('email')}
+                  />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
+                  <Input 
+                    type="password" 
+                    autoComplete="new-password"
+                    placeholder="Password Minimal 8 Karakter" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...organizerForm.register('password')}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Institusi</Label>
+                  <Input 
+                    placeholder="Nama Institusi" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...organizerForm.register('namaInstansi')}
                   />
                 </div>
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
                   <Input 
                     placeholder="Nomor Telepon" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('nomorTelepon')}
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Institusi</Label>
+                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Deskripsi Institusi</Label>
                 <Input 
-                  placeholder="Nama Institusi" 
-                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                  {...organizerForm.register('namaInstansi')}
+                  placeholder="Deskripsi Singkat Institusi" 
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                  {...organizerForm.register('deskripsiInstansi')}
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Dokumen Legalitas (PDF)</Label>
-                <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-slate-200 border-dashed hover:border-[#03428B]/50 transition-colors">
+                <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-slate-200 border-dashed hover:border-primary/50 transition-colors">
                   <div className="bg-blue-50 p-2.5 rounded-lg">
-                    <FileText className="w-5 h-5 text-[#03428B]" />
+                    <FileText className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1">
                     {organizerForm.watch('dokumenLegalitasUrl') ? (
@@ -214,13 +238,13 @@ export default function RegisterPage() {
                       setIsUploading(false);
                       toast.success('Dokumen berhasil diunggah');
                     }}
-                    onUploadError={(error: Error) => {
+                    onUploadError={() => {
                       setIsUploading(false);
-                      toast.error(`Gagal unggah: ${error.message}`);
+                      toast.error('Gagal mengunggah dokumen.');
                     }}
                     content={{
-                      button: ({ ready }) => (
-                        <div className="text-xs font-bold text-[#03428B] hover:text-[#02336B] cursor-pointer">
+                      button: () => (
+                        <div className="text-xs font-bold text-primary hover:text-[#02336B] cursor-pointer">
                           {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Pilih Berkas'}
                         </div>
                       ),
@@ -232,21 +256,27 @@ export default function RegisterPage() {
                     }}
                   />
                 </div>
+                <p className="mt-2 text-xs text-slate-400 flex items-center">
+                  <FileText className="w-3.5 h-3.5 mr-1.5" /> Pastikan dokumen dalam format PDF (Maks. 4MB)
+                </p>
               </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg mt-2 shadow-none transition-all active:scale-[0.98] cursor-pointer"
-                disabled={organizerForm.formState.isSubmitting || isUploading}
-              >
-                {organizerForm.formState.isSubmitting ? 'Memproses Akun...' : 'Buat Akun'}
-              </Button>
+
+              <div className="pt-2">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+                  disabled={organizerForm.formState.isSubmitting || isUploading}
+                >
+                  {organizerForm.formState.isSubmitting ? 'Mendaftarkan...' : 'Daftar Penyelenggara'}
+                </Button>
+              </div>
             </form>
           </TabsContent>
         </Tabs>
 
         <div className="text-center pt-4 border-t border-slate-100">
           <p className="text-sm text-slate-500 font-medium">
-            Sudah punya akun? <a href="/login" className="text-[#03428B] font-bold hover:underline">Masuk.</a>
+            Sudah punya akun? <a href="/login" className="text-primary font-bold hover:underline">Masuk.</a>
           </p>
         </div>
       </div>

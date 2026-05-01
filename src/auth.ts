@@ -32,8 +32,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
+          // Pastikan email sudah terverifikasi (kecuali admin mungkin tidak perlu jika dised langsung)
+          if (!user.emailVerified && user.role !== 'admin') {
+             console.log(`[AUTH] Login ditolak: Email belum diverifikasi untuk ${email}`);
+             return null;
+          }
+
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user as any;
+          if (passwordsMatch) return { id: user.id.toString(), email: user.email ?? "", name: user.namaLengkap ?? "", role: user.role };
         }
         return null;
       },

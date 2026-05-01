@@ -8,9 +8,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { verifyOtpAction, resendOtpAction } from '@/actions/auth';
 import { Loader2 } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 
 export default function VerifyPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
   const [otp, setOtp] = React.useState('');
@@ -24,21 +24,40 @@ export default function VerifyPage() {
     }
 
     setIsVerifying(true);
-    const result = await verifyOtpAction(email, otp) as any;
-    setIsVerifying(false);
+    const result = await verifyOtpAction(email, otp) as { error?: string };
 
     if (result.error) {
+      setIsVerifying(false);
       toast.error(result.error);
       return;
     }
 
     toast.success('Verifikasi berhasil! Akun anda telah aktif.');
-    router.push('/login');
+    
+    // Auto login
+    const tempPass = sessionStorage.getItem('temp_pass');
+    if (tempPass) {
+      const signInResult = await signIn('credentials', {
+        email,
+        password: tempPass,
+        redirect: false
+      });
+      
+      sessionStorage.removeItem('temp_pass');
+      
+      if (signInResult?.ok) {
+        window.location.href = '/'; // Redirect to dashboard / home
+        return;
+      }
+    }
+    
+    setIsVerifying(false);
+    window.location.href = '/login';
   };
 
   const handleResend = async () => {
     setIsResending(true);
-    const result = await resendOtpAction(email) as any;
+    const result = await resendOtpAction(email) as { error?: string };
     setIsResending(false);
 
     if (result.error) {
@@ -51,6 +70,12 @@ export default function VerifyPage() {
 
   return (
     <AuthLayout leftTitle="Amankan akun anda dengan kode verifikasi.">
+      <div className="absolute top-8 left-8 flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+          <span className="text-white font-bold text-xl">P</span>
+        </div>
+        <span className="text-primary font-black text-xl tracking-tighter">POLIVENTS</span>
+      </div>
       <div className="space-y-8">
         <div>
           <h2 className="text-3xl font-heading font-black text-slate-900 mb-2 tracking-tight">
@@ -73,7 +98,7 @@ export default function VerifyPage() {
                 <InputOTPSlot 
                   key={index}
                   index={index} 
-                  className="w-12 h-14 text-2xl font-bold rounded-lg border-slate-200 focus:border-[#03428B] focus:ring-1 focus:ring-[#03428B]" 
+                  className="w-12 h-14 text-2xl font-bold rounded-lg border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary" 
                 />
               ))}
             </InputOTPGroup>
@@ -82,7 +107,7 @@ export default function VerifyPage() {
           <div className="w-full space-y-4">
             <Button 
               onClick={handleVerify}
-              className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full bg-primary hover:bg-primary/90 h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
               disabled={isVerifying || otp.length !== 6}
             >
               {isVerifying ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
@@ -95,7 +120,7 @@ export default function VerifyPage() {
                 <button 
                   onClick={handleResend}
                   disabled={isResending}
-                  className="text-[#03428B] font-bold hover:underline disabled:opacity-50 cursor-pointer"
+                  className="text-primary font-bold hover:underline disabled:opacity-50 cursor-pointer"
                 >
                   {isResending ? 'Mengirim...' : 'Kirim Ulang Kode'}
                 </button>
