@@ -62,7 +62,7 @@ export default function LoginPage() {
             Selamat Datang
           </h2>
           <p className="text-slate-500 text-sm font-medium">
-            Masukkan detail anda untuk mengakses akun.
+            Selamat datang kembali! Silakan masuk untuk melanjutkan.
           </p>
         </div>
 
