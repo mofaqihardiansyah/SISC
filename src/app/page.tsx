@@ -18,14 +18,22 @@ export default async function HomePage() {
               <p className="text-xs text-slate-400 capitalize">{session.user?.role}</p>
             </div>
             
-            <form action={async () => {
-              "use server";
-              await signOut();
-            }}>
-              <button type="submit" className="px-6 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg font-bold hover:bg-red-100 transition cursor-pointer">
-                Logout (Keluar Sesi)
-              </button>
-            </form>
+            <div className="flex flex-col gap-3">
+              <a 
+                href={session.user?.role === 'admin' ? '/admin/dashboard' : '/organizer'} 
+                className="px-6 py-2 bg-primary text-white rounded-lg font-bold hover:bg-[#02336B] transition"
+              >
+                Buka Dashboard
+              </a>
+              <form action={async () => {
+                "use server";
+                await signOut();
+              }}>
+                <button type="submit" className="w-full px-6 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg font-bold hover:bg-red-100 transition cursor-pointer">
+                  Logout (Keluar Sesi)
+                </button>
+              </form>
+            </div>
           </div>
         ) : (
           <div className="mt-8 flex gap-4 justify-center">

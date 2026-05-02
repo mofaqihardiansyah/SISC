@@ -47,7 +47,16 @@ export default function LoginPage() {
       }
 
       toast.success('Berhasil masuk!');
-      router.push('/');
+      
+      // Redirect based on role
+      if (role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (role === 'organizer') {
+        router.push('/organizer');
+      } else {
+        router.push('/');
+      }
+      
       router.refresh();
     } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
