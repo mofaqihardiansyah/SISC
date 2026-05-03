@@ -1,3 +1,4 @@
+// src/components/layout/navbar.tsx
 import { Search, User } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
@@ -7,7 +8,8 @@ export default async function Navbar() {
 
   return (
     <nav className="bg-[var(--brand-dark)] text-white">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      {/* ✅ Ganti max-w-6xl → max-w-none, samakan padding dengan hero */}
+      <div className="px-4 sm:px-8 lg:px-16 py-4 flex justify-between items-center">
 
         {/* LEFT */}
         <div className="flex items-center gap-8">
