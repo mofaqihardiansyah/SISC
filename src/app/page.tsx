@@ -3,6 +3,7 @@ import { auth, signOut } from "@/auth";
 
 export default async function HomePage() {
   const session = await auth();
+  console.log("[DEBUG] HomePage session:", session ? `Logged in as ${session.user?.email} (${session.user?.role})` : "No session");
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-50">
