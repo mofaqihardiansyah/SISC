@@ -9,7 +9,6 @@ import {
   Users, 
   Calendar, 
   Settings, 
-  LogOut 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from 'next-auth/react';
