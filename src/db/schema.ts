@@ -1,6 +1,7 @@
 import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   namaLengkap: varchar('nama_lengkap'),
@@ -87,6 +88,7 @@ export const event = pgTable('event', {
   tanggalMulai: timestamp('tanggal_mulai'),
   tanggalSelesai: timestamp('tanggal_selesai'),
   batasRegistrasi: timestamp('batas_registrasi'),
+  
   
   // Event Classification
   isEventPolines: boolean('is_event_polines').default(false),
