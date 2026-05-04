@@ -1,4 +1,5 @@
 import EventCard from "@/components/profile/EventCard";
+import Link from "next/link";
 
 const eventPolines = [
   {
@@ -99,86 +100,154 @@ const categories = [
 
 export default function BerandaPage() {
   return (
-    <div>
-      {/* HERO */}
-      <section className="max-w-6xl mx-auto px-6 mt-6">
-        <div className="relative h-[300px] rounded-2xl overflow-hidden">
-          <img
-            src="/placeholder-banner.png"
-            alt="hero"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+    <div className="min-h-screen flex flex-col bg-white">
+      <main className="flex-1">
+        {/* HERO */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10">
+          <div className="relative h-64 sm:h-80 lg:h-96 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-400 via-yellow-500 to-orange-600">
+            <img
+              src="/placeholder-banner.png"
+              alt="hero"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-
-          <div className="absolute bottom-8 left-8 text-white">
-            <span className="bg-yellow-400 text-yellow-900 text-[11px] font-bold px-3 py-1 rounded-full uppercase">
-              Paling Banyak Diminati
-            </span>
-
-            <h1 className="text-3xl font-black mt-2 leading-tight">
-              Electro <br /> Tech 2024
-            </h1>
-
-            <div className="flex items-center gap-4 mt-3">
-              <button className="bg-white text-slate-800 font-semibold px-5 py-2 rounded-lg hover:scale-105 transition">
-                Daftar
-              </button>
-              <span className="text-sm opacity-80">
-                📅 Sept 15-20 • GBK Arena
+            <div className="absolute bottom-6 left-6 sm:bottom-8 sm:left-8 text-white">
+              <span className="inline-block bg-yellow-300 text-yellow-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full uppercase">
+                Paling Banyak Diminati
               </span>
+
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black mt-2 sm:mt-3 leading-tight">
+                Electro <br /> Tech 2024
+              </h1>
+
+              <div className="flex items-center gap-3 mt-3 sm:mt-4">
+                <button className="bg-white text-slate-800 font-semibold px-4 sm:px-5 py-2 rounded-lg hover:bg-gray-100 transition text-sm">
+                  Daftar
+                </button>
+                <span className="text-xs sm:text-sm opacity-90">
+                  📅 Sept 15-20 • GBK Arena
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
         {/* KATEGORI */}
-        <h2 className="text-xl font-extrabold mb-5">Kategori Event</h2>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {categories.map((cat) => (
-            <div
-              key={cat.label}
-              className="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group"
-            >
-              <div
-                className={`w-16 h-16 rounded-2xl ${cat.color} flex items-center justify-center text-2xl group-hover:-translate-y-1 transition`}
-              >
-                {cat.emoji}
-              </div>
-              <span className="text-[11px] text-gray-600 text-center w-16">
-                {cat.label}
-              </span>
-            </div>
-          ))}
-        </div>
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+          <h2 className="text-lg sm:text-xl font-bold mb-6 text-slate-900">Kategori Event</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 sm:gap-4">
+            {categories.map((cat) => (
+              <Link key={cat.label} href="#" className="flex flex-col items-center gap-2 group">
+                <div
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${cat.color} flex items-center justify-center text-xl sm:text-2xl group-hover:shadow-lg transition-all transform group-hover:scale-105`}
+                >
+                  {cat.emoji}
+                </div>
+                <span className="text-xs text-slate-600 text-center font-medium">{cat.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         {/* EVENT POLINES */}
-        <div className="mt-10">
-          <div className="flex justify-between mb-5">
-            <h2 className="text-xl font-extrabold">Event Polines</h2>
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Event Polines</h2>
+            <Link href="/explore" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold">
+              Lihat semuanya →
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {eventPolines.map((ev) => (
-              <EventCard key={ev.id} {...ev} />
+              <div key={ev.id} className="h-full">
+                <EventCard {...ev} variant="grid" />
+              </div>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* EVENT UMUM */}
-        <div className="mt-10">
-          <div className="flex justify-between mb-5">
-            <h2 className="text-xl font-extrabold">Event Umum</h2>
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Event Umum</h2>
+            <Link href="/explore" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold">
+              Lihat semuanya →
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {eventUmum.map((ev) => (
-              <EventCard key={ev.id} {...ev} />
+              <div key={ev.id} className="h-full">
+                <EventCard {...ev} variant="grid" />
+              </div>
             ))}
           </div>
-        </div>
+        </section>
       </main>
+
+      {/* FOOTER */}
+      <footer className="bg-slate-900 text-white mt-12 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            {/* Brand */}
+            <div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">POLIVENTS</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Hubungkan koneksi anda dan tambah wawasan anda melalui seminar dan conference
+              </p>
+            </div>
+
+            {/* Bantuan */}
+            <div>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wide">Bantuan</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/faq" className="text-gray-400 hover:text-white transition-colors">
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+                    Kontak
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Jelajahi Event */}
+            <div>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wide">Jelajahi Event</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/explore" className="text-gray-400 hover:text-white transition-colors">
+                    Jelajah
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/explore" className="text-gray-400 hover:text-white transition-colors">
+                    Event Polines
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/explore" className="text-gray-400 hover:text-white transition-colors">
+                    Event Umum
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Copyright */}
+            <div className="text-right">
+              <p className="text-gray-400 text-sm">© 2026 POLIVENTS.</p>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-700" />
+        </div>
+      </footer>
     </div>
   );
 }
