@@ -2,6 +2,7 @@
 import { Search, User } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
+import UserMenu from "./UserMenu";
 
 export default async function Navbar() {
   const session = await auth();
@@ -31,22 +32,8 @@ export default async function Navbar() {
           <Link href="/jelajah">Jelajah</Link>
           <Link href="/bantuan">Bantuan</Link>
 
-          {session ? (
-            <Link
-              href="/dashboard"
-              className="flex items-center justify-center bg-white/10 w-10 h-10 rounded-full transition-all duration-300 hover:bg-white/20 active:scale-95 overflow-hidden border border-white/20"
-              title={session.user?.name || "Profil"}
-            >
-              {session.user?.image ? (
-                <img 
-                  src={session.user.image} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="w-5 h-5" />
-              )}
-            </Link>
+          {session?.user ? (
+            <UserMenu user={session.user} />
           ) : (
             <div className="flex items-center gap-4">
               <Link 
