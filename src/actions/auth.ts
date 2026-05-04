@@ -56,7 +56,17 @@ async function sendOTPEmail(email: string, code: string) {
   }
 }
 
-export async function registerUser(values: any, role: 'visitor' | 'organizer') {
+interface RegisterValues {
+  email: string;
+  password?: string;
+  namaLengkap?: string;
+  nomorTelepon?: string;
+  namaInstansi?: string;
+  deskripsiInstansi?: string;
+  dokumenLegalitasUrl?: string;
+}
+
+export async function registerUser(values: RegisterValues, role: 'visitor' | 'organizer') {
   // 1. Check if user already exists
   const existingUser = await db.query.users.findFirst({
     where: eq(users.email, values.email),
@@ -67,6 +77,9 @@ export async function registerUser(values: any, role: 'visitor' | 'organizer') {
   }
 
   // 2. Hash password
+  if (!values.password) {
+    return { error: "Kata sandi wajib diisi." };
+  }
   const hashedPassword = await bcrypt.hash(values.password, 10);
 
   try {

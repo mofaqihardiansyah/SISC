@@ -3,6 +3,7 @@ import { Montserrat, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Navbar from "@/components/layout/navbar";
+import NavbarWrapper from "@/components/layout/navbar-wrapper";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -31,7 +32,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans bg-gray-50">
         {/* Navbar GLOBAL */}
-        <Navbar />
+        <NavbarWrapper>
+          <Navbar />
+        </NavbarWrapper>
 
         <main className="flex-1 flex flex-col">{children}</main>
 

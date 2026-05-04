@@ -24,7 +24,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: eq(users.email, email)
           });
 
-          if (!user || !user.password) return null;
+          if (!user || !user.password) {
+            console.log(`[AUTH] Login ditolak: User tidak ditemukan atau password kosong (${email})`);
+            return null;
+          }
 
           // Periksa role jika dikirim dari client (contoh: tab Visitor/Organizer/Admin)
           if (role && user.role !== role) {
@@ -32,9 +35,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
+          // Pastikan email sudah terverifikasi (kecuali admin mungkin tidak perlu jika dised langsung)
+          if (!user.emailVerified && user.role !== 'admin') {
+            console.log(`[AUTH] Login ditolak: Email belum diverifikasi untuk ${email}`);
+            return null;
+          }
+
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user as any;
+          if (passwordsMatch) {
+            console.log(`[AUTH] Login berhasil: ${email}`);
+            return { 
+              id: user.id.toString(), 
+              email: user.email ?? "", 
+              name: user.namaLengkap ?? "", 
+              role: user.role ?? undefined
+            };
+          }
+
+          console.log(`[AUTH] Login ditolak: Password salah untuk ${email}`);
+          return null;
         }
+        console.log(`[AUTH] Login ditolak: Format credentials tidak valid`, parsedCredentials.error.flatten());
         return null;
       },
     }),

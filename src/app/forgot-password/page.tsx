@@ -32,14 +32,14 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordValues) => {
     try {
-      const result = await requestPasswordReset(data.email) as any;
+      const result = await requestPasswordReset(data.email) as { error?: string };
       if (result.error) {
         toast.error(result.error);
         return;
       }
       toast.success('Kode OTP reset password telah dikirim ke email Anda.');
       router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
   };
@@ -64,8 +64,8 @@ export default function ForgotPasswordPage() {
             <Input 
               id="email" 
               type="email" 
-              placeholder="nama@email.com" 
-              className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+              placeholder="Masukkan Email Anda" 
+              className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
               {...register('email')}
             />
             {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email.message}</p>}
@@ -74,18 +74,18 @@ export default function ForgotPasswordPage() {
           <div className="pt-2">
             <Button 
               type="submit" 
-              className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+              className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
               disabled={isSubmitting}
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {isSubmitting ? 'Mengirim...' : 'Kirim Kode Reset'}
+              {isSubmitting ? 'Mengirim...' : 'Kirim Kode OTP'}
             </Button>
           </div>
         </form>
 
         <div className="text-center pt-4 border-t border-slate-100">
           <p className="text-sm text-slate-500 font-medium">
-            Ingat kata sandi Anda? <a href="/login" className="text-[#03428B] font-bold hover:underline">Masuk.</a>
+            Ingat kata sandi Anda? <a href="/login" className="text-primary font-bold hover:underline">Masuk.</a>
           </p>
         </div>
       </div>

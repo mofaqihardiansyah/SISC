@@ -23,12 +23,12 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
             {leftTitle}
           </h2>
           <p className="text-blue-100 text-lg font-medium max-w-md leading-relaxed opacity-90">
-            Bergabunglah dengan ribuan pengguna yang mengelola acara mereka dengan mudah menggunakan platform modern kami.
+            Bergabunglah dengan ribuan pengguna yang mengelola seminar mereka dengan mudah menggunakan platform modern kami.
           </p>
         </div>
 
         <div className="relative z-10 flex justify-between items-center text-blue-200/70 text-xs font-medium">
-          <p>© 2025 POLIVENTS LTD.</p>
+          <p>© 2026 POLIVENTS.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-white transition-colors">Ketentuan</a>
             <a href="#" className="hover:text-white transition-colors">Privasi</a>
@@ -41,10 +41,10 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
         <div className="w-full max-w-md mx-auto my-auto py-12">
           {/* Logo Mobile */}
           <div className="md:hidden flex flex-col items-center mb-12">
-            <div className="w-12 h-12 bg-[#03428B] rounded-xl flex items-center justify-center shadow-lg mb-4">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg mb-4">
               <div className="w-6 h-6 bg-white rounded-md rotate-45" />
             </div>
-            <h1 className="text-2xl font-heading font-black text-[#03428B] tracking-tight">POLIVENTS</h1>
+            <h1 className="text-2xl font-heading font-black text-primary tracking-tight">POLIVENTS</h1>
           </div>
           
           {children}

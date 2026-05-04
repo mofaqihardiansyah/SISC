@@ -2,39 +2,70 @@ import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
   secret: process.env.AUTH_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60, // Sesi expired dalam 24 jam
+  },
   pages: {
     signIn: "/login",
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isProtectedRoute = nextUrl.pathname.startsWith("/admin") || nextUrl.pathname.startsWith("/dashboard");
-      const isAuthRoute = nextUrl.pathname.startsWith("/login") || nextUrl.pathname.startsWith("/register");
+      const userRole = (auth?.user as { role?: string })?.role;
+      const path = nextUrl.pathname;
+
+      const isAuthRoute = path.startsWith("/login") || path.startsWith("/register") || path.startsWith("/forgot-password") || path.startsWith("/reset-password");
 
       if (isAuthRoute) {
         if (isLoggedIn) {
+          if (userRole === 'admin') return Response.redirect(new URL("/admin", nextUrl));
+          if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
           return Response.redirect(new URL("/", nextUrl));
         }
         return true;
       }
 
-      if (isProtectedRoute) {
-        if (isLoggedIn) return true;
-        return false; // Redirect ke login
+      // 1. Admin Routes Protection
+      if (path.startsWith("/admin")) {
+        if (!isLoggedIn) return false; // Lempar ke login
+        if (userRole !== 'admin') {
+          // Jika bukan admin, tendang ke dashboard masing-masing
+          if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
+          return Response.redirect(new URL("/", nextUrl));
+        }
+        return true;
       }
+
+      // 2. Organizer Routes Protection
+      if (path.startsWith("/organizer")) {
+        if (!isLoggedIn) return false;
+        if (userRole !== 'organizer' && userRole !== 'admin') { // Anggap admin bisa pantau halaman organizer
+          if (userRole === 'admin') return Response.redirect(new URL("/admin", nextUrl));
+          return Response.redirect(new URL("/", nextUrl));
+        }
+        return true;
+      }
+
+      // 3. Visitor Protected Routes (Opsional jika ada route khusus visitor misal /dashboard)
+      if (path.startsWith("/dashboard")) {
+        if (!isLoggedIn) return false;
+        return true;
+      }
+
       return true;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
-        token.id = (user as any).id;
+        token.role = (user as { role?: string }).role;
+        token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
-        (session.user as any).role = token.role;
+        (session.user as { role?: unknown }).role = token.role;
       }
       return session;
     },

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import AuthLayout from '@/components/auth/auth-layout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -42,14 +42,14 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        toast.error('Login gagal. Periksa kembali email dan password anda.');
+        toast.error('Email atau kata sandi salah');
         return;
       }
 
-      toast.success('Login berhasil!');
+      toast.success('Berhasil masuk!');
       router.push('/');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
   };
@@ -62,7 +62,7 @@ export default function LoginPage() {
             Selamat Datang
           </h2>
           <p className="text-slate-500 text-sm font-medium">
-            Masukkan detail anda untuk mengakses akun.
+            Selamat datang kembali! Silakan masuk untuk melanjutkan.
           </p>
         </div>
 
@@ -70,25 +70,25 @@ export default function LoginPage() {
           <TabsList className="grid w-full grid-cols-3 bg-transparent p-0 rounded-none border-b border-slate-200 mb-8 h-auto gap-0">
             <TabsTrigger 
               value="visitor" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#03428B] data-[state=active]:text-[#03428B] data-[state=active]:bg-transparent py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-[1px]"
+              className="rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
             >
               Pengunjung
             </TabsTrigger>
             <TabsTrigger 
               value="organizer" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#03428B] data-[state=active]:text-[#03428B] data-[state=active]:bg-transparent py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-[1px]"
+              className="rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
             >
               Penyelenggara
             </TabsTrigger>
             <TabsTrigger 
               value="admin" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#03428B] data-[state=active]:text-[#03428B] data-[state=active]:bg-transparent py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-[1px]"
+              className="rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
             >
               Admin
             </TabsTrigger>
           </TabsList>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" autoComplete="off">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-semibold text-slate-700 ml-0.5">
                 Alamat Email
@@ -96,48 +96,49 @@ export default function LoginPage() {
               <Input 
                 id="email" 
                 type="email" 
-                placeholder="nama@email.com" 
-                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                placeholder="Masukkan email anda" 
+                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 {...register('email')}
               />
               {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label htmlFor="password" className="text-sm font-semibold text-slate-700 ml-0.5">
-                  Kata Sandi
-                </Label>
-                <a href="/forgot-password" className="text-xs font-bold text-[#03428B] hover:underline">Lupa?</a>
+              <div className="flex items-center justify-between ml-0.5">
+                <Label htmlFor="password" className="text-sm font-semibold text-slate-700">Kata Sandi</Label>
+                <a href="/forgot-password" className="text-primary text-[11px] font-bold hover:underline">Lupa kata sandi?</a>
               </div>
               <Input 
                 id="password" 
                 type="password" 
                 placeholder="Masukkan kata sandi" 
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                autoComplete="new-password"
                 {...register('password')}
               />
               {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full bg-[#03428B] hover:bg-[#02336B] h-12 text-white font-bold rounded-lg mt-4 shadow-none transition-all active:scale-[0.98] cursor-pointer"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Masuk...' : 'Masuk'}
-            </Button>
+            <div className="pt-2">
+              <Button 
+                type="submit" 
+                className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Masuk...' : 'Masuk'}
+              </Button>
+            </div>
           </form>
         </Tabs>
 
-        <div className="text-center pt-4">
+        <div className="text-center pt-4 border-t border-slate-100">
           {role !== 'admin' ? (
             <p className="text-sm text-slate-500 font-medium">
-              Belum punya akun? <a href="/register" className="text-[#03428B] font-bold hover:underline">Daftar sekarang.</a>
+              Belum punya akun? <a href="/register" className="text-primary font-bold hover:underline">Daftar sekarang.</a>
             </p>
           ) : (
             <p className="text-xs text-slate-400 font-medium italic">
-              Akses Admin dibatasi hanya untuk personil resmi.
+              Akses Admin dibatasi hanya untuk Admin 
             </p>
           )}
         </div>
