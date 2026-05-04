@@ -20,6 +20,7 @@ export const authConfig = {
 
       if (isAuthRoute) {
         if (isLoggedIn) {
+          if (userRole === 'visitor') return Response.redirect(new URL("/", nextUrl));
           if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
           if (userRole === 'organizer') return Response.redirect(new URL("/penyelenggara", nextUrl));
           return Response.redirect(new URL("/", nextUrl));
@@ -51,7 +52,7 @@ export const authConfig = {
       }
 
       // 3. Visitor Protected Routes (ini buat visitor /dashboard)
-      if (path.startsWith("/dashboard")) {
+      if (path.startsWith("/")) {
         if (!isLoggedIn) return false;
         return true;
       }
