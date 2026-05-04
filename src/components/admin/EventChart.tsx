@@ -63,7 +63,7 @@ export function EventChart({ data }: { data: ChartData[] }) {
     <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-50 flex-1 min-h-[400px]">
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 mt-4 uppercase tracking-tight">
+          <h3 className="text-xl font-bold text-gray-900 mt-4">
             Statistik Event
           </h3>
           <p className="text-sm text-gray-500 mt-1 font-medium">Perbandingan jumlah event dan tren bulanan</p>

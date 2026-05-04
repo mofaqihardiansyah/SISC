@@ -20,7 +20,7 @@ export const authConfig = {
       if (isAuthRoute) {
         if (isLoggedIn) {
           if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
-          if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
+          if (userRole === 'organizer') return Response.redirect(new URL("/penyelenggara", nextUrl));
           return Response.redirect(new URL("/", nextUrl));
         }
         return true;
@@ -31,7 +31,7 @@ export const authConfig = {
         if (!isLoggedIn) return false; // Lempar ke login
         if (userRole !== 'admin') {
           // kalo lu bukan admin, tendang ke dashboard masing-masing
-          if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
+          if (userRole === 'organizer') return Response.redirect(new URL("/penyelenggara", nextUrl));
           return Response.redirect(new URL("/", nextUrl));
         }
         // Redirect from /admin to /admin/dashboard
@@ -40,7 +40,7 @@ export const authConfig = {
       }
 
       // 2. Organizer Routes Protection
-      if (path.startsWith("/organizer")) {
+      if (path.startsWith("/penyelenggara")) {
         if (!isLoggedIn) return false;
         if (userRole !== 'organizer' && userRole !== 'admin') { 
           if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
@@ -59,7 +59,7 @@ export const authConfig = {
       if (path === "/") {
         if (isLoggedIn) {
           if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
-          if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
+          if (userRole === 'organizer') return Response.redirect(new URL("/penyelenggara", nextUrl));
         }
       }
 

@@ -20,7 +20,7 @@ export function RecentEvents({ events }: RecentEventProps) {
   return (
     <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-50 w-full lg:w-[350px]">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-gray-900 uppercase tracking-tight">Event Terbaru</h3>
+        <h3 className="text-xl font-bold text-gray-900 tracking-tight">Event Terbaru</h3>
         <button className="text-blue-600 text-[10px] font-black uppercase hover:underline">Lihat Semua</button>
       </div>
 
@@ -40,7 +40,7 @@ export function RecentEvents({ events }: RecentEventProps) {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-gray-900 truncate uppercase tracking-tight">
+                <h4 className="text-sm font-bold text-gray-900 truncate mt-4">
                   {event.judul || "Tanpa Judul"}
                 </h4>
                 <p className="text-[10px] text-gray-400 font-bold mt-0.5">

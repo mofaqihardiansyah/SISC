@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 export default async function Navbar() {
   const session = await auth();
   return (
-    <nav className="bg-[var(--brand-dark)] text-white px-6 py-4 flex items-center justify-between">
+    <nav className="bg-(--brand-dark) text-white px-6 py-4 flex items-center justify-between">
       {/* bagian logo polivents sama Search bar */}
       <div className="flex items-center gap-8">
         <h1 className="text-xl font-bold tracking-wider">POLIVENTS</h1>
@@ -35,7 +35,7 @@ export default async function Navbar() {
           <>
             <Link href="/register" className="hover:text-gray-300">Daftar</Link>
             <Link href="/login">
-              <button className="bg-white text-[var(--brand-dark)] px-6 py-2 rounded-md font-bold hover:bg-gray-100 transition">
+              <button className="bg-white text-(--brand-dark) px-6 py-2 rounded-md font-bold hover:bg-gray-100 transition">
                 Masuk
               </button>
             </Link>
