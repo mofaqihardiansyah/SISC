@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 async function seedAdmin() {
   console.log("Seeding Admin User...");
   
-  const adminEmail = "admin@polivents.com";
+  const adminEmail = "poliventsofficial@gmail.com";
   const adminPassword = "adminpassword123";
   
   // Check if admin already exists
