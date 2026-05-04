@@ -23,12 +23,12 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
             {leftTitle}
           </h2>
           <p className="text-blue-100 text-lg font-medium max-w-md leading-relaxed opacity-90">
-            Bergabunglah dengan ribuan pengguna yang mengelola acara mereka dengan mudah menggunakan platform modern kami.
+            Bergabunglah dengan ribuan pengguna yang mengelola seminar mereka dengan mudah menggunakan platform modern kami.
           </p>
         </div>
 
         <div className="relative z-10 flex justify-between items-center text-blue-200/70 text-xs font-medium">
-          <p>© 2025 POLIVENTS LTD.</p>
+          <p>© 2026 POLIVENTS.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-white transition-colors">Ketentuan</a>
             <a href="#" className="hover:text-white transition-colors">Privasi</a>

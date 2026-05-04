@@ -19,7 +19,7 @@ export const authConfig = {
 
       if (isAuthRoute) {
         if (isLoggedIn) {
-          if (userRole === 'admin') return Response.redirect(new URL("/admin", nextUrl));
+          if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
           if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
           return Response.redirect(new URL("/", nextUrl));
         }
@@ -30,27 +30,37 @@ export const authConfig = {
       if (path.startsWith("/admin")) {
         if (!isLoggedIn) return false; // Lempar ke login
         if (userRole !== 'admin') {
-          // Jika bukan admin, tendang ke dashboard masing-masing
+          // kalo lu bukan admin, tendang ke dashboard masing-masing
           if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
           return Response.redirect(new URL("/", nextUrl));
         }
+        // Redirect from /admin to /admin/dashboard
+        if (path === "/admin") return Response.redirect(new URL("/admin/dashboard", nextUrl));
         return true;
       }
 
       // 2. Organizer Routes Protection
       if (path.startsWith("/organizer")) {
         if (!isLoggedIn) return false;
-        if (userRole !== 'organizer' && userRole !== 'admin') { // Anggap admin bisa pantau halaman organizer
-          if (userRole === 'admin') return Response.redirect(new URL("/admin", nextUrl));
+        if (userRole !== 'organizer' && userRole !== 'admin') { 
+          if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
           return Response.redirect(new URL("/", nextUrl));
         }
         return true;
       }
 
-      // 3. Visitor Protected Routes (Opsional jika ada route khusus visitor misal /dashboard)
+      // 3. Visitor Protected Routes (ini buat visitor /dashboard)
       if (path.startsWith("/dashboard")) {
         if (!isLoggedIn) return false;
         return true;
+      }
+
+      // 4. Root Path Redirection (Jika sudah login, arahkan ke dashboard masing-masing)
+      if (path === "/") {
+        if (isLoggedIn) {
+          if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
+          if (userRole === 'organizer') return Response.redirect(new URL("/organizer", nextUrl));
+        }
       }
 
       return true;

@@ -47,7 +47,16 @@ export default function LoginPage() {
       }
 
       toast.success('Berhasil masuk!');
-      router.push('/');
+      
+      // Redirect based on role
+      if (role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (role === 'organizer') {
+        router.push('/organizer');
+      } else {
+        router.push('/');
+      }
+      
       router.refresh();
     } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
@@ -62,7 +71,7 @@ export default function LoginPage() {
             Selamat Datang
           </h2>
           <p className="text-slate-500 text-sm font-medium">
-            Masukkan detail anda untuk mengakses akun.
+            Selamat datang kembali! Silakan masuk untuk melanjutkan.
           </p>
         </div>
 
