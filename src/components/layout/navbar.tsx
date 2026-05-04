@@ -34,20 +34,33 @@ export default async function Navbar() {
           {session ? (
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-md"
+              className="flex items-center justify-center bg-white/10 w-10 h-10 rounded-full transition-all duration-300 hover:bg-white/20 active:scale-95 overflow-hidden border border-white/20"
+              title={session.user?.name || "Profil"}
             >
-              <User className="w-4 h-4" />
-              <span>{session.user?.name || "Profil"}</span>
+              {session.user?.image ? (
+                <img 
+                  src={session.user.image} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-5 h-5" />
+              )}
             </Link>
           ) : (
-            <>
-              <Link href="/register">Daftar</Link>
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/register"
+                className="px-4 py-2 rounded-md transition-all duration-300 hover:bg-white/10 active:scale-95"
+              >
+                Daftar
+              </Link>
               <Link href="/login">
-                <button className="bg-white text-black px-5 py-2 rounded-md font-bold">
+                <button className="bg-white text-black px-5 py-2 rounded-md font-bold transition-all duration-300 hover:bg-gray-100 hover:scale-105 active:scale-95 cursor-pointer">
                   Masuk
                 </button>
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>
