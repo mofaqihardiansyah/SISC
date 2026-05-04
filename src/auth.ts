@@ -29,11 +29,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          // Periksa role jika dikirim dari client (contoh: tab Visitor/Organizer/Admin)
-          if (role && user.role !== role) {
-            console.log(`[AUTH] Login ditolak: Role tidak cocok. Meminta: ${role}, Aktual: ${user.role}`);
-            return null;
-          }
 
           // Pastikan email sudah terverifikasi (kecuali admin mungkin tidak perlu jika dised langsung)
           if (!user.emailVerified && user.role !== 'admin') {

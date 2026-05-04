@@ -2,7 +2,7 @@
 
 import React from 'react';
 import AuthLayout from '@/components/auth/auth-layout';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -22,7 +22,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [role, setRole] = React.useState('visitor');
+
 
   const {
     register,
@@ -37,7 +37,6 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
-        role: role,
         redirect: false,
       });
 
@@ -48,14 +47,8 @@ export default function LoginPage() {
 
       toast.success('Berhasil masuk!');
       
-      // Redirect based on role
-      if (role === 'admin') {
-        router.push('/admin/dashboard');
-      } else if (role === 'penyelenggara') {
-        router.push('/penyelenggara');
-      } else {
-        router.push('/');
-      }
+      // Redirect to home and let middleware handle role-based routing
+      router.push('/');
       
       router.refresh();
     } catch (_error) {
@@ -118,11 +111,9 @@ export default function LoginPage() {
           </form>
 
         <div className="text-center pt-4 border-t border-slate-100">
-          {role !== 'admin' ? (
             <p className="text-sm text-slate-500 font-medium">
               Belum punya akun? <a href="/register" className="text-primary font-bold hover:underline">Daftar sekarang.</a>
             </p>
-          ) : null }
         </div>
       </div>
     </AuthLayout>
