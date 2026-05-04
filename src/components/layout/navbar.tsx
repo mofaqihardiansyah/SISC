@@ -27,7 +27,7 @@ export default async function Navbar() {
 
         {/* RIGHT */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link href="/beranda">Beranda</Link>
+          <Link href="/">Beranda</Link>
           <Link href="/jelajah">Jelajah</Link>
           <Link href="/bantuan">Bantuan</Link>
 
