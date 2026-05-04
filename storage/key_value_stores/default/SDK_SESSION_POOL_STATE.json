@@ -1,0 +1,151 @@
+{
+  "usableSessionsCount": 2,
+  "retiredSessionsCount": 0,
+  "sessions": [
+    {
+      "id": "session_lR3Sbx6ehH",
+      "cookieJar": {
+        "version": "tough-cookie@6.0.1",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2026-05-02T11:20:32.703Z",
+      "createdAt": "2026-05-02T10:30:32.702Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_fubg7wqezR",
+      "cookieJar": {
+        "version": "tough-cookie@6.0.1",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "XSRF-TOKEN",
+            "value": "eyJpdiI6IjBxbUpyMW1jMEVZemhjMGI2SFQ4VEE9PSIsInZhbHVlIjoiQTBCb3RoQWhCUlBzQU9XZ0VaMnFjcmowMlZzaDliZFdnaUI4Q1g3Y2lzRnpOMEUvT0poQ1FUMkRVQjd3NG1QVWxQd281c3VLa0ZSVjEwbEZYb3VUWk80NHo2bzQrNHZQV09GalB4cVQrcUovOENUZm1MUXhrc1hKSDBRcWsrSWgiLCJtYWMiOiJhNTZiNjRkNDZkNmUzYTJjMjIxZWIwZmM0NzVhNTI3ZGYzNzFkYjQwMzUwMjFiNDQ0OThmN2Q2MzUwNGZhYjU4IiwidGFnIjoiIn0%3D",
+            "expires": "2026-05-09T10:30:38.320Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2026-05-02T10:30:41.141Z",
+            "lastAccessed": "2026-05-02T10:30:41.141Z"
+          },
+          {
+            "key": "eventkampus_session",
+            "value": "eyJpdiI6IjI0WExvSXJHdUJ3MmtnSjU3Z0NyK0E9PSIsInZhbHVlIjoiRzRiOG5RbWgrajNGRGFJTEtMeTdMQzA0VUdLK3M0bnZoL1NlL0hlMmtJRUE2VFZ0L0x1NzRIV2tFcitkU1JyTmc0MWI0TkNqQnNwUmVZQ3FsK2orcU9sVzhBallrd3ZhVzJUck1NNXlFaFEvKzNhUlVnM2xBTlVGbDZIRFdISVgiLCJtYWMiOiIxNjUyZDc0MzYzMTcxOTcxYmNlYzhjZWY5YTVjNzZhNjZmMDI4MTFmNDg2N2Y4OWUxNTFhNzE5ODljOGI2Mzc4IiwidGFnIjoiIn0%3D",
+            "expires": "2026-05-09T10:30:38.323Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2026-05-02T10:30:41.142Z",
+            "lastAccessed": "2026-05-02T10:30:41.142Z"
+          },
+          {
+            "key": "_ga_1TBF6QVR8E",
+            "value": "GS2.1.s1777717839$o1$g0$t1777717839$j60$l0$h0",
+            "expires": "2027-06-06T10:30:39.530Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.142Z",
+            "lastAccessed": "2026-05-02T10:30:41.142Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.2.1381342151.1777717840",
+            "expires": "2027-06-06T10:30:39.832Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.142Z",
+            "lastAccessed": "2026-05-02T10:30:41.142Z"
+          },
+          {
+            "key": "_gid",
+            "value": "GA1.2.1228235551.1777717840",
+            "expires": "2026-05-03T10:30:39.000Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.142Z",
+            "lastAccessed": "2026-05-02T10:30:41.142Z"
+          },
+          {
+            "key": "_gat_gtag_UA_90034053_5",
+            "value": "1",
+            "expires": "2026-05-02T10:31:39.000Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.142Z",
+            "lastAccessed": "2026-05-02T10:30:41.142Z"
+          },
+          {
+            "key": "__gads",
+            "value": "ID=e2ad2089654d9205:T=1777717836:RT=1777717836:S=ALNI_MZE9ZjjjZ2yx1GRlwKwc2yoTkP7aQ",
+            "expires": "2027-05-27T10:30:36.000Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.143Z",
+            "lastAccessed": "2026-05-02T10:30:41.143Z"
+          },
+          {
+            "key": "__gpi",
+            "value": "UID=000013f07432dc2b:T=1777717836:RT=1777717836:S=ALNI_MYe-e6J7VYCBicei5pH-od347KqkA",
+            "expires": "2027-05-27T10:30:36.000Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.143Z",
+            "lastAccessed": "2026-05-02T10:30:41.143Z"
+          },
+          {
+            "key": "__eoi",
+            "value": "ID=4955c21e1dd58a3a:T=1777717836:RT=1777717836:S=AA-AfjbcxZQJCzi3gSrcbsDyYmGa",
+            "expires": "2026-10-29T10:30:36.000Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.143Z",
+            "lastAccessed": "2026-05-02T10:30:41.143Z"
+          },
+          {
+            "key": "FCCDCF",
+            "value": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%228825be87-eaa9-421e-a5c7-17bf55bfdd7b%5C%22%2C%5B1777717840%2C972000000%5D%5D%22%5D%5D%5D",
+            "expires": "2027-05-27T10:30:40.000Z",
+            "domain": "eventkampus.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-05-02T10:30:41.143Z",
+            "lastAccessed": "2026-05-02T10:30:41.143Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2026-05-02T11:20:32.709Z",
+      "createdAt": "2026-05-02T10:30:32.709Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    }
+  ]
+}

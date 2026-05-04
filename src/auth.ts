@@ -42,20 +42,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) {
-            console.log(`[AUTH] Login berhasil: ${email}`);
-            return { 
-              id: user.id.toString(), 
-              email: user.email ?? "", 
-              name: user.namaLengkap ?? "", 
-              role: user.role ?? undefined
-            };
-          }
-
-          console.log(`[AUTH] Login ditolak: Password salah untuk ${email}`);
-          return null;
+          if (passwordsMatch) return { id: user.id.toString(), email: user.email ?? "", name: user.namaLengkap ?? "", role: user.role ?? undefined };
         }
-        console.log(`[AUTH] Login ditolak: Format credentials tidak valid`, parsedCredentials.error.flatten());
         return null;
       },
     }),

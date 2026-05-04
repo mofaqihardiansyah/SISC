@@ -47,7 +47,16 @@ export default function LoginPage() {
       }
 
       toast.success('Berhasil masuk!');
-      router.push('/');
+      
+      // Redirect based on role
+      if (role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (role === 'penyelenggara') {
+        router.push('/penyelenggara');
+      } else {
+        router.push('/');
+      }
+      
       router.refresh();
     } catch (_error) {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
@@ -112,7 +121,7 @@ export default function LoginPage() {
                 id="password" 
                 type="password" 
                 placeholder="Masukkan kata sandi" 
-                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-[#03428B] focus-visible:border-[#03428B] text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 autoComplete="new-password"
                 {...register('password')}
               />
