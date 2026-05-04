@@ -61,17 +61,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      {/* Logout */}
-      <div className="p-4 mt-auto border-t border-gray-800">
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 text-gray-500"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="text-sm font-medium">Logout</span>
-        </button>
-      </div>
     </aside>
   );
 }

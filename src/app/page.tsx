@@ -43,7 +43,7 @@ export default async function BerandaPage() {
       <section className="px-4 sm:px-8 lg:px-16 mt-6">
         <div className="relative h-[300px] rounded-2xl overflow-hidden">
           <img
-            src={heroEvent?.bannerUrl ?? "/placeholder-banner.png"}
+            src={heroEvent?.bannerUrl || "/placeholder-banner.png"}
             alt="hero"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -125,7 +125,7 @@ export default async function BerandaPage() {
                   category={ev.jenisEvent ?? "Kategori"}
                   organizer={"Polines"}
                   type="POLINES"
-                  imageUrl={ev.bannerUrl ?? "/placeholder-banner.png"}
+                  imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
                 />
               ))
             )}
@@ -163,7 +163,7 @@ export default async function BerandaPage() {
                   category={ev.jenisEvent ?? "Kategori"}
                   organizer={"Umum"}
                   type="UMUM"
-                  imageUrl={ev.bannerUrl ?? "/placeholder-banner.png"}
+                  imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
                 />
               ))
             )}
