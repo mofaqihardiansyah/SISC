@@ -67,16 +67,14 @@ export default function AdminUserMenu({ user }: AdminUserMenuProps) {
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Shield className="w-4 h-4" />
-              Panel Admin
+              Dashboard Admin
             </Link>
             <Link 
               href="/admin/settings"
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Settings className="w-4 h-4" />
-              Konfigurasi Sistem
+              Pengaturan
             </Link>
           </div>
 
@@ -86,7 +84,7 @@ export default function AdminUserMenu({ user }: AdminUserMenuProps) {
               className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
             >
               <LogOut className="w-4 h-4" />
-              Keluar Admin
+              Keluar
             </button>
           </div>
         </div>

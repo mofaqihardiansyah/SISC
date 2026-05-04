@@ -75,28 +75,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="visitor" className="w-full" onValueChange={setRole}>
-          <TabsList className="grid w-full grid-cols-3 bg-transparent p-0 rounded-none border-b border-slate-200 mb-8 h-auto gap-0">
-            <TabsTrigger 
-              value="visitor" 
-              className="rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
-            >
-              Pengunjung
-            </TabsTrigger>
-            <TabsTrigger 
-              value="organizer" 
-              className="rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
-            >
-              Penyelenggara
-            </TabsTrigger>
-            <TabsTrigger 
-              value="admin" 
-              className="rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
-            >
-              Admin
-            </TabsTrigger>
-          </TabsList>
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" autoComplete="off">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-semibold text-slate-700 ml-0.5">
@@ -138,18 +116,13 @@ export default function LoginPage() {
               </Button>
             </div>
           </form>
-        </Tabs>
 
         <div className="text-center pt-4 border-t border-slate-100">
           {role !== 'admin' ? (
             <p className="text-sm text-slate-500 font-medium">
               Belum punya akun? <a href="/register" className="text-primary font-bold hover:underline">Daftar sekarang.</a>
             </p>
-          ) : (
-            <p className="text-xs text-slate-400 font-medium italic">
-              Akses Admin dibatasi hanya untuk Admin 
-            </p>
-          )}
+          ) : null }
         </div>
       </div>
     </AuthLayout>
