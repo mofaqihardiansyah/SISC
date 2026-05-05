@@ -105,7 +105,7 @@ export const seminarCrawler = new PlaywrightCrawler({
         }));
 
       if (newData.length > 0) {
-        // @ts-ignore - types might be slightly off due to Drizzle version
+
         await db.insert(event).values(newData);
         log.info(`📦 Berhasil menyimpan ${newData.length} event baru ke database.`);
       } else {
