@@ -6,16 +6,18 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   namaLengkap: varchar('nama_lengkap'),
   email: varchar('email').unique(),
-  password: varchar('password'),
   nomorTelepon: varchar('nomor_telepon'),
+  institution: varchar('institution'),
+  password: varchar('password'),
+  emailVerified: timestamp('email_verified'),
   tanggalLahir: timestamp('tanggal_lahir'),
-  jenisKelamin: varchar('jenis_kelamin'), // 'laki-laki', 'perempuan'
-  nik: varchar('nik'), // NIK 
-  role: varchar('role'), // admin, organizer, visitor
+  jenisKelamin: varchar('jenis_kelamin'),
+  nik: varchar('nik'),
+  role: varchar('role'),
+  isTerverifikasi: boolean('is_terverifikasi').default(false),
   avatarUrl: varchar('avatar_url'),
-  isTerverifikasi: boolean('is_terverifikasi').default(false), // Verifikasi manual admin untuk organizer
-  emailVerified: timestamp('email_verified'), // Verifikasi OTP saat registrasi
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),
 });
 
