@@ -5,7 +5,6 @@ import { event } from "@/db/schema";
 import { eq, ne, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
-import Navbar from "@/components/layout/navbar";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -117,10 +116,5 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     })),
   };
 
-  return (
-  <>
-    <Navbar />
-    <DetailEvent event={eventFormatted} />
-  </>
-);
+ return <DetailEvent event={eventFormatted} />;
 }

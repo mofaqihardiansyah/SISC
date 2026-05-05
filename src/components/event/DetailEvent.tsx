@@ -101,7 +101,7 @@ function TabDeskripsi({ event }: { event: DetailEventProps["event"] }) {
 
   return (
     <div className="tab-content">
-      <p className="deskripsi-text">{teks}</p>
+      {<p className="deskripsi-text">{teks}</p>}
 
       {event.pembicara && (
         <div className="info-block">
