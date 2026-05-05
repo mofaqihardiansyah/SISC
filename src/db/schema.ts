@@ -1,6 +1,7 @@
 import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   namaLengkap: varchar('nama_lengkap'),
@@ -12,9 +13,25 @@ export const users = pgTable('users', {
   nik: varchar('nik'), // NIK 
   role: varchar('role'), // admin, organizer, visitor
   avatarUrl: varchar('avatar_url'),
-  isTerverifikasi: boolean('is_terverifikasi').default(false),
+  isTerverifikasi: boolean('is_terverifikasi').default(false), // Verifikasi manual admin untuk organizer
+  emailVerified: timestamp('email_verified'), // Verifikasi OTP saat registrasi
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   dihapusPada: timestamp('dihapus_pada'),
+});
+
+export const sosialMediaUser = pgTable('sosial_media_user', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  platform: varchar('platform'), // linkedin, github, instagram, etc
+  url: varchar('url'),
+});
+
+export const otpCodes = pgTable('otp_codes', {
+  id: serial('id').primaryKey(),
+  email: varchar('email').notNull(),
+  code: varchar('code', { length: 6 }).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
 export const profilPenyelenggara = pgTable('profil_penyelenggara', {
@@ -52,8 +69,8 @@ export const tag = pgTable('tag', {
 });
 
 export const eventTag = pgTable('event_tag', {
-  eventId: integer('event_id').references(() => event.id),
-  tagId: integer('tag_id').references(() => tag.id),
+  eventId: integer('event_id').notNull().references(() => event.id),
+  tagId: integer('tag_id').notNull().references(() => tag.id),
 }, (t) => ({
   pk: primaryKey({ columns: [t.eventId, t.tagId] }),
 }));
@@ -71,6 +88,7 @@ export const event = pgTable('event', {
   tanggalMulai: timestamp('tanggal_mulai'),
   tanggalSelesai: timestamp('tanggal_selesai'),
   batasRegistrasi: timestamp('batas_registrasi'),
+  
   
   // Event Classification
   isEventPolines: boolean('is_event_polines').default(false),
@@ -119,6 +137,14 @@ export const bookmark = pgTable('bookmark', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
   eventId: integer('event_id').references(() => event.id),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+});
+
+export const userEvent = pgTable('user_event', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  eventId: integer('event_id').references(() => event.id),
+  status: varchar('status'), // interested, attending, shared
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
@@ -213,6 +239,15 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   logAdmin: many(logAdmin),
   transaksi: many(transaksi),
   komentar: many(komentarEvent),
+  sosialMedia: many(sosialMediaUser),
+  userEvent: many(userEvent),
+}));
+
+export const sosialMediaUserRelations = relations(sosialMediaUser, ({ one }) => ({
+  user: one(users, {
+    fields: [sosialMediaUser.userId],
+    references: [users.id],
+  }),
 }));
 
 export const profilPenyelenggaraRelations = relations(profilPenyelenggara, ({ one }) => ({
@@ -276,6 +311,18 @@ export const eventRelations = relations(event, ({ one, many }) => ({
   komentar: many(komentarEvent),
   pembicara: many(pembicaraEvent),
   jadwal: many(jadwalEvent),
+  userEvent: many(userEvent),
+}));
+
+export const userEventRelations = relations(userEvent, ({ one }) => ({
+  user: one(users, {
+    fields: [userEvent.userId],
+    references: [users.id],
+  }),
+  event: one(event, {
+    fields: [userEvent.eventId],
+    references: [event.id],
+  }),
 }));
 
 export const sosialMediaEventRelations = relations(sosialMediaEvent, ({ one }) => ({

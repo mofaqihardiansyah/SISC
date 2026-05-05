@@ -1,137 +1,177 @@
-import React from 'react';
-import Navbar from '../components/layout/navbar';  
-import { HeroBanner } from '../components/beranda/HeroBanner';
-import { CategoryList } from '../components/beranda/CategoryList';
-import { EventCard } from '../components/beranda/EventCard';
-import { db } from '@/db';
-import { event } from '@/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import EventCard from "@/components/shared/EventCard";
+import { db } from "@/db";
+import { event, kategori } from "@/db/schema";
+import { eq, and, isNull, desc } from "drizzle-orm";
+import Footer from "@/components/shared/Footer";
 
-// Helper function untuk format rupiah
-const formatRupiah = (angka: number | null) => {
-  if (!angka || angka === 0) return "Gratis";
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(angka);
+const categoryColors: Record<string, string> = {
+  teknologi:                 "bg-orange-500",
+  bisnis:                    "bg-blue-600",
+  otomotif:                  "bg-yellow-400",
+  ekonomi:                   "bg-teal-500",
+  seni:                      "bg-purple-600",
+  "artificial-intelligence": "bg-red-500",
+  bahasa:                    "bg-pink-500",
+  pendidikan:                "bg-yellow-500",
 };
 
-// Helper function untuk format tanggal ke "SABTU, 24 OCT • 08:00"
-const formatTanggalEvent = (dateStr: Date | null) => {
-  if (!dateStr) return "TANGGAL BELUM DITENTUKAN";
-  const date = new Date(dateStr);
-  const optionsDay: Intl.DateTimeFormatOptions = { weekday: 'long' };
-  const optionsDate: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short' };
-  const optionsTime: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
-  
-  const hari = new Intl.DateTimeFormat('id-ID', optionsDay).format(date).toUpperCase();
-  const tglBulan = new Intl.DateTimeFormat('id-ID', optionsDate).format(date).toUpperCase();
-  const jam = new Intl.DateTimeFormat('id-ID', optionsTime).format(date);
-  
-  return `${hari}, ${tglBulan} • ${jam}`.replace('.', ':');
-};
+export default async function BerandaPage() {
+  const categories = await db.select().from(kategori);
 
-export default async function HalamanBeranda() {
-  // Mengambil event Terpopuler untuk Hero Banner (Berdasarkan jumlahTayangan)
-  const dbEventTerpopuler = await db.query.event.findMany({
-    limit: 5,
-    orderBy: [desc(event.jumlahTayangan)],
-    with: {
-      kategori: true,
-      kota: true,
-    }
-  });
+  const heroEvent = await db
+    .select()
+    .from(event)
+    .where(isNull(event.dihapusPada))
+    .orderBy(desc(event.jumlahTayangan))
+    .limit(1)
+    .then((res) => res[0] ?? null);
 
-  // Mengambil event Polines
-  const dbEventPolines = await db.query.event.findMany({
-    where: eq(event.isEventPolines, true),
-    limit: 4,
-    orderBy: [desc(event.tanggalMulai)],
-    with: {
-      kategori: true,
-      organizer: true
-    }
-  });
+  const eventPolines = await db
+    .select()
+    .from(event)
+    .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada)));
 
-  // Mengambil event Umum
-  const dbEventUmum = await db.query.event.findMany({
-    where: eq(event.isEventPolines, false),
-    limit: 4,
-    orderBy: [desc(event.tanggalMulai)],
-    with: {
-      kategori: true,
-      organizer: true
-    }
-  });
+  const eventUmum = await db
+    .select()
+    .from(event)
+    .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada)));
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar />
-      
-      <main className="flex-1">
-        {/* 1. Hero Banner Section */}
-        <HeroBanner events={dbEventTerpopuler} />
+    <div className="bg-gray-50 min-h-screen">
 
-        {/* 2. Kategori Event Section */}
-        <CategoryList />
-
-        {/* 3. Event Polines Section */}
-        <section className="px-6 py-8 w-full max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold font-heading text-[#1e293b]">Event Polines</h2>
-            <button className="text-sm font-semibold text-[#0C4A8E] border border-gray-200 bg-white px-4 py-2 rounded-lg hover:bg-gray-50 transition shadow-sm">
-              Lihat Selengkapnya
-            </button>
-          </div>
-          {dbEventPolines.length === 0 ? (
-            <p className="text-gray-500 italic">Belum ada event Polines saat ini.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {dbEventPolines.map((evt) => (
-                <EventCard 
-                  key={evt.id}
-                  isPolines={true}
-                  imageUrl={evt.bannerUrl || "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2012&auto=format&fit=crop"}
-                  kategori={evt.kategori?.nama || "Umum"}
-                  tanggal={formatTanggalEvent(evt.tanggalMulai)}
-                  judul={evt.judul || "Event Tanpa Judul"}
-                  penyelenggara={evt.organizer?.namaLengkap || evt.namaKontak || "Penyelenggara Anonim"}
-                  harga={formatRupiah(evt.harga)}
-                />
-              ))}
+      {/* HERO */}
+      <section className="px-4 sm:px-8 lg:px-16 mt-6">
+        <div className="relative h-[300px] rounded-2xl overflow-hidden">
+          <img
+            src={heroEvent?.bannerUrl || "/placeholder-banner.png"}
+            alt="hero"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute bottom-8 left-8 text-white">
+            <span className="bg-yellow-400 text-yellow-900 text-[11px] font-bold px-3 py-1 rounded-full uppercase">
+              Paling Banyak Diminati
+            </span>
+            <h1 className="text-3xl font-black mt-2 leading-tight">
+              {heroEvent?.judul ?? "Electro Tech 2024"}
+            </h1>
+            <div className="flex items-center gap-4 mt-3">
+              <a href={heroEvent ? `/event/${heroEvent.id}` : "#"}>
+                <button className="bg-white text-slate-800 font-semibold px-5 py-2 rounded-lg hover:scale-105 transition">
+                  Daftar
+                </button>
+              </a>
+              <span className="text-sm opacity-80">
+                📅{" "}
+                {heroEvent?.tanggalMulai
+                  ? heroEvent.tanggalMulai.toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "Sept 15-20"}{" "}
+                • {heroEvent?.detailLokasi ?? "GBK Arena"}
+              </span>
             </div>
-          )}
-        </section>
-
-        {/* 4. Event Umum Section */}
-        <section className="px-6 py-8 mb-10 w-full max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold font-heading text-[#1e293b]">Event Umum</h2>
-            <button className="text-sm font-semibold text-[#0C4A8E] border border-gray-200 bg-white px-4 py-2 rounded-lg hover:bg-gray-50 transition shadow-sm">
-              Lihat Selengkapnya
-            </button>
           </div>
-          {dbEventUmum.length === 0 ? (
-            <p className="text-gray-500 italic">Belum ada event Umum saat ini.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {dbEventUmum.map((evt) => (
-                <EventCard 
-                  key={`umum-${evt.id}`}
-                  isPolines={false}
-                  imageUrl={evt.bannerUrl || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop"}
-                  kategori={evt.kategori?.nama || "Umum"}
-                  tanggal={formatTanggalEvent(evt.tanggalMulai)}
-                  judul={evt.judul || "Event Tanpa Judul"}
-                  penyelenggara={evt.organizer?.namaLengkap || evt.namaKontak || "Penyelenggara Anonim"}
-                  harga={formatRupiah(evt.harga)}
+        </div>
+      </section>
+
+      <main className="px-4 sm:px-8 lg:px-16 py-10">
+
+        {/* KATEGORI */}
+        <h2 className="text-xl font-extrabold mb-5">Kategori Event</h2>
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
+          {categories.map((cat) => (
+            <a key={cat.id} href={`/jelajah?kategori=${cat.slug}`} className="flex flex-col items-center gap-2 cursor-pointer group">
+              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${categoryColors[cat.slug ?? ""] ?? "bg-gray-400"} flex items-center justify-center text-2xl group-hover:-translate-y-1 transition`}>
+                {cat.iconUrl}
+              </div>
+              <span className="text-[10px] sm:text-[11px] text-gray-600 text-center leading-tight">
+                {cat.nama}
+              </span>
+            </a>
+          ))}
+        </div>
+
+        {/* EVENT POLINES */}
+        <div className="mt-10">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="text-xl font-extrabold">Event Polines</h2>
+            <a href="/jelajah?type=polines" className="text-sm text-blue-600 hover:underline font-medium">
+              Lihat Selengkapnya →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {eventPolines.length === 0 ? (
+              <p className="text-gray-400 col-span-4">Belum ada event Polines.</p>
+            ) : (
+              eventPolines.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  id={String(ev.id)}
+                  title={ev.judul ?? "Tanpa Judul"}
+                  date={
+                    ev.tanggalMulai
+                      ? ev.tanggalMulai.toLocaleDateString("id-ID", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "Tanggal belum diisi"
+                  }
+                  price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
+                  category={ev.jenisEvent ?? "Kategori"}
+                  organizer={"Polines"}
+                  type="POLINES"
+                  imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
                 />
-              ))}
-            </div>
-          )}
-        </section>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* EVENT UMUM */}
+        <div className="mt-10">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="text-xl font-extrabold">Event Umum</h2>
+            <a href="/jelajah?type=umum" className="text-sm text-blue-600 hover:underline font-medium">
+              Lihat Selengkapnya →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {eventUmum.length === 0 ? (
+              <p className="text-gray-400 col-span-4">Belum ada event umum.</p>
+            ) : (
+              eventUmum.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  id={String(ev.id)}
+                  title={ev.judul ?? "Tanpa Judul"}
+                  date={
+                    ev.tanggalMulai
+                      ? ev.tanggalMulai.toLocaleDateString("id-ID", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "Tanggal belum diisi"
+                  }
+                  price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
+                  category={ev.jenisEvent ?? "Kategori"}
+                  organizer={"Umum"}
+                  type="UMUM"
+                  imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
       </main>
+      <Footer />
     </div>
   );
 }

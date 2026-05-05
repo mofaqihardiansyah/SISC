@@ -1,31 +1,55 @@
-import { Search } from "lucide-react"; 
+// src/components/layout/navbar.tsx
+import { Search, User } from "lucide-react";
+import Link from "next/link";
+import { auth } from "@/auth";
+import UserMenu from "./UserMenu";
 
-export default function Navbar() {
+export default async function Navbar() {
+  const session = await auth();
+
   return (
-    <nav className="bg-[#1e293b] text-white px-6 py-4 flex items-center justify-between">
-      {/* bagian logo polivents sama Search bar */}
-      <div className="flex items-center gap-8">
-        <h1 className="text-xl font-bold tracking-wider">POLIVENTS</h1>
-        
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Cari Seminar, Kota, atau Kategori" 
-            className="pl-10 pr-4 py-2 rounded-full text-sm text-black bg-white w-[300px] focus:outline-none"
-          />
-        </div>
-      </div>
+    <nav className="bg-[var(--brand-dark)] text-white">
+      {/* ✅ Ganti max-w-6xl → max-w-none, samakan padding dengan hero */}
+      <div className="px-4 sm:px-8 lg:px-16 py-4 flex justify-between items-center">
 
-      {/* ini button buat nge-Link(?) */}
-      <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="#" className="hover:text-gray-300">Beranda</a>
-        <a href="#" className="hover:text-gray-300">Jelajah</a>
-        <a href="#" className="hover:text-gray-300">Bantuan</a>
-        <a href="#" className="hover:text-gray-300">Daftar</a>
-        <button className="bg-white text-[#1e293b] px-4 py-2 rounded-md font-semibold hover:bg-gray-100 transition">
-          Masuk
-        </button>
+        {/* LEFT */}
+        <div className="flex items-center gap-8">
+          <h1 className="text-xl font-bold">POLIVENTS</h1>
+
+          <div className="relative hidden md:block">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Cari seminar atau konferensi..."
+              className="pl-10 pr-4 py-2 rounded-full text-sm text-black bg-white w-[300px]"
+            />
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <Link href="/">Beranda</Link>
+          <Link href="/jelajah">Jelajah</Link>
+          <Link href="/bantuan">Bantuan</Link>
+
+          {session?.user ? (
+            <UserMenu user={session.user} />
+          ) : (
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/register"
+                className="px-4 py-2 rounded-md transition-all duration-300 hover:bg-white/10 active:scale-95"
+              >
+                Daftar
+              </Link>
+              <Link href="/login">
+                <button className="bg-white text-black px-5 py-2 rounded-md font-bold transition-all duration-300 hover:bg-gray-100 hover:scale-105 active:scale-95 cursor-pointer">
+                  Masuk
+                </button>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
