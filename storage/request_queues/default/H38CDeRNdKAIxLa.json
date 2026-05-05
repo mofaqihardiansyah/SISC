@@ -1,0 +1,9 @@
+{
+	"id": "H38CDeRNdKAIxLa",
+	"json": "{\"id\":\"H38CDeRNdKAIxLa\",\"url\":\"https://eventkampus.com/event/kategori/seminar\",\"loadedUrl\":\"https://eventkampus.com/event/kategori/seminar\",\"uniqueKey\":\"https://eventkampus.com/event/kategori/seminar\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-05-02T10:30:41.689Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://eventkampus.com/event/kategori/seminar",
+	"url": "https://eventkampus.com/event/kategori/seminar"
+}

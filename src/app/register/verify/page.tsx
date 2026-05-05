@@ -10,7 +10,7 @@ import { verifyOtpAction, resendOtpAction } from '@/actions/auth';
 import { Loader2 } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 
-export default function VerifyPage() {
+function VerifyContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
   const [otp, setOtp] = React.useState('');
@@ -130,5 +130,17 @@ export default function VerifyPage() {
         </div>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <React.Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <VerifyContent />
+    </React.Suspense>
   );
 }
