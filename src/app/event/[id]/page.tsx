@@ -1,5 +1,3 @@
-// src/app/event/[id]/page.tsx
-
 import { db } from "@/db";
 import { event } from "@/db/schema";
 import { eq, ne, desc } from "drizzle-orm";
