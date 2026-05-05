@@ -5,14 +5,32 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Info, Link as LinkIcon } from 'lucide-react';
+// 1. Import fungsi simpan yang kita buat tadi
+import { daftarEvent } from '@/actions/peserta'; 
 
 export default function RegistrasiEventPage() {
-  // State untuk mengatur perpindahan halaman (1 atau 2)
   const [step, setStep] = useState(1);
+  
+  // 2. Tambahkan State untuk menampung data inputan
+  const [formData, setFormData] = useState({
+    nama_lengkap: '',
+    email: '',
+    nomor_telepon: '',
+    jenis_kelamin: 'pria'
+  });
+
+  // Fungsi untuk handle simpan ke database
+  const handleSimpanData = async () => {
+    const res = await daftarEvent(formData);
+    if (res.success) {
+      alert("Pendaftaran Berhasil Disimpan ke Database!");
+    } else {
+      alert("Gagal menyimpan data. Cek terminal!");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
-      {/* Header / Navbar */}
       <nav className="flex items-center justify-between bg-[#1e293b] px-10 py-4 text-white">
         <div className="text-xl font-bold tracking-wider">POLIVENTS</div>
         <div className="hidden md:flex gap-8 text-sm font-medium">
@@ -28,12 +46,10 @@ export default function RegistrasiEventPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="mx-auto mt-12 max-w-4xl px-4">
         <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
           
           {step === 1 ? (
-            /* --- HALAMAN 1: INFORMASI PESERTA --- */
             <>
               <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-8">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-blue-600">
@@ -44,43 +60,51 @@ export default function RegistrasiEventPage() {
 
               <form className="space-y-6">
                 <div className="grid grid-cols-1 gap-6">
-                  
-                  {/* Nama Lengkap */}
                   <div className="space-y-2">
                     <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Lengkap</Label>
-                    <Input placeholder="Masukkan Nama Lengkap" className="bg-gray-50 border-none h-12 focus-visible:ring-1 focus-visible:ring-blue-500" />
+                    <Input 
+                      value={formData.nama_lengkap}
+                      onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
+                      placeholder="Masukkan Nama Lengkap" 
+                      className="bg-gray-50 border-none h-12" 
+                    />
                   </div>
 
-                  {/* Email */}
                   <div className="space-y-2">
                     <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</Label>
-                    <Input type="email" placeholder="Masukkan Email Anda" className="bg-gray-50 border-none h-12 focus-visible:ring-1 focus-visible:ring-blue-500" />
+                    <Input 
+                      type="email" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      placeholder="Masukkan Email Anda" 
+                      className="bg-gray-50 border-none h-12" 
+                    />
                   </div>
 
-                  {/* Baris No Handphone dan Jenis Kelamin */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    {/* No Handphone - Kode Negara (Pilih) + Nomor (Ketik) */}
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">No. Handphone</Label>
                       <div className="flex gap-2">
-                        <select className="flex h-12 w-[100px] rounded-md border-none bg-gray-50 px-3 py-2 text-sm outline-none cursor-pointer">
+                        <select className="flex h-12 w-[100px] rounded-md border-none bg-gray-50 px-3 py-2 text-sm">
                           <option value="62">(+62)</option>
-                          <option value="1">(+1)</option>
-                          <option value="44">(+44)</option>
                         </select>
                         <Input 
                           type="tel" 
+                          value={formData.nomor_telepon}
+                          onChange={(e) => setFormData({...formData, nomor_telepon: e.target.value})}
                           placeholder="8123456789" 
-                          className="flex-1 bg-gray-50 border-none h-12 focus-visible:ring-1 focus-visible:ring-blue-500" 
+                          className="flex-1 bg-gray-50 border-none h-12" 
                         />
                       </div>
                     </div>
 
-                    {/* Jenis Kelamin */}
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Jenis Kelamin</Label>
-                      <select className="flex h-12 w-full rounded-md border-none bg-gray-50 px-3 py-2 text-sm outline-none cursor-pointer">
+                      <select 
+                        value={formData.jenis_kelamin}
+                        onChange={(e) => setFormData({...formData, jenis_kelamin: e.target.value})}
+                        className="flex h-12 w-full rounded-md border-none bg-gray-50 px-3 py-2 text-sm outline-none"
+                      >
                         <option value="pria">Pria</option>
                         <option value="wanita">Wanita</option>
                       </select>
@@ -92,7 +116,7 @@ export default function RegistrasiEventPage() {
                   <Button 
                     type="button" 
                     onClick={() => setStep(2)} 
-                    className="w-full bg-[#0052cc] hover:bg-blue-700 h-14 text-lg font-bold rounded-xl shadow-md transition-all"
+                    className="w-full bg-[#0052cc] hover:bg-blue-700 h-14 text-lg font-bold rounded-xl shadow-md"
                   >
                     Selanjutnya
                   </Button>
@@ -100,7 +124,6 @@ export default function RegistrasiEventPage() {
               </form>
             </>
           ) : (
-            /* --- HALAMAN 2: LINK FORM PENDAFTARAN --- */
             <>
               <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-8">
                 <LinkIcon className="h-5 w-5 text-blue-600" />
@@ -117,10 +140,11 @@ export default function RegistrasiEventPage() {
                 <div className="flex flex-col gap-4">
                   <Button 
                     type="button"
-                    className="w-full bg-[#0052cc] hover:bg-blue-700 h-14 text-lg font-bold rounded-xl shadow-md transition-all"
-                    onClick={() => alert("Pendaftaran Berhasil Dikirim!")}
+                    className="w-full bg-[#0052cc] hover:bg-blue-700 h-14 text-lg font-bold rounded-xl shadow-md"
+                    // 3. Panggil fungsi simpan data di sini
+                    onClick={handleSimpanData}
                   >
-                    Selanjutnya
+                    Simpan dan Selesai
                   </Button>
                   <Button 
                     variant="ghost" 
