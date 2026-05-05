@@ -26,6 +26,10 @@ interface EventExcelRow {
   jenis_event: string;
   harga: number;
   kuota?: number;
+  // Tambahkan kolom baru agar terbaca dari Excel
+  organizer_id?: number;
+  kategori_id?: number;
+  kota_id?: number;
 }
 
 async function main() {
@@ -57,7 +61,7 @@ async function main() {
         return val ? new Date(val) : null;
       };
 
-      await db.insert(event).values({
+      const eventData = {
         judul: row.judul || "Tanpa Judul",
         slug: row.slug || `event-${Date.now()}-${Math.random()}`,
         deskripsi: row.deskripsi || null,
@@ -78,11 +82,16 @@ async function main() {
         jenisEvent: row.jenis_event || 'lainnya',
         harga: Number(row.harga) || 0,
         kuota: row.kuota ? Number(row.kuota) : null,
-      }).onConflictDoUpdate({
+        organizerId: row.organizer_id || null,
+        kategoriId: row.kategori_id || null,
+        kotaId: row.kota_id || null,
+      };
+
+      await db.insert(event).values(eventData).onConflictDoUpdate({
         target: event.slug,
         set: { 
-            judul: row.judul,
-            diperbaruiPada: new Date() // Sesuai kolom di schema
+            ...eventData,
+            diperbaruiPada: new Date()
         }
       });
     }

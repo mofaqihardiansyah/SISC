@@ -1,12 +1,14 @@
 import 'dotenv/config';
 import { db } from './index';
 import { kota, provinsi } from '@/db/schema';
+import { eq, and } from 'drizzle-orm';
 import * as xlsx from 'xlsx';
 import path from 'path';
 
 interface KotaExcelRow {
   nama: string;
-  provinsi: string;
+  provinsi?: string;
+  provinsi_id?: number;
 }
 
 async function main() {
@@ -22,20 +24,32 @@ async function main() {
     console.log(`📦 ${rawData.length} data ditemukan`);
 
     for (const row of rawData) {
-      // Insert provinsi kalau belum ada
-      await db.insert(provinsi).values({
-        nama: row.provinsi,
-      }).onConflictDoNothing();
+      let finalProvinsiId = row.provinsi_id;
 
-      // Ambil id provinsi
-      const prov = await db.select().from(provinsi)
-        .then(res => res.find(p => p.nama === row.provinsi));
-
-      if (prov) {
-        await db.insert(kota).values({
-          nama: row.nama,
-          provinsiId: prov.id,
+      // Jika ada nama provinsi, pastikan ada di DB dan ambil ID-nya
+      if (row.provinsi) {
+        await db.insert(provinsi).values({
+          nama: row.provinsi,
         }).onConflictDoNothing();
+
+        const prov = await db.query.provinsi.findFirst({
+            where: eq(provinsi.nama, row.provinsi)
+        });
+        
+        if (prov) finalProvinsiId = prov.id;
+      }
+
+      if (finalProvinsiId) {
+        const existingKota = await db.query.kota.findFirst({
+          where: and(eq(kota.nama, row.nama), eq(kota.provinsiId, finalProvinsiId))
+        });
+
+        if (!existingKota) {
+          await db.insert(kota).values({
+            nama: row.nama,
+            provinsiId: finalProvinsiId,
+          });
+        }
       }
     }
 
