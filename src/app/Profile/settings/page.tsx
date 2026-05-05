@@ -17,7 +17,7 @@ export default function SettingsPage() {
 
   // FETCH DATA USER
   useEffect(() => {
-    fetch('/api/user/profile?userId=1')
+    fetch('/api/user/profile')
       .then(res => res.json())
       .then(data => {
         setFormData({
@@ -37,7 +37,7 @@ export default function SettingsPage() {
   // UPDATE
   const handleSave = async () => {
     try {
-      const res = await fetch('/api/user/profile?userId=1', {
+      const res = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -54,7 +54,7 @@ export default function SettingsPage() {
   // DELETE
   const handleDelete = async () => {
     try {
-      const res = await fetch('/api/user/profile?userId=1', {
+      const res = await fetch('/api/user/profile', {
         method: 'DELETE',
       });
 
@@ -167,21 +167,21 @@ export default function SettingsPage() {
           onClick={() => router.push('/forgot-password')}
           className="w-full border px-4 py-3 rounded-lg text-left hover:bg-slate-50"
         >
-          🔐 Ubah Password
+          Ubah Password
         </button>
       </section>
 
       {/* DANGER ZONE */}
       <section className="w-full bg-red-50 border border-red-200 rounded-xl p-10 shadow-sm">
         <h2 className="text-2xl font-bold text-red-900 mb-6">
-          Zona Bahaya
+          Konfirmasi Penghapusan Akun
         </h2>
 
         <button
           onClick={() => setShowDeleteModal(true)}
           className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg"
         >
-          🗑️ Hapus Akun
+          Hapus Akun
         </button>
 
         <p className="text-xs text-red-700 mt-2">

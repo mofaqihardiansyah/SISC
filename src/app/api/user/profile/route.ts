@@ -2,18 +2,24 @@ import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { auth } from '@/auth';
 
 // GET USER
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const userIdParam = searchParams.get('userId');
+    let userId: number;
 
     if (!userIdParam) {
-      return NextResponse.json({ error: 'User ID tidak ada' }, { status: 400 });
+      const session = await auth();
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+      }
+      userId = Number(session.user.id);
+    } else {
+      userId = Number(userIdParam);
     }
-
-    const userId = Number(userIdParam);
 
     if (isNaN(userId)) {
       return NextResponse.json({ error: 'User ID tidak valid' }, { status: 400 });
@@ -39,12 +45,17 @@ export async function PUT(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const userIdParam = searchParams.get('userId');
+    let userId: number;
 
     if (!userIdParam) {
-      return NextResponse.json({ error: 'User ID tidak ada' }, { status: 400 });
+      const session = await auth();
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+      }
+      userId = Number(session.user.id);
+    } else {
+      userId = Number(userIdParam);
     }
-
-    const userId = Number(userIdParam);
 
     if (isNaN(userId)) {
       return NextResponse.json({ error: 'User ID tidak valid' }, { status: 400 });
@@ -75,12 +86,17 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const userIdParam = searchParams.get('userId');
+    let userId: number;
 
     if (!userIdParam) {
-      return NextResponse.json({ error: 'User ID tidak ada' }, { status: 400 });
+      const session = await auth();
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+      }
+      userId = Number(session.user.id);
+    } else {
+      userId = Number(userIdParam);
     }
-
-    const userId = Number(userIdParam);
 
     if (isNaN(userId)) {
       return NextResponse.json({ error: 'User ID tidak valid' }, { status: 400 });

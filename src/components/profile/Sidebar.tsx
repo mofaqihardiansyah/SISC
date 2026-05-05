@@ -8,11 +8,9 @@ import {
   CalendarCheck, 
   Bookmark, 
   Info, 
-  HelpCircle,
-  LogOut 
+  HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { signOut } from "next-auth/react";
 
 const menuItems = [
   { label: "Dashboard", href: "/Profile/dashboard", icon: LayoutDashboard },
@@ -27,11 +25,9 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-[#111827] text-gray-400 flex flex-col h-screen sticky top-0 border-r border-gray-800">
-      {/* Logo Section */}
+      {/* Logo */}
       <div className="p-6">
-        <h1 className="text-xl font-bold text-white tracking-tight">
-          POLIVENTS
-        </h1>
+        <h1 className="text-xl font-bold text-white tracking-tight">POLIVENTS</h1>
         <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-1">Pengunjung</p>
       </div>
 
@@ -54,22 +50,11 @@ export function Sidebar() {
                 "w-5 h-5",
                 isActive ? "text-[#111827]" : "text-gray-500 group-hover:text-white"
               )} />
-              <span className="text-sm font-semibold">{item.label}</span>
+              <span className="text-sm">{item.label}</span>
             </Link>
           );
         })}
       </nav>
-
-      {/* Logout Section */}
-      <div className="p-4 mt-auto border-t border-gray-800">
-        <button 
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 text-gray-500"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="text-sm font-medium">Logout</span>
-        </button>
-      </div>
     </aside>
   );
 }

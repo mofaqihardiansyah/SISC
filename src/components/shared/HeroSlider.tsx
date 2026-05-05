@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import { normalizeImagePath } from "@/lib/utils/image-utils";
 
 interface HeroSliderProps {
   events: {
@@ -27,7 +28,7 @@ export default function HeroSlider({ events }: HeroSliderProps) {
         <SwiperSlide key={ev.id}>
           <div className="relative h-[300px]">
             <img
-              src={ev.bannerUrl || "/placeholder-banner.png"}
+              src={normalizeImagePath(ev.bannerUrl)}
               alt={ev.judul ?? ""}
               className="absolute inset-0 w-full h-full object-cover"
             />

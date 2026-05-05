@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { normalizeImagePath } from '@/lib/utils/image-utils';
 
 const DEFAULT_EVENT_IMAGE = "/placeholder-banner.png";
 
@@ -27,15 +28,7 @@ export function RecentEvents({ events }: RecentEventProps) {
       <div className="space-y-6">
         {events.length > 0 ? events.map((event) => {
           const statusColor = event.status === 'published' ? 'bg-emerald-500' : 'bg-slate-300';
-          let banner = (event.bannerUrl && event.bannerUrl.trim() !== "") ? event.bannerUrl : DEFAULT_EVENT_IMAGE;
-          
-          // Normalisasi path: ganti \ jadi / dan pastikan diawali / jika relatif
-          if (banner && !banner.startsWith('http') && !banner.startsWith('data:')) {
-            banner = banner.replace(/\\/g, '/');
-            if (!banner.startsWith('/')) {
-              banner = '/' + banner;
-            }
-          }
+          const banner = normalizeImagePath(event.bannerUrl, DEFAULT_EVENT_IMAGE);
 
           return (
             <div key={event.id} className="flex items-center gap-4 group cursor-pointer">
