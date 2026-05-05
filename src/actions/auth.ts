@@ -117,8 +117,8 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
 
     return { success: true };
   } catch (error) {
-    console.error(error);
-    return { error: "Terjadi kesalahan saat mendaftar." };
+    console.error("[REGISTER ERROR]", error);
+    return { error: "Terjadi kesalahan saat mendaftar. Silakan coba lagi." };
   }
 }
 

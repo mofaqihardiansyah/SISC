@@ -30,7 +30,10 @@ async function main() {
       if (row.provinsi) {
         await db.insert(provinsi).values({
           nama: row.provinsi,
-        }).onConflictDoNothing();
+        }).onConflictDoUpdate({
+          target: provinsi.nama,
+          set: { nama: row.provinsi }
+        });
 
         const prov = await db.query.provinsi.findFirst({
             where: eq(provinsi.nama, row.provinsi)
@@ -49,6 +52,11 @@ async function main() {
             nama: row.nama,
             provinsiId: finalProvinsiId,
           });
+        } else {
+          // Update if needed
+          await db.update(kota).set({
+            provinsiId: finalProvinsiId,
+          }).where(eq(kota.id, existingKota.id));
         }
       }
     }

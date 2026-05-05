@@ -93,7 +93,7 @@ export default function LoginPage() {
                 type="password" 
                 placeholder="Masukkan kata sandi" 
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                autoComplete="new-password"
+                autoComplete="current-password"
                 {...register('password')}
               />
               {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}

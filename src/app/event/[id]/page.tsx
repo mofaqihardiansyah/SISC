@@ -82,12 +82,11 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     tipePlatform: eventData.tipePlatform ?? "offline",
     loket: [],
     langkahPendaftaran: [
-      "Klik <strong>Daftar</strong> untuk masuk ke link pendaftaran",
-      "Masukkan identitas yang dibutuhkan dengan benar, lengkap, dan akurat",
-      "Lakukan pembayaran melalui transfer atau scan kode QRIS",
-      "Upload bukti pembayaran",
-      "Klik <strong>Konfirmasi & Kirim Pendaftaran</strong>",
-      "Selamat, Anda telah terdaftar sebagai peserta!",
+      "Klik <strong>Daftar</strong> untuk mengisi data diri awal",
+      "Anda akan diarahkan ke formulir pendaftaran eksternal (GForm)",
+      "Isi data yang dibutuhkan pada formulir tersebut hingga selesai",
+      "Kembali ke tab sebelumnya dan klik <strong>Simpan dan Selesai</strong>",
+      "Selamat, pendaftaran Anda telah tercatat!",
     ],
     syaratKetentuan: eventData.syaratDanKetentuan
       ? eventData.syaratDanKetentuan.split("\n").filter(Boolean)
