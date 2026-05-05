@@ -120,7 +120,7 @@ export default function RegisterPage() {
                 <Input 
                   id="visitor-email" 
                   type="email" 
-                  placeholder="email" 
+                  placeholder="Masukkan email anda" 
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('email')}
                 />
@@ -173,7 +173,7 @@ export default function RegisterPage() {
                   <Input 
                     type="email" 
                     autoComplete="off"
-                    placeholder="Email Organisasi" 
+                    placeholder="Masukkan email anda" 
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('email')}
                   />
