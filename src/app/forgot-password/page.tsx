@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
             <Input 
               id="email" 
               type="email" 
-              placeholder="email" 
+              placeholder="Masukkan email anda" 
               className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
               {...register('email')}
             />
@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {isSubmitting ? 'Mengirim...' : 'Kirim Kode Reset'}
+              {isSubmitting ? 'Mengirim...' : 'Kirim Kode OTP'}
             </Button>
           </div>
         </form>
