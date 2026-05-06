@@ -170,6 +170,7 @@ export const peserta = pgTable('peserta', {
   namaLengkap: varchar('nama_lengkap'),
   email: varchar('email'),
   nomorTelepon: varchar('nomor_telepon'),
+  jenisKelamin: varchar('jenis_kelamin'),
   sudahCheckIn: boolean('sudah_check_in').default(false),
   waktuCheckIn: timestamp('waktu_check_in'),
 });
