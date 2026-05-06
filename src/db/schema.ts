@@ -84,7 +84,11 @@ export const event = pgTable('event', {
   slug: varchar('slug').unique(),
   deskripsi: text('deskripsi'),
   syaratDanKetentuan: text('syarat_dan_ketentuan'),
-  bannerUrl: varchar('banner_url'),
+  bannerUrl: varchar('banner_url'), 
+  
+  // Penambahan kolom penyelenggara untuk instansi Polines
+  penyelenggara: varchar('penyelenggara'), 
+  
   tanggalMulai: timestamp('tanggal_mulai'),
   tanggalSelesai: timestamp('tanggal_selesai'),
   batasRegistrasi: timestamp('batas_registrasi'),

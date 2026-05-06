@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   LayoutDashboard, 
@@ -12,18 +12,38 @@ import {
   ChevronRight,
   CircleUser
 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getEvents } from "./action"; 
 
 export default function EventFavoritPage() {
-  const [activeTab, setActiveTab] = useState("seminar");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
+  const [events, setEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getEvents();
+        setEvents(data);
+      } catch (error) {
+        console.error("Gagal mengambil data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const filteredEvents = events.filter((data) => {
+    const matchesSearch = data.judul?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesTab = activeTab === "all" || data.jenisEvent?.toLowerCase() === activeTab.toLowerCase();
+    return matchesSearch && matchesTab;
+  });
 
   return (
-    <div className="flex min-h-screen bg-background font-sans text-foreground">
+    <div className="flex min-h-screen bg-white font-sans text-foreground">
       
-      {/* SIDEBAR - Menggunakan warna brand-dark sesuai global.css */}
-      <aside className="w-64 bg-brand-dark text-white flex flex-col shadow-xl">
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-[#0A1D37] text-white flex flex-col fixed h-full shadow-xl">
         <div className="p-8">
-          <h1 className="text-2xl font-heading font-bold tracking-wider">POLIVENTS</h1>
+          <h1 className="text-2xl font-bold tracking-wider italic font-heading">POLIVENTS</h1>
         </div>
         <nav className="flex-1 px-4 space-y-1">
           <NavItem icon={<LayoutDashboard size={20} />} label="Dashboard" />
@@ -36,62 +56,59 @@ export default function EventFavoritPage() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col">
-        {/* TOPBAR - Menggunakan warna primary #03428B */}
-        <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center px-10 shadow-md">
-          <h2 className="text-xl font-heading font-semibold">Pengaturan Akun</h2>
+      <main className="flex-1 ml-64 flex flex-col">
+        {/* HEADER */}
+        <header className="bg-[#005697] text-white p-4 flex justify-between items-center px-10 shadow-md">
+          <h2 className="text-xl font-semibold font-heading">Pengaturan Akun</h2>
           <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-xs font-medium opacity-90">Faqih Ardi..</p>
-            </div>
             <div className="w-10 h-10 rounded-full border-2 border-white/20 overflow-hidden bg-slate-200">
                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Faqih" alt="profile" />
             </div>
+            <p className="text-sm font-medium">Faqih Ardiansyah</p>
           </div>
         </header>
 
-        {/* CONTENT AREA */}
         <div className="p-10">
-          <div className="mb-6">
-             <h3 className="text-2xl font-heading font-bold text-slate-800">Event Favorit</h3>
-             <div className="h-1 w-full bg-slate-100 mt-4"></div>
-          </div>
-          
-          {/* TABS - Menggunakan Tabs dari Shadcn UI sesuai preferensi tim kamu */}
-          <Tabs defaultValue="seminar" className="w-full mb-8">
-            <TabsList className="bg-transparent border-b border-border w-full justify-start rounded-none h-auto p-0 gap-8">
-              <TabsTrigger 
-                value="seminar" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary font-bold text-lg pb-2 px-0"
-              >
-                Seminar
-              </TabsTrigger>
-              <TabsTrigger 
-                value="conferences" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary font-bold text-lg pb-2 px-0 text-slate-400"
-              >
-                Conferences
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <h3 className="text-2xl font-bold text-slate-800 mb-8 font-heading">Event Favorit</h3>
 
-          {/* GRID KARTU EVENT */}
+          <div className="relative mb-10">
+            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-slate-100"></div>
+            <div className="flex flex-row justify-between items-end relative">
+              
+              <div className="pb-2 w-80 z-10">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    type="text"
+                    placeholder="Cari event favoritmu..."
+                    className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-1 focus:ring-[#005697] outline-none text-sm transition-all text-black"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-10 z-10">
+                <TabBtn label="All" active={activeTab === 'all'} onClick={() => setActiveTab('all')} />
+                <TabBtn label="Seminar" active={activeTab === 'seminar'} onClick={() => setActiveTab('seminar')} />
+                <TabBtn label="Conferences" active={activeTab === 'conference'} onClick={() => setActiveTab('conference')} />
+              </div>
+
+            </div>
+          </div>
+
+          {/* GRID EVENT */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <EventCard />
-            <EventCard />
-            <EventCard />
+            {filteredEvents.map((data) => (
+              <EventCard key={data.id} data={data} />
+            ))}
           </div>
 
           {/* PAGINATION */}
-          <div className="flex justify-end mt-16 items-center gap-4 text-slate-500 font-medium">
-             <ChevronLeft size={20} className="cursor-pointer hover:text-primary" />
-             <span className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded shadow-md">1</span>
-             <span className="cursor-pointer hover:text-primary">2</span>
-             <span className="cursor-pointer hover:text-primary">3</span>
-             <span className="cursor-pointer hover:text-primary">4</span>
-             <span>...</span>
-             <span className="cursor-pointer hover:text-primary">18</span>
-             <ChevronRight size={20} className="cursor-pointer hover:text-primary" />
+          <div className="flex justify-end mt-16 items-center gap-4 text-slate-400 font-medium">
+             <ChevronLeft size={20} className="cursor-pointer hover:text-[#005697]" />
+             <span className="bg-[#005697] text-white w-8 h-8 flex items-center justify-center rounded shadow-sm">1</span>
+             <ChevronRight size={20} className="cursor-pointer hover:text-[#005697]" />
           </div>
         </div>
       </main>
@@ -99,47 +116,75 @@ export default function EventFavoritPage() {
   );
 }
 
+// --- Komponen Pendukung ---
+
+function TabBtn({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) {
+  return (
+    <button onClick={onClick} className={`pb-4 text-xl font-bold transition-all relative ${active ? 'text-[#005697]' : 'text-slate-400 hover:text-slate-600'}`}>
+      {label}
+      {active && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#005697] rounded-t-full"></div>}
+    </button>
+  );
+}
+
 function NavItem({ icon, label, active = false }: { icon: any, label: string, active?: boolean }) {
   return (
-    <div className={`flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
-      active 
-      ? 'bg-white text-brand-dark shadow-lg font-bold' 
-      : 'text-slate-400 hover:bg-white/10 hover:text-white'
+    <div className={`flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all ${
+      active ? 'bg-white text-[#0A1D37] shadow-lg font-bold' : 'text-slate-400 hover:bg-white/10 hover:text-white'
     }`}>
-      {icon}
-      <span className="text-sm tracking-wide">{label}</span>
+      {icon} <span className="text-sm">{label}</span>
     </div>
   );
 }
 
-function EventCard() {
+function EventCard({ data }: { data: any }) {
+  const displayHarga = data.harga === 0 ? "FREE" : `Rp ${data.harga?.toLocaleString('id-ID')}`;
+
+  // Fungsi format tanggal Indonesia
+  const formatTanggal = (dateString: any) => {
+    if (!dateString) return "Tanggal belum diatur";
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden group hover:-translate-y-1 transition-all duration-300">
-      {/* Gambar Poster */}
-      <div className="h-48 bg-slate-900 relative">
+    <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-50 overflow-hidden transition-all hover:-translate-y-2 group">
+      <div className="h-48 relative overflow-hidden bg-slate-100">
         <img 
-          src="https://png.pngtree.com/thumb_back/fh260/background/20210903/pngtree-high-end-black-gold-atmosphere-science-and-technology-exhibition-board-background-image_785661.jpg" 
-          alt="Event Poster" 
-          className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500"
+          src={data.bannerUrl || "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=500"} 
+          alt={data.judul} 
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
         />
       </div>
 
-      {/* Detail Konten */}
-      <div className="p-6 space-y-2">
-        <h4 className="text-lg font-bold text-slate-800">Nama Event</h4>
-        <p className="text-xs text-slate-400 font-semibold tracking-wide uppercase">Tanggal Event</p>
+      <div className="p-6">
+        {/* 1. NAMA EVENT (Atas) */}
+        <h4 className="text-xl font-bold text-slate-800 line-clamp-1 font-heading">
+          {data.judul || "Nama Event"}
+        </h4>
+
+        {/* 2. TANGGAL EVENT (Bawah judul, warna abu-abu) */}
+        <p className="text-slate-400 text-sm font-medium mt-1">
+          {formatTanggal(data.tanggalMulai)}
+        </p>
         
-        <div className="pt-4 flex justify-between items-end border-b border-slate-200 pb-3">
-          <span className="text-lg font-black text-slate-900 leading-none">Harga</span>
-          <Bookmark size={20} className="text-slate-900 cursor-pointer hover:fill-current" fill="black" />
+        {/* 3. HARGA & BOOKMARK */}
+        <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+          <span className="text-xl font-black text-slate-900">{displayHarga}</span>
+          <Bookmark size={22} fill="currentColor" className="text-slate-900 cursor-pointer" />
         </div>
 
-        {/* Pembuat Event */}
-        <div className="flex items-center gap-3 pt-3">
-          <div className="w-8 h-8 rounded-full border-2 border-slate-900 flex items-center justify-center">
-             <CircleUser size={18} className="text-slate-900" />
+        {/* 4. NAMA PEMBUAT EVENT */}
+        <div className="flex items-center gap-3 mt-4">
+          <div className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center bg-white shadow-sm text-slate-400">
+            <CircleUser size={18} />
           </div>
-          <span className="text-xs font-bold text-slate-700">Nama Pembuat Event</span>
+          <span className="text-sm font-medium text-slate-600">
+            {data.penyelenggara || "Polines Official"}
+          </span>
         </div>
       </div>
     </div>
