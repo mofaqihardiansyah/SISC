@@ -87,53 +87,6 @@ export default function HelpPage() {
         </div>
       </section>
 
-      {/* QUICK LINKS */}
-      <section className="bg-white rounded-xl border border-slate-200 p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Tautan Cepat</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a
-            href="#"
-            className="p-4 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition group"
-          >
-            <p className="font-semibold text-slate-900 group-hover:text-blue-600">
-              📖 Panduan Pengguna
-            </p>
-            <p className="text-sm text-slate-500 mt-1">Baca dokumentasi lengkap</p>
-          </a>
-
-          <a
-            href="#"
-            className="p-4 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition group"
-          >
-            <p className="font-semibold text-slate-900 group-hover:text-blue-600">
-              🔒 Kebijakan Privasi
-            </p>
-            <p className="text-sm text-slate-500 mt-1">Pelajari tentang privasi data Anda</p>
-          </a>
-
-          <a
-            href="#"
-            className="p-4 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition group"
-          >
-            <p className="font-semibold text-slate-900 group-hover:text-blue-600">
-              ⚖️ Syarat & Ketentuan
-            </p>
-            <p className="text-sm text-slate-500 mt-1">Lihat syarat layanan kami</p>
-          </a>
-
-          <a
-            href="#"
-            className="p-4 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition group"
-          >
-            <p className="font-semibold text-slate-900 group-hover:text-blue-600">
-              🐛 Laporkan Bug
-            </p>
-            <p className="text-sm text-slate-500 mt-1">Bantu kami perbaiki masalah</p>
-          </a>
-        </div>
-      </section>
-
       {/* CONTACT FORM */}
       <section className="bg-white rounded-xl border border-slate-200 p-8">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">Hubungi Kami</h2>
