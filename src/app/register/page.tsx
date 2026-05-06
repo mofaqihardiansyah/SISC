@@ -12,8 +12,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { registerUser } from '@/actions/auth';
-import { UploadButton } from '@uploadthing/react';
-import type { OurFileRouter } from '@/app/api/uploadthing/core';
+import { FileUpload } from '@/components/shared/FileUpload';
 import { FileText, Check, Loader2 } from 'lucide-react';
 
 const visitorSchema = z.object({
@@ -34,8 +33,6 @@ type OrganizerValues = z.infer<typeof organizerSchema>;
 
 export default function RegisterPage() {
   const [role, setRole] = React.useState('visitor');
-
-  const [isUploading, setIsUploading] = React.useState(false);
 
   const visitorForm = useForm<VisitorValues>({
     resolver: zodResolver(visitorSchema),
@@ -217,45 +214,14 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Dokumen Legalitas (PDF)</Label>
-                <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-slate-200 border-dashed hover:border-primary/50 transition-colors">
-                  <div className="bg-blue-50 p-2.5 rounded-lg">
-                    <FileText className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    {organizerForm.watch('dokumenLegalitasUrl') ? (
-                      <div className="flex items-center text-xs font-bold text-green-600">
-                        <Check className="w-3.5 h-3.5 mr-1.5" /> Dokumen Terunggah
-                      </div>
-                    ) : (
-                      <p className="text-xs font-medium text-slate-400">PDF, Maks 4MB</p>
-                    )}
-                  </div>
-                  <UploadButton<OurFileRouter, "pdfUploader">
-                    endpoint="pdfUploader"
-                    onUploadProgress={() => setIsUploading(true)}
-                    onClientUploadComplete={(res) => {
-                      organizerForm.setValue('dokumenLegalitasUrl', res[0].url);
-                      setIsUploading(false);
-                      toast.success('Dokumen berhasil diunggah');
-                    }}
-                    onUploadError={() => {
-                      setIsUploading(false);
-                      toast.error('Gagal mengunggah dokumen.');
-                    }}
-                    content={{
-                      button: () => (
-                        <div className="text-xs font-bold text-primary hover:text-[#02336B] cursor-pointer">
-                          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Pilih Berkas'}
-                        </div>
-                      ),
-                      allowedContent: () => null
-                    }}
-                    appearance={{
-                      button: "bg-transparent hover:bg-transparent shadow-none w-auto h-auto p-0 border-none",
-                      container: "w-auto"
-                    }}
-                  />
-                </div>
+                <FileUpload
+                  type="document"
+                  variant="button"
+                  currentUrl={organizerForm.watch('dokumenLegalitasUrl')}
+                  onSuccess={(url) => {
+                    organizerForm.setValue('dokumenLegalitasUrl', url);
+                  }}
+                />
                 <p className="mt-2 text-xs text-slate-400 flex items-center">
                   <FileText className="w-3.5 h-3.5 mr-1.5" /> Pastikan dokumen dalam format PDF (Maks. 4MB)
                 </p>
@@ -265,7 +231,7 @@ export default function RegisterPage() {
                 <Button 
                   type="submit" 
                   className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
-                  disabled={organizerForm.formState.isSubmitting || isUploading}
+                  disabled={organizerForm.formState.isSubmitting}
                 >
                   {organizerForm.formState.isSubmitting ? 'Mendaftarkan...' : 'Daftar Penyelenggara'}
                 </Button>

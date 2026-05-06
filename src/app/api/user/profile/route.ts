@@ -70,6 +70,7 @@ export async function PUT(req: Request) {
         email: body.email ?? '',
         nomorTelepon: body.phone ?? '',
         institution: body.institution ?? '',
+        avatarUrl: body.avatarUrl,
         diperbaruiPada: new Date(),
       })
       .where(eq(users.id, userId));
