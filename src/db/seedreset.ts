@@ -2,11 +2,10 @@ import { db } from "./index";
 import { sql } from "drizzle-orm";
 
 async function main() {
-  console.log("🧹 Membersihkan seluruh database (Agresif)...");
+  console.log("🧹 Membersihkan seluruh database (Struktur Baru)...");
 
   try {
-    // Menggunakan TRUNCATE dengan CASCADE untuk menghapus semua data dan relasinya sekaligus
-    // Kita list tabel-tabel utamanya saja, CASCADE akan mengurus sisanya
+    // Tabel-tabel aktif sesuai schema terbaru
     const tables = [
       'event', 
       'kota', 
@@ -14,20 +13,15 @@ async function main() {
       'provinsi', 
       'users', 
       'profil_penyelenggara',
-      'sosial_media_user',
       'otp_codes',
       'tag',
       'event_tag',
-      'sosial_media_event',
       'lampiran_event',
       'bookmark',
       'user_event',
-      'notifikasi',
       'log_admin',
       'transaksi',
       'peserta',
-      'rekening_event',
-      'komentar_event',
       'pembicara_event',
       'jadwal_event'
     ];
@@ -40,7 +34,7 @@ async function main() {
     console.log("✨ Database sekarang benar-benar kosong dan bersih!");
     process.exit(0);
   } catch (error) {
-    console.error("❌ Gagal membersihkan database secara agresif:", error);
+    console.error("❌ Gagal membersihkan database:", error);
     process.exit(1);
   }
 }
