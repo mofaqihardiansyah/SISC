@@ -40,12 +40,15 @@ async function seedUsers() {
       password: hashedPassword,
       role: user.role,
       isTerverifikasi: true,
+      emailVerified: new Date(),
     }).onConflictDoUpdate({
       target: users.email,
       set: {
         namaLengkap: user.namaLengkap,
         password: hashedPassword,
-        role: user.role
+        role: user.role,
+        isTerverifikasi: true,
+        emailVerified: new Date(),
       }
     });
   }
