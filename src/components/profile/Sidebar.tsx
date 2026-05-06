@@ -13,11 +13,11 @@ import {
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-  { label: "Dashboard", href: "/Profile/dashboard", icon: LayoutDashboard },
-  { label: "Eventku", href: "/Profile/events", icon: CalendarCheck },
-  { label: "Event Favorit", href: "/Profile/favorites", icon: Bookmark },
-  { label: "Akun & Privasi", href: "/Profile/settings", icon: Info },
-  { label: "Bantuan", href: "/Profile/help", icon: HelpCircle },
+  { label: "Dashboard", href: "/profile/dashboard", icon: LayoutDashboard },
+  { label: "Eventku", href: "/profile/events", icon: CalendarCheck },
+  { label: "Event Favorit", href: "/profile/favorites", icon: Bookmark },
+  { label: "Akun & Privasi", href: "/profile/settings", icon: Info },
+  { label: "Bantuan", href: "/profile/help", icon: HelpCircle },
 ];
 
 export function Sidebar() {

@@ -55,7 +55,7 @@ export default function UserMenu({ user }: UserMenuProps) {
           
           <div className="py-1">
             <Link 
-              href="/Profile/dashboard"
+              href="/profile/dashboard"
               className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => setIsOpen(false)}
             >
@@ -63,7 +63,7 @@ export default function UserMenu({ user }: UserMenuProps) {
               Dashboard
             </Link>
             <Link 
-              href="/Profile/settings"
+              href="/profile/settings"
               className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => setIsOpen(false)}
             >

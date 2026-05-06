@@ -7,9 +7,8 @@ export const HIDE_NAVBAR_PATHS = [
   "/penyelenggara",
   "/admin",
   "/profile",
-  "/Profile", // Tetap jaga sementara sebelum rename
   "/registrasi-event",
-  "/eventfavorit",
+  "/event-favorit",
 ];
 
 export const shouldHideNavbar = (pathname: string) => {

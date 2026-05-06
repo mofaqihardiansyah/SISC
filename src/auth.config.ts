@@ -51,8 +51,8 @@ export const authConfig = {
         return true;
       }
 
-      // 3. Visitor Protected Routes (ini buat visitor /Profile)
-      if (path.startsWith("/Profile")) {
+      // 3. Visitor Protected Routes (ini buat visitor /profile)
+      if (path.startsWith("/profile")) {
         if (!isLoggedIn) return false;
         return true;
       }
