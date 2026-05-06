@@ -11,6 +11,7 @@ export default function SettingsPage() {
     email: '',
     phone: '',
     institution: '',
+    avatarUrl: '',
   });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -25,6 +26,7 @@ export default function SettingsPage() {
           email: data.email || '',
           phone: data.nomorTelepon || '',
           institution: data.institution || '',
+          avatarUrl: data.avatarUrl || '',
         });
       });
   }, []);
@@ -86,8 +88,12 @@ export default function SettingsPage() {
 
         <div className="space-y-6">
           <div className="flex items-center gap-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-              {formData.name ? formData.name.charAt(0).toUpperCase() : 'U'}
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-100 flex-shrink-0">
+              <img 
+                src={formData.avatarUrl || "/uploads/avatars/fotodummy.jpg"} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+              />
             </div>
 
             <div>

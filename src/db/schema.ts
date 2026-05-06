@@ -15,7 +15,7 @@ export const users = pgTable('users', {
   nik: varchar('nik'),
   role: varchar('role'),
   isTerverifikasi: boolean('is_terverifikasi').default(false),
-  avatarUrl: varchar('avatar_url'),
+  avatarUrl: varchar('avatar_url').default("/uploads/avatars/fotodummy.jpg"),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),

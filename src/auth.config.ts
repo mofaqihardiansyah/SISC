@@ -16,7 +16,8 @@ export const authConfig = {
       const userRole = (auth?.user as { role?: string })?.role;
       const path = nextUrl.pathname;
 
-      const isAuthRoute = path.startsWith("/login") || path.startsWith("/register") || path.startsWith("/forgot-password") || path.startsWith("/reset-password");
+      const isAuthRoute = path.startsWith("/login") || path.startsWith("/register");
+      const isPasswordRoute = path.startsWith("/forgot-password") || path.startsWith("/reset-password");
 
       if (isAuthRoute) {
         if (isLoggedIn) {
@@ -26,6 +27,10 @@ export const authConfig = {
           return Response.redirect(new URL("/", nextUrl));
         }
         return true;
+      }
+
+      if (isPasswordRoute) {
+        return true; // Izinkan akses meskipun sudah login
       }
 
       // 1. Admin Routes Protection

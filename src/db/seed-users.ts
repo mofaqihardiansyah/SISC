@@ -95,6 +95,7 @@ async function seedUsers() {
       jenisKelamin: (user as { jenisKelamin?: string }).jenisKelamin,
       isTerverifikasi: true,
       emailVerified: new Date(),
+      avatarUrl: "/uploads/avatars/fotodummy.jpg",
     }).onConflictDoUpdate({
       target: users.email,
       set: {
@@ -105,6 +106,7 @@ async function seedUsers() {
         institution: user.institution,
         isTerverifikasi: true,
         emailVerified: new Date(),
+        avatarUrl: "/uploads/avatars/fotodummy.jpg",
       }
     });
   }
