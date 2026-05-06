@@ -4,7 +4,14 @@
 import { db } from "@/db";
 import { peserta } from "@/db/schema";
 
-export async function daftarEvent(formData: any, eventId: number) {
+interface RegistrationData {
+  nama_lengkap: string;
+  email: string;
+  nomor_telepon: string;
+  jenis_kelamin: string;
+}
+
+export async function daftarEvent(formData: RegistrationData, eventId: number) {
   try {
     // Pastikan eventId yang masuk adalah angka (number)
     const idEvent = Number(eventId);

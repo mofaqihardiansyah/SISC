@@ -779,7 +779,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
           <div className="sidebar-card">
             <p className="sidebar-harga-label">Harga mulai dari</p>
             <p className="sidebar-harga">{formatRupiah(event.harga)}</p>
-            <a href={`/registrasi-event?eventId=${event.id}`} className="btn-daftar">
+            <a href={`/registrasi-event/${event.id}`} className="btn-daftar">
               Daftar
             </a>
             <hr className="sidebar-divider" />

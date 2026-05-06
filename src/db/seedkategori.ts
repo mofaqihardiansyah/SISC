@@ -19,7 +19,7 @@ async function main() {
       "id": 3,
       "nama": "Kreatif & Desain",
       "slug": "kreatif-desain",
-      "iconUrl": "/icon/Desain.png"
+      "iconUrl": "/icon/Seni.png"
     },
     {
       "id": 4,
@@ -49,7 +49,7 @@ async function main() {
       "id": 8,
       "nama": "Hiburan & Gaya Hidup",
       "slug": "hiburan-gaya-hidup",
-      "iconUrl": "/icon/Gaya.png"
+      "iconUrl": "/icon/Hiburan.png"
     },
     {
       "id": 9,
@@ -65,14 +65,14 @@ async function main() {
     }
   ];
 
-  console.log("🚀 Seeding 10 kategori baru...");
+  console.log("🚀 Reseeding 10 kategori dengan path icon yang benar...");
   for (const item of data) {
     await db.insert(kategori).values(item).onConflictDoUpdate({
-      target: kategori.slug,
+      target: kategori.id,
       set: item
     });
   }
-  console.log("✅ 10 Kategori seeded!");
+  console.log("✅ 10 Kategori updated!");
   process.exit(0);
 }
 

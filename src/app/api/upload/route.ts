@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     const config = UPLOAD_CONFIG[type as UploadType];
 
     // Validasi tipe file
-    if (!config.allowedTypes.includes(file.type)) {
+    if (!(config.allowedTypes as readonly string[]).includes(file.type)) {
       return NextResponse.json({ 
         error: `Tipe file tidak diizinkan untuk ${config.label}. Hanya: ${config.allowedTypes.join(', ')}` 
       }, { status: 400 });
