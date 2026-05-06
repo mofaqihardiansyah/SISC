@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -24,13 +25,15 @@ export default function HeroSlider({ events }: HeroSliderProps) {
       loop={true}
       className="h-[300px] rounded-2xl overflow-hidden"
     >
-      {events.map((ev) => (
+      {events.map((ev, index) => (
         <SwiperSlide key={ev.id}>
           <div className="relative h-[300px]">
-            <img
+            <Image
               src={normalizeImagePath(ev.bannerUrl)}
               alt={ev.judul ?? ""}
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              priority={index === 0}
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
             <div className="absolute bottom-8 left-8 text-white">

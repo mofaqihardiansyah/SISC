@@ -33,22 +33,6 @@ export default async function RegistrasiEventPage({
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
-      {/* Header / Navbar */}
-      <nav className="flex items-center justify-between bg-[#1e293b] px-10 py-4 text-white">
-        <div className="text-xl font-bold tracking-wider">POLIVENTS</div>
-        <div className="hidden md:flex gap-8 text-sm font-medium">
-          <a href="#" className="hover:text-blue-400">Beranda</a>
-          <a href="#" className="hover:text-blue-400 border-b-2 border-white pb-1">Jelajah</a>
-          <a href="#" className="hover:text-blue-400">Bantuan</a>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-orange-400 flex items-center justify-center text-[10px] font-bold">
-            IL
-          </div>
-          <span className="text-xs font-medium">Ika Lutfi</span>
-        </div>
-      </nav>
-
       {/* Main Content memanggil Client Component Form */}
       <main className="mx-auto mt-12 max-w-4xl px-4">
         {/* Teruskan eventID hasil await ke component FormRegistrasi */}

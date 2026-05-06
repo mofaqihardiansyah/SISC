@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { normalizeImagePath } from "@/lib/utils/image-utils";
 
@@ -34,10 +35,12 @@ export default function EventCard({
         
         {/* Image */}
         <div className="relative h-36">
-          <img
+          <Image
             src={normalizeImagePath(imageUrl)}
             alt={title}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            className="object-cover"
           />
 
           <span className="absolute top-2 left-2 bg-white text-xs font-bold px-2 py-1 rounded">
