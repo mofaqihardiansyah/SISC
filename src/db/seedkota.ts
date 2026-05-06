@@ -1,72 +1,34 @@
-import 'dotenv/config';
-import { db } from './index';
-import { kota, provinsi } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
-import * as xlsx from 'xlsx';
-import path from 'path';
-
-interface KotaExcelRow {
-  nama: string;
-  provinsi?: string;
-  provinsi_id?: number;
-}
+import { db } from "./index";
+import { kota } from "./schema";
 
 async function main() {
-  console.log("🚀 Seeding kota dari kota.xlsx...");
+  const data = [
+  { "id": 1, "provinsiId": 1, "nama": "Banda Aceh" },
+  { "id": 2, "provinsiId": 14, "nama": "Semarang" },
+  { "id": 3, "provinsiId": 16, "nama": "Surabaya" },
+  { "id": 4, "provinsiId": 12, "nama": "Bandung" },
+  { "id": 5, "provinsiId": 15, "nama": "Yogyakarta" },
+  { "id": 6, "provinsiId": 2, "nama": "Medan" },
+  { "id": 7, "provinsiId": 27, "nama": "Makassar" },
+  { "id": 8, "provinsiId": 7, "nama": "Palembang" },
+  { "id": 9, "provinsiId": 23, "nama": "Balikpapan" },
+  { "id": 10, "provinsiId": 17, "nama": "Denpasar" },
+  { "id": 11, "provinsiId": 11, "nama": "Jakarta Pusat" },
+  { "id": 12, "provinsiId": 11, "nama": "Jakarta Selatan" }
+];
 
-  try {
-    const filePath = path.resolve(process.cwd(), 'kota.xlsx');
-    const workbook = xlsx.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-
-    const rawData = xlsx.utils.sheet_to_json<KotaExcelRow>(worksheet);
-    console.log(`📦 ${rawData.length} data ditemukan`);
-
-    for (const row of rawData) {
-      let finalProvinsiId = row.provinsi_id;
-
-      // Jika ada nama provinsi, pastikan ada di DB dan ambil ID-nya
-      if (row.provinsi) {
-        await db.insert(provinsi).values({
-          nama: row.provinsi,
-        }).onConflictDoUpdate({
-          target: provinsi.nama,
-          set: { nama: row.provinsi }
-        });
-
-        const prov = await db.query.provinsi.findFirst({
-            where: eq(provinsi.nama, row.provinsi)
-        });
-        
-        if (prov) finalProvinsiId = prov.id;
-      }
-
-      if (finalProvinsiId) {
-        const existingKota = await db.query.kota.findFirst({
-          where: and(eq(kota.nama, row.nama), eq(kota.provinsiId, finalProvinsiId))
-        });
-
-        if (!existingKota) {
-          await db.insert(kota).values({
-            nama: row.nama,
-            provinsiId: finalProvinsiId,
-          });
-        } else {
-          // Update if needed
-          await db.update(kota).set({
-            provinsiId: finalProvinsiId,
-          }).where(eq(kota.id, existingKota.id));
-        }
-      }
-    }
-
-    console.log("✅ Seeding kota selesai!");
-  } catch (err) {
-    console.error("❌ Error:", err);
-  } finally {
-    process.exit(0);
+  console.log("🚀 Seeding kota...");
+  for (const item of data) {
+    await db.insert(kota).values(item).onConflictDoUpdate({
+      target: kota.id,
+      set: item
+    });
   }
+  console.log("✅ Kota seeded!");
+  process.exit(0);
 }
 
-main();
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

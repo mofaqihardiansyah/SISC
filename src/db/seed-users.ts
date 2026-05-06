@@ -1,27 +1,27 @@
 import 'dotenv/config';
 import { db } from './index';
 import { users } from './schema';
-import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
 
 async function seedUsers() {
   console.log("🚀 Memulai proses seeding user...");
   
   const userData = [
     {
-      namaLengkap: "Super Admin SISC",
+      namaLengkap: "Admin",
       email: "poliventsofficial@gmail.com",
       password: "adminpassword123",
       role: 'admin'
     },
     {
-      namaLengkap: "Penyelenggara Demo",
+      namaLengkap: "Penyelenggara",
       email: "organizer@gmail.com",
       password: "organizerpassword123",
       role: 'organizer'
     },
     {
-      namaLengkap: "Pengunjung Demo",
+      namaLengkap: "Pengunjung",
       email: "visitor@gmail.com",
       password: "visitorpassword123",
       role: 'visitor'
@@ -31,43 +31,30 @@ async function seedUsers() {
   for (const user of userData) {
     console.log(`📦 Seeding role ${user.role}: ${user.email}...`);
     
-    // Check if user already exists
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.email, user.email),
-    });
-
+    // Hash password sebelum disimpan
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
-    if (existingUser) {
-      console.log(`  Updating existing user: ${user.email}`);
-      await db.update(users)
-        .set({ 
-          namaLengkap: user.namaLengkap,
-          password: hashedPassword,
-          role: user.role,
-          emailVerified: new Date(),
-        })
-        .where(eq(users.email, user.email));
-    } else {
-      console.log(`  Creating new user: ${user.email}`);
-      await db.insert(users).values({
+    await db.insert(users).values({
+      namaLengkap: user.namaLengkap,
+      email: user.email,
+      password: hashedPassword,
+      role: user.role,
+      isTerverifikasi: true,
+    }).onConflictDoUpdate({
+      target: users.email,
+      set: {
         namaLengkap: user.namaLengkap,
-        email: user.email,
         password: hashedPassword,
-        role: user.role,
-        emailVerified: new Date(),
-      });
-    }
+        role: user.role
+      }
+    });
   }
 
-  console.log("\n-----------------------------------");
-  console.log("✅ User Seeding Success!");
-  console.log("-----------------------------------\n");
-  
+  console.log("✅ Berhasil seed users!");
   process.exit(0);
 }
 
-seedUsers().catch(err => {
+seedUsers().catch((err) => {
   console.error("❌ Error seeding users:", err);
   process.exit(1);
 });

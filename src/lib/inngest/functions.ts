@@ -2,8 +2,11 @@ import { inngest } from "./client";
 import { seminarCrawler } from "../scraper/engine";
 
 export const scrapeEvents = inngest.createFunction(
-  { id: "scrape-events-task" },
-  { event: "app/scrape.start" },
+  { 
+    id: "scrape-events-task", 
+    name: "Scrape Events Task",
+    triggers: [{ event: "app/scrape.start" }]
+  },
   async ({ event, step }) => {
     const { urls } = event.data;
 

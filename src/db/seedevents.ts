@@ -1,107 +1,625 @@
-import 'dotenv/config';
-import { db } from './index'; // Sesuaikan path ke db config kamu
-import { event } from '@/db/schema'; // Sesuaikan path ke schema kamu
-import * as xlsx from 'xlsx';
-import path from 'path';
-
-// 1. Definisikan interface sesuai kolom excel
-interface EventExcelRow {
-  judul: string;
-  slug: string;
-  deskripsi?: string;
-  syarat_dan_ketentuan?: string;
-  banner_url?: string;
-  tanggal_mulai: string | Date;
-  tanggal_selesai?: string | Date;
-  batas_registrasi?: string | Date;
-  is_event_polines: boolean | string | number;
-  tipe_platform?: string;
-  tipe_harga?: string;
-  detail_lokasi?: string;
-  link_eksternal?: string;
-  nama_kontak?: string;
-  email_kontak?: string;
-  telepon_kontak?: string;
-  status: string;
-  jenis_event: string;
-  harga: number;
-  kuota?: number;
-  // Tambahkan kolom baru agar terbaca dari Excel
-  organizer_id?: number;
-  kategori_id?: number;
-  kota_id?: number;
-}
+import { db } from "./index";
+import { event } from "./schema";
 
 async function main() {
-  console.log("🚀 Memulai proses seeding dari event.xlsx...");
-
-  try {
-    // 2. Baca file Excel
-    const filePath = path.resolve(process.cwd(), 'event.xlsx');
-    const workbook = xlsx.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    
-    // Parse ke JSON
-    const rawData = xlsx.utils.sheet_to_json(worksheet) as EventExcelRow[];
-
-    console.log(`📦 Terdeteksi ${rawData.length} baris data.`);
-
-    // 3. Iterasi dan Insert Data
-    for (const row of rawData) {
-      // Helper untuk handle boolean/null dari excel
-      const parseBoolean = (val: boolean | string | number | undefined | null) => {
-        if (typeof val === 'boolean') return val;
-        if (typeof val === 'string') return val.toLowerCase() === 'true';
-        if (typeof val === 'number') return val === 1;
-        return false;
-      };
-
-      const parseDate = (val: string | Date | number | undefined | null) => {
-        return val ? new Date(val) : null;
-      };
-
-      const eventData = {
-        judul: row.judul || "Tanpa Judul",
-        slug: row.slug || `event-${Date.now()}-${Math.random()}`,
-        deskripsi: row.deskripsi || null,
-        syaratDanKetentuan: row.syarat_dan_ketentuan || null,
-        bannerUrl: row.banner_url || null,
-        tanggalMulai: parseDate(row.tanggal_mulai) || new Date(),
-        tanggalSelesai: parseDate(row.tanggal_selesai),
-        batasRegistrasi: parseDate(row.batas_registrasi),
-        isEventPolines: parseBoolean(row.is_event_polines),
-        tipePlatform: row.tipe_platform || null,
-        tipeHarga: row.tipe_harga || null,
-        detailLokasi: row.detail_lokasi || null,
-        linkEksternal: row.link_eksternal || null,
-        namaKontak: row.nama_kontak || null,
-        emailKontak: row.email_kontak || null,
-        teleponKontak: row.telepon_kontak || null,
-        status: row.status || 'draft',
-        jenisEvent: row.jenis_event || 'lainnya',
-        harga: Number(row.harga) || 0,
-        kuota: row.kuota ? Number(row.kuota) : null,
-        organizerId: row.organizer_id || null,
-        kategoriId: row.kategori_id || null,
-        kotaId: row.kota_id || null,
-      };
-
-      await db.insert(event).values(eventData).onConflictDoUpdate({
-        target: event.slug,
-        set: { 
-            ...eventData,
-            diperbaruiPada: new Date()
-        }
-      });
-    }
-
-    console.log("✅ Seeding selesai dengan sukses!");
-  } catch (error) {
-    console.error("❌ Terjadi kesalahan saat seeding:", error);
-  } finally {
-    process.exit(0);
+  const data = [
+  {
+    "id": 1,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Polines",
+    "bannerUrl": "\\Banner\\Polines.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 1,
+    "dibuatPada": new Date("2026-05-03T06:22:59.751Z"),
+    "isEventPolines": true,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 2,
+    "organizerId": 1,
+    "kategoriId": 2,
+    "kotaId": 2,
+    "judul": "Komputer",
+    "bannerUrl": "\\Banner\\Komputer.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-03T06:24:21.346Z"),
+    "isEventPolines": true,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 3,
+    "organizerId": 1,
+    "kategoriId": 3,
+    "kotaId": 2,
+    "judul": "Elektro",
+    "bannerUrl": "\\Banner\\Elektro.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-03T06:24:43.839Z"),
+    "isEventPolines": true,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 4,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Desain",
+    "bannerUrl": "\\Banner\\Desain.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-03T06:25:11.905Z"),
+    "isEventPolines": true,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 5,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Polines",
+    "bannerUrl": "\\Banner\\Polines.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-03T06:26:13.259Z"),
+    "isEventPolines": false,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 6,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Komputer",
+    "bannerUrl": "\\Banner\\Komputer.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-03T06:26:34.463Z"),
+    "isEventPolines": false,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 7,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Elektro",
+    "bannerUrl": "\\Banner\\Elektro.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-03T06:26:48.543Z"),
+    "isEventPolines": false,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 8,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Desain",
+    "bannerUrl": "\\Banner\\Desain.png",
+    "status": "pending",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-03T06:27:02.723Z"),
+    "isEventPolines": false,
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 9,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "SEMINAR NASIONAL Pharmacy Informatics",
+    "slug": "seminar-nasional-pharmacy-informatics",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.853Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4493/seminar-nasional-pharmacy-informatics",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.634Z"),
+    "isEventPolines": true,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 10,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Tech Outlook 2024 - Elevating Recruitment in the Cloud Era",
+    "slug": "tech-outlook-2024---elevating-recruitment-in-the-cloud-era",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.853Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4486/tech-outlook-2024-elevating-recruitment-in-the-cloud-era",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.644Z"),
+    "isEventPolines": true,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 11,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "WEBINAR KESETARAAN GENDER",
+    "slug": "webinar-kesetaraan-gender",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.853Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4481/webinar-kesetaraan-gender",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.647Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 12,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "WEBINAR NASIONAL EKSPEDISI SERIBU PULAU #4 2023",
+    "slug": "webinar-nasional-ekspedisi-seribu-pulau-4-2023",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.853Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4442/webinar-nasional-ekspedisi-seribu-pulau-4-2023",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.651Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 13,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "WEBINAR KESENIAN DAN KESEHATAN \"ENDORFIN\"",
+    "slug": "webinar-kesenian-dan-kesehatan-endorfin",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.853Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4432/webinar-kesenian-dan-kesehatan-endorfin",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.654Z"),
+    "isEventPolines": true,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 14,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Devfest Bogor 2022 “Move Together for Further”",
+    "slug": "devfest-bogor-2022-move-together-for-further",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.853Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4429/devfest-bogor-2022-move-together-for-further",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.657Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 15,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "The Art of Arranging Music with",
+    "slug": "the-art-of-arranging-music-with",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.854Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4425/the-art-of-arranging-music-with",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.662Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 16,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "judul": "SEMINAR NASIONAL FISIOTERAPI UNIVERSITAS AIRLANGGA 2022",
+    "slug": "seminar-nasional-fisioterapi-universitas-airlangga-2022",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.854Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4419/seminar-nasional-fisioterapi-universitas-airlangga-2022",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.665Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 17,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "The 72nd MarkPlus Goes to Campus",
+    "slug": "the-72nd-markplus-goes-to-campus",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.854Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4418/the-72nd-markplus-goes-to-campus",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.668Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 18,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "judul": "Go Scholarship 2022",
+    "slug": "go-scholarship-2022",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.854Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4414/go-scholarship-2022",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.671Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 19,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "The 7th Annual International Conference and Exhibition on Indonesian Medical Education and Research",
+    "slug": "the-7th-annual-international-conference-and-exhibition-on-indonesian-medical-education-and-research-",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.854Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4405/the-7th-annual-international-conference-and-exhibition-on-indonesian-medical-education-and-research-institute",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.675Z"),
+    "isEventPolines": true,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 20,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "ILSA Connect 2022",
+    "slug": "ilsa-connect-2022",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.854Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4399/ilsa-connect-2022",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.679Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 21,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "The 69th MarkPlus Goes to Campus",
+    "slug": "the-69th-markplus-goes-to-campus",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.854Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4397/the-69th-markplus-goes-to-campus",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.682Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 22,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "SEMINAR NASIONAL TL EXPO 2022",
+    "slug": "seminar-nasional-tl-expo-2022",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.860Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4395/seminar-nasional-tl-expo-2022",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.685Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 23,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "68th MarkPlus Goes to Campus",
+    "slug": "68th-markplus-goes-to-campus",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.860Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4392/68th-markplus-goes-to-campus",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.688Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 24,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "𝐌𝐀𝐍𝐀𝐆𝐄𝐌𝐄𝐍𝐓 𝐍𝐀𝐓𝐈𝐎𝐍𝐀𝐋 𝐄𝐍𝐓𝐑𝐄𝐏𝐑𝐄𝐍𝐄𝐔𝐑 𝐓𝐀𝐋𝐊 𝟐𝟎𝟐𝟐",
+    "slug": "----",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.861Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4390",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.692Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 25,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Pekan Raya Biologi 2022",
+    "slug": "pekan-raya-biologi-2022",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.861Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4385/pekan-raya-biologi-2022",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.695Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 26,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "BRAWIJAYA LAW FAIR XIII 2022: SEMINAR HUKUM NASIONAL",
+    "slug": "brawijaya-law-fair-xiii-2022-seminar-hukum-nasional",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.861Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4377/brawijaya-law-fair-xiii-2022-seminar-hukum-nasional",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.698Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 27,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "The 64th MarkPlus Goes to Campus",
+    "slug": "the-64th-markplus-goes-to-campus",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.861Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4371/the-64th-markplus-goes-to-campus",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.701Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 28,
+    "organizerId": 1,
+    "kategoriId": 2,
+    "kotaId": 2,
+    "judul": "The 63rd MarkPlus Goes to Campus “Entrepreneurial Marketing\"",
+    "slug": "the-63rd-markplus-goes-to-campus-entrepreneurial-marketing",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.862Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4366/the-63rd-markplus-goes-to-campus-entrepreneurial-marketing",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.704Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 29,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Webinar Nasional",
+    "slug": "webinar-nasional",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.862Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4363/webinar-nasional",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.707Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 30,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "SPEXPERIENCE II",
+    "slug": "spexperience-ii",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.862Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4361/spexperience-ii",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.710Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 31,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "judul": "The 62nd MarkPlus Goes to Campus “Entrepreneurial Marketing\"",
+    "slug": "the-62nd-markplus-goes-to-campus-entrepreneurial-marketing",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.862Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4360/the-62nd-markplus-goes-to-campus-entrepreneurial-marketing",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.714Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 32,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "LAWFERENCE",
+    "slug": "lawference",
+    "tanggalMulai": new Date("2026-04-22T17:57:40.862Z"),
+    "linkEksternal": "https://eventkampus.com/event/detail/4358/lawference",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.717Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 33,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Event Tags",
+    "slug": "event-tags",
+    "tanggalMulai": new Date("2026-05-01T13:30:41.646Z"),
+    "linkEksternal": "https://eventkampus.com/event/tags/piagam-penghargaan",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.720Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 34,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "The 7th Annual International Conference and Exhibition on Indonesian Medical  Education and Research Institute",
+    "slug": "the-7th-annual-international-conference-and-exhibition-on-indonesian-medical-education-and-research-institute",
+    "tanggalMulai": new Date("2026-05-01T13:30:41.646Z"),
+    "detailLokasi": "online & offline",
+    "linkEksternal": "#",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.724Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
+  },
+  {
+    "id": 35,
+    "organizerId": 1,
+    "kategoriId": 1,
+    "kotaId": 2,
+    "judul": "Event Tags",
+    "slug": "event-tags-238",
+    "tanggalMulai": new Date("2026-05-01T20:30:41.646Z"),
+    "linkEksternal": "https://eventkampus.com/event/tags/piagam-penghargaan",
+    "status": "published",
+    "hasilScraping": false,
+    "jumlahTayangan": 0,
+    "dibuatPada": new Date("2026-05-04T17:44:52.727Z"),
+    "isEventPolines": false,
+    "jenisEvent": "seminar",
+    "harga": 0,
+    "satuAkunSatuTransaksi": false
   }
+];
+  
+  console.log("🚀 Seeding events...");
+  for (const item of data) {
+    await db.insert(event).values(item).onConflictDoUpdate({
+      target: event.slug,
+      set: item
+    });
+  }
+  console.log("✅ Events seeded!");
+  process.exit(0);
 }
 
-main();
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
