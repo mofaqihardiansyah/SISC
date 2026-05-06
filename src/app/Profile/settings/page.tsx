@@ -1,233 +1,220 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
-    name: 'Faqih Ardiansyah',
-    email: 'faqih@polines.ac.id',
-    phone: '+62 812-3456-7890',
-    institution: 'Politeknik Negeri Semarang',
-    major: 'Teknik Informatika',
-    bio: 'Penggemar event dan networking',
+    name: '',
+    email: '',
+    phone: '',
+    institution: '',
   });
 
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    smsNotifications: false,
-    pushNotifications: true,
-    publicProfile: true,
-  });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // FETCH DATA USER
+  useEffect(() => {
+    fetch('/api/user/profile')
+      .then(res => res.json())
+      .then(data => {
+        setFormData({
+          name: data.namaLengkap || '',
+          email: data.email || '',
+          phone: data.nomorTelepon || '',
+          institution: data.institution || '',
+        });
+      });
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSettingToggle = (key: keyof typeof settings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  // UPDATE
+  const handleSave = async () => {
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error();
+
+      alert('Pengaturan berhasil disimpan!');
+    } catch {
+      alert('Gagal menyimpan');
+    }
   };
 
-  const handleSave = () => {
-    alert('Pengaturan berhasil disimpan!');
+  // DELETE
+  const handleDelete = async () => {
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error();
+
+      alert('Akun berhasil dihapus');
+      router.push('/login');
+    } catch {
+      alert('Gagal menghapus akun');
+    }
   };
 
   return (
-    <div className="space-y-8 max-w-4xl">
-      {/* PAGE HEADER */}
+    <div className="w-full min-h-screen px-10 py-8 space-y-8">
+
+      {/* HEADER */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Pengaturan Akun</h1>
-        <p className="text-slate-500 mt-2">Kelola informasi profil dan preferensi Anda</p>
+        <p className="text-slate-500 mt-2">
+          Kelola informasi profil dan preferensi Anda
+        </p>
       </div>
 
-      {/* PROFILE INFORMATION SECTION */}
-      <section className="bg-white rounded-xl border border-slate-200 p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Informasi Profil</h2>
+      {/* INFORMASI PROFIL */}
+      <section className="w-full bg-white rounded-xl border border-slate-200 p-10 shadow-sm">
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">
+          Informasi Profil
+        </h2>
 
         <div className="space-y-6">
-          <div className="flex items-end gap-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white text-3xl font-bold">
-              FA
+          <div className="flex items-center gap-6">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+              {formData.name ? formData.name.charAt(0).toUpperCase() : 'U'}
             </div>
-            <div className="space-y-2">
-              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+
+            <div>
+              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
                 Ubah Foto Profil
               </button>
-              <p className="text-xs text-slate-500">Format: JPG, PNG. Ukuran maksimal: 5MB</p>
+              <p className="text-xs text-slate-500 mt-1">
+                Format: JPG, PNG. Maks: 5MB
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
+              <label className="text-sm font-semibold mb-2 block">
                 Nama Lengkap
               </label>
               <input
-                type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border rounded-lg"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
+              <label className="text-sm font-semibold mb-2 block">
                 Email
               </label>
               <input
-                type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border rounded-lg"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
+              <label className="text-sm font-semibold mb-2 block">
                 Nomor Telepon
               </label>
               <input
-                type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border rounded-lg"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
+              <label className="text-sm font-semibold mb-2 block">
                 Institusi
               </label>
               <input
-                type="text"
                 name="institution"
                 value={formData.institution}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border rounded-lg"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
-                Program Studi
-              </label>
-              <input
-                type="text"
-                name="major"
-                value={formData.major}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-2">
-              Bio
-            </label>
-            <textarea
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
           </div>
 
           <button
             onClick={handleSave}
-            className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold"
           >
             Simpan Perubahan
           </button>
         </div>
       </section>
 
-      {/* NOTIFICATION PREFERENCES SECTION */}
-      <section className="bg-white rounded-xl border border-slate-200 p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Preferensi Notifikasi</h2>
+      {/* KEAMANAN */}
+      <section className="w-full bg-white rounded-xl border border-slate-200 p-10 shadow-sm">
+        <h2 className="text-2xl font-bold mb-6">Keamanan & Privasi</h2>
 
-        <div className="space-y-4">
-          {[
-            {
-              key: 'emailNotifications' as const,
-              label: 'Notifikasi Email',
-              description: 'Terima notifikasi event dan update melalui email',
-            },
-            {
-              key: 'smsNotifications' as const,
-              label: 'Notifikasi SMS',
-              description: 'Terima notifikasi penting melalui SMS',
-            },
-            {
-              key: 'pushNotifications' as const,
-              label: 'Notifikasi Push',
-              description: 'Terima notifikasi push di browser atau aplikasi',
-            },
-            {
-              key: 'publicProfile' as const,
-              label: 'Profil Publik',
-              description: 'Biarkan pengguna lain melihat profil Anda',
-            },
-          ].map((item) => (
-            <div
-              key={item.key}
-              className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition"
-            >
-              <div>
-                <p className="font-semibold text-slate-900">{item.label}</p>
-                <p className="text-sm text-slate-500">{item.description}</p>
-              </div>
-              <button
-                onClick={() => handleSettingToggle(item.key)}
-                className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${
-                  settings[item.key] ? 'bg-blue-600' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                    settings[item.key] ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* SECURITY SECTION */}
-      <section className="bg-white rounded-xl border border-slate-200 p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Keamanan & Privasi</h2>
-
-        <div className="space-y-3">
-          <button className="w-full px-4 py-3 border border-slate-300 hover:bg-slate-50 text-slate-900 font-semibold rounded-lg transition-colors text-left">
-            🔐 Ubah Password
-          </button>
-          <button className="w-full px-4 py-3 border border-slate-300 hover:bg-slate-50 text-slate-900 font-semibold rounded-lg transition-colors text-left">
-            🔑 Autentikasi Dua Faktor
-          </button>
-          <button className="w-full px-4 py-3 border border-slate-300 hover:bg-slate-50 text-slate-900 font-semibold rounded-lg transition-colors text-left">
-            📱 Kelola Sesi
-          </button>
-        </div>
+        <button
+          onClick={() => router.push('/forgot-password')}
+          className="w-full border px-4 py-3 rounded-lg text-left hover:bg-slate-50"
+        >
+          Ubah Password
+        </button>
       </section>
 
       {/* DANGER ZONE */}
-      <section className="bg-red-50 rounded-xl border border-red-200 p-8">
-        <h2 className="text-2xl font-bold text-red-900 mb-6">Zona Bahaya</h2>
+      <section className="w-full bg-red-50 border border-red-200 rounded-xl p-10 shadow-sm">
+        <h2 className="text-2xl font-bold text-red-900 mb-6">
+          Konfirmasi Penghapusan Akun
+        </h2>
 
-        <div className="space-y-3">
-          <button className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors">
-            🗑️ Hapus Akun
-          </button>
-          <p className="text-xs text-red-700">
-            Peringatan: Menghapus akun akan menghapus semua data Anda secara permanen dan tidak dapat dipulihkan.
-          </p>
-        </div>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg"
+        >
+          Hapus Akun
+        </button>
+
+        <p className="text-xs text-red-700 mt-2">
+          Menghapus akun akan menghapus semua data secara permanen.
+        </p>
       </section>
+
+      {/* MODAL */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md">
+            <h3 className="font-bold text-lg mb-4">
+              Yakin ingin menghapus akun ini?
+            </h3>
+
+            <div className="flex gap-4">
+              <button
+                onClick={handleDelete}
+                className="flex-1 bg-red-600 text-white py-2 rounded"
+              >
+                Iya
+              </button>
+
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 bg-gray-300 py-2 rounded"
+              >
+                Tidak
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,17 @@
-import { PlaywrightCrawler, Dataset } from "crawlee";
+import { PlaywrightCrawler } from "crawlee";
 import { db } from "@/db";
 import { event } from "@/db/schema";
 import { slugify } from "@/lib/utils";
 import { inArray } from "drizzle-orm";
+
+interface ScrapedEvent {
+  judul: string;
+  linkEksternal: string;
+  bannerUrl: string;
+  detailLokasi: string;
+  tanggalMentah: string;
+  websiteSumber: string;
+}
 
 export const seminarCrawler = new PlaywrightCrawler({
   maxConcurrency: 2, // Menjaga penggunaan RAM tetap aman (cocok untuk RAM 8GB)
@@ -20,7 +29,7 @@ export const seminarCrawler = new PlaywrightCrawler({
 
     const results = await page.evaluate((targetUrl) => {
       const cards = document.querySelectorAll('.col-md-4, .card');
-      const data: any[] = [];
+      const data: ScrapedEvent[] = [];
 
       cards.forEach((card) => {
         const titleEl = card.querySelector('h3, h4, .card-title');
@@ -45,7 +54,7 @@ export const seminarCrawler = new PlaywrightCrawler({
           if (link.startsWith('/')) link = 'https://eventkampus.com' + link;
 
           data.push({
-            judul: titleEl.textContent?.trim(),
+            judul: titleEl.textContent?.trim() || "Tanpa Judul",
             linkEksternal: link,
             bannerUrl: imageEl?.getAttribute('src') || "",
             detailLokasi: location,
@@ -105,7 +114,6 @@ export const seminarCrawler = new PlaywrightCrawler({
         }));
 
       if (newData.length > 0) {
-        // @ts-ignore - types might be slightly off due to Drizzle version
         await db.insert(event).values(newData);
         log.info(`📦 Berhasil menyimpan ${newData.length} event baru ke database.`);
       } else {

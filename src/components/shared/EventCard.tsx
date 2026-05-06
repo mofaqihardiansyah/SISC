@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { normalizeImagePath } from "@/lib/utils/image-utils";
 
 interface EventCardProps {
   id: string;
@@ -34,7 +35,7 @@ export default function EventCard({
         {/* Image */}
         <div className="relative h-36">
           <img
-            src={imageUrl || "/placeholder-banner.png"}
+            src={normalizeImagePath(imageUrl)}
             alt={title}
             className="w-full h-full object-cover"
           />

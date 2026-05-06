@@ -1,141 +1,205 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Info, Link as LinkIcon } from 'lucide-react';
+import { Info, Link as LinkIcon, ChevronLeft, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { daftarEvent } from '@/actions/peserta';
+import { toast } from 'sonner';
 
-export default function RegistrasiEventPage() {
-  // State untuk mengatur perpindahan halaman (1 atau 2)
+function RegistrationForm() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const eventId = searchParams.get('eventId');
+  
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    nama_lengkap: '',
+    email: '',
+    nomor_telepon: '',
+    jenis_kelamin: 'pria'
+  });
+
+  const handleSimpanData = async () => {
+    setIsSubmitting(true);
+    const res = await daftarEvent(formData);
+    setIsSubmitting(false);
+    
+    if (res.success) {
+      toast.success("Pendaftaran Berhasil Disimpan!");
+      router.push('/');
+    } else {
+      toast.error("Gagal menyimpan data. Silakan coba lagi.");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10">
-      {/* Header / Navbar */}
-      <nav className="flex items-center justify-between bg-[#1e293b] px-10 py-4 text-white">
-        <div className="text-xl font-bold tracking-wider">POLIVENTS</div>
-        <div className="hidden md:flex gap-8 text-sm font-medium">
-          <a href="#" className="hover:text-blue-400">Beranda</a>
-          <a href="#" className="hover:text-blue-400 border-b-2 border-white pb-1">Jelajah</a>
-          <a href="#" className="hover:text-blue-400">Bantuan</a>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-orange-400 flex items-center justify-center text-[10px] font-bold">
-            IL
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Simple Header */}
+      <nav className="bg-white border-b border-slate-200 px-6 sm:px-12 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <div className="w-4 h-4 bg-white rounded-sm rotate-45" />
           </div>
-          <span className="text-xs font-medium">Ika Lutfi</span>
+          <span className="text-xl font-black text-primary tracking-tight">POLIVENTS</span>
         </div>
+        <Button variant="ghost" size="sm" onClick={() => router.back()} className="text-slate-500 font-semibold">
+          <ChevronLeft className="w-4 h-4 mr-1" /> Kembali
+        </Button>
       </nav>
 
-      {/* Main Content */}
-      <main className="mx-auto mt-12 max-w-4xl px-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
-          
-          {step === 1 ? (
-            /* --- HALAMAN 1: INFORMASI PESERTA --- */
-            <>
-              <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-8">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-blue-600">
-                  <Info className="h-4 w-4 text-blue-600" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-800">Informasi Peserta</h2>
+      <main className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-xl">
+          {/* Progress Indicator */}
+          <div className="flex items-center justify-center mb-12">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= 1 ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/20' : 'bg-slate-200 text-slate-500'}`}>
+                1
               </div>
+              <div className={`w-16 h-1 rounded-full transition-all ${step >= 2 ? 'bg-primary' : 'bg-slate-200'}`} />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= 2 ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/20' : 'bg-slate-200 text-slate-500'}`}>
+                2
+              </div>
+            </div>
+          </div>
 
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 gap-6">
-                  
-                  {/* Nama Lengkap */}
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Lengkap</Label>
-                    <Input placeholder="Masukkan Nama Lengkap" className="bg-gray-50 border-none h-12 focus-visible:ring-1 focus-visible:ring-blue-500" />
+          <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+            <div className="p-8 sm:p-12">
+              {step === 1 ? (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="mb-8">
+                    <h2 className="text-3xl font-black text-slate-900 mb-2">Informasi Peserta</h2>
+                    <p className="text-slate-500 font-medium">Silakan lengkapi data diri Anda untuk melanjutkan pendaftaran.</p>
                   </div>
 
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</Label>
-                    <Input type="email" placeholder="Masukkan Email Anda" className="bg-gray-50 border-none h-12 focus-visible:ring-1 focus-visible:ring-blue-500" />
-                  </div>
-
-                  {/* Baris No Handphone dan Jenis Kelamin */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    {/* No Handphone - Kode Negara (Pilih) + Nomor (Ketik) */}
+                  <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
                     <div className="space-y-2">
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">No. Handphone</Label>
-                      <div className="flex gap-2">
-                        <select className="flex h-12 w-[100px] rounded-md border-none bg-gray-50 px-3 py-2 text-sm outline-none cursor-pointer">
-                          <option value="62">(+62)</option>
-                          <option value="1">(+1)</option>
-                          <option value="44">(+44)</option>
-                        </select>
+                      <Label className="text-sm font-bold text-slate-700 ml-1">Nama Lengkap</Label>
+                      <Input 
+                        required
+                        value={formData.nama_lengkap}
+                        onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
+                        placeholder="Contoh: Budi Santoso" 
+                        className="bg-slate-50 border-slate-200 h-12 rounded-xl focus:ring-primary focus:border-primary" 
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-bold text-slate-700 ml-1">Alamat Email</Label>
+                      <Input 
+                        required
+                        type="email" 
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        placeholder="email@anda.com" 
+                        className="bg-slate-50 border-slate-200 h-12 rounded-xl" 
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-bold text-slate-700 ml-1">Nomor WhatsApp</Label>
                         <Input 
+                          required
                           type="tel" 
-                          placeholder="8123456789" 
-                          className="flex-1 bg-gray-50 border-none h-12 focus-visible:ring-1 focus-visible:ring-blue-500" 
+                          value={formData.nomor_telepon}
+                          onChange={(e) => setFormData({...formData, nomor_telepon: e.target.value})}
+                          placeholder="08123456789" 
+                          className="bg-slate-50 border-slate-200 h-12 rounded-xl" 
                         />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-bold text-slate-700 ml-1">Jenis Kelamin</Label>
+                        <select 
+                          value={formData.jenis_kelamin}
+                          onChange={(e) => setFormData({...formData, jenis_kelamin: e.target.value})}
+                          className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        >
+                          <option value="pria">Pria</option>
+                          <option value="wanita">Wanita</option>
+                        </select>
                       </div>
                     </div>
 
-                    {/* Jenis Kelamin */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Jenis Kelamin</Label>
-                      <select className="flex h-12 w-full rounded-md border-none bg-gray-50 px-3 py-2 text-sm outline-none cursor-pointer">
-                        <option value="pria">Pria</option>
-                        <option value="wanita">Wanita</option>
-                      </select>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-primary hover:bg-[#02336B] h-14 text-lg font-bold rounded-2xl shadow-lg shadow-primary/20 mt-6 transition-all active:scale-95"
+                    >
+                      Lanjut ke Pendaftaran
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="mb-8 text-center">
+                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle2 className="w-10 h-10 text-green-500" />
+                    </div>
+                    <h2 className="text-3xl font-black text-slate-900 mb-2">Hampir Selesai!</h2>
+                    <p className="text-slate-500 font-medium px-4">
+                      Silakan isi formulir pendaftaran eksternal melalui link di bawah ini, kemudian klik tombol konfirmasi.
+                    </p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <a 
+                      href="https://docs.google.com/forms/u/0/create" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-primary">
+                          <ExternalLink className="w-6 h-6" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-bold text-slate-900">Formulir GForm</p>
+                          <p className="text-xs text-slate-400 font-medium">Buka di tab baru</p>
+                        </div>
+                      </div>
+                      <LinkIcon className="w-5 h-5 text-slate-300 group-hover:text-primary transition-colors" />
+                    </a>
+
+                    <div className="flex flex-col gap-3 pt-4">
+                      <Button 
+                        onClick={handleSimpanData}
+                        disabled={isSubmitting}
+                        className="w-full bg-primary hover:bg-[#02336B] h-14 text-lg font-bold rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-95"
+                      >
+                        {isSubmitting ? 'Menyimpan...' : 'Saya Sudah Mengisi Form & Selesai'}
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => setStep(1)} 
+                        className="h-12 text-slate-400 font-bold hover:text-slate-600 rounded-xl"
+                      >
+                        Kembali ke Data Diri
+                      </Button>
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
+          </div>
 
-                <div className="pt-8">
-                  <Button 
-                    type="button" 
-                    onClick={() => setStep(2)} 
-                    className="w-full bg-[#0052cc] hover:bg-blue-700 h-14 text-lg font-bold rounded-xl shadow-md transition-all"
-                  >
-                    Selanjutnya
-                  </Button>
-                </div>
-              </form>
-            </>
-          ) : (
-            /* --- HALAMAN 2: LINK FORM PENDAFTARAN --- */
-            <>
-              <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-8">
-                <LinkIcon className="h-5 w-5 text-blue-600" />
-                <h2 className="text-xl font-bold text-gray-800">Link Form Pendaftaran</h2>
-              </div>
-
-              <div className="space-y-8 px-2">
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-6">
-                  <p className="text-sm font-mono break-all text-gray-700 leading-relaxed">
-                    https://docs.google.com/forms/u/0/create?usp=forms_home&ths=true
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                  <Button 
-                    type="button"
-                    className="w-full bg-[#0052cc] hover:bg-blue-700 h-14 text-lg font-bold rounded-xl shadow-md transition-all"
-                    onClick={() => alert("Pendaftaran Berhasil Dikirim!")}
-                  >
-                    Selanjutnya
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => setStep(1)} 
-                    className="text-gray-500 hover:text-gray-800 font-medium"
-                  >
-                    Kembali ke Informasi Peserta
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
-
+          <div className="mt-8 flex items-center justify-center gap-2 text-slate-400 text-sm font-medium">
+            <Info className="w-4 h-4" />
+            <span>Data Anda aman dan hanya digunakan untuk keperluan event ini.</span>
+          </div>
         </div>
       </main>
     </div>
+  );
+}
+
+export default function RegistrasiEventPage() {
+  return (
+    <Suspense fallback={<div className="h-screen flex items-center justify-center font-bold text-primary animate-pulse">Memuat...</div>}>
+      <RegistrationForm />
+    </Suspense>
   );
 }
