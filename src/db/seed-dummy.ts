@@ -92,7 +92,7 @@ async function main() {
   }
 
   // 7. LOG ADMIN
-  console.log("  📦 Log Admin...");
+  console.log(" Log Admin...");
   const logs = [
     { adminId: 1, eventId: 1, aksi: "approved", dataSebelumnya: { status: "pending" } },
     { adminId: 1, eventId: 18, aksi: "approved", dataSebelumnya: { status: "pending" } },

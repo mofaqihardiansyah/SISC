@@ -63,10 +63,12 @@ next-env.d.ts
 # AI Agent Configuration
 /.ai/
 
-# User uploads (jangan commit file upload user)
+# User uploads
 public/uploads/avatars/*
 public/uploads/documents/*
-public/uploads/banners/*
 !public/uploads/avatars/.gitkeep
 !public/uploads/documents/.gitkeep
-!public/uploads/banners/.gitkeep
+
+# Biarkan banners di-commit (untuk aset dummy development)
+!public/uploads/banners/
+
