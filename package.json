@@ -10,8 +10,9 @@
     "db:seed-users": "npx tsx src/db/seed-users.ts",
     "db:seed-events": "npx tsx src/db/seedevents.ts",
     "db:seed-kategori": "npx tsx src/db/seedkategori.ts",
+    "db:seed-provinsi": "npx tsx src/db/seedprovinsi.ts",
     "db:seed-kota": "npx tsx src/db/seedkota.ts",
-    "db:seed": "npm run db:seed-users && npm run db:seed-events && npm run db:seed-kategori && npm run db:seed-kota"
+    "db:seed": "npm run db:seed-provinsi && npm run db:seed-kota && npm run db:seed-kategori && npm run db:seed-users && npm run db:seed-events"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
