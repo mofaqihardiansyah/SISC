@@ -1,4 +1,4 @@
-import { PlaywrightCrawler } from "crawlee";
+import { PlaywrightCrawler } from "@crawlee/playwright";
 import { db } from "@/db";
 import { event } from "@/db/schema";
 import { slugify } from "@/lib/utils";
