@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 
@@ -7,6 +5,7 @@ export default function UserDashboard() {
   const upcomingEvents = [
     {
       id: 1,
+      
       title: 'Seminar PPKS',
       date: '11 April 2026',
       location: 'Auditorium Utama Polines',

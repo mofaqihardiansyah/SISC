@@ -88,16 +88,16 @@ export default function RegisterPage() {
         </div>
 
         <Tabs defaultValue="visitor" className="w-full" onValueChange={setRole}>
-          <TabsList className="flex w-full bg-transparent p-0 rounded-none border-b border-slate-200 mb-8 h-auto gap-0">
+          <TabsList variant="line" className="flex w-full bg-transparent p-0 border-b border-slate-200 mb-8 gap-0 h-12">
             <TabsTrigger 
               value="visitor" 
-              className="flex-1 rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
+              className="flex-1 px-0 py-3 text-slate-400 data-[active]:text-primary data-[active]:font-bold transition-all"
             >
               Pengunjung
             </TabsTrigger>
             <TabsTrigger 
               value="organizer" 
-              className="flex-1 rounded-none border-b-2 border-transparent data-active:border-b-primary data-active:text-primary data-active:bg-transparent! data-active:shadow-none! py-3 text-slate-400 font-semibold text-sm transition-all shadow-none -mb-px"
+              className="flex-1 px-0 py-3 text-slate-400 data-[active]:text-primary data-[active]:font-bold transition-all"
             >
               Penyelenggara
             </TabsTrigger>
@@ -120,7 +120,7 @@ export default function RegisterPage() {
                 <Input 
                   id="visitor-email" 
                   type="email" 
-                  placeholder="email" 
+                  placeholder="Masukkan email anda" 
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('email')}
                 />
@@ -173,7 +173,7 @@ export default function RegisterPage() {
                   <Input 
                     type="email" 
                     autoComplete="off"
-                    placeholder="Email Organisasi" 
+                    placeholder="Masukkan email anda" 
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('email')}
                   />

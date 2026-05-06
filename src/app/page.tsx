@@ -1,253 +1,140 @@
-import EventCard from "@/components/profile/EventCard";
-import Link from "next/link";
+import EventCard from "@/components/shared/EventCard";
+import { db } from "@/db";
+import { event, kategori } from "@/db/schema";
+import { eq, and, isNull, desc } from "drizzle-orm";
+import Footer from "@/components/shared/Footer";
+import HeroSlider from "@/components/shared/HeroSlider";
+import KategoriCarousel from "@/components/shared/KategoriCarousel";
 
-const eventPolines = [
-  {
-    id: "1",
-    title: "National Robotic Competition: Polines Circuit 2024",
-    date: "SABTU, 24 OKT • 09:00",
-    location: "Auditorium Utama Polines",
-    price: 50000,
-    category: "Teknologi",
-    organizer: "BEM Polines",
-    type: "POLINES" as const,
-  },
-  {
-    id: "2",
-    title: "Future of UX/UI Design in AI Era: Global Perspectives",
-    date: "MINGGU, 25 OKT • 10:00",
-    location: "Gedung Kerjasama Polines",
-    price: null,
-    category: "Desain",
-    organizer: "Design Collective ID",
-    type: "POLINES" as const,
-  },
-  {
-    id: "3",
-    title: "Symphony in Blue: Polines Annual Music Night",
-    date: "JUMAT, 30 OKT • 19:00",
-    location: "Lapangan Upnormal Polines",
-    price: 35000,
-    category: "Seni",
-    organizer: "UKM Musik",
-    type: "POLINES" as const,
-  },
-  {
-    id: "4",
-    title: "Semarang Creative Hub: Weekend Night Market",
-    date: "SABTU, 31 OKT • 16:00",
-    location: "Waterfront Polines",
-    price: null,
-    category: "Seni",
-    organizer: "Hima Polines",
-    type: "POLINES" as const,
-  },
-];
+const categoryColors: Record<string, string> = {
+  teknologi:                 "bg-orange-500",
+  bisnis:                    "bg-blue-600",
+  otomotif:                  "bg-yellow-400",
+  ekonomi:                   "bg-teal-500",
+  seni:                      "bg-purple-600",
+  "artificial-intelligence": "bg-red-500",
+  bahasa:                    "bg-pink-500",
+  pendidikan:                "bg-yellow-500",
+};
 
-const eventUmum = [
-  {
-    id: "5",
-    title: "National Robotic Competition: Polines Circuit 2024",
-    date: "SABTU, 24 OKT • 09:00",
-    location: "Semarang Convention Hall",
-    price: 50000,
-    category: "Teknologi",
-    organizer: "BEM Polines",
-    type: "UMUM" as const,
-  },
-  {
-    id: "6",
-    title: "Future of UX/UI Design in AI Era: Global Perspectives",
-    date: "MINGGU, 25 OKT • 10:00",
-    location: "Taman Kuliner Semarang",
-    price: null,
-    category: "Desain",
-    organizer: "Design Collective ID",
-    type: "UMUM" as const,
-  },
-  {
-    id: "7",
-    title: "Symphony in Blue: Polines Annual Music Night",
-    date: "JUMAT, 30 OKT • 19:00",
-    location: "Stadion Letjen Soeprapto",
-    price: 35000,
-    category: "Seni",
-    organizer: "UKM Musik",
-    type: "UMUM" as const,
-  },
-  {
-    id: "8",
-    title: "Semarang Creative Hub: Weekend Night Market",
-    date: "SABTU, 31 OKT • 16:00",
-    location: "Pandanaran Square",
-    price: null,
-    category: "Seni",
-    organizer: "Hima Polines",
-    type: "UMUM" as const,
-  },
-];
+export default async function BerandaPage() {
+  try {
+    const categories = await db.select().from(kategori).catch(() => []);
 
-const categories = [
-  { label: "Teknologi", emoji: "💻", color: "bg-orange-500" },
-  { label: "Bisnis", emoji: "📊", color: "bg-blue-600" },
-  { label: "Otomotif", emoji: "🚗", color: "bg-yellow-400" },
-  { label: "Ekonomi", emoji: "✏️", color: "bg-teal-500" },
-  { label: "Seni", emoji: "🎭", color: "bg-purple-600" },
-  { label: "Artificial Intelligence", emoji: "🤖", color: "bg-red-500" },
-  { label: "Bahasa", emoji: "🗣️", color: "bg-pink-500" },
-  { label: "Pendidikan", emoji: "🏆", color: "bg-yellow-500" },
-];
+    const heroEvents = await db
+      .select()
+      .from(event)
+      .where(isNull(event.dihapusPada))
+      .orderBy(desc(event.jumlahTayangan))
+      .limit(5)
+      .catch(() => []);
 
-export default function BerandaPage() {
+    const eventPolines = await db
+      .select()
+      .from(event)
+      .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada)))
+      .limit(8)
+      .catch(() => []);
+
+    const eventUmum = await db
+      .select()
+      .from(event)
+      .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada)))
+      .limit(8)
+      .catch(() => []);
+
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <main className="flex-1">
-        {/* HERO */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10">
-          <div className="relative h-64 sm:h-80 lg:h-96 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-400 via-yellow-500 to-orange-600">
-            <img
-              src="/placeholder-banner.png"
-              alt="hero"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+    <div className="bg-gray-50 min-h-screen">
 
-            <div className="absolute bottom-6 left-6 sm:bottom-8 sm:left-8 text-white">
-              <span className="inline-block bg-yellow-300 text-yellow-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full uppercase">
-                Paling Banyak Diminati
-              </span>
+      {/* HERO */}
+      <section className="px-4 sm:px-8 lg:px-16 mt-6">
+        <HeroSlider events={heroEvents} />
+      </section>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black mt-2 sm:mt-3 leading-tight">
-                Electro <br /> Tech 2024
-              </h1>
-
-              <div className="flex items-center gap-3 mt-3 sm:mt-4">
-                <button className="bg-white text-slate-800 font-semibold px-4 sm:px-5 py-2 rounded-lg hover:bg-gray-100 transition text-sm">
-                  Daftar
-                </button>
-                <span className="text-xs sm:text-sm opacity-90">
-                  📅 Sept 15-20 • GBK Arena
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
+      <main className="px-4 sm:px-8 lg:px-16 py-10">
 
         {/* KATEGORI */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-          <h2 className="text-lg sm:text-xl font-bold mb-6 text-slate-900">Kategori Event</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 sm:gap-4">
-            {categories.map((cat) => (
-              <Link key={cat.label} href="#" className="flex flex-col items-center gap-2 group">
-                <div
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${cat.color} flex items-center justify-center text-xl sm:text-2xl group-hover:shadow-lg transition-all transform group-hover:scale-105`}
-                >
-                  {cat.emoji}
-                </div>
-                <span className="text-xs text-slate-600 text-center font-medium">{cat.label}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <h2 className="text-2xl font-extrabold mb-5">Kategori Event</h2>
+        <KategoriCarousel categories={categories} />
 
         {/* EVENT POLINES */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Event Polines</h2>
-            <Link href="/explore" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold">
-              Lihat semuanya →
-            </Link>
+        <div className="mt-10">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="text-xl font-extrabold">Event Polines</h2>
+            <a href="/jelajah?type=polines" className="text-sm text-blue-600 hover:underline font-medium">
+              Lihat Selengkapnya →
+            </a>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {eventPolines.map((ev) => (
-              <div key={ev.id} className="h-full">
-                <EventCard {...ev} variant="grid" />
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {eventPolines.length === 0 ? (
+              <p className="text-gray-400 col-span-4">Belum ada event Polines.</p>
+            ) : (
+              eventPolines.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  id={String(ev.id)}
+                  title={ev.judul ?? "Tanpa Judul"}
+                  date={
+                    ev.tanggalMulai
+                      ? ev.tanggalMulai.toLocaleDateString("id-ID", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "Tanggal belum diisi"
+                  }
+                  price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
+                  category={ev.jenisEvent ?? "Kategori"}
+                  organizer={"Polines"}
+                  type="POLINES"
+                  imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
+                />
+              ))
+            )}
           </div>
-        </section>
+        </div>
 
         {/* EVENT UMUM */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Event Umum</h2>
-            <Link href="/explore" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold">
-              Lihat semuanya →
-            </Link>
+        <div className="mt-10">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="text-xl font-extrabold">Event Umum</h2>
+            <a href="/jelajah?type=umum" className="text-sm text-blue-600 hover:underline font-medium">
+              Lihat Selengkapnya →
+            </a>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {eventUmum.map((ev) => (
-              <div key={ev.id} className="h-full">
-                <EventCard {...ev} variant="grid" />
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {eventUmum.length === 0 ? (
+              <p className="text-gray-400 col-span-4">Belum ada event umum.</p>
+            ) : (
+              eventUmum.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  id={String(ev.id)}
+                  title={ev.judul ?? "Tanpa Judul"}
+                  date={
+                    ev.tanggalMulai
+                      ? ev.tanggalMulai.toLocaleDateString("id-ID", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "Tanggal belum diisi"
+                  }
+                  price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
+                  category={ev.jenisEvent ?? "Kategori"}
+                  organizer={"Umum"}
+                  type="UMUM"
+                  imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
+                />
+              ))
+            )}
           </div>
-        </section>
-      </main>
-
-      {/* FOOTER */}
-      <footer className="bg-slate-900 text-white mt-12 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {/* Brand */}
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-3">POLIVENTS</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Hubungkan koneksi anda dan tambah wawasan anda melalui seminar dan conference
-              </p>
-            </div>
-
-            {/* Bantuan */}
-            <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-wide">Bantuan</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="/faq" className="text-gray-400 hover:text-white transition-colors">
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
-                    Kontak
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Jelajahi Event */}
-            <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-wide">Jelajahi Event</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="/explore" className="text-gray-400 hover:text-white transition-colors">
-                    Jelajah
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/explore" className="text-gray-400 hover:text-white transition-colors">
-                    Event Polines
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/explore" className="text-gray-400 hover:text-white transition-colors">
-                    Event Umum
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Copyright */}
-            <div className="text-right">
-              <p className="text-gray-400 text-sm">© 2026 POLIVENTS.</p>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-700" />
         </div>
-      </footer>
+
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -24,22 +24,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: eq(users.email, email)
           });
 
-          if (!user || !user.password) return null;
-
-          // Periksa role jika dikirim dari client (contoh: tab Visitor/Organizer/Admin)
-          if (role && user.role !== role) {
-            console.log(`[AUTH] Login ditolak: Role tidak cocok. Meminta: ${role}, Aktual: ${user.role}`);
+          if (!user || !user.password) {
+            console.log(`[AUTH] Login ditolak: User tidak ditemukan (${email})`);
             return null;
           }
 
-          // Pastikan email sudah terverifikasi (kecuali admin mungkin tidak perlu jika dised langsung)
+          // Pastikan email sudah terverifikasi
           if (!user.emailVerified && user.role !== 'admin') {
-             console.log(`[AUTH] Login ditolak: Email belum diverifikasi untuk ${email}`);
-             return null;
+            console.log(`[AUTH] Login ditolak: Email belum diverifikasi (${email})`);
+            return null;
           }
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return { id: user.id.toString(), email: user.email ?? "", name: user.namaLengkap ?? "", role: user.role };
+          if (passwordsMatch) {
+            console.log(`[AUTH] Login sukses: ${email}`);
+            return { id: user.id.toString(), email: user.email ?? "", name: user.namaLengkap ?? "", role: user.role ?? undefined };
+          } else {
+            console.log(`[AUTH] Login ditolak: Password salah (${email})`);
+          }
+        } else {
+          console.log("[AUTH] Login ditolak: Parsing credentials gagal", parsedCredentials.error);
         }
         return null;
       },
