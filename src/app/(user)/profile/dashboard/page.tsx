@@ -99,7 +99,7 @@ export default function UserDashboard() {
         </Link>
 
         <Link
-          href="/profile/favorites"
+          href="/profile/event-favorit"
           className="bg-gradient-to-br from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white p-6 rounded-2xl transition-all group"
         >
           <div className="flex items-center justify-between">

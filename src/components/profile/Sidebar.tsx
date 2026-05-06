@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 const menuItems = [
   { label: "Dashboard", href: "/profile/dashboard", icon: LayoutDashboard },
   { label: "Eventku", href: "/profile/events", icon: CalendarCheck },
-  { label: "Event Favorit", href: "/profile/favorites", icon: Bookmark },
+  { label: "Event Favorit", href: "/profile/event-favorit", icon: Bookmark },
   { label: "Akun & Privasi", href: "/profile/settings", icon: Info },
   { label: "Bantuan", href: "/profile/help", icon: HelpCircle },
 ];
