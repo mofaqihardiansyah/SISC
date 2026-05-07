@@ -21,7 +21,7 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
     // Kita tambahkan Number(eventId) agar action tahu ini untuk event mana
     const res = await daftarEvent(formData, Number(eventId));
     if (res.success) {
-      alert(`Pendaftaran Berhasil Disimpan untuk Event: ${dataEvent.namaEvent}`);
+      alert(`Pendaftaran Berhasil Disimpan untuk Event: ${dataEvent.judul}`);
     } else {
       alert("Gagal menyimpan data. Cek terminal!");
     }
@@ -35,7 +35,7 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
             <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-blue-600">
               <Info className="h-4 w-4 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800">Informasi Peserta - {dataEvent.namaEvent}</h2>
+            <h2 className="text-xl font-bold text-gray-800">Informasi Peserta - {dataEvent.judul}</h2>
           </div>
 
           <form className="space-y-6">
@@ -112,13 +112,13 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
 
           <div className="space-y-8 px-2">
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-              {dataEvent.linkPendaftaran ? (
+              {dataEvent.linkEksternal ? (
                 <a 
-                  href={dataEvent.linkPendaftaran} 
+                  href={dataEvent.linkEksternal} 
                   target="_blank" 
                   className="text-blue-600 font-medium underline break-all"
                 >
-                  {dataEvent.linkPendaftaran}
+                  {dataEvent.linkEksternal}
                 </a>
               ) : (
                 <p className="text-gray-500 italic">Link pendaftaran belum tersedia untuk event ini.</p>

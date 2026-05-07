@@ -1,8 +1,8 @@
-// src/actions/peserta.ts
 "use server";
 
 import { db } from "@/db";
-import { peserta } from "@/db/schema";
+import { peserta, transaksi } from "@/db/schema";
+import { auth } from "@/auth";
 
 interface RegistrationData {
   nama_lengkap: string;
@@ -13,21 +13,35 @@ interface RegistrationData {
 
 export async function daftarEvent(formData: RegistrationData, eventId: number) {
   try {
-    // Pastikan eventId yang masuk adalah angka (number)
-    const idEvent = Number(eventId);
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return { success: false, error: "Anda harus masuk terlebih dahulu" };
+    }
 
+    const idEvent = Number(eventId);
+    const idUser = Number(session.user.id);
+
+    // 1. Buat data transaksi terlebih dahulu
+    const [newTransaksi] = await db.insert(transaksi).values({
+      eventId: idEvent,
+      userId: idUser,
+      status: 'pending',
+      totalHarga: 0, // Default 0 untuk pendaftaran awal
+      dibuatPada: new Date(),
+    }).returning({ id: transaksi.id });
+
+    if (!newTransaksi) {
+      throw new Error("Gagal membuat data transaksi");
+    }
+
+    // 2. Gunakan ID transaksi yang baru dibuat untuk mendaftarkan peserta
     await db.insert(peserta).values({
-      // Sisi kiri (kunci) adalah nama variabel di schema.ts
-      // Sisi kanan adalah data yang dikirim dari FormRegistrasi.tsx
       namaLengkap: formData.nama_lengkap, 
       email: formData.email,
       nomorTelepon: formData.nomor_telepon,
       jenisKelamin: formData.jenis_kelamin, 
-      
-      // Menggunakan transaksiId sebagai penghubung (sementara)
-      transaksiId: idEvent, 
-      
-      // Membuat kode unik untuk QR Code check-in nanti
+      transaksiId: newTransaksi.id, 
       kodePeserta: `REG-${idEvent}-${Date.now()}`, 
     });
 

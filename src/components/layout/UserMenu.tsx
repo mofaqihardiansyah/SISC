@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, LogOut, LayoutDashboard, Settings } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Settings, Home } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
@@ -10,6 +10,7 @@ interface UserMenuProps {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    role?: string | null;
   };
 }
 
@@ -58,6 +59,16 @@ export default function UserMenu({ user }: UserMenuProps) {
               <LayoutDashboard className="w-4 h-4" />
               Dashboard
             </Link>
+            {user.role === 'visitor' && (
+              <Link 
+                href="/" 
+                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <Home className="w-4 h-4" />
+                Beranda
+              </Link>
+            )}
             <Link 
               href="/profile/settings"
               className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
