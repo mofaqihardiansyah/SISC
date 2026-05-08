@@ -10,7 +10,7 @@ export default async function Navbar() {
   const session = await auth();
 
   return (
-    <nav className="bg-[var(--brand-dark)] text-white">
+    <nav className="sticky top-0 z-50 bg-[var(--brand-dark)] text-white shadow-md">
       {/* ✅ Ganti max-w-6xl → max-w-none, samakan padding dengan hero */}
       <div className="px-4 sm:px-8 lg:px-16 py-4 flex justify-between items-center">
 

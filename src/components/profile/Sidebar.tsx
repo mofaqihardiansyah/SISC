@@ -43,7 +43,7 @@ export function Sidebar() {
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
                 isActive 
                   ? "bg-white text-[#111827] font-semibold shadow-lg shadow-white/5" 
-                  : "hover:bg-gray-800 hover:text-white"
+                : "text-gray-400 font-medium hover:bg-gray-800 hover:text-white"
               )}
             >
               <item.icon className={cn(

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, RotateCcw, Bookmark, ChevronDown, Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 type EventType = {
   id: number;
@@ -31,9 +32,9 @@ export default function JelajahPage() {
   const [kotaList, setKotaList] = useState<string[]>([]);
   const [kategoriList, setKategoriList] = useState<string[]>([]);
 
-  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState(queryQ);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalEvents, setTotalEvents] = useState(0);
   const eventsPerPage = 6;
 
   const [filters, setFilters] = useState({
@@ -54,25 +55,49 @@ export default function JelajahPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/events');
+        // Susun parameter URL berdasarkan kombinasi filter
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: eventsPerPage.toString(),
+          q: searchTerm,
+          polines: filters.polines.toString(),
+          price: filters.price,
+          location: filters.location,
+          type: filters.type,
+          category: filters.category,
+          time: filters.time
+        });
+
+        const res = await fetch(`/api/events?${params.toString()}`);
         if (!res.ok) throw new Error('Gagal fetch');
-        const data: EventType[] = await res.json();
+        const data = await res.json();
 
-        setEvents(data);
-
-        const kotaUnik = [...new Set(data.map(e => e.kotaNama).filter(Boolean))] as string[];
-        setKotaList(kotaUnik);
-
-        const kategoriUnik = [...new Set(data.map(e => e.kategoriNama).filter(Boolean))] as string[];
-        setKategoriList(kategoriUnik);
+        // Mode Kompatibilitas: Antisipasi respon raw array atau object pagination
+        if (Array.isArray(data)) {
+          setEvents(data);
+          setTotalEvents(data.length);
+          const kotaUnik = [...new Set(data.map((e: any) => e.kotaNama).filter(Boolean))] as string[];
+          setKotaList(kotaUnik);
+          const kategoriUnik = [...new Set(data.map((e: any) => e.kategoriNama).filter(Boolean))] as string[];
+          setKategoriList(kategoriUnik);
+        } else {
+          setEvents(data.events || []);
+          setTotalEvents(data.total || 0);
+        }
       } catch (err) {
         setError('Gagal memuat data event.');
         console.error(err);
       }
       setLoading(false);
     };
-    fetchData();
-  }, []);
+    
+    // Menggunakan timeout Debounce agar database tidak dispam setiap input diketik
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 300); 
+
+    return () => clearTimeout(timer);
+  }, [currentPage, filters, searchTerm]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -88,43 +113,7 @@ export default function JelajahPage() {
     setSearchTerm(queryQ);
   }, [queryQ]);
 
-  // FILTER LOGIC
-  const filteredEvents = events.filter((event) => {
-    if (searchTerm && !event.judul.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    if (filters.polines && !event.isEventPolines) return false;
-    if (filters.price === "Gratis" && event.tipeHarga !== 'free') return false;
-    if (filters.price === "Berbayar" && event.tipeHarga === 'free') return false;
-    if (filters.location && event.kotaNama !== filters.location) return false;
-    if (filters.type && event.tipePlatform?.toLowerCase() !== filters.type.toLowerCase()) return false;
-    if (filters.category && event.kategoriNama !== filters.category) return false;
-
-    if (filters.time) {
-      const eventDate = new Date(event.tanggalMulai);
-      eventDate.setHours(0, 0, 0, 0);
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-      const startOfWeek = new Date(today); startOfWeek.setDate(today.getDate() - today.getDay());
-      const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6);
-      const nextWeekStart = new Date(endOfWeek); nextWeekStart.setDate(endOfWeek.getDate() + 1);
-      const nextWeekEnd = new Date(nextWeekStart); nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
-
-      if (filters.time === "Hari Ini" && eventDate.getTime() !== today.getTime()) return false;
-      if (filters.time === "Besok" && eventDate.getTime() !== tomorrow.getTime()) return false;
-      if (filters.time === "Akhir Pekan" && eventDate.getDay() !== 6 && eventDate.getDay() !== 0) return false;
-      if (filters.time === "Minggu Ini" && (eventDate < startOfWeek || eventDate > endOfWeek)) return false;
-      if (filters.time === "Minggu Depan" && (eventDate < nextWeekStart || eventDate > nextWeekEnd)) return false;
-      if (filters.time === "Bulan Ini" && (eventDate.getMonth() !== today.getMonth() || eventDate.getFullYear() !== today.getFullYear())) return false;
-      if (filters.time === "Bulan Depan") {
-        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-        if (eventDate.getMonth() !== nextMonth.getMonth() || eventDate.getFullYear() !== nextMonth.getFullYear()) return false;
-      }
-    }
-    return true;
-  });
-
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
-  const startIndex = (currentPage - 1) * eventsPerPage;
-  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + eventsPerPage);
+  const totalPages = Math.ceil(totalEvents / eventsPerPage);
 
   const resetFilter = () => {
     setFilters({ polines: false, price: "", location: "", type: "", category: "", time: "" });
@@ -295,22 +284,25 @@ export default function JelajahPage() {
           {!loading && !error && (
             <>
               <p className="text-sm text-gray-500 mb-6">
-                Menampilkan <b>{filteredEvents.length}</b> event
+                Menampilkan <b>{totalEvents}</b> event
               </p>
 
-              {filteredEvents.length === 0 ? (
+              {events.length === 0 ? (
                 <div className="text-center text-gray-400 py-20">
                   Tidak ada event yang sesuai filter.
                 </div>
               ) : (
                 <div className="grid grid-cols-3 gap-6">
-                  {paginatedEvents.map((event) => (
+              {events.map((event, index) => (
                     <div key={event.id} className="bg-white rounded-xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="h-36 bg-gray-200">
-                        <img
+                      <div className="relative h-36 bg-gray-200">
+                        <Image
                           src={event.bannerUrl || "/api/placeholder/400/220"}
-                          className="w-full h-full object-cover"
                           alt={event.judul}
+                          fill
+                      priority={index < 3}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover"
                         />
                       </div>
                       <div className="p-4">

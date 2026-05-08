@@ -45,8 +45,9 @@ export default function SearchInput() {
         const res = await fetch('/api/events');
         if (res.ok) {
           const data = await res.json();
+          const eventsArray = Array.isArray(data) ? data : (data.events || []);
           // Filter maksimal 5 event yang sesuai input
-          const filtered = data
+          const filtered = eventsArray
             .filter((event: SuggestionEvent) => event.judul.toLowerCase().includes(inputValue.toLowerCase()))
             .slice(0, 5);
           setSuggestions(filtered);

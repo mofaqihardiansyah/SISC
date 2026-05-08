@@ -42,7 +42,7 @@ export default function UserDashboard() {
         ].map((item, index) => (
           <div
             key={index}
-            className="bg-gradient-to-br from-blue-100 to-blue-50 p-6 rounded-2xl border border-blue-200 shadow-sm hover:shadow-md transition-all"
+            className="bg-linear-to-br from-blue-100 to-blue-50 p-6 rounded-2xl border border-blue-200 shadow-sm hover:shadow-md transition-all"
           >
             <div className="flex items-center justify-between">
               <span className="text-5xl">{item.icon}</span>
@@ -87,7 +87,7 @@ export default function UserDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link
           href="/profile/events"
-          className="bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-6 rounded-2xl transition-all group"
+          className="bg-linear-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-6 rounded-2xl transition-all group"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -100,7 +100,7 @@ export default function UserDashboard() {
 
         <Link
           href="/profile/event-favorit"
-          className="bg-gradient-to-br from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white p-6 rounded-2xl transition-all group"
+          className="bg-linear-to-br from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white p-6 rounded-2xl transition-all group"
         >
           <div className="flex items-center justify-between">
             <div>

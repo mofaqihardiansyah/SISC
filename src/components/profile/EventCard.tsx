@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface EventCardProps {
   id: string | number;
@@ -15,6 +16,7 @@ interface EventCardProps {
   status?: 'upcoming' | 'registered' | 'completed' | 'favorited';
   onFavoriteToggle?: () => void;
   isFavorited?: boolean;
+  priority?: boolean;
   variant?: 'list' | 'grid'; // list view untuk dashboard, grid untuk favorites
 }
 
@@ -29,15 +31,23 @@ export default function EventCard({
   status,
   onFavoriteToggle,
   isFavorited = false,
+  priority = false,
   variant = 'list',
 }: EventCardProps) {
   if (variant === 'grid') {
     return (
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all group">
         {/* Image */}
-        <div className="w-full h-40 bg-gradient-to-br from-blue-300 to-blue-500 flex items-center justify-center text-white font-bold">
+        <div className="relative w-full h-40 bg-gradient-to-br from-blue-300 to-blue-500 flex items-center justify-center text-white font-bold overflow-hidden">
           {image ? (
-            <img src={image} alt={title} className="w-full h-full object-cover" />
+            <Image 
+              src={image} 
+              alt={title} 
+              priority={priority}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover" 
+            />
           ) : (
             'Event Image'
           )}
@@ -106,9 +116,16 @@ export default function EventCard({
   return (
     <div className="flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group cursor-pointer bg-white">
       {/* Event Image */}
-      <div className="w-full md:w-40 h-32 bg-gradient-to-br from-slate-300 to-slate-400 rounded-xl overflow-hidden flex-shrink-0">
+      <div className="relative w-full md:w-40 h-32 bg-gradient-to-br from-slate-300 to-slate-400 rounded-xl overflow-hidden flex-shrink-0">
         {image ? (
-          <img src={image} alt={title} className="w-full h-full object-cover" />
+          <Image 
+            src={image} 
+            alt={title} 
+            priority={priority}
+            fill
+            sizes="(max-width: 768px) 100vw, 160px"
+            className="object-cover" 
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm">
             Event Image

@@ -8,10 +8,9 @@ import {
   FileCheck, 
   Users, 
   Calendar, 
-  Settings, 
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { signOut } from 'next-auth/react';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
@@ -23,10 +22,6 @@ const menuItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: '/login' });
-  };
 
   return (
     <aside className="w-64 bg-[#111827] text-gray-400 flex flex-col h-screen sticky top-0 border-r border-gray-800">
@@ -48,7 +43,7 @@ export function Sidebar() {
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
                 isActive 
                   ? "bg-white text-[#111827] font-semibold shadow-lg shadow-white/5" 
-                  : "hover:bg-gray-800 hover:text-white"
+                : "text-gray-400 font-medium hover:bg-gray-800 hover:text-white"
               )}
             >
               <item.icon className={cn(
