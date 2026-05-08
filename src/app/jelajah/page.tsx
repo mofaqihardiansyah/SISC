@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Search, RotateCcw, Bookmark, ChevronDown, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 type EventType = {
   id: number;
@@ -21,6 +22,9 @@ type EventType = {
 type DropdownType = "Lokasi" | "Tipe Event" | "Kategori Event" | "Waktu" | "Harga";
 
 export default function JelajahPage() {
+  const searchParams = useSearchParams();
+  const queryQ = searchParams.get('q') || '';
+
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +32,7 @@ export default function JelajahPage() {
   const [kategoriList, setKategoriList] = useState<string[]>([]);
 
   const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(queryQ);
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 6;
 
@@ -78,6 +82,11 @@ export default function JelajahPage() {
     "Hari Ini", "Besok", "Akhir Pekan",
     "Minggu Ini", "Minggu Depan", "Bulan Ini", "Bulan Depan"
   ];
+
+  // Mengsinkronisasi pencarian jika URL berubah sewaktu-waktu di halaman yang sama
+  useEffect(() => {
+    setSearchTerm(queryQ);
+  }, [queryQ]);
 
   // FILTER LOGIC
   const filteredEvents = events.filter((event) => {

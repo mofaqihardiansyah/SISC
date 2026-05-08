@@ -1,6 +1,10 @@
-import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey, pgEnum, index } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
+export const eventStatusEnum = pgEnum('event_status', ['pending', 'published', 'rejected']);
+export const jenisEventEnum = pgEnum('jenis_event', ['seminar', 'conference']);
+export const tipePlatformEnum = pgEnum('tipe_platform', ['online', 'offline', 'hybrid']);
+export const tipeHargaEnum = pgEnum('tipe_harga', ['free', 'paid']);
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -75,7 +79,7 @@ export const event = pgTable('event', {
   organizerId: integer('organizer_id').references(() => users.id),
   kategoriId: integer('kategori_id').references(() => kategori.id),
   kotaId: integer('kota_id').references(() => kota.id),
-  judul: varchar('judul'),
+  judul: varchar('judul').notNull(),
   slug: varchar('slug').unique(),
   deskripsi: text('deskripsi'),
   syaratDanKetentuan: text('syarat_dan_ketentuan'),
@@ -84,15 +88,15 @@ export const event = pgTable('event', {
   // Penambahan kolom penyelenggara untuk instansi Polines
   penyelenggara: varchar('penyelenggara'), 
   
-  tanggalMulai: timestamp('tanggal_mulai'),
+  tanggalMulai: timestamp('tanggal_mulai').notNull(),
   tanggalSelesai: timestamp('tanggal_selesai'),
   batasRegistrasi: timestamp('batas_registrasi'),
   
   // Event Classification
   isEventPolines: boolean('is_event_polines').default(false),
-  jenisEvent: varchar('jenis_event'), // 'seminar', 'conference'
-  tipePlatform: varchar('tipe_platform'), // 'online', 'offline', 'hybrid'
-  tipeHarga: varchar('tipe_harga'), // 'free', 'paid'
+  jenisEvent: jenisEventEnum('jenis_event'), // 'seminar', 'conference'
+  tipePlatform: tipePlatformEnum('tipe_platform'), // 'online', 'offline', 'hybrid'
+  tipeHarga: tipeHargaEnum('tipe_harga'), // 'free', 'paid'
   harga: integer('harga').default(0), 
   detailLokasi: text('detail_lokasi'), 
   linkEksternal: varchar('link_eksternal'), 
@@ -107,7 +111,7 @@ export const event = pgTable('event', {
   maksTiketPerTransaksi: integer('maks_tiket_per_transaksi'),
   satuAkunSatuTransaksi: boolean('satu_akun_satu_transaksi').default(false),
   
-  status: varchar('status').default('pending'), // pending, published, rejected
+  status: eventStatusEnum('status').default('pending'), // pending, published, rejected
   hasilScraping: boolean('hasil_scraping').default(false),
   websiteSumber: varchar('website_sumber'), 
   jumlahTayangan: integer('jumlah_tayangan').default(0),
@@ -115,7 +119,11 @@ export const event = pgTable('event', {
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),
-});
+}, (table) => ({
+  organizerIdx: index('organizer_idx').on(table.organizerId),
+  kategoriIdx: index('kategori_idx').on(table.kategoriId),
+  statusIdx: index('status_idx').on(table.status),
+}));
 
 export const lampiranEvent = pgTable('lampiran_event', {
   id: serial('id').primaryKey(),

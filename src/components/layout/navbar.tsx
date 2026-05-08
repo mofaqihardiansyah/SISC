@@ -3,6 +3,8 @@ import { Search, User } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
 import UserMenu from "./UserMenu";
+import SearchInput from "./search-input";
+import { Suspense } from "react";
 
 export default async function Navbar() {
   const session = await auth();
@@ -14,16 +16,18 @@ export default async function Navbar() {
 
         {/* LEFT */}
         <div className="flex items-center gap-8">
-          <h1 className="text-xl font-bold">POLIVENTS</h1>
+          <Link href="/" className="group flex items-center focus:outline-none">
+            <h1 
+              className="text-2xl font-black tracking-[0.15em] text-white group-hover:opacity-80 transition-opacity duration-300 drop-shadow-sm"
+              style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+            >
+              POLIVENTS
+            </h1>
+          </Link>
 
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Cari seminar atau konferensi..."
-              className="pl-10 pr-4 py-2 rounded-full text-sm text-black bg-white w-[300px]"
-            />
-          </div>
+          <Suspense fallback={<div className="w-[300px] h-9 bg-white/20 rounded-full animate-pulse hidden md:block"></div>}>
+            <SearchInput />
+          </Suspense>
         </div>
 
         {/* RIGHT */}
