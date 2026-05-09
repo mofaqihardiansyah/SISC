@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Calendar, MapPin, User, Star } from 'lucide-react';
 
 export default function EventsPage() {
   const events = [
@@ -90,10 +91,19 @@ export default function EventsPage() {
                         : 'Selesai'}
                   </span>
                 </div>
-                <div className="space-y-1 text-sm text-slate-600">
-                  <p>📅 {event.date}</p>
-                  <p>📍 {event.location}</p>
-                  <p>👤 {event.organizer} • {event.participants} peserta</p>
+                <div className="space-y-2 text-sm text-slate-600">
+                  <p className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    {event.date}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                    {event.location}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    {event.organizer} • {event.participants} peserta
+                  </p>
                 </div>
               </div>
               <div className="flex gap-2 md:flex-col">
@@ -103,8 +113,9 @@ export default function EventsPage() {
                 >
                   Lihat Detail
                 </Link>
-                <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition-colors">
-                  ⭐ Favorit
+                <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  Favorit
                 </button>
               </div>
             </div>

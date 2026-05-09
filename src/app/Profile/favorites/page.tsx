@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { Star, Calendar, MapPin, User } from 'lucide-react';
 
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState([
@@ -82,17 +83,26 @@ export default function FavoritesPage() {
                     <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 line-clamp-2">
                       {event.title}
                     </h3>
-                    <span className="text-2xl">⭐</span>
+                    <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 flex-shrink-0" />
                   </div>
                   <span className="inline-block text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-800 rounded">
                     {event.category}
                   </span>
                 </div>
 
-                <div className="space-y-1 text-sm text-slate-600">
-                  <p>📅 {event.date}</p>
-                  <p>📍 {event.location}</p>
-                  <p>👤 {event.organizer}</p>
+                <div className="space-y-2 text-sm text-slate-600">
+                  <p className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    {event.date}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                    {event.location}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    {event.organizer}
+                  </p>
                 </div>
 
                 <div className="flex gap-2 pt-3 border-t border-slate-200">

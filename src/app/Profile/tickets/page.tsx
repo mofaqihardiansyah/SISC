@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Calendar, ShoppingCart, DollarSign, CheckCircle, Clock } from 'lucide-react';
 
 export default function TicketsPage() {
   const tickets = [
@@ -70,22 +71,41 @@ export default function TicketsPage() {
 
                   <div>
                     <p className="text-lg font-bold text-slate-900">{ticket.eventTitle}</p>
-                    <div className="space-y-1 text-sm text-slate-600 mt-2">
-                      <p>📅 {ticket.date}</p>
-                      <p>🛒 Dibeli pada {ticket.purchaseDate}</p>
-                      <p>💰 {ticket.price}</p>
+                    <div className="space-y-2 text-sm text-slate-600 mt-2">
+                      <p className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-blue-600" />
+                        {ticket.date}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <ShoppingCart className="w-4 h-4 text-blue-600" />
+                        Dibeli pada {ticket.purchaseDate}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-blue-600" />
+                        {ticket.price}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 pt-3 border-t border-slate-200">
                     <span
-                      className={`text-xs font-bold px-3 py-1 rounded-full ${
+                      className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 ${
                         ticket.status === 'verified'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}
                     >
-                      {ticket.status === 'verified' ? '✓ Terverifikasi' : '⏳ Menunggu'}
+                      {ticket.status === 'verified' ? (
+                        <>
+                          <CheckCircle className="w-3 h-3" />
+                          Terverifikasi
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-3 h-3" />
+                          Menunggu
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>

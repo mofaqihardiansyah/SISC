@@ -1,5 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
+import { 
+  Activity, 
+  BookOpen,
+  Heart,
+  Clipboard,
+  Clock,
+  Megaphone, 
+  MapPin, 
+  User,
+  Calendar,
+  Dot
+} from 'lucide-react';
 
 export default function UserDashboard() {
   const upcomingEvents = [
@@ -53,16 +65,52 @@ export default function UserDashboard() {
       {/* STATS SECTION */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Event Aktif', value: 6, icon: '🏃' },
-          { label: 'Event Favorit', value: 16, icon: '⭐' },
-          { label: 'Event Diikuti', value: 36, icon: '📅' },
+          {
+            label: 'Event Aktif',
+            value: 6,
+            bg: 'from-emerald-100 to-emerald-50 border-emerald-200',
+            renderIcon: () => (
+              <div className="w-14 h-14 rounded-lg bg-white/60 flex items-center justify-center">
+                <Activity className="w-8 h-8 text-emerald-600" />
+              </div>
+            ),
+          },
+          {
+            label: 'Event Favorit',
+            value: 16,
+            bg: 'from-violet-100 to-violet-50 border-violet-200',
+            renderIcon: () => (
+              <div className="w-14 h-14 rounded-lg bg-white/60 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-book-heart-icon w-8 h-8 text-violet-600" aria-hidden>
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+                  <path d="M8.62 9.8A2.25 2.25 0 1 1 12 6.836a2.25 2.25 0 1 1 3.38 2.966l-2.626 2.856a.998.998 0 0 1-1.507 0z" />
+                </svg>
+              </div>
+            ),
+          },
+          {
+            label: 'Event Diikuti',
+            value: 36,
+            bg: 'from-blue-100 to-blue-50 border-blue-200',
+            renderIcon: () => (
+              <div className="w-14 h-14 rounded-lg bg-white/60 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clipboard-clock w-8 h-8 text-blue-600" aria-hidden>
+                  <path d="M16 14v2.2l1.6 1" />
+                  <path d="M16 4h2a2 2 0 0 1 2 2v.832" />
+                  <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2" />
+                  <circle cx="16" cy="16" r="6" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" />
+                </svg>
+              </div>
+            ),
+          },
         ].map((item, index) => (
           <div
             key={index}
-            className="bg-gradient-to-br from-blue-100 to-blue-50 p-6 rounded-2xl border border-blue-200 shadow-sm hover:shadow-md transition-all"
+            className={`bg-gradient-to-br ${item.bg} p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-5xl">{item.icon}</span>
+              {item.renderIcon()}
               <div className="text-right">
                 <p className="text-4xl font-extrabold text-slate-900">{item.value}</p>
                 <p className="text-xs font-semibold text-slate-600 mt-2 uppercase tracking-wider">{item.label}</p>
@@ -97,7 +145,7 @@ export default function UserDashboard() {
       {/* MADING DIGITAL / NEWS FEED SECTION */}
       <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-2xl">📢</span>
+          <Megaphone className="w-8 h-8 text-blue-600" />
           <div>
             <h2 className="text-2xl font-bold text-slate-900">Mading Polivent</h2>
             <p className="text-sm text-slate-500">Informasi dan pengumuman terbaru seputar event</p>
@@ -159,17 +207,26 @@ function EventCard({
           {title}
         </h3>
         <div className="space-y-2 mt-3 text-sm text-slate-600">
-          <p className="flex items-center gap-2"><span>📅</span> {date}</p>
-          <p className="flex items-center gap-2"><span>📍</span> {location}</p>
           <p className="flex items-center gap-2">
-            <span className="w-5 h-5 bg-slate-300 rounded-full inline-flex items-center justify-center text-xs">👤</span>
+            <Calendar className="w-4 h-4 text-blue-600" />
+            {date}
+          </p>
+          <p className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-blue-600" />
+            {location}
+          </p>
+          <p className="flex items-center gap-2">
+            <User className="w-4 h-4 text-blue-600" />
             {organizer}
           </p>
         </div>
       </div>
       <div className="flex flex-col gap-3 md:items-end">
         <div className="bg-slate-900 text-white px-4 py-3 rounded-xl text-center">
-          <p className="text-xs uppercase tracking-widest opacity-70 font-semibold">Dimulai Dalam</p>
+          <p className="text-xs uppercase tracking-widest opacity-70 font-semibold flex items-center justify-center gap-1">
+            <Clock className="w-3 h-3" />
+            Dimulai Dalam
+          </p>
           <p className="text-sm font-mono font-bold mt-1">{timeLeft}</p>
         </div>
         <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
