@@ -18,30 +18,29 @@ const categoryColors: Record<string, string> = {
 };
 
 export default async function BerandaPage() {
-  try {
-    const categories = await db.select().from(kategori).catch(() => []);
+  const categories = await db.select().from(kategori).catch(() => []);
 
-    const heroEvents = await db
-      .select()
-      .from(event)
-      .where(isNull(event.dihapusPada))
-      .orderBy(desc(event.jumlahTayangan))
-      .limit(5)
-      .catch(() => []);
+  const heroEvents = await db
+    .select()
+    .from(event)
+    .where(isNull(event.dihapusPada))
+    .orderBy(desc(event.jumlahTayangan))
+    .limit(5)
+    .catch(() => []);
 
-    const eventPolines = await db
-      .select()
-      .from(event)
-      .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada)))
-      .limit(8)
-      .catch(() => []);
+  const eventPolines = await db
+    .select()
+    .from(event)
+    .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada)))
+    .limit(8)
+    .catch(() => []);
 
-    const eventUmum = await db
-      .select()
-      .from(event)
-      .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada)))
-      .limit(8)
-      .catch(() => []);
+  const eventUmum = await db
+    .select()
+    .from(event)
+    .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada)))
+    .limit(8)
+    .catch(() => []);
 
   return (
     <div className="bg-gray-50 min-h-screen">

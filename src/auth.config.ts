@@ -51,11 +51,11 @@ export const authConfig = {
         return true;
       }
 
-      // 3. Visitor Protected Routes (ini buat visitor /Profile)
-      if (path.startsWith("/Profile")) {
-        if (!isLoggedIn) return false;
-        return true;
-      }
+      // 3. Visitor Protected Routes (Disabled temporarily for testing)
+      // if (path.startsWith("/Profile")) {
+      //   if (!isLoggedIn) return false;
+      //   return true;
+      // }
 
       // 4. Root Path Redirection (Jika sudah login, arahkan ke dashboard masing-masing)
       if (path === "/") {
