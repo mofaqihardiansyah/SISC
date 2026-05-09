@@ -1,5 +1,5 @@
 {
-  "id": "46c46a44-2022-42e9-9fd2-0be01728126b",
+  "id": "28137e64-e27e-4c88-bdf2-8964a3e7bbae",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -101,7 +101,7 @@
           "name": "judul",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "slug": {
           "name": "slug",
@@ -137,7 +137,7 @@
           "name": "tanggal_mulai",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "tanggal_selesai": {
           "name": "tanggal_selesai",
@@ -160,19 +160,22 @@
         },
         "jenis_event": {
           "name": "jenis_event",
-          "type": "varchar",
+          "type": "jenis_event",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
         "tipe_platform": {
           "name": "tipe_platform",
-          "type": "varchar",
+          "type": "tipe_platform",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
         "tipe_harga": {
           "name": "tipe_harga",
-          "type": "varchar",
+          "type": "tipe_harga",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -234,7 +237,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar",
+          "type": "event_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
           "default": "'pending'"
@@ -285,7 +289,53 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "organizer_idx": {
+          "name": "organizer_idx",
+          "columns": [
+            {
+              "expression": "organizer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "kategori_idx": {
+          "name": "kategori_idx",
+          "columns": [
+            {
+              "expression": "kategori_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "status_idx": {
+          "name": "status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "event_organizer_id_users_id_fk": {
           "name": "event_organizer_id_users_id_fk",
@@ -1332,7 +1382,42 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.event_status": {
+      "name": "event_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "published",
+        "rejected"
+      ]
+    },
+    "public.jenis_event": {
+      "name": "jenis_event",
+      "schema": "public",
+      "values": [
+        "seminar",
+        "conference"
+      ]
+    },
+    "public.tipe_harga": {
+      "name": "tipe_harga",
+      "schema": "public",
+      "values": [
+        "free",
+        "paid"
+      ]
+    },
+    "public.tipe_platform": {
+      "name": "tipe_platform",
+      "schema": "public",
+      "values": [
+        "online",
+        "offline",
+        "hybrid"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

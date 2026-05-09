@@ -1,3 +1,7 @@
+CREATE TYPE "public"."event_status" AS ENUM('pending', 'published', 'rejected');--> statement-breakpoint
+CREATE TYPE "public"."jenis_event" AS ENUM('seminar', 'conference');--> statement-breakpoint
+CREATE TYPE "public"."tipe_harga" AS ENUM('free', 'paid');--> statement-breakpoint
+CREATE TYPE "public"."tipe_platform" AS ENUM('online', 'offline', 'hybrid');--> statement-breakpoint
 CREATE TABLE "bookmark" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer,
@@ -10,19 +14,19 @@ CREATE TABLE "event" (
 	"organizer_id" integer,
 	"kategori_id" integer,
 	"kota_id" integer,
-	"judul" varchar,
+	"judul" varchar NOT NULL,
 	"slug" varchar,
 	"deskripsi" text,
 	"syarat_dan_ketentuan" text,
 	"banner_url" varchar,
 	"penyelenggara" varchar,
-	"tanggal_mulai" timestamp,
+	"tanggal_mulai" timestamp NOT NULL,
 	"tanggal_selesai" timestamp,
 	"batas_registrasi" timestamp,
 	"is_event_polines" boolean DEFAULT false,
-	"jenis_event" varchar,
-	"tipe_platform" varchar,
-	"tipe_harga" varchar,
+	"jenis_event" "jenis_event",
+	"tipe_platform" "tipe_platform",
+	"tipe_harga" "tipe_harga",
 	"harga" integer DEFAULT 0,
 	"detail_lokasi" text,
 	"link_eksternal" varchar,
@@ -32,7 +36,7 @@ CREATE TABLE "event" (
 	"kuota" integer,
 	"maks_tiket_per_transaksi" integer,
 	"satu_akun_satu_transaksi" boolean DEFAULT false,
-	"status" varchar DEFAULT 'pending',
+	"status" "event_status" DEFAULT 'pending',
 	"hasil_scraping" boolean DEFAULT false,
 	"website_sumber" varchar,
 	"jumlah_tayangan" integer DEFAULT 0,
@@ -202,4 +206,7 @@ ALTER TABLE "profil_penyelenggara" ADD CONSTRAINT "profil_penyelenggara_user_id_
 ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_event_id_event_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."event"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_event" ADD CONSTRAINT "user_event_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_event" ADD CONSTRAINT "user_event_event_id_event_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."event"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "user_event" ADD CONSTRAINT "user_event_event_id_event_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."event"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "organizer_idx" ON "event" USING btree ("organizer_id");--> statement-breakpoint
+CREATE INDEX "kategori_idx" ON "event" USING btree ("kategori_id");--> statement-breakpoint
+CREATE INDEX "status_idx" ON "event" USING btree ("status");

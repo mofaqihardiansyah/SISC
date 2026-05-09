@@ -1,12 +1,13 @@
 import { defineConfig } from 'drizzle-kit';
 import * as dotenv from 'dotenv';
+
 dotenv.config({ path: '.env' });
 
 export default defineConfig({
-  schema: './src/db/schema.ts',
+  schema: './src/db/schema.ts', 
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: "postgresql://sisc_user:sisc_password@localhost:5433/sisc_db",
   },
 });
