@@ -23,7 +23,7 @@ export async function getEvents() {
         penyelenggara: event.penyelenggara,
         namaKota: kota.nama,
         namaKategori: kategori.nama,
-        tipeEvent: event.tipeEvent,
+        isEventPolines: event.isEventPolines,
         tipePlatform: event.tipePlatform,
       })
       .from(bookmark)
@@ -38,6 +38,7 @@ export async function getEvents() {
         )
       );
 
+    console.log(`[FAVORIT] UserId: ${userId}, Data Found: ${data.length}`);
     return data;
   } catch (error) {
     console.error("Error fetching favorite events:", error);

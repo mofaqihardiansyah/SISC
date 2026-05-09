@@ -85,10 +85,8 @@ export default function EventFavoritPage() {
           {filteredEvents.map((item) => {
             
             // --- LOGIKA DETEKSI POLINES ---
-            // 1. Cek apakah ada data tipeEvent dari database
-            // 2. Jika tidak ada, cek apakah kata "Polines" ada di dalam Judul Event
             const isPolines = 
-              item.tipeEvent?.toUpperCase() === "POLINES" || 
+              item.isEventPolines === true || 
               item.judul?.toUpperCase().includes("POLINES");
 
             return (
