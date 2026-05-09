@@ -36,9 +36,9 @@ export default function EventCard({
 }: EventCardProps) {
   if (variant === 'grid') {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all group">
+      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
         {/* Image */}
-        <div className="relative w-full h-40 bg-gradient-to-br from-blue-300 to-blue-500 flex items-center justify-center text-white font-bold overflow-hidden">
+        <div className="relative w-full h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden">
           {image ? (
             <Image 
               src={image} 
@@ -46,66 +46,70 @@ export default function EventCard({
               priority={priority}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover" 
+              className="object-cover transition-transform duration-500 group-hover:scale-110" 
             />
           ) : (
-            'Event Image'
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-400">
+              <span className="text-4xl">🎨</span>
+            </div>
           )}
+          <div className="absolute top-3 right-3">
+            <button
+              onClick={(e) => { e.preventDefault(); onFavoriteToggle?.(); }}
+              className={`p-2 rounded-full backdrop-blur-md transition-all ${
+                isFavorited 
+                  ? 'bg-yellow-400 text-white shadow-lg shadow-yellow-200' 
+                  : 'bg-white/70 text-slate-400 hover:bg-white hover:text-yellow-500'
+              }`}
+            >
+              ⭐
+            </button>
+          </div>
         </div>
 
         {/* Content */}
-        <div className="p-5 space-y-3">
-          <div>
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 line-clamp-2">
-                {title}
-              </h3>
-              <button
-                onClick={onFavoriteToggle}
-                className={`text-2xl transition ${isFavorited ? 'text-yellow-400' : 'text-slate-300'}`}
-              >
-                ⭐
-              </button>
-            </div>
+        <div className="p-5 space-y-4">
+          <div className="space-y-2">
             {status && (
               <span
-                className={`inline-block text-xs font-semibold px-2 py-1 rounded-full ${
+                className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
                   status === 'upcoming'
-                    ? 'bg-yellow-100 text-yellow-800'
+                    ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
-                      ? 'bg-green-100 text-green-800'
+                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                       : status === 'completed'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-pink-100 text-pink-800'
+                        ? 'bg-slate-50 text-slate-600 border border-slate-100'
+                        : 'bg-rose-50 text-rose-600 border border-rose-100'
                 }`}
               >
-                {status === 'upcoming'
-                  ? 'Mendatang'
-                  : status === 'registered'
-                    ? 'Terdaftar'
-                    : status === 'completed'
-                      ? 'Selesai'
-                      : 'Favorit'}
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  status === 'upcoming' ? 'bg-amber-400' : 
+                  status === 'registered' ? 'bg-emerald-400' : 
+                  status === 'completed' ? 'bg-slate-400' : 'bg-rose-400'
+                }`}></span>
+                {status === 'upcoming' ? 'Mendatang' : 
+                 status === 'registered' ? 'Terdaftar' : 
+                 status === 'completed' ? 'Selesai' : 'Favorit'}
               </span>
             )}
+            <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 line-clamp-2 transition-colors">
+              {title}
+            </h3>
           </div>
 
-          <div className="space-y-1 text-sm text-slate-600">
-            <p>📅 {date}</p>
-            <p>📍 {location}</p>
-            <p>👤 {organizer}</p>
+          <div className="space-y-2 text-sm text-slate-500 font-medium">
+            <p className="flex items-center gap-2">📅 {date}</p>
+            <p className="flex items-center gap-2">📍 <span className="truncate">{location}</span></p>
+            <p className="flex items-center gap-2">👤 {organizer}</p>
           </div>
 
-          <div className="flex gap-2 pt-3 border-t border-slate-200">
+          <div className="flex gap-2 pt-2">
             <Link
               href={`/events/${id}`}
-              className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors text-center"
+              className="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-slate-200 text-center"
             >
               Lihat Detail
             </Link>
-            <button className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition-colors">
-              Bagikan
-            </button>
           </div>
         </div>
       </div>
@@ -114,96 +118,107 @@ export default function EventCard({
 
   // List variant (default)
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group cursor-pointer bg-white">
+    <div className="flex flex-col md:flex-row gap-6 p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 group relative overflow-hidden">
+      {/* Background Accent */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-blue-100/50 transition-colors"></div>
+      
       {/* Event Image */}
-      <div className="relative w-full md:w-40 h-32 bg-gradient-to-br from-slate-300 to-slate-400 rounded-xl overflow-hidden flex-shrink-0">
+      <div className="relative w-full md:w-48 h-36 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner">
         {image ? (
           <Image 
             src={image} 
             alt={title} 
             priority={priority}
             fill
-            sizes="(max-width: 768px) 100vw, 160px"
-            className="object-cover" 
+            sizes="(max-width: 768px) 100vw, 192px"
+            className="object-cover group-hover:scale-105 transition-transform duration-500" 
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm">
-            Event Image
+          <div className="w-full h-full flex items-center justify-center text-slate-300 text-4xl">
+            🖼️
           </div>
         )}
       </div>
 
       {/* Event Details */}
-      <div className="flex-1">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-              {title}
-            </h3>
-            {status && (
+      <div className="flex-1 flex flex-col justify-between z-10">
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+             {status && (
               <span
-                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full mt-2 ${
+                className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
                   status === 'upcoming'
-                    ? 'bg-yellow-100 text-yellow-800'
+                    ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
-                      ? 'bg-green-100 text-green-800'
+                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                       : status === 'completed'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-pink-100 text-pink-800'
+                        ? 'bg-slate-50 text-slate-600 border border-slate-100'
+                        : 'bg-rose-50 text-rose-600 border border-rose-100'
                 }`}
               >
-                {status === 'upcoming'
-                  ? 'Mendatang'
-                  : status === 'registered'
-                    ? 'Terdaftar'
-                    : status === 'completed'
-                      ? 'Selesai'
-                      : 'Favorit'}
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  status === 'upcoming' ? 'bg-amber-400' : 
+                  status === 'registered' ? 'bg-emerald-400' : 
+                  status === 'completed' ? 'bg-slate-400' : 'bg-rose-400'
+                }`}></span>
+                {status === 'upcoming' ? 'Mendatang' : 
+                 status === 'registered' ? 'Terdaftar' : 
+                 status === 'completed' ? 'Selesai' : 'Favorit'}
               </span>
             )}
           </div>
-          <button
-            onClick={onFavoriteToggle}
-            className={`text-3xl transition flex-shrink-0 ${isFavorited ? 'text-yellow-400' : 'text-slate-300 hover:text-yellow-400'}`}
+          <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors mb-4">
+            {title}
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-slate-500 font-medium">
+            <p className="flex items-center gap-2">
+              <span className="text-lg">📅</span>
+              {date}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="text-lg">📍</span>
+              {location}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="text-lg">👤</span>
+              {organizer}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Countdown & CTA */}
+      <div className="flex flex-col justify-between gap-4 md:items-end z-10">
+        <div className="flex items-start justify-end gap-2">
+           <button
+            onClick={(e) => { e.preventDefault(); onFavoriteToggle?.(); }}
+            className={`p-3 rounded-2xl transition-all ${
+              isFavorited 
+                ? 'bg-yellow-50 text-yellow-500 border border-yellow-100 shadow-sm' 
+                : 'bg-slate-50 text-slate-300 hover:text-yellow-500 border border-slate-100 hover:border-yellow-100'
+            }`}
           >
             ⭐
           </button>
         </div>
 
-        <div className="space-y-2 text-sm text-slate-600">
-          <p className="flex items-center gap-2">
-            <span>📅</span>
-            {date}
-          </p>
-          <p className="flex items-center gap-2">
-            <span>📍</span>
-            {location}
-          </p>
-          <p className="flex items-center gap-2">
-            <span className="w-5 h-5 bg-slate-300 rounded-full inline-flex items-center justify-center text-xs">
-              👤
-            </span>
-            {organizer}
-          </p>
+        <div className="flex flex-col gap-3">
+          {timeLeft && (
+            <div className="bg-slate-900 text-white px-4 py-2 rounded-xl text-center shadow-lg shadow-slate-200">
+              <p className="text-[10px] uppercase tracking-[0.2em] opacity-60 font-bold">
+                Dimulai Dalam
+              </p>
+              <p className="text-xs font-mono font-bold mt-0.5">{timeLeft}</p>
+            </div>
+          )}
+          <Link
+            href={`/events/${id}`}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-blue-200 text-center hover:scale-105 active:scale-95"
+          >
+            Lihat Detail
+          </Link>
         </div>
-      </div>
-
-      {/* Countdown & CTA */}
-      <div className="flex flex-col gap-3 md:items-end">
-        {timeLeft && (
-          <div className="bg-slate-900 text-white px-4 py-3 rounded-xl text-center">
-            <p className="text-xs uppercase tracking-widest opacity-70 font-semibold">
-              Dimulai Dalam
-            </p>
-            <p className="text-sm font-mono font-bold mt-1">{timeLeft}</p>
-          </div>
-        )}
-        <Link
-          href={`/events/${id}`}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors text-center"
-        >
-          Lihat Detail
-        </Link>
       </div>
     </div>
   );

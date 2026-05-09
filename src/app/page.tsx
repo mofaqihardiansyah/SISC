@@ -1,19 +1,59 @@
 import { db } from "@/db";
-import { event, kategori } from "@/db/schema";
+import { event, kategori, kota } from "@/db/schema";
 import { eq, and, isNull, desc } from "drizzle-orm";
 import Footer from "@/components/shared/Footer";
 import HeroSlider from "@/components/shared/HeroSlider";
 import KategoriCarousel from "@/components/shared/KategoriCarousel";
 import EventSection from "@/components/shared/EventSection";
+import { auth } from "@/auth";
 
 export default async function BerandaPage() {
-  const [categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
+  const [session, categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
+  auth(),
     db.select().from(kategori),
-    db.select().from(event).where(isNull(event.dihapusPada)).orderBy(desc(event.jumlahTayangan)).limit(5),
-    db.select().from(event).where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada))).limit(8),
-    db.select().from(event).where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada))).limit(8)
-  ]);
 
+    db.select().from(event).where(isNull(event.dihapusPada)).orderBy(desc(event.jumlahTayangan)).limit(5),
+
+    db
+      .select({
+        id: event.id,
+        judul: event.judul,
+        bannerUrl: event.bannerUrl,
+        tanggalMulai: event.tanggalMulai,
+        tipeHarga: event.tipeHarga,
+        harga: event.harga,
+        jenisEvent: event.jenisEvent,
+        tipePlatform: event.tipePlatform,
+        kotaNama: kota.nama,
+        kategoriNama: kategori.nama,
+      })
+      .from(event)
+      .leftJoin(kota, eq(event.kotaId, kota.id))
+      .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+      .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada)))
+      .limit(8),
+
+    db
+      .select({
+        id: event.id,
+        judul: event.judul,
+        bannerUrl: event.bannerUrl,
+        tanggalMulai: event.tanggalMulai,
+        tipeHarga: event.tipeHarga,
+        harga: event.harga,
+        jenisEvent: event.jenisEvent,
+        tipePlatform: event.tipePlatform,
+        kotaNama: kota.nama,
+        kategoriNama: kategori.nama,
+      })
+      .from(event)
+      .leftJoin(kota, eq(event.kotaId, kota.id))
+      .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+      .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada)))
+      .limit(8),
+  ]);
+  
+const isLoggedIn = !!session?.user;
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       {/* HERO */}
@@ -34,6 +74,7 @@ export default async function BerandaPage() {
           type="POLINES"
           organizerLabel="Polines"
           emptyMessage="Belum ada event Polines saat ini."
+          isLoggedIn={isLoggedIn}
         />
 
         {/* EVENT UMUM */}
@@ -44,9 +85,10 @@ export default async function BerandaPage() {
           type="UMUM"
           organizerLabel="Umum"
           emptyMessage="Belum ada event umum saat ini."
+          isLoggedIn={isLoggedIn}
         />
       </main>
       <Footer />
     </div>
   );
-}
+}
