@@ -15,13 +15,13 @@ export const getEvents = async () => {
         tanggalMulai: event.tanggalMulai,
         jenisEvent: event.jenisEvent,
         penyelenggara: event.penyelenggara,
-        // Ambil kolom nama dari tabel relasi
-        // Jika di schema.ts kamu menulisnya 'namaKota', ganti kota.nama jadi kota.namaKota
+        // Tips: Pastikan di schema.ts nama kolomnya 'nama'. 
+        // Kalau di Drizzle Studio munculnya 'nama', maka tetap kota.nama
         namaKota: kota.nama, 
         namaKategori: kategori.nama,
       })
       .from(event)
-      // Sesuaikan nama field foreign key di schema.ts (biasanya kotaId atau kota_id)
+      // Cek apakah di schema.ts kamu pakai 'kotaId' atau 'id_kota'
       .leftJoin(kota, eq(event.kotaId, kota.id)) 
       .leftJoin(kategori, eq(event.kategoriId, kategori.id));
 
