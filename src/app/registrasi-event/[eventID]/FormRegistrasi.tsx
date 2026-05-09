@@ -4,11 +4,20 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Info, Link as LinkIcon } from 'lucide-react';
+import {
+  Info,
+  Link as LinkIcon,
+  User,
+  Mail
+} from 'lucide-react';
 import { daftarEvent } from '@/actions/peserta';
 
-// Kita terima data event dan eventId sebagai props
-export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string, dataEvent: any }) {
+interface DataEvent {
+  judul: string;
+  linkEksternal?: string | null;
+}
+
+export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string; dataEvent: DataEvent }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     nama_lengkap: '',
@@ -21,7 +30,7 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
     // Kita tambahkan Number(eventId) agar action tahu ini untuk event mana
     const res = await daftarEvent(formData, Number(eventId));
     if (res.success) {
-      alert(`Pendaftaran Berhasil Disimpan untuk Event: ${dataEvent.namaEvent}`);
+      alert(`Pendaftaran Berhasil Disimpan untuk Event: ${dataEvent.judul}`);
     } else {
       alert("Gagal menyimpan data. Cek terminal!");
     }
@@ -35,30 +44,38 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
             <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-blue-600">
               <Info className="h-4 w-4 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800">Informasi Peserta - {dataEvent.namaEvent}</h2>
+            <h2 className="text-xl font-bold text-gray-800">Informasi Peserta - {dataEvent.judul}</h2>
           </div>
 
           <form className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Lengkap</Label>
-                <Input 
-                  value={formData.nama_lengkap}
-                  onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
-                  placeholder="Masukkan Nama Lengkap" 
-                  className="bg-gray-50 border-none h-12" 
-                />
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <User className="h-3.5 w-3.5" /> Nama Lengkap
+                </Label>
+                <div className="relative">
+                  <Input 
+                    value={formData.nama_lengkap}
+                    onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
+                    placeholder="Masukkan Nama Lengkap" 
+                    className="bg-gray-50 border-none h-12" 
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</Label>
-                <Input 
-                  type="email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  placeholder="Masukkan Email Anda" 
-                  className="bg-gray-50 border-none h-12" 
-                />
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5" /> Email
+                </Label>
+                <div className="relative">
+                  <Input 
+                    type="email" 
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    placeholder="Masukkan Email Anda" 
+                    className="bg-gray-50 border-none h-12" 
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,13 +129,13 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
 
           <div className="space-y-8 px-2">
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-              {dataEvent.linkPendaftaran ? (
+              {dataEvent.linkEksternal ? (
                 <a 
-                  href={dataEvent.linkPendaftaran} 
+                  href={dataEvent.linkEksternal} 
                   target="_blank" 
                   className="text-blue-600 font-medium underline break-all"
                 >
-                  {dataEvent.linkPendaftaran}
+                  {dataEvent.linkEksternal}
                 </a>
               ) : (
                 <p className="text-gray-500 italic">Link pendaftaran belum tersedia untuk event ini.</p>

@@ -40,11 +40,9 @@ export default function EventCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             className="object-cover"
           />
-          {type === "POLINES" && (
-            <span className="absolute top-2 left-2 bg-white text-xs font-bold px-2 py-1 rounded">
-              POLINES
-            </span>
-          )}
+          <span className="absolute top-2 left-2 bg-white text-xs font-bold px-2 py-1 rounded">
+  {type}
+</span>
         </div>
 
         {/* Body */}

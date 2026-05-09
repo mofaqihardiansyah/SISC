@@ -2,18 +2,24 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import UserMenu from "./UserMenu";
+<<<<<<< HEAD
 import SearchBar from "./SearchBar";
+=======
+import SearchInput from "./search-input";
+import { Suspense } from "react";
+>>>>>>> 3fe283b410dca8442ef761b0824fd0b6b7397301
 
 export default async function Navbar() {
   const session = await auth();
 
   return (
-    <nav className="bg-[var(--brand-dark)] text-white">
+    <nav className="sticky top-0 z-50 bg-[var(--brand-dark)] text-white shadow-md">
       {/* ✅ Ganti max-w-6xl → max-w-none, samakan padding dengan hero */}
       <div className="px-4 sm:px-8 lg:px-16 py-4 flex justify-between items-center">
 
         {/* LEFT */}
         <div className="flex items-center gap-8">
+<<<<<<< HEAD
           <Link href="/">
   <h1 className="text-xl font-bold hover:opacity-80 transition-opacity cursor-pointer">
     POLIVENTS
@@ -21,6 +27,20 @@ export default async function Navbar() {
 </Link>
 
           <SearchBar />
+=======
+          <Link href="/" className="group flex items-center focus:outline-none">
+            <h1 
+              className="text-2xl font-black tracking-[0.15em] text-white group-hover:opacity-80 transition-opacity duration-300 drop-shadow-sm"
+              style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+            >
+              POLIVENTS
+            </h1>
+          </Link>
+
+          <Suspense fallback={<div className="w-[300px] h-9 bg-white/20 rounded-full animate-pulse hidden md:block"></div>}>
+            <SearchInput />
+          </Suspense>
+>>>>>>> 3fe283b410dca8442ef761b0824fd0b6b7397301
         </div>
 
         {/* RIGHT */}

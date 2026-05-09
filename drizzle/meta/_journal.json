@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1776668589293,
-      "tag": "0000_overrated_pandemic",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1776689911924,
-      "tag": "0001_amusing_spacker_dave",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1777989140018,
-      "tag": "0002_rare_ted_forrester",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1777991681397,
-      "tag": "0003_chemical_mephisto",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1777994104076,
-      "tag": "0004_absent_junta",
+      "when": 1778115389130,
+      "tag": "0000_brown_black_tarantula",
       "breakpoints": true
     }
   ]
