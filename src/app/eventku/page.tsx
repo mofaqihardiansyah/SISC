@@ -9,7 +9,6 @@ import Navbar from '@/components/layout/navbar';
 import NavbarWrapper from '@/components/layout/navbar-wrapper';
 import { auth } from '@/auth';
 
-// --- DATA LENGKAP (Semua status ada di sini) ---
 const allEvents = [
   { id: 1, title: 'Seminar PPKS', date: '11 April 2026', location: 'Auditorium Utama Polines', organizer: 'bem_polines', type: 'Seminar', status: 'Selesai' },
   { id: 2, title: 'Seminar Kebangsaan', date: '15 April 2026', location: 'Ruang Serbaguna', organizer: 'ukm_seni', type: 'Seminar', status: 'Sedang Berlangsung' },
