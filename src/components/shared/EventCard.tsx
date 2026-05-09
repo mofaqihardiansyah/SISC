@@ -8,9 +8,11 @@ interface EventCardProps {
   date: string;
   price: number | null;
   category: string;
-  organizer: string;
   type: "POLINES" | "UMUM";
   imageUrl?: string;
+  tipePlatform?: string;
+  kotaNama?: string;
+  kategoriNama?: string;
 }
 
 export default function EventCard({
@@ -19,21 +21,17 @@ export default function EventCard({
   date,
   price,
   category,
-  organizer,
   type,
   imageUrl,
+  tipePlatform,
+  kotaNama,
+  kategoriNama,
 }: EventCardProps) {
-  const tagColor: Record<string, string> = {
-    Teknologi: "bg-blue-100 text-blue-700",
-    Desain: "bg-yellow-100 text-yellow-700",
-    Seni: "bg-pink-100 text-pink-700",
-  };
-
   return (
     <Link href={`/event/${id}`}>
       <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer">
-        
-        {/* Image */}
+
+        {/* Image + POLINES badge di atas gambar */}
         <div className="relative h-36">
           <Image
             src={normalizeImagePath(imageUrl)}
@@ -42,40 +40,52 @@ export default function EventCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             className="object-cover"
           />
-
-          <span className="absolute top-2 left-2 bg-white text-xs font-bold px-2 py-1 rounded">
-            {type}
-          </span>
+          {type === "POLINES" && (
+            <span className="absolute top-2 left-2 bg-white text-xs font-bold px-2 py-1 rounded">
+              POLINES
+            </span>
+          )}
         </div>
 
         {/* Body */}
-        <div className="p-3">
-          <span
-            className={`text-[10px] font-bold px-2 py-1 rounded ${
-              tagColor[category] ?? "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {category}
-          </span>
+        <div className="p-4">
 
-          <p className="text-[11px] text-slate-500 mt-2">{date}</p>
+          {/* Badge: Offline/Online + Seminar/Conference */}
+          <div className="flex flex-wrap gap-1 mb-2">
+            {tipePlatform && (
+              <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full capitalize">
+                {tipePlatform.charAt(0).toUpperCase() + tipePlatform.slice(1)}
+              </span>
+            )}
+            {category && (
+              <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">
+                {category}
+              </span>
+            )}
+          </div>
 
           <h3 className="text-[13px] font-bold text-slate-800 mt-1 line-clamp-2">
             {title}
           </h3>
 
-          <p className="text-[11px] text-slate-400 mt-2">{organizer}</p>
+          <p className="text-[11px] text-slate-400 mt-1">{date}</p>
 
-          <p
-            className={`text-sm font-extrabold mt-2 ${
-              price === null ? "text-green-600" : "text-slate-800"
-            }`}
-          >
-            {price === null
+          <p className={`text-sm font-extrabold mt-2 ${
+            price === null || price === 0 ? "text-green-600" : "text-slate-800"
+          }`}>
+            {price === null || price === 0
               ? "Gratis"
               : `Rp ${price.toLocaleString("id-ID")}`}
           </p>
         </div>
+
+        {/* Footer: Lokasi & Kategori */}
+        <div className="px-4 py-3 border-t flex items-center gap-2 text-xs text-gray-500">
+          <span>📍 {kotaNama ?? "-"}</span>
+          <span className="text-gray-300">•</span>
+          <span>{kategoriNama ?? "-"}</span>
+        </div>
+
       </div>
     </Link>
   );

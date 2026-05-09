@@ -11,6 +11,9 @@ interface EventSectionProps {
     tipeHarga: string | null;
     harga: number | null;
     jenisEvent: string | null;
+    tipePlatform?: string | null;
+    kotaNama?: string | null;
+    kategoriNama?: string | null;
   }[];
   emptyMessage?: string;
   type: "POLINES" | "UMUM";
@@ -29,15 +32,18 @@ export default function EventSection({
     <div className="mt-10">
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-xl font-extrabold text-slate-800">{title}</h2>
-        <a 
-          href={viewAllHref} 
+        <a
+          href={viewAllHref}
           className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors"
         >
           Lihat Selengkapnya →
         </a>
       </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <div
+        className="grid gap-6"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}
+      >
         {events.length === 0 ? (
           <div className="col-span-full py-10 text-center bg-gray-100 rounded-xl">
             <p className="text-gray-500 italic">{emptyMessage}</p>
@@ -59,10 +65,12 @@ export default function EventSection({
                   : "Tanggal belum diisi"
               }
               price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
-              category={ev.jenisEvent ?? "Kategori"}
-              organizer={organizerLabel}
+              category={ev.jenisEvent ?? ""}
               type={type}
               imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
+              tipePlatform={ev.tipePlatform ?? undefined}
+              kotaNama={ev.kotaNama ?? undefined}
+              kategoriNama={ev.kategoriNama ?? undefined}
             />
           ))
         )}
