@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db"; 
-import { event, bookmark } from "@/db/schema";
+import { event, bookmark, kota, kategori } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { auth } from "@/auth";
 
@@ -11,25 +11,36 @@ export async function getEvents() {
 
   const userId = Number(session.user.id);
 
-  const data = await db
-    .select({
-      id: event.id,
-      judul: event.judul,
-      bannerUrl: event.bannerUrl,
-      harga: event.harga,
-      tanggalMulai: event.tanggalMulai,
-      jenisEvent: event.jenisEvent,
-      penyelenggara: event.penyelenggara,
-    })
-    .from(bookmark)
-    .innerJoin(event, eq(bookmark.eventId, event.id))
-    .where(
-      and(
-        eq(bookmark.userId, userId),
-        isNull(event.dihapusPada),
-        eq(event.status, 'published')
-      )
-    );
+  try {
+    const data = await db
+      .select({
+        id: event.id,
+        judul: event.judul,
+        bannerUrl: event.bannerUrl,
+        harga: event.harga,
+        tanggalMulai: event.tanggalMulai,
+        jenisEvent: event.jenisEvent,
+        penyelenggara: event.penyelenggara,
+        namaKota: kota.nama,
+        namaKategori: kategori.nama,
+        tipeEvent: event.tipeEvent,
+        tipePlatform: event.tipePlatform,
+      })
+      .from(bookmark)
+      .innerJoin(event, eq(bookmark.eventId, event.id))
+      .leftJoin(kota, eq(event.kotaId, kota.id))
+      .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+      .where(
+        and(
+          eq(bookmark.userId, userId),
+          isNull(event.dihapusPada),
+          eq(event.status, 'published')
+        )
+      );
 
-  return data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching favorite events:", error);
+    return [];
+  }
 }
