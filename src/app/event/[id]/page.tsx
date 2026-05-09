@@ -23,7 +23,6 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
           profilPenyelenggara: true,
         },
       },
-      pembicara: true,
       kota: {
         with: {
           provinsi: true,
@@ -46,10 +45,11 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   });
 
   // Nama pembicara
-  const namaPembicara =
-    eventData.pembicara.length > 0
-      ? eventData.pembicara.map((p) => `${p.nama} (${p.peran})`).join(", ")
-      : null;
+  const namaPembicara = eventData.namaPembicara
+    ? `${eventData.namaPembicara}${
+        eventData.peranPembicara ? ` (${eventData.peranPembicara})` : ""
+      }`
+    : null;
 
   // Nama penyelenggara
   const namaPenyelenggara =
