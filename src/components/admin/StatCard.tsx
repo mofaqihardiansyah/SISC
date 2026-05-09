@@ -6,7 +6,7 @@ interface StatCardProps {
   label: string;
   value: string | number;
   icon: LucideIcon;
-  color: 'blue' | 'yellow' | 'purple';
+  color: 'blue' | 'yellow' | 'purple' | 'green' | 'red';
 }
 
 const colorStyles = {
@@ -24,6 +24,16 @@ const colorStyles = {
     bg: 'bg-purple-50',
     icon: 'bg-purple-500',
     text: 'text-purple-600',
+  },
+  green: {
+    bg: 'bg-green-50',
+    icon: 'bg-green-500',
+    text: 'text-green-600',
+  },
+  red: {
+    bg: 'bg-red-50',
+    icon: 'bg-red-500',
+    text: 'text-red-600',
   },
 };
 

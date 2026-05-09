@@ -107,10 +107,10 @@ export const seminarCrawler = new PlaywrightCrawler({
           detailLokasi: r.detailLokasi,
           isEventPolines: false,
           hasilScraping: true,
-          status: 'published',
+          status: 'published' as const,
           websiteSumber: r.websiteSumber,
           tanggalMulai: parseIndoDate(r.tanggalMentah),
-          jenisEvent: 'seminar',
+          jenisEvent: 'seminar' as const,
         }));
 
       if (newData.length > 0) {

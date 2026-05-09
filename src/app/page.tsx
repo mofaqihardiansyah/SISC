@@ -10,7 +10,18 @@ export default async function BerandaPage() {
   const [categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
     db.select().from(kategori),
 
-    db.select().from(event).where(isNull(event.dihapusPada)).orderBy(desc(event.jumlahTayangan)).limit(5),
+    db
+      .select({
+        id: event.id,
+        judul: event.judul,
+        bannerUrl: event.bannerUrl,
+        tanggalMulai: event.tanggalMulai,
+        detailLokasi: event.detailLokasi,
+      })
+      .from(event)
+      .where(and(isNull(event.dihapusPada), eq(event.status, 'published')))
+      .orderBy(desc(event.jumlahTayangan))
+      .limit(5),
 
     db
       .select({
@@ -28,7 +39,7 @@ export default async function BerandaPage() {
       .from(event)
       .leftJoin(kota, eq(event.kotaId, kota.id))
       .leftJoin(kategori, eq(event.kategoriId, kategori.id))
-      .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada)))
+      .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada), eq(event.status, 'published')))
       .limit(8),
 
     db
@@ -47,7 +58,7 @@ export default async function BerandaPage() {
       .from(event)
       .leftJoin(kota, eq(event.kotaId, kota.id))
       .leftJoin(kategori, eq(event.kategoriId, kategori.id))
-      .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada)))
+      .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada), eq(event.status, 'published')))
       .limit(8),
   ]);
 

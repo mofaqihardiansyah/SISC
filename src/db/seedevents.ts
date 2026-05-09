@@ -54,7 +54,7 @@ async function main() {
       satuAkunSatuTransaksi: false,
       hasilScraping: false,
       dibuatPada: new Date(),
-    }).onConflictDoUpdate({
+    } as any).onConflictDoUpdate({
       target: event.slug,
       set: { 
         judul: e.judul, 

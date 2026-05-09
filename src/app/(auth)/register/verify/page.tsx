@@ -36,6 +36,7 @@ function VerifyContent() {
     
     // Auto login
     const tempPass = sessionStorage.getItem('temp_pass');
+    sessionStorage.removeItem('temp_pass');
     if (tempPass) {
       const signInResult = await signIn('credentials', {
         email,
@@ -43,10 +44,8 @@ function VerifyContent() {
         redirect: false
       });
       
-      sessionStorage.removeItem('temp_pass');
-      
       if (signInResult?.ok) {
-        window.location.href = '/'; // Redirect to dashboard / home
+        window.location.href = '/';
         return;
       }
     }

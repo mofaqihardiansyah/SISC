@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Star, Plus } from 'lucide-react';
 
 export default function BantuanPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -28,8 +29,11 @@ export default function BantuanPage() {
     {
       id: 4,
       question: 'Bagaimana cara menambahkan event ke favorit?',
-      answer:
-        'Saat melihat event, klik tombol "⭐ Favorit" atau ikon bintang di halaman event. Event favorit Anda akan tersimpan dan dapat diakses di menu "Favorit".',
+      answer: (
+        <>
+          Saat melihat event, klik tombol &quot;<Star className="inline w-4 h-4 text-yellow-500 fill-current mb-0.5" /> Favorit&quot; atau ikon bintang di halaman event. Event favorit Anda akan tersimpan dan dapat diakses di menu &quot;Favorit&quot;.
+        </>
+      ),
     },
     {
       id: 5,
@@ -222,7 +226,7 @@ export default function BantuanPage() {
                       onClick={() => setOpenFaq(openFaq === faq.id ? null : faq.id)}
                     >
                       <span className="faq-question">{faq.question}</span>
-                      <span className={`faq-icon ${openFaq === faq.id ? 'open' : ''}`}>+</span>
+                      <Plus className={`faq-icon ${openFaq === faq.id ? 'open' : ''}`} />
                     </button>
                     {openFaq === faq.id && (
                       <div className="faq-answer">{faq.answer}</div>
@@ -230,7 +234,7 @@ export default function BantuanPage() {
                   </div>
                 ))
               ) : (
-                <div className="faq-empty">Tidak ada hasil untuk "{searchQuery}"</div>
+            <div className="faq-empty">Tidak ada hasil untuk &quot;{searchQuery}&quot;</div>
               )}
             </div>
           </div>

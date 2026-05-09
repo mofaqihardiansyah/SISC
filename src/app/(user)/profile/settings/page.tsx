@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -47,9 +48,9 @@ export default function SettingsPage() {
 
       if (!res.ok) throw new Error();
 
-      alert('Pengaturan berhasil disimpan!');
+      toast.success('Pengaturan berhasil disimpan!');
     } catch {
-      alert('Gagal menyimpan');
+      toast.error('Gagal menyimpan');
     }
   };
 
@@ -62,10 +63,10 @@ export default function SettingsPage() {
 
       if (!res.ok) throw new Error();
 
-      alert('Akun berhasil dihapus');
+      toast.success('Akun berhasil dihapus');
       router.push('/login');
     } catch {
-      alert('Gagal menghapus akun');
+      toast.error('Gagal menghapus akun');
     }
   };
 

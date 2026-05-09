@@ -175,8 +175,8 @@ export async function requestPasswordReset(email: string) {
   });
 
   if (!user) {
-    // We return success anyway to prevent email enumeration, but you could also return an error if you prefer
-    return { error: "Email tidak ditemukan." };
+    // Return success anyway to prevent email enumeration
+    return { success: true };
   }
 
   // Delete old OTPs for this email

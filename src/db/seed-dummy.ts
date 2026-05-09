@@ -2,8 +2,8 @@ import 'dotenv/config';
 import { db } from './index';
 import {
   profilPenyelenggara, tag, eventTag, 
-  lampiranEvent, bookmark, userEvent, logAdmin,
-  pembicaraEvent, jadwalEvent,
+  lampiranEvent, bookmark, logAdmin,
+  jadwalEvent, pendaftaran, peserta
 } from './schema';
 
 async function main() {
@@ -55,17 +55,6 @@ async function main() {
     });
   }
 
-  // 4. PEMBICARA EVENT
-  console.log("  📦 Pembicara Event...");
-  const pembicara = [
-    { eventId: 1, nama: "Dr. Bambang Riyanto", peran: "Keynote Speaker" },
-    { eventId: 3, nama: "dr. Andi Pratama, Sp.PD", peran: "Keynote Speaker" },
-    { eventId: 17, nama: "Dr. Eka Putra", peran: "Main Speaker" },
-  ];
-  for (const p of pembicara) {
-    await db.insert(pembicaraEvent).values(p);
-  }
-
   // 5. JADWAL EVENT
   console.log("  📦 Jadwal Event...");
   function eventTime(daysFromNow: number, hour: number) {
@@ -99,6 +88,24 @@ async function main() {
   ];
   for (const l of logs) {
     await db.insert(logAdmin).values(l);
+  }
+
+  // 8. PENDAFTARAN & PESERTA
+  console.log("  📦 Pendaftaran & Peserta...");
+  const pendaftarans = [
+    { id: 1, eventId: 1, userId: 4, kodePendaftaran: "REG-1-001", status: "terdaftar", dibuatPada: new Date() },
+    { id: 2, eventId: 1, userId: 5, kodePendaftaran: "REG-1-002", status: "hadir", dibuatPada: new Date() },
+  ];
+  for (const p of pendaftarans) {
+    await db.insert(pendaftaran).values(p).onConflictDoNothing({ target: pendaftaran.kodePendaftaran });
+  }
+
+  const pesertas = [
+    { pendaftaranId: 1, kodePeserta: "P-1-001", namaLengkap: "Dewi Anggraini", email: "dewi.anggraini@gmail.com", nomorTelepon: "082111222336", jenisKelamin: "Perempuan" },
+    { pendaftaranId: 2, kodePeserta: "P-1-002", namaLengkap: "Fajar Setiawan", email: "fajar.setiawan@gmail.com", nomorTelepon: "082111222337", jenisKelamin: "Laki-laki", sudahCheckIn: true, waktuCheckIn: new Date() },
+  ];
+  for (const ps of pesertas) {
+    await db.insert(peserta).values(ps).onConflictDoNothing({ target: peserta.kodePeserta });
   }
 
   console.log("✅ Data dummy berhasil disesuaikan dengan struktur baru!");

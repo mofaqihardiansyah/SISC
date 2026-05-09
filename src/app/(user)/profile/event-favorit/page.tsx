@@ -8,12 +8,23 @@ import {
   ChevronRight,
   CircleUser
 } from "lucide-react";
+import Image from "next/image";
 import { getEvents } from "./action"; 
+
+interface EventItem {
+  id: number;
+  judul: string | null;
+  bannerUrl: string | null;
+  harga: number | null;
+  tanggalMulai: Date | null;
+  jenisEvent: string | null;
+  penyelenggara: string | null;
+}
 
 export default function EventFavoritPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,11 +113,10 @@ export default function EventFavoritPage() {
   );
 }
 
-function EventCard({ data }: { data: any }) {
+function EventCard({ data }: { data: EventItem }) {
   const displayHarga = data.harga === 0 ? "FREE" : `Rp ${data.harga?.toLocaleString('id-ID')}`;
 
-  // Fungsi format tanggal Indonesia
-  const formatTanggal = (dateString: any) => {
+  const formatTanggal = (dateString: Date | null | string) => {
     if (!dateString) return "Tanggal belum diatur";
     return new Date(dateString).toLocaleDateString('id-ID', {
       day: 'numeric',
@@ -118,10 +128,12 @@ function EventCard({ data }: { data: any }) {
   return (
     <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-50 overflow-hidden transition-all hover:-translate-y-2 group">
       <div className="h-48 relative overflow-hidden bg-slate-100">
-        <img 
+        <Image 
           src={data.bannerUrl || "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=500"} 
-          alt={data.judul} 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+          alt={data.judul || ""} 
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110" 
         />
       </div>
 
