@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { event, kategori } from "@/db/schema";
+import { event, kategori, kota } from "@/db/schema";
 import { eq, and, isNull, desc } from "drizzle-orm";
 import Footer from "@/components/shared/Footer";
 import HeroSlider from "@/components/shared/HeroSlider";
@@ -9,9 +9,46 @@ import EventSection from "@/components/shared/EventSection";
 export default async function BerandaPage() {
   const [categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
     db.select().from(kategori),
+
     db.select().from(event).where(isNull(event.dihapusPada)).orderBy(desc(event.jumlahTayangan)).limit(5),
-    db.select().from(event).where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada))).limit(8),
-    db.select().from(event).where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada))).limit(8)
+
+    db
+      .select({
+        id: event.id,
+        judul: event.judul,
+        bannerUrl: event.bannerUrl,
+        tanggalMulai: event.tanggalMulai,
+        tipeHarga: event.tipeHarga,
+        harga: event.harga,
+        jenisEvent: event.jenisEvent,
+        tipePlatform: event.tipePlatform,
+        kotaNama: kota.nama,
+        kategoriNama: kategori.nama,
+      })
+      .from(event)
+      .leftJoin(kota, eq(event.kotaId, kota.id))
+      .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+      .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada)))
+      .limit(8),
+
+    db
+      .select({
+        id: event.id,
+        judul: event.judul,
+        bannerUrl: event.bannerUrl,
+        tanggalMulai: event.tanggalMulai,
+        tipeHarga: event.tipeHarga,
+        harga: event.harga,
+        jenisEvent: event.jenisEvent,
+        tipePlatform: event.tipePlatform,
+        kotaNama: kota.nama,
+        kategoriNama: kategori.nama,
+      })
+      .from(event)
+      .leftJoin(kota, eq(event.kotaId, kota.id))
+      .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+      .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada)))
+      .limit(8),
   ]);
 
   return (
@@ -49,4 +86,4 @@ export default async function BerandaPage() {
       <Footer />
     </div>
   );
-}
+}

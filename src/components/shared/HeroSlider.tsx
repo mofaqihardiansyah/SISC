@@ -1,9 +1,10 @@
 "use client";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import "swiper/css/navigation";
 import { normalizeImagePath } from "@/lib/utils/image-utils";
 
 interface HeroSliderProps {
@@ -19,24 +20,29 @@ interface HeroSliderProps {
 export default function HeroSlider({ events }: HeroSliderProps) {
   return (
     <Swiper
-      modules={[Autoplay, Pagination]}
+      modules={[Autoplay, Pagination, Navigation]}
       autoplay={{ delay: 4000, disableOnInteraction: false }}
       pagination={{ clickable: true }}
       loop={true}
+      grabCursor={true}
+      simulateTouch={true}
+      touchRatio={1}
+      touchAngle={45}
       className="h-[300px] rounded-2xl overflow-hidden"
     >
       {events.map((ev, index) => (
         <SwiperSlide key={ev.id}>
           <div className="relative h-[300px]">
             <Image
-              src={normalizeImagePath(ev.bannerUrl)}
-              alt={ev.judul ?? ""}
-              fill
-              priority={index === 0}
-              className="object-cover"
-            />
+  src={normalizeImagePath(ev.bannerUrl)}
+  alt={ev.judul ?? ""}
+  fill
+  priority={index === 0}
+  loading={index === 0 ? "eager" : "lazy"}
+  className="object-cover"
+/>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-            <div className="absolute bottom-8 left-8 text-white">
+            <div className="absolute bottom-5 left-5 sm:bottom-8 sm:left-8 text-white z-10">
               <span className="bg-yellow-400 text-yellow-900 text-[11px] font-bold px-3 py-1 rounded-full uppercase">
                 Paling Banyak Diminati
               </span>
