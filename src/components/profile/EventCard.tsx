@@ -105,7 +105,7 @@ export default function EventCard({
 
           <div className="flex gap-2 pt-2">
             <Link
-              href={`/events/${id}`}
+              href={`/event/${id}`}
               className="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-slate-200 text-center"
             >
               Lihat Detail
@@ -213,7 +213,7 @@ export default function EventCard({
             </div>
           )}
           <Link
-            href={`/events/${id}`}
+            href={`/event/${id}`}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-blue-200 text-center hover:scale-105 active:scale-95"
           >
             Lihat Detail

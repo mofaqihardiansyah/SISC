@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { registerUser } from '@/actions/auth';
 import { FileUpload } from '@/components/shared/FileUpload';
-import { FileText, Check, Loader2 } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 const visitorSchema = z.object({
   namaLengkap: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
@@ -138,7 +138,7 @@ export default function RegisterPage() {
                   <Input 
                     type="password" 
                     autoComplete="new-password"
-                    placeholder="Password Minimal 8 Karakter" 
+                    placeholder="Password Minimal 6 Karakter" 
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('password')}
                   />
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                   <Input 
                     type="password" 
                     autoComplete="new-password"
-                    placeholder="Password Minimal 8 Karakter" 
+                    placeholder="Password Minimal 6 Karakter" 
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('password')}
                   />

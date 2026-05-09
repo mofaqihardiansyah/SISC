@@ -22,8 +22,8 @@ export async function Topbar({ title = "User Profile" }: TopbarProps) {
               <p className="text-sm font-semibold text-slate-900">
                 {session.user.name}
               </p>
-              <p className="text-xs text-slate-500">
-                Pengunjung
+              <p className="text-xs text-slate-500 capitalize">
+                {session.user.role || 'Pengunjung'}
               </p>
             </div>
             <UserMenu user={session.user} />

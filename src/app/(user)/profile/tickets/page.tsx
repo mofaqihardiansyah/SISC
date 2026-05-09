@@ -117,7 +117,7 @@ export default function TicketsPage() {
         <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
           <p className="text-slate-500 text-lg mb-4">Anda belum memiliki tiket</p>
           <Link
-            href="/events"
+            href="/jelajah"
             className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
           >
             Cari Event & Beli Tiket

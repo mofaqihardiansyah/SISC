@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { peserta, transaksi } from "@/db/schema";
+import { peserta, transaksi, event } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 import { auth } from "@/auth";
 
 interface RegistrationData {
@@ -22,12 +23,37 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
     const idEvent = Number(eventId);
     const idUser = Number(session.user.id);
 
+    // Cek apakah event ada
+    const dataEvent = await db.query.event.findFirst({
+      where: eq(event.id, idEvent),
+    });
+
+    if (!dataEvent) {
+      return { success: false, error: "Event tidak ditemukan" };
+    }
+
+    // Cek sudah terdaftar
+    const existing = await db
+      .select()
+      .from(transaksi)
+      .where(
+        and(
+          eq(transaksi.eventId, idEvent),
+          eq(transaksi.userId, idUser)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      return { success: false, error: "Anda sudah terdaftar di event ini" };
+    }
+
     // 1. Buat data transaksi terlebih dahulu
     const [newTransaksi] = await db.insert(transaksi).values({
       eventId: idEvent,
       userId: idUser,
       status: 'pending',
-      totalHarga: 0, // Default 0 untuk pendaftaran awal
+      totalHarga: 0,
       dibuatPada: new Date(),
     }).returning({ id: transaksi.id });
 
@@ -43,6 +69,7 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
       jenisKelamin: formData.jenis_kelamin, 
       transaksiId: newTransaksi.id, 
       kodePeserta: `REG-${idEvent}-${Date.now()}`, 
+      sudahCheckIn: false,
     });
 
     return { success: true };

@@ -21,7 +21,7 @@ export async function updateEventBanner(eventId: number, bannerUrl: string) {
     
     // Revalidate the pages that show this event
     revalidatePath("/");
-    revalidatePath(`/events/${eventId}`);
+    revalidatePath(`/event/${eventId}`);
     
     return { success: true };
   } catch (error) {
