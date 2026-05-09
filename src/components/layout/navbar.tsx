@@ -2,16 +2,11 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import UserMenu from "./UserMenu";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import SearchBar from "./SearchBar";
 =======
 import SearchInput from "./search-input";
 import { Suspense } from "react";
 >>>>>>> 3fe283b410dca8442ef761b0824fd0b6b7397301
-=======
-import SearchInput from "./search-input";
-import { Suspense } from "react";
->>>>>>> d3f65c55aa2bde15aa049b27878b1e9c71144ef6
 
 export default async function Navbar() {
   const session = await auth();
@@ -21,7 +16,6 @@ export default async function Navbar() {
       <div className="px-4 sm:px-8 lg:px-16 py-4 flex justify-between items-center">
         <div className="flex items-center gap-8">
 <<<<<<< HEAD
-<<<<<<< HEAD
           <Link href="/">
   <h1 className="text-xl font-bold hover:opacity-80 transition-opacity cursor-pointer">
     POLIVENTS
@@ -30,8 +24,6 @@ export default async function Navbar() {
 
           <SearchBar />
 =======
-=======
->>>>>>> d3f65c55aa2bde15aa049b27878b1e9c71144ef6
           <Link href="/" className="group flex items-center focus:outline-none">
             <h1 
               className="text-2xl font-black tracking-[0.15em] text-white group-hover:opacity-80 transition-opacity duration-300 drop-shadow-sm"
@@ -44,10 +36,7 @@ export default async function Navbar() {
           <Suspense fallback={<div className="w-[300px] h-9 bg-white/20 rounded-full animate-pulse hidden md:block"></div>}>
             <SearchInput />
           </Suspense>
-<<<<<<< HEAD
 >>>>>>> 3fe283b410dca8442ef761b0824fd0b6b7397301
-=======
->>>>>>> d3f65c55aa2bde15aa049b27878b1e9c71144ef6
         </div>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
