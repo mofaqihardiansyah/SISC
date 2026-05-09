@@ -716,7 +716,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
       `}</style>
 
       {/* HERO */}
-      <section className="hero-section">
+      <section className="hero-section animate-in fade-in duration-1000">
         <div className="hero-container">
           <div className="hero-left">
             <span className="hero-kategori">{event.kategori}</span>
@@ -752,7 +752,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
       </section>
 
       {/* KONTEN + SIDEBAR */}
-      <div className="detail-layout">
+      <div className="detail-layout animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* KONTEN UTAMA */}
         <div className="detail-main">
           {/* TAB NAVIGATION */}

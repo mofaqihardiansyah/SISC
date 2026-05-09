@@ -37,7 +37,7 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm animate-in fade-in zoom-in-95 duration-300">
       {step === 1 ? (
         <>
           <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-8">

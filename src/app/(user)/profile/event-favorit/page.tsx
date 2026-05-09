@@ -45,8 +45,8 @@ export default function EventFavoritPage() {
   });
 
   return (
-    <div className="w-full">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">Event Favorit</h1>
+    <div className="w-full animate-in fade-in duration-500">
+      <h1 className="text-3xl font-bold text-slate-900 mb-8 animate-in fade-in slide-in-from-left-4 duration-700">Event Favorit</h1>
 
       <div className="relative mb-10">
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-slate-100"></div>

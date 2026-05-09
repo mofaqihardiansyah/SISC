@@ -65,11 +65,11 @@ export default async function BerandaPage() {
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       {/* HERO */}
-      <section className="px-4 sm:px-8 lg:px-16 mt-6">
+      <section className="px-4 sm:px-8 lg:px-16 mt-6 animate-in fade-in zoom-in-95 duration-1000">
         <HeroSlider events={heroEvents} />
       </section>
 
-      <main className="px-4 sm:px-8 lg:px-16 py-10">
+      <main className="px-4 sm:px-8 lg:px-16 py-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
         {/* KATEGORI */}
         <h2 className="text-2xl font-extrabold mb-5 text-slate-800">Kategori Event</h2>
         <KategoriCarousel categories={categories} />

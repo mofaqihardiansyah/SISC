@@ -133,9 +133,8 @@ export default function JelajahPage() {
 
       {/* MAIN */}
       <div className="max-w-[1300px] mx-auto w-full px-10 py-10 flex gap-8">
-
         {/* SIDEBAR */}
-        <aside className="w-1/4">
+        <aside className="w-1/4 animate-in fade-in slide-in-from-left-4 duration-500">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-blue-700 font-semibold text-lg">Filter Pencarian</h2>
@@ -266,7 +265,7 @@ export default function JelajahPage() {
         </aside>
 
         {/* CONTENT */}
-        <main className="w-3/4">
+        <main className="w-3/4 animate-in fade-in slide-in-from-right-4 duration-500">
 
           {loading && (
             <div className="flex items-center justify-center h-64 gap-3 text-gray-400">
