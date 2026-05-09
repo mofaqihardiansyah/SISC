@@ -1,4 +1,3 @@
-// src/components/layout/navbar.tsx
 import Link from "next/link";
 import { auth } from "@/auth";
 import UserMenu from "./UserMenu";
@@ -10,10 +9,7 @@ export default async function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-[var(--brand-dark)] text-white shadow-md">
-      {/* ✅ Ganti max-w-6xl → max-w-none, samakan padding dengan hero */}
       <div className="px-4 sm:px-8 lg:px-16 py-4 flex justify-between items-center">
-
-        {/* LEFT */}
         <div className="flex items-center gap-8">
           <Link href="/" className="group flex items-center focus:outline-none">
             <h1 
@@ -29,7 +25,6 @@ export default async function Navbar() {
           </Suspense>
         </div>
 
-        {/* RIGHT */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link href="/">Beranda</Link>
           <Link href="/jelajah">Jelajah</Link>
