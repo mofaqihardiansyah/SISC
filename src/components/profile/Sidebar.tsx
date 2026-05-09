@@ -8,7 +8,8 @@ import {
   CalendarCheck, 
   Bookmark, 
   Info, 
-  HelpCircle
+  HelpCircle,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ const menuItems = [
   { label: "Dashboard", href: "/Profile/dashboard", icon: LayoutDashboard },
   { label: "Eventku", href: "/Profile/events", icon: CalendarCheck },
   { label: "Event Favorit", href: "/Profile/favorites", icon: Bookmark },
+  { label: "Submit Paper", href: "/Profile/paper-submission", icon: FileText },
   { label: "Akun & Privasi", href: "/Profile/settings", icon: Info },
   { label: "Bantuan", href: "/Profile/help", icon: HelpCircle },
 ];

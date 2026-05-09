@@ -230,6 +230,21 @@ export const jadwalEvent = pgTable('jadwal_event', {
   deskripsi: text('deskripsi'), // Sesi Tanya Jawab, Pembukaan, dll
 });
 
+export const paperSubmission = pgTable('paper_submission', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').references(() => event.id).notNull(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  judul: varchar('judul').notNull(),
+  abstrak: text('abstrak'),
+  penulis: varchar('penulis').notNull(), // Nama penulis utama
+  email: varchar('email'),
+  fileUrl: varchar('file_url').notNull(), // URL file paper PDF
+  status: varchar('status').default('submitted'), // submitted, accepted, rejected, reviewing
+  feedback: text('feedback'), // Komentar dari reviewer
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  diperbaruiPada: timestamp('diperbarui_pada'),
+});
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   profilPenyelenggara: one(profilPenyelenggara, {
     fields: [users.id],
@@ -243,6 +258,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   komentar: many(komentarEvent),
   sosialMedia: many(sosialMediaUser),
   userEvent: many(userEvent),
+  paperSubmission: many(paperSubmission),
 }));
 
 export const sosialMediaUserRelations = relations(sosialMediaUser, ({ one }) => ({
@@ -314,6 +330,7 @@ export const eventRelations = relations(event, ({ one, many }) => ({
   pembicara: many(pembicaraEvent),
   jadwal: many(jadwalEvent),
   userEvent: many(userEvent),
+  paperSubmission: many(paperSubmission),
 }));
 
 export const userEventRelations = relations(userEvent, ({ one }) => ({
@@ -423,5 +440,16 @@ export const jadwalEventRelations = relations(jadwalEvent, ({ one }) => ({
   event: one(event, {
     fields: [jadwalEvent.eventId],
     references: [event.id],
+  }),
+}));
+
+export const paperSubmissionRelations = relations(paperSubmission, ({ one }) => ({
+  event: one(event, {
+    fields: [paperSubmission.eventId],
+    references: [event.id],
+  }),
+  user: one(users, {
+    fields: [paperSubmission.userId],
+    references: [users.id],
   }),
 }));
