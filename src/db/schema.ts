@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey, pgEnum, index } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey, pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const eventStatusEnum = pgEnum('event_status', ['pending', 'published', 'rejected']);
@@ -143,7 +143,9 @@ export const bookmark = pgTable('bookmark', {
   userId: integer('user_id').references(() => users.id),
   eventId: integer('event_id').references(() => event.id),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
-});
+}, (t) => ({
+  unq: uniqueIndex('bookmark_user_event_idx').on(t.userId, t.eventId),
+}));
 
 export const logAdmin = pgTable('log_admin', {
   id: serial('id').primaryKey(),

@@ -14,13 +14,15 @@
     "db:seed-kota": "npx tsx src/db/seedkota.ts",
     "db:seed-reset": "npx tsx src/db/seedreset.ts",
     "db:seed-dummy": "npx tsx src/db/seed-dummy.ts",
-    "db:seed": "npm run db:seed-reset && npm run db:seed-provinsi && npm run db:seed-kota && npm run db:seed-kategori && npm run db:seed-users && npm run db:seed-events && npm run db:seed-dummy"
+    "db:seed-profile": "npx tsx src/db/seed-profile-demo.ts",
+    "db:seed": "npm run db:seed-reset && npm run db:seed-provinsi && npm run db:seed-kota && npm run db:seed-kategori && npm run db:seed-users && npm run db:seed-events && npm run db:seed-dummy && npm run db:seed-profile"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
     "@crawlee/playwright": "^3.16.0",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.105.3",
+    "agentation": "^3.0.2",
     "bcryptjs": "^3.0.3",
     "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",

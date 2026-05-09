@@ -18,11 +18,10 @@ async function main() {
       'event_tag',
       'lampiran_event',
       'bookmark',
-      'user_event',
-      'log_admin',
-      'transaksi',
+      'pendaftaran',
       'peserta',
-      'pembicara_event',
+      'paper_submission',
+      'log_admin',
       'jadwal_event'
     ];
 
