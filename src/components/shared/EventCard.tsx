@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { normalizeImagePath } from "@/lib/utils/image-utils";
+import BookmarkButton from "./BookmarkButton";
 
 interface EventCardProps {
   id: string;
@@ -13,6 +14,7 @@ interface EventCardProps {
   tipePlatform?: string;
   kotaNama?: string;
   kategoriNama?: string;
+  isLoggedIn?: boolean;
 }
 
 export default function EventCard({
@@ -26,6 +28,7 @@ export default function EventCard({
   tipePlatform,
   kotaNama,
   kategoriNama,
+  isLoggedIn = false,
 }: EventCardProps) {
   return (
     <Link href={`/event/${id}`}>
@@ -68,14 +71,18 @@ export default function EventCard({
 
           <p className="text-[11px] text-slate-400 mt-1">{date}</p>
 
-          <p className={`text-sm font-extrabold mt-2 ${
-            price === null || price === 0 ? "text-green-600" : "text-slate-800"
-          }`}>
-            {price === null || price === 0
-              ? "Gratis"
-              : `Rp ${price.toLocaleString("id-ID")}`}
-          </p>
-        </div>
+          <div className="flex justify-between items-center mt-2">
+  <p className={`text-sm font-extrabold ${
+    price === null || price === 0 ? "text-green-600" : "text-slate-800"
+  }`}>
+    {price === null || price === 0
+      ? "Gratis"
+      : `Rp ${price.toLocaleString("id-ID")}`}
+  </p>
+  <BookmarkButton eventId={id} isLoggedIn={isLoggedIn ?? false} />
+</div>
+</div>
+        
 
         {/* Footer: Lokasi & Kategori */}
         <div className="px-4 py-3 border-t flex items-center gap-2 text-xs text-gray-500">

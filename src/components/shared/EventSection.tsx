@@ -14,10 +14,12 @@ interface EventSectionProps {
     tipePlatform?: string | null;
     kotaNama?: string | null;
     kategoriNama?: string | null;
+    
   }[];
   emptyMessage?: string;
   type: "POLINES" | "UMUM";
   organizerLabel: string;
+  isLoggedIn?: boolean;
 }
 
 export default function EventSection({
@@ -27,6 +29,7 @@ export default function EventSection({
   emptyMessage = "Belum ada event.",
   type,
   organizerLabel,
+  isLoggedIn = false,
 }: EventSectionProps) {
   return (
     <div className="mt-10">
@@ -71,6 +74,7 @@ export default function EventSection({
               tipePlatform={ev.tipePlatform ?? undefined}
               kotaNama={ev.kotaNama ?? undefined}
               kategoriNama={ev.kategoriNama ?? undefined}
+              isLoggedIn={isLoggedIn}
             />
           ))
         )}
