@@ -184,10 +184,12 @@ export const paperSubmission = pgTable('paper_submission', {
   eventId: integer('event_id').references(() => event.id).notNull(),
   userId: integer('user_id').references(() => users.id).notNull(),
   judul: varchar('judul', { length: 255 }).notNull(),
+  abstrak: text('abstrak'),
   penulis: text('penulis').notNull(),
+  email: varchar('email', { length: 255 }),
   fileUrl: varchar('file_url', { length: 512 }).notNull(),
   status: varchar('status', { length: 50 }).default('review'), // review, accepted, rejected
-  komentarPenolakan: text('komentar_penolakan'),
+  feedback: text('feedback'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
 });
@@ -198,6 +200,38 @@ export const jadwalEvent = pgTable('jadwal_event', {
   waktuMulai: timestamp('waktu_mulai'),
   waktuSelesai: timestamp('waktu_selesai'),
   deskripsi: text('deskripsi'), 
+});
+
+// New tables from branch
+export const transaksi = pgTable('transaksi', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  eventId: integer('event_id').references(() => event.id),
+  rekeningId: integer('rekening_id'), // Simplified for now
+  kodeBooking: varchar('kode_booking').unique(),
+  totalHarga: integer('total_harga').default(0),
+  metodePembayaran: varchar('metode_pembayaran'),
+  buktiPembayaranUrl: varchar('bukti_pembayaran_url'),
+  status: varchar('status').default('pending'),
+  alasanPenolakan: text('alasan_penolakan'),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  diperbaruiPada: timestamp('diperbarui_pada'),
+  dihapusPada: timestamp('dihapus_pada'),
+});
+
+export const komentarEvent = pgTable('komentar_event', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').references(() => event.id),
+  userId: integer('user_id').references(() => users.id),
+  isiKomentar: text('isi_komentar'),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+});
+
+export const sosialMediaUser = pgTable('sosial_media_user', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  platform: varchar('platform'),
+  url: varchar('url'),
 });
 
 // RELATIONS
@@ -211,6 +245,9 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   logAdmin: many(logAdmin),
   pendaftaran: many(pendaftaran),
   paperSubmission: many(paperSubmission),
+  transaksi: many(transaksi),
+  komentar: many(komentarEvent),
+  sosialMedia: many(sosialMediaUser),
 }));
 
 export const profilPenyelenggaraRelations = relations(profilPenyelenggara, ({ one }) => ({
@@ -271,6 +308,7 @@ export const eventRelations = relations(event, ({ one, many }) => ({
   pendaftaran: many(pendaftaran),
   jadwal: many(jadwalEvent),
   paperSubmission: many(paperSubmission),
+  komentar: many(komentarEvent),
 }));
 
 export const lampiranEventRelations = relations(lampiranEvent, ({ one }) => ({
@@ -336,5 +374,34 @@ export const jadwalEventRelations = relations(jadwalEvent, ({ one }) => ({
   event: one(event, {
     fields: [jadwalEvent.eventId],
     references: [event.id],
+  }),
+}));
+
+export const transaksiRelations = relations(transaksi, ({ one }) => ({
+  user: one(users, {
+    fields: [transaksi.userId],
+    references: [users.id],
+  }),
+  event: one(event, {
+    fields: [transaksi.eventId],
+    references: [event.id],
+  }),
+}));
+
+export const komentarEventRelations = relations(komentarEvent, ({ one }) => ({
+  event: one(event, {
+    fields: [komentarEvent.eventId],
+    references: [event.id],
+  }),
+  user: one(users, {
+    fields: [komentarEvent.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sosialMediaUserRelations = relations(sosialMediaUser, ({ one }) => ({
+  user: one(users, {
+    fields: [sosialMediaUser.userId],
+    references: [users.id],
   }),
 }));

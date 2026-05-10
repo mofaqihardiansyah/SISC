@@ -28,7 +28,7 @@ export default function HelpPage() {
       id: 4,
       question: 'Bagaimana cara menambahkan event ke favorit?',
       answer:
-        'Saat melihat event, klik tombol "⭐ Favorit" atau ikon bintang di halaman event. Event favorit Anda akan tersimpan dan dapat diakses di menu "Favorit".',
+        'Saat melihat event, klik tombol "Favorit" atau ikon bintang di halaman event. Event favorit Anda akan tersimpan dan dapat diakses di menu "Favorit".',
     },
     {
       id: 5,
