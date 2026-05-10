@@ -89,13 +89,8 @@ function parseDeskripsi(deskripsi: string | null) {
 // ============================================================
 // KOMPONEN UTAMA
 // ============================================================
-<<<<<<< HEAD
 export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("deskripsi");
-=======
-export default function DetailEvent({ event }: DetailEventProps) {
   const [activeSection, setActiveSection] = useState<SectionId>("deskripsi");
->>>>>>> origin/feature/detailevent
 
   // Refs untuk setiap section
   const sectionRefs = useRef<Record<SectionId, HTMLElement | null>>({
