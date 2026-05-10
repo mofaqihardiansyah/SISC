@@ -23,10 +23,11 @@ type EventType = {
 
 type DropdownType = "Lokasi" | "Tipe Event" | "Kategori Event" | "Waktu" | "Harga";
 
-function JelajahContent({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+function JelajahContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +51,14 @@ function JelajahContent({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
 
   const [searchLocation, setSearchLocation] = useState("");
   const [openDropdown, setOpenDropdown] = useState<DropdownType | null>(null);
+
+  // Cek Status Login Client-side
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => setIsLoggedIn(!!data?.user))
+      .catch(() => setIsLoggedIn(false));
+  }, []);
 
   useEffect(() => {
     fetch('/api/events?mode=kota')
@@ -394,7 +403,7 @@ function JelajahContent({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   );
 }
 
-export default function JelajahPage({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+export default function JelajahPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center gap-3 text-gray-400">
@@ -402,7 +411,7 @@ export default function JelajahPage({ isLoggedIn = false }: { isLoggedIn?: boole
         <span>Memuat halaman...</span>
       </div>
     }>
-      <JelajahContent isLoggedIn={isLoggedIn} />
+      <JelajahContent />
     </Suspense>
   );
 }

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Calendar, MapPin, User, Search, Bookmark, CalendarDays } from 'lucide-react';
 
 export default function UserDashboard() {
   const upcomingEvents = [
@@ -36,20 +37,20 @@ export default function UserDashboard() {
       {/* STATS SECTION */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Event Aktif', value: 6, icon: '🏃' },
-          { label: 'Event Favorit', value: 16, icon: '⭐' },
-          { label: 'Event Diikuti', value: 36, icon: '📅' },
+          { label: 'Event Aktif', value: 6, icon: <Calendar className="w-8 h-8 text-blue-600" /> },
+          { label: 'Event Favorit', value: 16, icon: <Bookmark className="w-8 h-8 text-blue-600" /> },
+          { label: 'Event Diikuti', value: 36, icon: <CalendarDays className="w-8 h-8 text-blue-600" /> },
         ].map((item, index) => (
           <div
             key={index}
-            className="bg-linear-to-br from-blue-100 to-blue-50 p-6 rounded-2xl border border-blue-200 shadow-sm hover:shadow-md transition-all"
+            className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all flex items-center justify-between"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-5xl">{item.icon}</span>
-              <div className="text-right">
-                <p className="text-4xl font-extrabold text-slate-900">{item.value}</p>
-                <p className="text-xs font-semibold text-slate-600 mt-2 uppercase tracking-wider">{item.label}</p>
-              </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{item.label}</p>
+              <p className="text-3xl font-extrabold text-slate-900">{item.value}</p>
+            </div>
+            <div className="bg-blue-50 p-3 rounded-xl">
+              {item.icon}
             </div>
           </div>
         ))}
@@ -143,19 +144,17 @@ function EventCard({
         <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
           {title}
         </h3>
-        <div className="space-y-2 mt-3 text-sm text-slate-600">
+        <div className="space-y-2 mt-3 text-sm text-slate-600 font-medium">
           <p className="flex items-center gap-2">
-            <span>📅</span>
+            <Calendar className="w-4 h-4 text-blue-500" />
             {date}
           </p>
           <p className="flex items-center gap-2">
-            <span>📍</span>
+            <MapPin className="w-4 h-4 text-blue-500" />
             {location}
           </p>
           <p className="flex items-center gap-2">
-            <span className="w-5 h-5 bg-slate-300 rounded-full inline-flex items-center justify-center text-xs">
-              👤
-            </span>
+            <User className="w-4 h-4 text-blue-500" />
             {organizer}
           </p>
         </div>

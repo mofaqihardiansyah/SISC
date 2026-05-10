@@ -108,6 +108,7 @@ export default function EventFavoritPage() {
                 kotaNama={item.namaKota || "Semarang"}
                 kategoriNama={item.namaKategori || "Pendidikan"}
                 isLoggedIn={true}
+                isBookmarked={true}
                 onRemove={() => handleRemoveVisual(item.id.toString())}
               />
             );

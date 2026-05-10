@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { normalizeImagePath } from "@/lib/utils/image-utils";
 import BookmarkButton from "./BookmarkButton";
+import { MapPin, Tag } from "lucide-react";
 
 interface EventCardProps {
   id: string;
@@ -17,6 +18,7 @@ interface EventCardProps {
   kotaNama?: string;
   kategoriNama?: string;
   isLoggedIn?: boolean;
+  isBookmarked?: boolean;
   onRemove?: () => void; 
 }
 
@@ -32,6 +34,7 @@ export default function EventCard({
   kotaNama,
   kategoriNama,
   isLoggedIn = false,
+  isBookmarked,
   onRemove,
 }: EventCardProps) {
   return (
@@ -83,21 +86,25 @@ export default function EventCard({
                 : `Rp ${price.toLocaleString("id-ID")}`}
             </p>
             
-            {/* PERBAIKAN DI SINI: Tambahkan initialBookmarked={true} */}
             <BookmarkButton 
               eventId={id} 
               isLoggedIn={isLoggedIn} 
               onRemove={onRemove} 
-              initialBookmarked={true} 
+              initialBookmarked={isBookmarked} 
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t flex items-center gap-2 text-xs text-gray-500">
-          <span>📍 {kotaNama ?? "-"}</span>
-          <span className="text-gray-300">•</span>
-          <span>{kategoriNama ?? "-"}</span>
+        <div className="px-4 py-3 border-t flex items-center gap-4 text-[11px] text-slate-500 bg-slate-50/50">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span className="truncate">{kotaNama ?? "-"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Tag className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span className="truncate">{kategoriNama ?? "-"}</span>
+          </div>
         </div>
 
       </div>
