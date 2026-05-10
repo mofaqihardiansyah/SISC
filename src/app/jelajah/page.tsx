@@ -45,12 +45,12 @@ function JelajahContent() {
     price: "" as "" | "Gratis" | "Berbayar",
     location: "",
     type: "",
-    category: "",
+    category: searchParams.get("kategori") ?? "",
     time: "",
   });
 
   const [searchLocation, setSearchLocation] = useState("");
-  const [openDropdown, setOpenDropdown] = useState<DropdownType | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<DropdownType | null>(searchParams.get("kategori") ? "Kategori Event" : null);
 
   // Cek Status Login Client-side
   useEffect(() => {
@@ -73,6 +73,11 @@ function JelajahContent() {
       .then(data => setKategoriList(data.map((k: any) => k.nama)))
       .catch(err => console.error("Gagal fetch kategori:", err));
   }, []);
+  
+  useEffect(() => {
+  const kategori = searchParams.get("kategori") ?? "";
+  setFilters(prev => ({ ...prev, category: kategori }));
+}, [searchParams]);
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
