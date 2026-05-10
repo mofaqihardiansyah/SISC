@@ -307,7 +307,7 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
                                 onClick={() => handleStartSubmit(event.id)}
                                 className="w-full lg:w-auto px-10 py-4 bg-[#0E215D] text-white rounded-[1.25rem] text-[10px] font-black tracking-widest uppercase transition-all shadow-xl shadow-[#0E215D]/20 active:scale-95 flex items-center justify-center gap-2 hover:bg-[#1a3280] hover:shadow-2xl hover:shadow-[#0E215D]/30"
                               >
-                                {event.submissionStatus === 'rejected' ? 'Re-Submit' : 'Submit Now'} <ChevronRight size={14} strokeWidth={3} />
+                                {event.submissionStatus === 'rejected' ? 'Submit Ulang' : 'Submit Sekarang'} <ChevronRight size={14} strokeWidth={3} />
                               </button>
                             ) : (
                               <div className="flex items-center gap-2 text-emerald-600 font-black text-[10px] uppercase tracking-widest bg-emerald-50/50 px-8 py-4 rounded-[1.25rem] border border-emerald-100 cursor-default shadow-sm">

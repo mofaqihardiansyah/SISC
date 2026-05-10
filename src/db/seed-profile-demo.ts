@@ -31,13 +31,14 @@ async function seedProfileDemo() {
   }
 
   // 3. SEED PENDAFTARAN (Eventku)
-  // Kita daftarkan ke Event ID 5 (Smart Campus) dan 11 (E-Sports)
+  // Kita daftarkan ke Event ID 5, 2, dan 14 agar muncul di list Submit Paper
   const registrationEvents = [
     { id: 5, kode: 'REG-SC-001' },
-    { id: 11, kode: 'REG-ES-002' }
+    { id: 2, kode: 'REG-CS-002' },
+    { id: 14, kode: 'REG-EH-003' }
   ];
 
-  console.log("🎟️ Seeding Pendaftaran & Peserta...");
+  console.log("🎟️ Seeding Pendaftaran & Peserta untuk Demo...");
   for (const reg of registrationEvents) {
     // Cek dulu apakah sudah terdaftar
     const existingReg = await db.query.pendaftaran.findFirst({
@@ -67,48 +68,47 @@ async function seedProfileDemo() {
     }
   }
 
+
   // 4. SEED PAPER SUBMISSIONS (Submit Paper)
   const papers = [
     {
-      eventId: 5, // Smart Campus (Conference)
-      judul: "Implementasi IoT untuk Monitoring Parkir Cerdas di Area Kampus Polines",
-      penulis: "Ahmad Rizki, Siti Nurhaliza, Budi Santoso",
-      fileUrl: "/uploads/papers/paper-iot-campus.pdf",
-      status: "accepted"
+      eventId: 5, // Konferensi Smart Campus Polines
+      judul: "Implementasi Edge Computing untuk Deteksi Kepadatan Parkir Real-time di Kampus",
+      penulis: "Ahmad Rizki, Dr. Sujatmiko, Sarah Amelia",
+      fileUrl: "/uploads/papers/paper-edge-computing.pdf",
+      status: "accepted",
+      komentarPenolakan: null
     },
     {
-      eventId: 2, // Cybersecurity (Conference)
-      judul: "Analisis Kerentanan SQL Injection pada Aplikasi Web Berbasis Node.js",
-      penulis: "Ahmad Rizki, Sarah Connor",
-      fileUrl: "/uploads/papers/paper-cybersec.pdf",
-      status: "review"
+      eventId: 2, // Workshop Cybersecurity Fundamentals
+      judul: "Analisis Forensik Digital pada Serangan Ransomware di Infrastruktur Cloud",
+      penulis: "Ahmad Rizki, Prof. Budi Santoso",
+      fileUrl: "/uploads/papers/paper-cyber-forensics.pdf",
+      status: "review",
+      komentarPenolakan: null
     },
     {
-      eventId: 14, // Ethical Hacking (Conference)
-      judul: "Metodologi Penetration Testing pada Infrastruktur Cloud Hybrid",
-      penulis: "Ahmad Rizki, Jim Geovedi",
-      fileUrl: "/uploads/papers/paper-hacking.pdf",
+      eventId: 14, // Konferensi Ethical Hacking Indonesia
+      judul: "Pemanfaatan Blockchain untuk Keamanan Data Rekam Medis di Puskesmas",
+      penulis: "Ahmad Rizki, dr. Tirta",
+      fileUrl: "/uploads/papers/paper-blockchain-health.pdf",
       status: "rejected",
-      komentarPenolakan: "Metodologi yang diajukan kurang detail pada bagian mitigasi risiko. Silakan perbaiki dan submit kembali di event berikutnya."
+      komentarPenolakan: "Metodologi penelitian pada bagian konsensus blockchain kurang mendalam untuk skala Puskesmas. Mohon perbaiki landasan teori dan analisis skalabilitas sebelum submit kembali."
     }
   ];
 
-  console.log("📝 Seeding Paper Submissions...");
-  for (const p of papers) {
-    // Cek apakah sudah ada paper dengan judul yang sama untuk user ini
-    const existingPaper = await db.query.paperSubmission.findFirst({
-      where: (ps, { and, eq }) => and(eq(ps.userId, userId), eq(ps.judul, p.judul))
-    });
+  console.log("📝 Seeding Paper Submissions for Demo...");
+  // Bersihkan dulu paper lama untuk user ini agar fresh
+  await db.delete(paperSubmission).where(eq(paperSubmission.userId, userId));
 
-    if (!existingPaper) {
-      await db.insert(paperSubmission).values({
-        userId,
-        ...p
-      });
-    }
+  for (const p of papers) {
+    await db.insert(paperSubmission).values({
+      userId,
+      ...p
+    });
   }
 
-  console.log("✅ Berhasil seeding data demo profil!");
+  console.log("✅ Berhasil seeding data demo profil (Bookmarks, Pendaftaran, & Paper Submissions)!");
   process.exit(0);
 }
 
@@ -116,3 +116,4 @@ seedProfileDemo().catch(err => {
   console.error("❌ Error seeding profile demo:", err);
   process.exit(1);
 });
+
