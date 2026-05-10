@@ -5,6 +5,10 @@ export const eventStatusEnum = pgEnum('event_status', ['pending', 'published', '
 export const jenisEventEnum = pgEnum('jenis_event', ['seminar', 'conference']);
 export const tipePlatformEnum = pgEnum('tipe_platform', ['online', 'offline', 'hybrid']);
 export const tipeHargaEnum = pgEnum('tipe_harga', ['free', 'paid']);
+export const paperStatusEnum = pgEnum('paper_status', ['review', 'accepted', 'rejected']);
+export const userRoleEnum = pgEnum('user_role', ['admin', 'organizer', 'visitor']);
+export const pendaftaranStatusEnum = pgEnum('pendaftaran_status', ['terdaftar', 'dibatalkan', 'hadir']);
+export const jenisKelaminEnum = pgEnum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
 
 // 1. USERS
 export const users = pgTable('users', {
@@ -16,9 +20,9 @@ export const users = pgTable('users', {
   password: varchar('password', { length: 255 }),
   emailVerified: timestamp('email_verified'),
   tanggalLahir: timestamp('tanggal_lahir'),
-  jenisKelamin: varchar('jenis_kelamin', { length: 20 }),
+  jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
   nik: varchar('nik', { length: 16 }),
-  role: varchar('role', { length: 50 }),
+  role: userRoleEnum('role').default('visitor'),
   isTerverifikasi: boolean('is_terverifikasi').default(false),
   avatarUrl: varchar('avatar_url', { length: 512 }).default("/uploads/avatars/fotodummy.jpg"),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
@@ -161,7 +165,7 @@ export const pendaftaran = pgTable('pendaftaran', {
   eventId: integer('event_id').references(() => event.id),
   userId: integer('user_id').references(() => users.id),
   kodePendaftaran: varchar('kode_pendaftaran', { length: 50 }).unique(),
-  status: varchar('status', { length: 50 }).default('terdaftar'),
+  status: pendaftaranStatusEnum('status').default('terdaftar'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),
@@ -175,7 +179,7 @@ export const peserta = pgTable('peserta', {
   namaLengkap: varchar('nama_lengkap', { length: 255 }),
   email: varchar('email', { length: 255 }),
   nomorTelepon: varchar('nomor_telepon', { length: 20 }),
-  jenisKelamin: varchar('jenis_kelamin', { length: 20 }),
+  jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
   sudahCheckIn: boolean('sudah_check_in').default(false),
   waktuCheckIn: timestamp('waktu_check_in'),
 });
@@ -188,7 +192,7 @@ export const paperSubmission = pgTable('paper_submission', {
   judul: varchar('judul', { length: 255 }).notNull(),
   penulis: text('penulis').notNull(),
   fileUrl: varchar('file_url', { length: 512 }).notNull(),
-  status: varchar('status', { length: 50 }).default('review'),
+  status: paperStatusEnum('status').default('review'),
   komentarPenolakan: text('komentar_penolakan'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),

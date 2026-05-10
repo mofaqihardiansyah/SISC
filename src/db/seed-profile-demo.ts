@@ -63,7 +63,7 @@ async function seedProfileDemo() {
         namaLengkap: visitor.namaLengkap,
         email: visitor.email,
         nomorTelepon: visitor.nomorTelepon,
-        jenisKelamin: visitor.jenisKelamin || 'Laki-laki',
+        jenisKelamin: (visitor.jenisKelamin as any) || 'Laki-laki',
       });
     }
   }

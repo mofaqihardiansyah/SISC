@@ -17,7 +17,7 @@ type RegisteredEvent = {
 type SubmittedPaper = {
   id: number;
   judul: string;
-  status: string | null;
+  status: 'review' | 'accepted' | 'rejected' | null;
   komentarPenolakan: string | null;
   dibuatPada: Date | null;
   eventJudul: string;
