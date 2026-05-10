@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1778313941996,
-      "tag": "0000_typical_captain_britain",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1778316761511,
-      "tag": "0001_ordinary_sauron",
+      "when": 1778388301564,
+      "tag": "0000_dusty_gateway",
       "breakpoints": true
     }
   ]
