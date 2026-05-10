@@ -3,6 +3,7 @@ import { event } from "@/db/schema";
 import { eq, ne, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
+import { auth } from "@/auth";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -113,5 +114,8 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     })),
   };
 
- return <DetailEvent event={eventFormatted} />;
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
+  return <DetailEvent event={eventFormatted} isLoggedIn={isLoggedIn} />;
 }

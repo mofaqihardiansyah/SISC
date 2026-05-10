@@ -40,6 +40,7 @@ interface DetailEventProps {
     syaratKetentuan: string[];
     eventTerkait: EventTerkait[];
   };
+  isLoggedIn: boolean;
 }
 
 // ============================================================
@@ -234,7 +235,7 @@ function TabSyarat({ event }: { event: DetailEventProps["event"] }) {
 // ============================================================
 // KOMPONEN UTAMA: DETAIL EVENT
 // ============================================================
-export default function DetailEvent({ event }: DetailEventProps) {
+export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
   const [activeTab, setActiveTab] = useState<TabType>("deskripsi");
 
   const tabs: { id: TabType; label: string }[] = [
@@ -780,7 +781,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
             <p className="sidebar-harga-label">Harga mulai dari</p>
             <p className="sidebar-harga">{formatRupiah(event.harga)}</p>
             <a href={`/registrasi-event/${event.id}`} className="btn-daftar">
-              Daftar
+              {isLoggedIn ? "Daftar" : "Login untuk Daftar"}
             </a>
             <hr className="sidebar-divider" />
             <div className="sidebar-penyelenggara">
