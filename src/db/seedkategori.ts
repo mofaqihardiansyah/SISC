@@ -9,6 +9,7 @@ async function main() {
       "slug": "teknologi-informasi",
       "iconUrl": "/icon/Teknologi.png"
     },
+    
     {
       "id": 2,
       "nama": "Bisnis & Ekonomi",

@@ -4,12 +4,20 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Info, Link as LinkIcon } from 'lucide-react';
+import {
+  Info,
+  Link as LinkIcon,
+  User,
+  Mail
+} from 'lucide-react';
 import { daftarEvent } from '@/actions/peserta';
-import Swal from 'sweetalert2';
 
-// Kita terima data event dan eventId sebagai props
-export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string, dataEvent: any }) {
+interface DataEvent {
+  judul: string;
+  linkEksternal?: string | null;
+}
+
+export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string; dataEvent: DataEvent }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     nama_lengkap: '',
@@ -19,73 +27,55 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
   });
 
   const handleSimpanData = async () => {
-    try {
-      const res = await daftarEvent(formData, Number(eventId));
-      
-      if (res.success) {
-        // Tampilan Pop-up Berhasil
-        Swal.fire({
-          title: 'Pendaftaran Berhasil!',
-          icon: 'success',
-          html: `
-            <div style="text-align: center;">
-              <p>Data kamu sudah berhasil masuk ke database kami.</p>
-              <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-              <p style="font-size: 12px; color: #666;">
-                Pemberitahuan: Silakan klik link pendaftaran resmi di halaman ini untuk melanjutkan proses pendaftaran.
-              </p>
-            </div>
-          `,
-          confirmButtonText: 'Selesai',
-          confirmButtonColor: '#0052cc',
-        });
-      } else {
-        throw new Error("Gagal");
-      }
-    } catch (error) {
-      // Tampilan Pop-up Gagal
-      Swal.fire({
-        title: 'Gagal Menyimpan Data!',
-        text: 'Mohon maaf, sepertinya terjadi kesalahan sistem saat mencoba menyimpan pendaftaran kamu.',
-        icon: 'error',
-        confirmButtonText: 'Coba Lagi',
-        confirmButtonColor: '#ef4444',
-      });
+    // Kita tambahkan Number(eventId) agar action tahu ini untuk event mana
+    const res = await daftarEvent(formData, Number(eventId));
+    if (res.success) {
+      alert(`Pendaftaran Berhasil Disimpan untuk Event: ${dataEvent.judul}`);
+    } else {
+      alert("Gagal menyimpan data. Cek terminal!");
     }
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm animate-in fade-in zoom-in-95 duration-300">
       {step === 1 ? (
         <>
           <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-8">
             <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-blue-600">
               <Info className="h-4 w-4 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800">Informasi Peserta - {dataEvent.namaEvent}</h2>
+            <h2 className="text-xl font-bold text-gray-800">Informasi Peserta - {dataEvent.judul}</h2>
           </div>
 
           <form className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Lengkap</Label>
-                <Input 
-                  value={formData.nama_lengkap}
-                  onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
-                  placeholder="Masukkan Nama Lengkap" 
-                  className="bg-gray-50 border-none h-12" 
-                />
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <User className="h-3.5 w-3.5" /> Nama Lengkap
+                </Label>
+                <div className="relative">
+                  <Input 
+                    value={formData.nama_lengkap}
+                    onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
+                    placeholder="Masukkan Nama Lengkap" 
+                    className="bg-gray-50 border-none h-12" 
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</Label>
-                <Input 
-                  type="email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  placeholder="Masukkan Email Anda" 
-                  className="bg-gray-50 border-none h-12" 
-                />
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5" /> Email
+                </Label>
+                <div className="relative">
+                  <Input 
+                    type="email" 
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    placeholder="Masukkan Email Anda" 
+                    className="bg-gray-50 border-none h-12" 
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -139,14 +129,14 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
 
           <div className="space-y-8 px-2">
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-              {dataEvent.linkPendaftaran ? (
+              {dataEvent.linkEksternal ? (
                 <a 
-                  href={dataEvent.linkPendaftaran} 
+                  href={dataEvent.linkEksternal} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-blue-600 font-medium underline break-all"
                 >
-                  {dataEvent.linkPendaftaran}
+                  {dataEvent.linkEksternal}
                 </a>
               ) : (
                 <p className="text-gray-500 italic">Link pendaftaran belum tersedia untuk event ini.</p>

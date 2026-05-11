@@ -1,5 +1,5 @@
 {
-  "id": "36953eda-ad2e-421c-a665-f6d79bc5ba12",
+  "id": "9e97e719-4e2a-44b0-b186-e17b2d10dd25",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -14,8 +14,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "pengguna_id": {
-          "name": "pengguna_id",
+        "user_id": {
+          "name": "user_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -34,14 +34,36 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "bookmark_user_event_idx": {
+          "name": "bookmark_user_event_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "event_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "bookmark_pengguna_id_pengguna_id_fk": {
-          "name": "bookmark_pengguna_id_pengguna_id_fk",
+        "bookmark_user_id_users_id_fk": {
+          "name": "bookmark_user_id_users_id_fk",
           "tableFrom": "bookmark",
-          "tableTo": "pengguna",
+          "tableTo": "users",
           "columnsFrom": [
-            "pengguna_id"
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -79,8 +101,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "penyelenggara_id": {
-          "name": "penyelenggara_id",
+        "organizer_id": {
+          "name": "organizer_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -99,13 +121,13 @@
         },
         "judul": {
           "name": "judul",
-          "type": "varchar",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "slug": {
           "name": "slug",
-          "type": "varchar",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -115,15 +137,21 @@
           "primaryKey": false,
           "notNull": false
         },
-        "syarat_ketentuan": {
-          "name": "syarat_ketentuan",
+        "syarat_dan_ketentuan": {
+          "name": "syarat_dan_ketentuan",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "url_banner": {
-          "name": "url_banner",
-          "type": "varchar",
+        "banner_url": {
+          "name": "banner_url",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "penyelenggara": {
+          "name": "penyelenggara",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -131,7 +159,7 @@
           "name": "tanggal_mulai",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "tanggal_selesai": {
           "name": "tanggal_selesai",
@@ -152,17 +180,33 @@
           "notNull": false,
           "default": false
         },
+        "jenis_event": {
+          "name": "jenis_event",
+          "type": "jenis_event",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
         "tipe_platform": {
           "name": "tipe_platform",
-          "type": "varchar",
+          "type": "tipe_platform",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
         "tipe_harga": {
           "name": "tipe_harga",
-          "type": "varchar",
+          "type": "tipe_harga",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
+        },
+        "harga": {
+          "name": "harga",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         },
         "detail_lokasi": {
           "name": "detail_lokasi",
@@ -172,25 +216,31 @@
         },
         "link_eksternal": {
           "name": "link_eksternal",
-          "type": "varchar",
+          "type": "varchar(512)",
           "primaryKey": false,
           "notNull": false
         },
         "nama_kontak": {
           "name": "nama_kontak",
-          "type": "varchar",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
         "email_kontak": {
           "name": "email_kontak",
-          "type": "varchar",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
         "telepon_kontak": {
           "name": "telepon_kontak",
-          "type": "varchar",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kuota": {
+          "name": "kuota",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -209,7 +259,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar",
+          "type": "event_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
           "default": "'pending'"
@@ -221,14 +272,14 @@
           "notNull": false,
           "default": false
         },
-        "sumber_website": {
-          "name": "sumber_website",
-          "type": "varchar",
+        "website_sumber": {
+          "name": "website_sumber",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
-        "jumlah_dilihat": {
-          "name": "jumlah_dilihat",
+        "jumlah_tayangan": {
+          "name": "jumlah_tayangan",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -237,6 +288,24 @@
         "alasan_penolakan": {
           "name": "alasan_penolakan",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nama_pembicara": {
+          "name": "nama_pembicara",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peran_pembicara": {
+          "name": "peran_pembicara",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "foto_pembicara_url": {
+          "name": "foto_pembicara_url",
+          "type": "varchar(512)",
           "primaryKey": false,
           "notNull": false
         },
@@ -252,16 +321,68 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "dihapus_pada": {
+          "name": "dihapus_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "organizer_idx": {
+          "name": "organizer_idx",
+          "columns": [
+            {
+              "expression": "organizer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "kategori_idx": {
+          "name": "kategori_idx",
+          "columns": [
+            {
+              "expression": "kategori_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "status_idx": {
+          "name": "status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "event_penyelenggara_id_pengguna_id_fk": {
-          "name": "event_penyelenggara_id_pengguna_id_fk",
+        "event_organizer_id_users_id_fk": {
+          "name": "event_organizer_id_users_id_fk",
           "tableFrom": "event",
-          "tableTo": "pengguna",
+          "tableTo": "users",
           "columnsFrom": [
-            "penyelenggara_id"
+            "organizer_id"
           ],
           "columnsTo": [
             "id"
@@ -318,13 +439,13 @@
           "name": "event_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "tag_id": {
           "name": "tag_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -439,19 +560,19 @@
         },
         "nama": {
           "name": "nama",
-          "type": "varchar",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         },
         "slug": {
           "name": "slug",
-          "type": "varchar",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         },
-        "url_ikon": {
-          "name": "url_ikon",
-          "type": "varchar",
+        "icon_url": {
+          "name": "icon_url",
+          "type": "varchar(512)",
           "primaryKey": false,
           "notNull": false
         }
@@ -490,7 +611,7 @@
         },
         "nama": {
           "name": "nama",
-          "type": "varchar",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         }
@@ -533,15 +654,15 @@
           "primaryKey": false,
           "notNull": false
         },
-        "url_file": {
-          "name": "url_file",
-          "type": "varchar",
+        "file_url": {
+          "name": "file_url",
+          "type": "varchar(512)",
           "primaryKey": false,
           "notNull": false
         },
         "tipe_file": {
           "name": "tipe_file",
-          "type": "varchar",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false
         }
@@ -592,7 +713,7 @@
         },
         "aksi": {
           "name": "aksi",
-          "type": "varchar",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         },
@@ -612,10 +733,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "log_admin_admin_id_pengguna_id_fk": {
-          "name": "log_admin_admin_id_pengguna_id_fk",
+        "log_admin_admin_id_users_id_fk": {
+          "name": "log_admin_admin_id_users_id_fk",
           "tableFrom": "log_admin",
-          "tableTo": "pengguna",
+          "tableTo": "users",
           "columnsFrom": [
             "admin_id"
           ],
@@ -645,8 +766,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.notifikasi": {
-      "name": "notifikasi",
+    "public.otp_codes": {
+      "name": "otp_codes",
       "schema": "",
       "columns": {
         "id": {
@@ -655,30 +776,23 @@
           "primaryKey": true,
           "notNull": true
         },
-        "pengguna_id": {
-          "name": "pengguna_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "judul": {
-          "name": "judul",
+        "email": {
+          "name": "email",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "pesan": {
-          "name": "pesan",
-          "type": "text",
+        "code": {
+          "name": "code",
+          "type": "varchar(6)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "sudah_dibaca": {
-          "name": "sudah_dibaca",
-          "type": "boolean",
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "default": false
+          "notNull": true
         },
         "dibuat_pada": {
           "name": "dibuat_pada",
@@ -689,13 +803,101 @@
         }
       },
       "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.paper_submission": {
+      "name": "paper_submission",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "event_id": {
+          "name": "event_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "judul": {
+          "name": "judul",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "penulis": {
+          "name": "penulis",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_url": {
+          "name": "file_url",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'review'"
+        },
+        "komentar_penolakan": {
+          "name": "komentar_penolakan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dibuat_pada": {
+          "name": "dibuat_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "diperbarui_pada": {
+          "name": "diperbarui_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
       "foreignKeys": {
-        "notifikasi_pengguna_id_pengguna_id_fk": {
-          "name": "notifikasi_pengguna_id_pengguna_id_fk",
-          "tableFrom": "notifikasi",
-          "tableTo": "pengguna",
+        "paper_submission_event_id_event_id_fk": {
+          "name": "paper_submission_event_id_event_id_fk",
+          "tableFrom": "paper_submission",
+          "tableTo": "event",
           "columnsFrom": [
-            "pengguna_id"
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "paper_submission_user_id_users_id_fk": {
+          "name": "paper_submission_user_id_users_id_fk",
+          "tableFrom": "paper_submission",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -710,8 +912,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pembicara_event": {
-      "name": "pembicara_event",
+    "public.pendaftaran": {
+      "name": "pendaftaran",
       "schema": "",
       "columns": {
         "id": {
@@ -726,30 +928,50 @@
           "primaryKey": false,
           "notNull": false
         },
-        "nama": {
-          "name": "nama",
-          "type": "varchar",
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "peran": {
-          "name": "peran",
-          "type": "varchar",
+        "kode_pendaftaran": {
+          "name": "kode_pendaftaran",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false
         },
-        "url_foto": {
-          "name": "url_foto",
-          "type": "varchar",
+        "status": {
+          "name": "status",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'terdaftar'"
+        },
+        "dibuat_pada": {
+          "name": "dibuat_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "diperbarui_pada": {
+          "name": "diperbarui_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dihapus_pada": {
+          "name": "dihapus_pada",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "pembicara_event_event_id_event_id_fk": {
-          "name": "pembicara_event_event_id_event_id_fk",
-          "tableFrom": "pembicara_event",
+        "pendaftaran_event_id_event_id_fk": {
+          "name": "pendaftaran_event_id_event_id_fk",
+          "tableFrom": "pendaftaran",
           "tableTo": "event",
           "columnsFrom": [
             "event_id"
@@ -759,102 +981,28 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "pendaftaran_user_id_users_id_fk": {
+          "name": "pendaftaran_user_id_users_id_fk",
+          "tableFrom": "pendaftaran",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.pengguna": {
-      "name": "pengguna",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "nama_lengkap": {
-          "name": "nama_lengkap",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "password": {
-          "name": "password",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "no_telepon": {
-          "name": "no_telepon",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tanggal_lahir": {
-          "name": "tanggal_lahir",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "jenis_kelamin": {
-          "name": "jenis_kelamin",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "nik": {
-          "name": "nik",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "peran": {
-          "name": "peran",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "url_avatar": {
-          "name": "url_avatar",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "terverifikasi": {
-          "name": "terverifikasi",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "dibuat_pada": {
-          "name": "dibuat_pada",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "pengguna_email_unique": {
-          "name": "pengguna_email_unique",
+        "pendaftaran_kode_pendaftaran_unique": {
+          "name": "pendaftaran_kode_pendaftaran_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "email"
+            "kode_pendaftaran"
           ]
         }
       },
@@ -872,51 +1020,51 @@
           "primaryKey": true,
           "notNull": true
         },
-        "transaksi_id": {
-          "name": "transaksi_id",
+        "pendaftaran_id": {
+          "name": "pendaftaran_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "tiket_id": {
-          "name": "tiket_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "kode_tiket": {
-          "name": "kode_tiket",
-          "type": "varchar",
+        "kode_peserta": {
+          "name": "kode_peserta",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false
         },
         "nama_lengkap": {
           "name": "nama_lengkap",
-          "type": "varchar",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
         "email": {
           "name": "email",
-          "type": "varchar",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
-        "no_telepon": {
-          "name": "no_telepon",
-          "type": "varchar",
+        "nomor_telepon": {
+          "name": "nomor_telepon",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false
         },
-        "hadir": {
-          "name": "hadir",
+        "jenis_kelamin": {
+          "name": "jenis_kelamin",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sudah_check_in": {
+          "name": "sudah_check_in",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
           "default": false
         },
-        "waktu_kehadiran": {
-          "name": "waktu_kehadiran",
+        "waktu_check_in": {
+          "name": "waktu_check_in",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -924,25 +1072,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "peserta_transaksi_id_transaksi_id_fk": {
-          "name": "peserta_transaksi_id_transaksi_id_fk",
+        "peserta_pendaftaran_id_pendaftaran_id_fk": {
+          "name": "peserta_pendaftaran_id_pendaftaran_id_fk",
           "tableFrom": "peserta",
-          "tableTo": "transaksi",
+          "tableTo": "pendaftaran",
           "columnsFrom": [
-            "transaksi_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "peserta_tiket_id_tiket_event_id_fk": {
-          "name": "peserta_tiket_id_tiket_event_id_fk",
-          "tableFrom": "peserta",
-          "tableTo": "tiket_event",
-          "columnsFrom": [
-            "tiket_id"
+            "pendaftaran_id"
           ],
           "columnsTo": [
             "id"
@@ -953,11 +1088,95 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "peserta_kode_tiket_unique": {
-          "name": "peserta_kode_tiket_unique",
+        "peserta_kode_peserta_unique": {
+          "name": "peserta_kode_peserta_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "kode_tiket"
+            "kode_peserta"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profil_penyelenggara": {
+      "name": "profil_penyelenggara",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nama_instansi": {
+          "name": "nama_instansi",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deskripsi_instansi": {
+          "name": "deskripsi_instansi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dokumen_legalitas_url": {
+          "name": "dokumen_legalitas_url",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "website_url": {
+          "name": "website_url",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dibuat_pada": {
+          "name": "dibuat_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "diperbarui_pada": {
+          "name": "diperbarui_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profil_penyelenggara_user_id_users_id_fk": {
+          "name": "profil_penyelenggara_user_id_users_id_fk",
+          "tableFrom": "profil_penyelenggara",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "profil_penyelenggara_user_id_unique": {
+          "name": "profil_penyelenggara_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
           ]
         }
       },
@@ -977,7 +1196,7 @@
         },
         "nama": {
           "name": "nama",
-          "type": "varchar",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         }
@@ -998,57 +1217,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.sosial_media_event": {
-      "name": "sosial_media_event",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "event_id": {
-          "name": "event_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "platform": {
-          "name": "platform",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "url": {
-          "name": "url",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "sosial_media_event_event_id_event_id_fk": {
-          "name": "sosial_media_event_event_id_event_id_fk",
-          "tableFrom": "sosial_media_event",
-          "tableTo": "event",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.tag": {
       "name": "tag",
       "schema": "",
@@ -1061,7 +1229,7 @@
         },
         "nama": {
           "name": "nama",
-          "type": "varchar",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         }
@@ -1082,8 +1250,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tiket_event": {
-      "name": "tiket_event",
+    "public.users": {
+      "name": "users",
       "schema": "",
       "columns": {
         "id": {
@@ -1092,113 +1260,79 @@
           "primaryKey": true,
           "notNull": true
         },
-        "event_id": {
-          "name": "event_id",
-          "type": "integer",
+        "nama_lengkap": {
+          "name": "nama_lengkap",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
-        "nama": {
-          "name": "nama",
-          "type": "varchar",
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
-        "deskripsi": {
-          "name": "deskripsi",
-          "type": "text",
+        "nomor_telepon": {
+          "name": "nomor_telepon",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false
         },
-        "harga": {
-          "name": "harga",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "kuota": {
-          "name": "kuota",
-          "type": "integer",
+        "institution": {
+          "name": "institution",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
-        "tanggal_mulai_penjualan": {
-          "name": "tanggal_mulai_penjualan",
+        "password": {
+          "name": "password",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email_verified": {
+          "name": "email_verified",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "tanggal_selesai_penjualan": {
-          "name": "tanggal_selesai_penjualan",
+        "tanggal_lahir": {
+          "name": "tanggal_lahir",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "dibuat_pada": {
-          "name": "dibuat_pada",
-          "type": "timestamp",
+        "jenis_kelamin": {
+          "name": "jenis_kelamin",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nik": {
+          "name": "nik",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_terverifikasi": {
+          "name": "is_terverifikasi",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "tiket_event_event_id_event_id_fk": {
-          "name": "tiket_event_event_id_event_id_fk",
-          "tableFrom": "tiket_event",
-          "tableTo": "event",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.transaksi": {
-      "name": "transaksi",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
+          "default": false
         },
-        "event_id": {
-          "name": "event_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "pengguna_id": {
-          "name": "pengguna_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "kode_booking": {
-          "name": "kode_booking",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar",
+        "avatar_url": {
+          "name": "avatar_url",
+          "type": "varchar(512)",
           "primaryKey": false,
           "notNull": false,
-          "default": "'pending'"
+          "default": "'/uploads/avatars/fotodummy.jpg'"
         },
         "dibuat_pada": {
           "name": "dibuat_pada",
@@ -1212,44 +1346,23 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "dihapus_pada": {
+          "name": "dihapus_pada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "transaksi_event_id_event_id_fk": {
-          "name": "transaksi_event_id_event_id_fk",
-          "tableFrom": "transaksi",
-          "tableTo": "event",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "transaksi_pengguna_id_pengguna_id_fk": {
-          "name": "transaksi_pengguna_id_pengguna_id_fk",
-          "tableFrom": "transaksi",
-          "tableTo": "pengguna",
-          "columnsFrom": [
-            "pengguna_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "transaksi_kode_booking_unique": {
-          "name": "transaksi_kode_booking_unique",
+        "users_email_unique": {
+          "name": "users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "kode_booking"
+            "email"
           ]
         }
       },
@@ -1258,7 +1371,42 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.event_status": {
+      "name": "event_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "published",
+        "rejected"
+      ]
+    },
+    "public.jenis_event": {
+      "name": "jenis_event",
+      "schema": "public",
+      "values": [
+        "seminar",
+        "conference"
+      ]
+    },
+    "public.tipe_harga": {
+      "name": "tipe_harga",
+      "schema": "public",
+      "values": [
+        "free",
+        "paid"
+      ]
+    },
+    "public.tipe_platform": {
+      "name": "tipe_platform",
+      "schema": "public",
+      "values": [
+        "online",
+        "offline",
+        "hybrid"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

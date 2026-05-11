@@ -23,6 +23,12 @@ const UPLOAD_CONFIG = {
     folder: 'banners',
     label: 'Banner',
   },
+  paper: {
+    allowedTypes: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'],
+    maxSize: 10 * 1024 * 1024, // 10MB
+    folder: 'papers',
+    label: 'Paper',
+  },
 } as const;
 
 type UploadType = keyof typeof UPLOAD_CONFIG;
@@ -43,7 +49,8 @@ export async function POST(request: Request) {
     }
 
     if (!type || !(type in UPLOAD_CONFIG)) {
-      return NextResponse.json({ error: 'Tipe upload tidak valid. Gunakan: avatar, document, atau banner' }, { status: 400 });
+      const validTypes = Object.keys(UPLOAD_CONFIG).join(', ');
+      return NextResponse.json({ error: `Tipe upload tidak valid. Gunakan: ${validTypes}` }, { status: 400 });
     }
 
     const config = UPLOAD_CONFIG[type as UploadType];
@@ -64,7 +71,8 @@ export async function POST(request: Request) {
     }
 
     // Generate nama file unik
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'bin';
+    const lastDotIndex = file.name.lastIndexOf('.');
+    const ext = lastDotIndex !== -1 ? file.name.slice(lastDotIndex + 1).toLowerCase() : 'bin';
     const timestamp = Date.now();
     const fileName = `${session.user.id}_${timestamp}.${ext}`;
 

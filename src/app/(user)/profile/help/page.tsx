@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Star, Plus } from 'lucide-react';
 
 export default function HelpPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -27,8 +28,11 @@ export default function HelpPage() {
     {
       id: 4,
       question: 'Bagaimana cara menambahkan event ke favorit?',
-      answer:
-        'Saat melihat event, klik tombol "⭐ Favorit" atau ikon bintang di halaman event. Event favorit Anda akan tersimpan dan dapat diakses di menu "Favorit".',
+      answer: (
+        <>
+          Saat melihat event, klik tombol &quot;<Star className="inline w-4 h-4 text-yellow-500 fill-current mb-0.5" /> Favorit&quot; atau ikon bintang di halaman event. Event favorit Anda akan tersimpan dan dapat diakses di menu &quot;Favorit&quot;.
+        </>
+      ),
     },
     {
       id: 5,
@@ -69,13 +73,11 @@ export default function HelpPage() {
                 className="w-full p-6 flex items-center justify-between text-left hover:bg-slate-50"
               >
                 <span className="font-semibold text-slate-900">{faq.question}</span>
-                <span
-                  className={`text-2xl transition-transform ${
+                <Plus
+                  className={`w-6 h-6 text-slate-500 transition-transform ${
                     openFaq === faq.id ? 'rotate-45' : ''
                   }`}
-                >
-                  +
-                </span>
+                />
               </button>
               {openFaq === faq.id && (
                 <div className="px-6 pb-6">
@@ -150,7 +152,7 @@ export default function HelpPage() {
       </section>
 
       {/* CONTACT INFO */}
-      <section className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 p-8">
+      <section className="bg-linear-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 p-8">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">Informasi Kontak</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

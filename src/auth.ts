@@ -20,9 +20,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (parsedCredentials.success) {
           const { email, password, role } = parsedCredentials.data;
-          const user = await db.query.users.findFirst({
-            where: eq(users.email, email)
-          });
+          const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
+          const user = userList[0];
 
           if (!user || !user.password) {
             console.log(`[AUTH] Login ditolak: User tidak ditemukan (${email})`);

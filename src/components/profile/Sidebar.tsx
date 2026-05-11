@@ -7,15 +7,18 @@ import {
   LayoutDashboard, 
   CalendarCheck, 
   Bookmark, 
+  LibraryBig,
   Info, 
-  HelpCircle
+  HelpCircle,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { label: "Dashboard", href: "/profile/dashboard", icon: LayoutDashboard },
-  { label: "Eventku", href: "/profile/events", icon: CalendarCheck },
+  { label: "Eventku", href: "/profile/eventku", icon: CalendarCheck },
   { label: "Event Favorit", href: "/profile/event-favorit", icon: Bookmark },
+  { label: "Submit Paper", href: "/profile/submit-paper", icon: LibraryBig},
   { label: "Akun & Privasi", href: "/profile/settings", icon: Info },
   { label: "Bantuan", href: "/profile/help", icon: HelpCircle },
 ];
@@ -43,7 +46,7 @@ export function Sidebar() {
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
                 isActive 
                   ? "bg-white text-[#111827] font-semibold shadow-lg shadow-white/5" 
-                  : "hover:bg-gray-800 hover:text-white"
+                : "text-gray-400 font-medium hover:bg-gray-800 hover:text-white"
               )}
             >
               <item.icon className={cn(

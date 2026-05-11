@@ -1,10 +1,11 @@
 import { StatCard } from "@/components/penyelenggara/stat-card";
 import { Users, Ticket, CalendarCheck, TrendingUp } from "lucide-react";
 import { db } from "@/db";
-import { event, peserta, transaksi } from "@/db/schema";
+import { event, peserta, pendaftaran } from "@/db/schema";
 import { count, eq, and, lt } from "drizzle-orm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 export default async function PenyelenggaraDashboard() {
   const session = await auth();
@@ -19,8 +20,8 @@ export default async function PenyelenggaraDashboard() {
   const [totalPesertaResult] = await db
     .select({ total: count() })
     .from(peserta)
-    .innerJoin(transaksi, eq(peserta.transaksiId, transaksi.id))
-    .innerJoin(event, eq(transaksi.eventId, event.id))
+    .innerJoin(pendaftaran, eq(peserta.pendaftaranId, pendaftaran.id))
+    .innerJoin(event, eq(pendaftaran.eventId, event.id))
     .where(eq(event.organizerId, userId));
 
   const [eventAktifResult] = await db
@@ -112,9 +113,9 @@ export default async function PenyelenggaraDashboard() {
             {recentEvents.length > 0 ? recentEvents.map((ev) => (
                 <div key={ev.id} className="flex items-center justify-between p-4 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden">
+                        <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden relative">
                             {ev.bannerUrl ? (
-                                <img src={ev.bannerUrl} alt="" className="w-full h-full object-cover" />
+                                <Image src={ev.bannerUrl} alt={ev.judul || ""} fill className="object-cover" />
                             ) : (
                                 <Ticket className="w-6 h-6" />
                             )}

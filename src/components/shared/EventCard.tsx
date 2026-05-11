@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { normalizeImagePath } from "@/lib/utils/image-utils";
+import BookmarkButton from "./BookmarkButton";
+import { MapPin, Tag } from "lucide-react";
 
 interface EventCardProps {
   id: string;
@@ -8,9 +12,14 @@ interface EventCardProps {
   date: string;
   price: number | null;
   category: string;
-  organizer: string;
   type: "POLINES" | "UMUM";
   imageUrl?: string;
+  tipePlatform?: string;
+  kotaNama?: string;
+  kategoriNama?: string;
+  isLoggedIn?: boolean;
+  isBookmarked?: boolean;
+  onRemove?: () => void; 
 }
 
 export default function EventCard({
@@ -19,21 +28,20 @@ export default function EventCard({
   date,
   price,
   category,
-  organizer,
   type,
   imageUrl,
+  tipePlatform,
+  kotaNama,
+  kategoriNama,
+  isLoggedIn = false,
+  isBookmarked,
+  onRemove,
 }: EventCardProps) {
-  const tagColor: Record<string, string> = {
-    Teknologi: "bg-blue-100 text-blue-700",
-    Desain: "bg-yellow-100 text-yellow-700",
-    Seni: "bg-pink-100 text-pink-700",
-  };
-
   return (
     <Link href={`/event/${id}`}>
       <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer">
-        
-        {/* Image */}
+
+        {/* Image + POLINES badge */}
         <div className="relative h-36">
           <Image
             src={normalizeImagePath(imageUrl)}
@@ -42,40 +50,63 @@ export default function EventCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             className="object-cover"
           />
-
-          <span className="absolute top-2 left-2 bg-white text-xs font-bold px-2 py-1 rounded">
+          {/* Badge Tipe */}
+          <span className="absolute top-2 left-2 bg-white text-xs font-bold px-2 py-1 rounded shadow-sm border border-slate-100">
             {type}
           </span>
         </div>
 
         {/* Body */}
-        <div className="p-3">
-          <span
-            className={`text-[10px] font-bold px-2 py-1 rounded ${
-              tagColor[category] ?? "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {category}
-          </span>
-
-          <p className="text-[11px] text-slate-500 mt-2">{date}</p>
+        <div className="p-4">
+          <div className="flex flex-wrap gap-1 mb-2">
+            {tipePlatform && (
+              <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full capitalize">
+                {tipePlatform.charAt(0).toUpperCase() + tipePlatform.slice(1)}
+              </span>
+            )}
+            {category && (
+              <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">
+                {category}
+              </span>
+            )}
+          </div>
 
           <h3 className="text-[13px] font-bold text-slate-800 mt-1 line-clamp-2">
             {title}
           </h3>
 
-          <p className="text-[11px] text-slate-400 mt-2">{organizer}</p>
+          <p className="text-[11px] text-slate-400 mt-1">{date}</p>
 
-          <p
-            className={`text-sm font-extrabold mt-2 ${
-              price === null ? "text-green-600" : "text-slate-800"
-            }`}
-          >
-            {price === null
-              ? "Gratis"
-              : `Rp ${price.toLocaleString("id-ID")}`}
-          </p>
+          <div className="flex justify-between items-center mt-2">
+            <p className={`text-sm font-extrabold ${
+              price === null || price === 0 ? "text-green-600" : "text-slate-800"
+            }`}>
+              {price === null || price === 0
+                ? "Gratis"
+                : `Rp ${price.toLocaleString("id-ID")}`}
+            </p>
+            
+            <BookmarkButton 
+              eventId={id} 
+              isLoggedIn={isLoggedIn} 
+              onRemove={onRemove} 
+              initialBookmarked={isBookmarked} 
+            />
+          </div>
         </div>
+
+        {/* Footer */}
+        <div className="px-4 py-3 border-t flex items-center gap-4 text-[11px] text-slate-500 bg-slate-50/50">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span className="truncate">{kotaNama ?? "-"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Tag className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span className="truncate">{kategoriNama ?? "-"}</span>
+          </div>
+        </div>
+
       </div>
     </Link>
   );

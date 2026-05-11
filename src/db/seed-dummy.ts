@@ -2,9 +2,10 @@ import 'dotenv/config';
 import { db } from './index';
 import {
   profilPenyelenggara, tag, eventTag, 
-  lampiranEvent, bookmark, userEvent, logAdmin,
-  pembicaraEvent, jadwalEvent,
+  lampiranEvent, bookmark, logAdmin,
+  jadwalEvent, pendaftaran, peserta
 } from './schema';
+import { eq } from 'drizzle-orm';
 
 async function main() {
   console.log("🚀 Seeding data dummy yang dirampingkan (profil, tag, pembicara, jadwal, bookmark, log)...");
@@ -24,16 +25,16 @@ async function main() {
   // 2. TAGS (Label Spesifik)
   console.log("  📦 Tags (Labels)...");
   const tags = [
-    { id: 1, nama: "#AI" },
-    { id: 2, nama: "#BigData" },
-    { id: 3, nama: "#NextJS" },
-    { id: 4, nama: "#CyberSecurity" },
-    { id: 5, nama: "#Webinar" },
-    { id: 6, nama: "#Workshop" },
-    { id: 7, nama: "#Figma" },
-    { id: 8, nama: "#ReactJS" },
-    { id: 9, nama: "#Vokasi" },
-    { id: 10, nama: "#HealthTech" },
+    { nama: "#AI" },
+    { nama: "#BigData" },
+    { nama: "#NextJS" },
+    { nama: "#CyberSecurity" },
+    { nama: "#Webinar" },
+    { nama: "#Workshop" },
+    { nama: "#Figma" },
+    { nama: "#ReactJS" },
+    { nama: "#Vokasi" },
+    { nama: "#HealthTech" },
   ];
   for (const t of tags) {
     await db.insert(tag).values(t).onConflictDoUpdate({ target: tag.nama, set: { nama: t.nama } });
@@ -43,27 +44,13 @@ async function main() {
   console.log("  📦 Event-Tag...");
   const eventTags = [
     { eventId: 1, tagId: 1 }, { eventId: 1, tagId: 2 },
-    { id: 14, eventId: 14, tagId: 4 },
+    { eventId: 14, tagId: 4 },
     { eventId: 17, tagId: 5 },
     { eventId: 2, tagId: 6 },
     { eventId: 16, tagId: 7 },
   ];
   for (const et of eventTags) {
-    await db.insert(eventTag).values(et).onConflictDoUpdate({
-      target: [eventTag.eventId, eventTag.tagId],
-      set: { tagId: et.tagId }
-    });
-  }
-
-  // 4. PEMBICARA EVENT
-  console.log("  📦 Pembicara Event...");
-  const pembicara = [
-    { eventId: 1, nama: "Dr. Bambang Riyanto", peran: "Keynote Speaker" },
-    { eventId: 3, nama: "dr. Andi Pratama, Sp.PD", peran: "Keynote Speaker" },
-    { eventId: 17, nama: "Dr. Eka Putra", peran: "Main Speaker" },
-  ];
-  for (const p of pembicara) {
-    await db.insert(pembicaraEvent).values(p);
+    await db.insert(eventTag).values(et).onConflictDoNothing();
   }
 
   // 5. JADWAL EVENT
@@ -78,7 +65,7 @@ async function main() {
     { eventId: 17, waktuMulai: eventTime(7, 19), waktuSelesai: eventTime(7, 21), deskripsi: "Intro to Machine Learning" },
   ];
   for (const j of jadwal) {
-    await db.insert(jadwalEvent).values(j);
+    await db.insert(jadwalEvent).values(j).onConflictDoNothing();
   }
 
   // 6. BOOKMARK
@@ -88,7 +75,7 @@ async function main() {
     { userId: 4, eventId: 1 }, { userId: 4, eventId: 14 },
   ];
   for (const b of bookmarks) {
-    await db.insert(bookmark).values(b);
+    await db.insert(bookmark).values(b).onConflictDoNothing();
   }
 
   // 7. LOG ADMIN
@@ -99,6 +86,39 @@ async function main() {
   ];
   for (const l of logs) {
     await db.insert(logAdmin).values(l);
+  }
+
+  // 8. PENDAFTARAN & PESERTA
+  console.log("  📦 Pendaftaran & Peserta...");
+  const pendaftarans = [
+    { eventId: 1, userId: 4, kodePendaftaran: "REG-1-001", status: "terdaftar", namaLengkap: "Dewi Anggraini", email: "dewi.anggraini@gmail.com", nomorTelepon: "082111222336", jenisKelamin: "Perempuan", kodePeserta: "P-1-001" },
+    { eventId: 1, userId: 5, kodePendaftaran: "REG-1-002", status: "hadir", namaLengkap: "Fajar Setiawan", email: "fajar.setiawan@gmail.com", nomorTelepon: "082111222337", jenisKelamin: "Laki-laki", kodePeserta: "P-1-002", sudahCheckIn: true },
+  ];
+
+  for (const p of pendaftarans) {
+    const existing = await db.query.pendaftaran.findFirst({
+      where: eq(pendaftaran.kodePendaftaran, p.kodePendaftaran)
+    });
+
+    if (!existing) {
+      const [newReg] = await db.insert(pendaftaran).values({
+        eventId: p.eventId,
+        userId: p.userId,
+        kodePendaftaran: p.kodePendaftaran,
+        status: p.status as any,
+      }).returning();
+
+      await db.insert(peserta).values({
+        pendaftaranId: newReg.id,
+        kodePeserta: p.kodePeserta,
+        namaLengkap: p.namaLengkap,
+        email: p.email,
+        nomorTelepon: p.nomorTelepon,
+        jenisKelamin: p.jenisKelamin,
+        sudahCheckIn: p.sudahCheckIn || false,
+        waktuCheckIn: p.sudahCheckIn ? new Date() : null,
+      });
+    }
   }
 
   console.log("✅ Data dummy berhasil disesuaikan dengan struktur baru!");

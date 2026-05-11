@@ -68,9 +68,8 @@ interface RegisterValues {
 
 export async function registerUser(values: RegisterValues, role: 'visitor' | 'organizer') {
   // 1. Check if user already exists
-  const existingUser = await db.query.users.findFirst({
-    where: eq(users.email, values.email),
-  });
+  const existingUsers = await db.select().from(users).where(eq(users.email, values.email)).limit(1);
+  const existingUser = existingUsers[0];
 
   if (existingUser) {
     return { error: "Email sudah terdaftar." };
@@ -123,12 +122,11 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
 }
 
 export async function verifyOtpAction(email: string, code: string) {
-  const otpRecord = await db.query.otpCodes.findFirst({
-    where: and(
-      eq(otpCodes.email, email),
-      eq(otpCodes.code, code)
-    ),
-  });
+  const otpRecords = await db.select().from(otpCodes).where(and(
+    eq(otpCodes.email, email),
+    eq(otpCodes.code, code)
+  )).limit(1);
+  const otpRecord = otpRecords[0];
 
   if (!otpRecord) {
     return { error: "Kode OTP salah." };
@@ -175,8 +173,8 @@ export async function requestPasswordReset(email: string) {
   });
 
   if (!user) {
-    // We return success anyway to prevent email enumeration, but you could also return an error if you prefer
-    return { error: "Email tidak ditemukan." };
+    // Return success anyway to prevent email enumeration
+    return { success: true };
   }
 
   // Delete old OTPs for this email

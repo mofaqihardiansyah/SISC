@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Search, RotateCcw, Bookmark, ChevronDown, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { RotateCcw, ChevronDown, Loader2 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import EventCard from '@/components/shared/EventCard';
 
 type EventType = {
   id: number;
@@ -10,6 +12,7 @@ type EventType = {
   harga: number;
   tipeHarga: string;
   tipePlatform: string;
+  jenisEvent: string | null;
   isEventPolines: boolean;
   tanggalMulai: string;
   tanggalSelesai: string;
@@ -20,16 +23,21 @@ type EventType = {
 
 type DropdownType = "Lokasi" | "Tipe Event" | "Kategori Event" | "Waktu" | "Harga";
 
-export default function JelajahPage() {
+function JelajahContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [kotaList, setKotaList] = useState<string[]>([]);
   const [kategoriList, setKategoriList] = useState<string[]>([]);
 
-  const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalEvents, setTotalEvents] = useState(0);
   const eventsPerPage = 6;
 
   const [filters, setFilters] = useState({
@@ -37,38 +45,86 @@ export default function JelajahPage() {
     price: "" as "" | "Gratis" | "Berbayar",
     location: "",
     type: "",
-    category: "",
+    category: searchParams.get("kategori") ?? "",
     time: "",
   });
 
   const [searchLocation, setSearchLocation] = useState("");
-  const [openDropdown, setOpenDropdown] = useState<DropdownType | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<DropdownType | null>(searchParams.get("kategori") ? "Kategori Event" : null);
 
-  // FETCH DATA
+  // Cek Status Login Client-side
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => setIsLoggedIn(!!data?.user))
+      .catch(() => setIsLoggedIn(false));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/events?mode=kota')
+      .then(res => res.json())
+      .then(data => setKotaList(data.map((k: any) => k.nama)))
+      .catch(err => console.error("Gagal fetch kota:", err));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/events?mode=kategori')
+      .then(res => res.json())
+      .then(data => setKategoriList(data.map((k: any) => k.nama)))
+      .catch(err => console.error("Gagal fetch kategori:", err));
+  }, []);
+  
+  useEffect(() => {
+  const kategori = searchParams.get("kategori") ?? "";
+  setFilters(prev => ({ ...prev, category: kategori }));
+}, [searchParams]);
+
+  useEffect(() => {
+    const q = searchParams.get("q") ?? "";
+    setSearchTerm(q);
+  }, [searchParams]);
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/events');
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: eventsPerPage.toString(),
+          q: searchTerm,
+          polines: filters.polines.toString(),
+          price: filters.price,
+          location: filters.location,
+          type: filters.type,
+          category: filters.category,
+          time: filters.time,
+        });
+
+        const res = await fetch(`/api/events?${params.toString()}`);
         if (!res.ok) throw new Error('Gagal fetch');
-        const data: EventType[] = await res.json();
+        const data = await res.json();
 
-        setEvents(data);
-
-        const kotaUnik = [...new Set(data.map(e => e.kotaNama).filter(Boolean))] as string[];
-        setKotaList(kotaUnik);
-
-        const kategoriUnik = [...new Set(data.map(e => e.kategoriNama).filter(Boolean))] as string[];
-        setKategoriList(kategoriUnik);
+        if (Array.isArray(data)) {
+          setEvents(data);
+          setTotalEvents(data.length);
+        } else {
+          setEvents(data.events || []);
+          setTotalEvents(data.total || 0);
+        }
       } catch (err) {
         setError('Gagal memuat data event.');
         console.error(err);
       }
       setLoading(false);
     };
-    fetchData();
-  }, []);
+
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [currentPage, filters, searchTerm]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -79,65 +135,22 @@ export default function JelajahPage() {
     "Minggu Ini", "Minggu Depan", "Bulan Ini", "Bulan Depan"
   ];
 
-  // FILTER LOGIC
-  const filteredEvents = events.filter((event) => {
-    if (searchTerm && !event.judul.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    if (filters.polines && !event.isEventPolines) return false;
-    if (filters.price === "Gratis" && event.tipeHarga !== 'free') return false;
-    if (filters.price === "Berbayar" && event.tipeHarga === 'free') return false;
-    if (filters.location && event.kotaNama !== filters.location) return false;
-    if (filters.type && event.tipePlatform?.toLowerCase() !== filters.type.toLowerCase()) return false;
-    if (filters.category && event.kategoriNama !== filters.category) return false;
-
-    if (filters.time) {
-      const eventDate = new Date(event.tanggalMulai);
-      eventDate.setHours(0, 0, 0, 0);
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-      const startOfWeek = new Date(today); startOfWeek.setDate(today.getDate() - today.getDay());
-      const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6);
-      const nextWeekStart = new Date(endOfWeek); nextWeekStart.setDate(endOfWeek.getDate() + 1);
-      const nextWeekEnd = new Date(nextWeekStart); nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
-
-      if (filters.time === "Hari Ini" && eventDate.getTime() !== today.getTime()) return false;
-      if (filters.time === "Besok" && eventDate.getTime() !== tomorrow.getTime()) return false;
-      if (filters.time === "Akhir Pekan" && eventDate.getDay() !== 6 && eventDate.getDay() !== 0) return false;
-      if (filters.time === "Minggu Ini" && (eventDate < startOfWeek || eventDate > endOfWeek)) return false;
-      if (filters.time === "Minggu Depan" && (eventDate < nextWeekStart || eventDate > nextWeekEnd)) return false;
-      if (filters.time === "Bulan Ini" && (eventDate.getMonth() !== today.getMonth() || eventDate.getFullYear() !== today.getFullYear())) return false;
-      if (filters.time === "Bulan Depan") {
-        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-        if (eventDate.getMonth() !== nextMonth.getMonth() || eventDate.getFullYear() !== nextMonth.getFullYear()) return false;
-      }
-    }
-    return true;
-  });
-
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
-  const startIndex = (currentPage - 1) * eventsPerPage;
-  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + eventsPerPage);
+  const totalPages = Math.ceil(totalEvents / eventsPerPage);
 
   const resetFilter = () => {
     setFilters({ polines: false, price: "", location: "", type: "", category: "", time: "" });
-  };
-
-  const formatTanggal = (iso: string) => {
-    if (!iso) return "-";
-    return new Date(iso).toLocaleDateString('id-ID', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
+    setSearchTerm("");
+    router.push('/jelajah');
   };
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-[#f8fafc]">
 
-     
-
       {/* MAIN */}
       <div className="max-w-[1300px] mx-auto w-full px-10 py-10 flex gap-8">
 
         {/* SIDEBAR */}
-        <aside className="w-1/4">
+        <aside className="w-1/4 animate-in fade-in slide-in-from-left-4 duration-500">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-blue-700 font-semibold text-lg">Filter Pencarian</h2>
@@ -182,20 +195,27 @@ export default function JelajahPage() {
                       placeholder="Cari kota..."
                       value={searchLocation}
                       onChange={(e) => setSearchLocation(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 text-sm"
+                      className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
                     />
-                    {kotaList
-                      .filter(loc => loc.toLowerCase().includes(searchLocation.toLowerCase()))
-                      .map(loc => (
-                        <div
-                          key={loc}
-                          onClick={() => setFilters({ ...filters, location: loc })}
-                          className={`cursor-pointer hover:text-blue-600 ${filters.location === loc ? "text-blue-600 font-semibold" : ""}`}
-                        >
-                          {loc}
-                        </div>
-                      ))}
-                    <div onClick={() => setFilters({ ...filters, location: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
+                    <div className="max-h-48 overflow-y-auto space-y-2 mt-1">
+                      {kotaList
+                        .filter(loc => loc.toLowerCase().includes(searchLocation.toLowerCase()))
+                        .map(loc => (
+                          <div
+                            key={loc}
+                            onClick={() => {
+                              setFilters({ ...filters, location: loc });
+                              setOpenDropdown(null);
+                            }}
+                            className={`cursor-pointer hover:text-blue-600 py-0.5 ${filters.location === loc ? "text-blue-600 font-semibold" : ""}`}
+                          >
+                            {loc}
+                          </div>
+                        ))}
+                    </div>
+                    {filters.location && (
+                      <div onClick={() => setFilters({ ...filters, location: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
+                    )}
                   </div>
                 )}
 
@@ -205,7 +225,10 @@ export default function JelajahPage() {
                     {["online", "offline", "hybrid"].map(type => (
                       <div
                         key={type}
-                        onClick={() => setFilters({ ...filters, type })}
+                        onClick={() => {
+                          setFilters({ ...filters, type });
+                          setOpenDropdown(null);
+                        }}
                         className={`cursor-pointer hover:text-blue-600 capitalize ${filters.type === type ? "text-blue-600 font-semibold" : ""}`}
                       >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -217,17 +240,33 @@ export default function JelajahPage() {
 
                 {/* KATEGORI */}
                 {openDropdown === item && item === "Kategori Event" && (
-                  <div className="mt-3 space-y-2 max-h-48 overflow-y-auto">
-                    <div onClick={() => setFilters({ ...filters, category: "" })} className="text-gray-400 cursor-pointer hover:text-blue-600">Semua Kategori</div>
-                    {kategoriList.map(cat => (
+                  <div className="mt-3 space-y-2">
+                    <div className="max-h-48 overflow-y-auto space-y-2">
                       <div
-                        key={cat}
-                        onClick={() => setFilters({ ...filters, category: cat })}
-                        className={`cursor-pointer hover:text-blue-600 ${filters.category === cat ? "text-blue-600 font-semibold" : ""}`}
+                        onClick={() => {
+                          setFilters({ ...filters, category: "" });
+                          setOpenDropdown(null);
+                        }}
+                        className={`cursor-pointer hover:text-blue-600 py-0.5 ${filters.category === "" ? "text-blue-600 font-semibold" : "text-gray-400"}`}
                       >
-                        {cat}
+                        Semua Kategori
                       </div>
-                    ))}
+                      {kategoriList.map(cat => (
+                        <div
+                          key={cat}
+                          onClick={() => {
+                            setFilters({ ...filters, category: cat });
+                            setOpenDropdown(null);
+                          }}
+                          className={`cursor-pointer hover:text-blue-600 py-0.5 ${filters.category === cat ? "text-blue-600 font-semibold" : ""}`}
+                        >
+                          {cat}
+                        </div>
+                      ))}
+                    </div>
+                    {filters.category && (
+                      <div onClick={() => setFilters({ ...filters, category: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
+                    )}
                   </div>
                 )}
 
@@ -237,7 +276,10 @@ export default function JelajahPage() {
                     {timeOptions.map(t => (
                       <div
                         key={t}
-                        onClick={() => setFilters({ ...filters, time: t })}
+                        onClick={() => {
+                          setFilters({ ...filters, time: t });
+                          setOpenDropdown(null);
+                        }}
                         className={`cursor-pointer hover:text-blue-600 ${filters.time === t ? "text-blue-600 font-semibold" : ""}`}
                       >
                         {t}
@@ -253,7 +295,10 @@ export default function JelajahPage() {
                     {["Gratis", "Berbayar"].map(p => (
                       <div
                         key={p}
-                        onClick={() => setFilters({ ...filters, price: p as "Gratis" | "Berbayar" })}
+                        onClick={() => {
+                          setFilters({ ...filters, price: p as "Gratis" | "Berbayar" });
+                          setOpenDropdown(null);
+                        }}
                         className={`cursor-pointer hover:text-blue-600 ${filters.price === p ? "text-blue-600 font-semibold" : ""}`}
                       >
                         {p}
@@ -268,7 +313,7 @@ export default function JelajahPage() {
         </aside>
 
         {/* CONTENT */}
-        <main className="w-3/4">
+        <main className="w-3/4 animate-in fade-in slide-in-from-right-4 duration-500">
 
           {loading && (
             <div className="flex items-center justify-center h-64 gap-3 text-gray-400">
@@ -286,50 +331,39 @@ export default function JelajahPage() {
           {!loading && !error && (
             <>
               <p className="text-sm text-gray-500 mb-6">
-                Menampilkan <b>{filteredEvents.length}</b> event
+                Menampilkan <b>{totalEvents}</b> event
+                {searchTerm && <span> untuk "<b>{searchTerm}</b>"</span>}
               </p>
 
-              {filteredEvents.length === 0 ? (
+              {events.length === 0 ? (
                 <div className="text-center text-gray-400 py-20">
                   Tidak ada event yang sesuai filter.
                 </div>
               ) : (
                 <div className="grid grid-cols-3 gap-6">
-                  {paginatedEvents.map((event) => (
-                    <div key={event.id} className="bg-white rounded-xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="h-36 bg-gray-200">
-                        <img
-                          src={event.bannerUrl || "/api/placeholder/400/220"}
-                          className="w-full h-full object-cover"
-                          alt={event.judul}
-                        />
-                      </div>
-                      <div className="p-4">
-                        <div className="flex gap-1 mb-2">
-                          <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full capitalize">
-                            {event.tipePlatform}
-                          </span>
-                          {event.isEventPolines && (
-                            <span className="text-[10px] bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-full">
-                              Polines
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-sm font-semibold line-clamp-2">{event.judul}</h3>
-                        <p className="text-xs text-gray-400 mt-1">{formatTanggal(event.tanggalMulai)}</p>
-                        <div className="flex justify-between items-center mt-3">
-                          <span className={`text-sm font-medium ${event.tipeHarga === 'free' ? "text-green-600" : "text-black"}`}>
-                            {event.tipeHarga === 'free' ? "Gratis" : `Rp ${event.harga?.toLocaleString("id-ID")}`}
-                          </span>
-                          <Bookmark className="w-5 h-5 text-gray-300 cursor-pointer hover:text-blue-500" />
-                        </div>
-                      </div>
-                      <div className="px-4 py-3 border-t flex items-center gap-2">
-                        <span className="text-xs text-gray-500">📍 {event.kotaNama ?? "-"}</span>
-                        <span className="text-xs text-gray-300">•</span>
-                        <span className="text-xs text-gray-500">{event.kategoriNama ?? "-"}</span>
-                      </div>
-                    </div>
+                  {events.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      id={String(event.id)}
+                      title={event.judul}
+                      date={
+                        event.tanggalMulai
+                          ? new Date(event.tanggalMulai).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })
+                          : "Tanggal belum diisi"
+                      }
+                      price={event.tipeHarga === "free" ? 0 : (event.harga ?? null)}
+                      category={event.jenisEvent ?? ""}
+                      type={event.isEventPolines ? "POLINES" : "UMUM"}
+                      imageUrl={event.bannerUrl}
+                      tipePlatform={event.tipePlatform}
+                      kotaNama={event.kotaNama}
+                      kategoriNama={event.kategoriNama}
+                      isLoggedIn={isLoggedIn}
+                    />
                   ))}
                 </div>
               )}
@@ -371,5 +405,18 @@ export default function JelajahPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function JelajahPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center gap-3 text-gray-400">
+        <Loader2 className="w-6 h-6 animate-spin" />
+        <span>Memuat halaman...</span>
+      </div>
+    }>
+      <JelajahContent />
+    </Suspense>
   );
 }

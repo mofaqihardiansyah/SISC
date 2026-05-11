@@ -8,9 +8,7 @@ export default function NavbarWrapper({ children }: { children: React.ReactNode 
 
   const shouldHide = checkHideNavbar(pathname);
 
-  if (shouldHide) {
-    return null;
-  }
+  if (shouldHide) return null;
 
   return <>{children}</>;
 }

@@ -3,6 +3,7 @@ import { event } from "@/db/schema";
 import { eq, ne, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
+import { auth } from "@/auth";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -23,7 +24,6 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
           profilPenyelenggara: true,
         },
       },
-      pembicara: true,
       kota: {
         with: {
           provinsi: true,
@@ -46,10 +46,11 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   });
 
   // Nama pembicara
-  const namaPembicara =
-    eventData.pembicara.length > 0
-      ? eventData.pembicara.map((p) => `${p.nama} (${p.peran})`).join(", ")
-      : null;
+  const namaPembicara = eventData.namaPembicara
+    ? `${eventData.namaPembicara}${
+        eventData.peranPembicara ? ` (${eventData.peranPembicara})` : ""
+      }`
+    : null;
 
   // Nama penyelenggara
   const namaPenyelenggara =
@@ -113,5 +114,8 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     })),
   };
 
- return <DetailEvent event={eventFormatted} />;
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
+  return <DetailEvent event={eventFormatted} isLoggedIn={isLoggedIn} />;
 }

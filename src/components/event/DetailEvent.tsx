@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // ============================================================
 // TIPE DATA
 // ============================================================
-type TabType = "deskripsi" | "pendaftaran" | "syarat";
+type SectionId = "deskripsi" | "pendaftaran" | "syarat";
 
 interface LoketTiket {
   harga: number;
@@ -40,6 +40,7 @@ interface DetailEventProps {
     syaratKetentuan: string[];
     eventTerkait: EventTerkait[];
   };
+  isLoggedIn: boolean;
 }
 
 // ============================================================
@@ -57,31 +58,24 @@ const formatRupiah = (angka: number | null) => {
 const formatTanggal = (dateStr: Date | null) => {
   if (!dateStr) return "TANGGAL BELUM DITENTUKAN";
   const date = new Date(dateStr);
-  const optionsDay: Intl.DateTimeFormatOptions = { weekday: "long" };
-  const optionsDate: Intl.DateTimeFormatOptions = {
+  const hari = new Intl.DateTimeFormat("id-ID", { weekday: "long" })
+    .format(date)
+    .toUpperCase();
+  const tglBulan = new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "long",
     year: "numeric",
-  };
-  const hari = new Intl.DateTimeFormat("id-ID", optionsDay)
-    .format(date)
-    .toUpperCase();
-  const tglBulan = new Intl.DateTimeFormat("id-ID", optionsDate)
+  })
     .format(date)
     .toUpperCase();
   return `${hari}, ${tglBulan}`;
 };
 
-// ============================================================
-// HELPER: PISAHKAN DESKRIPSI DAN MATERI
-// ============================================================
 function parseDeskripsi(deskripsi: string | null) {
   if (!deskripsi) return { teks: "Tidak ada deskripsi.", materi: [] };
-
   const parts = deskripsi.split("Materi yang Dipelajari:");
   const teks = parts[0].trim();
   const materi: string[] = [];
-
   if (parts[1]) {
     parts[1]
       .split("\n")
@@ -89,155 +83,68 @@ function parseDeskripsi(deskripsi: string | null) {
       .filter((l) => l.match(/^\d+\./))
       .forEach((l) => materi.push(l.replace(/^\d+\.\s*/, "")));
   }
-
   return { teks, materi };
 }
 
 // ============================================================
-// KOMPONEN TAB DESKRIPSI
+// KOMPONEN UTAMA
 // ============================================================
-function TabDeskripsi({ event }: { event: DetailEventProps["event"] }) {
+export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
+  const [activeSection, setActiveSection] = useState<SectionId>("deskripsi");
+
+  // Refs untuk setiap section
+  const sectionRefs = useRef<Record<SectionId, HTMLElement | null>>({
+    deskripsi: null,
+    pendaftaran: null,
+    syarat: null,
+  });
+
+  const navRef = useRef<HTMLElement | null>(null);
+
+  // ── Intersection Observer untuk ScrollSpy ──────────────────
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    const navHeight = navRef.current?.offsetHeight ?? 80;
+
+    const sections: SectionId[] = ["deskripsi", "pendaftaran", "syarat"];
+
+    sections.forEach((id) => {
+      const el = sectionRefs.current[id];
+      if (!el) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActiveSection(id);
+          }
+        },
+        {
+          // rootMargin: area deteksi — mulai aktif saat section
+          // memasuki 20% dari atas viewport
+          rootMargin: `-${navHeight + 16}px 0px -60% 0px`,
+          threshold: 0,
+        }
+      );
+
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((obs) => obs.disconnect());
+  }, []);
+
+  // ── Smooth scroll ke section ───────────────────────────────
+  const scrollToSection = (id: SectionId) => {
+    const el = sectionRefs.current[id];
+    if (!el) return;
+    const navHeight = navRef.current?.offsetHeight ?? 80;
+    const top = el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
   const { teks, materi } = parseDeskripsi(event.deskripsi);
 
-  return (
-    <div className="tab-content">
-      {<p className="deskripsi-text">{teks}</p>}
-
-      {event.pembicara && (
-        <div className="info-block">
-          <p className="info-label">Special Speaker:</p>
-          <p className="info-value">{event.pembicara}</p>
-        </div>
-      )}
-
-      <div className="info-block">
-        <p className="info-label">Pelaksanaan:</p>
-        <p className="info-value">{formatTanggal(event.tanggal)}</p>
-        <p className="info-value lokasi">{event.lokasi}</p>
-      </div>
-
-      {materi.length > 0 && (
-        <div className="info-block">
-          <p className="info-label">Materi yang Dipelajari:</p>
-          <ol className="materi-list">
-            {materi.map((item, i) => (
-              <li key={i} className="materi-item">
-                {i + 1}. {item}
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================
-// KOMPONEN TAB PENDAFTARAN
-// ============================================================
-function TabPendaftaran({ event }: { event: DetailEventProps["event"] }) {
-  return (
-    <div className="tab-content">
-      {/* Langkah Pendaftaran */}
-      <div className="section-card">
-        <div className="section-header">
-          <span className="section-icon">📋</span>
-          <h3 className="section-title">Langkah Pendaftaran</h3>
-        </div>
-        <ol className="langkah-list">
-          {event.langkahPendaftaran.map((langkah, i) => (
-            <li key={i} className="langkah-item">
-              <span className="langkah-num">{i + 1}</span>
-              <span dangerouslySetInnerHTML={{ __html: langkah }} />
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Loket Tiket */}
-      {event.loket.length > 0 && (
-        <div className="section-card">
-          <div className="section-header">
-            <span className="section-icon">🎟️</span>
-            <h3 className="section-title">Loket Platform</h3>
-          </div>
-          <p className="loket-subtitle">
-            {event.loket.length} kategori pendaftaran – harga mulai dari{" "}
-            {formatRupiah(event.harga)}
-          </p>
-          <div className="loket-list">
-            {event.loket.map((tiket, i) => (
-              <div key={i} className="loket-item">
-                <div className="loket-harga">{formatRupiah(tiket.harga)}</div>
-                <div className="loket-info">
-                  <p className="loket-nama">{tiket.nama}</p>
-                  <p className="loket-keterangan">{tiket.keterangan}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================
-// KOMPONEN TAB SYARAT & KETENTUAN
-// ============================================================
-function TabSyarat({ event }: { event: DetailEventProps["event"] }) {
-  return (
-    <div className="tab-content">
-      <div className="section-card">
-        <div className="section-header">
-          <span className="section-icon">📜</span>
-          <h3 className="section-title">Syarat dan Ketentuan</h3>
-        </div>
-        <ol className="syarat-list">
-          {event.syaratKetentuan.map((syarat, i) => (
-            <li key={i} className="syarat-item">
-              {i + 1}. {syarat}
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Event Terkait */}
-      {event.eventTerkait.length > 0 && (
-        <div className="event-terkait-section">
-          <h3 className="event-terkait-title">Event Untuk Kamu</h3>
-          <div className="event-terkait-grid">
-            {event.eventTerkait.map((ev) => (
-              <div key={ev.id} className="event-terkait-card">
-                <div className="event-terkait-img">
-                  {ev.gambar ? (
-                    <img src={ev.gambar} alt={ev.nama} />
-                  ) : (
-                    <div className="img-placeholder">📅</div>
-                  )}
-                </div>
-                <div className="event-terkait-info">
-                  <p className="ev-nama">{ev.nama}</p>
-                  <p className="ev-tanggal">{ev.tanggal}</p>
-                  <p className="ev-harga">{formatRupiah(ev.harga)}</p>
-                  <p className="ev-penyelenggara">👤 {ev.penyelenggara}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================
-// KOMPONEN UTAMA: DETAIL EVENT
-// ============================================================
-export default function DetailEvent({ event }: DetailEventProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("deskripsi");
-
-  const tabs: { id: TabType; label: string }[] = [
+  const navItems: { id: SectionId; label: string }[] = [
     { id: "deskripsi", label: "Deskripsi" },
     { id: "pendaftaran", label: "Pendaftaran" },
     { id: "syarat", label: "Syarat dan Ketentuan" },
@@ -271,9 +178,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
           gap: 40px;
           align-items: flex-start;
         }
-        .hero-left {
-          flex: 1;
-        }
+        .hero-left { flex: 1; }
         .hero-kategori {
           display: inline-block;
           background: rgba(255,255,255,0.15);
@@ -305,9 +210,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
           align-items: center;
           gap: 8px;
         }
-        .hero-meta-item strong {
-          color: white;
-        }
+        .hero-meta-item strong { color: white; }
         .hero-right {
           width: 220px;
           flex-shrink: 0;
@@ -331,6 +234,42 @@ export default function DetailEvent({ event }: DetailEventProps) {
         }
 
         /* ==============================
+           STICKY NAV
+        ============================== */
+        .sticky-nav {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          background: white;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .sticky-nav-inner {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 0 24px;
+          display: flex;
+          gap: 0;
+        }
+        .nav-btn {
+          padding: 14px 20px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #6b7280;
+          background: none;
+          border: none;
+          border-bottom: 2px solid transparent;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: color 0.15s;
+        }
+        .nav-btn:hover { color: #111827; }
+        .nav-btn.active {
+          color: #111827;
+          font-weight: 700;
+          border-bottom: 2px solid #111827;
+        }
+
+        /* ==============================
            LAYOUT UTAMA
         ============================== */
         .detail-layout {
@@ -344,54 +283,40 @@ export default function DetailEvent({ event }: DetailEventProps) {
         .detail-main {
           flex: 1;
           min-width: 0;
-        }
-
-        /* ==============================
-           TAB NAVIGATION
-        ============================== */
-        .tab-nav {
-          display: flex;
-          border-bottom: 2px solid #e5e7eb;
-          margin-bottom: 28px;
-          gap: 0;
-        }
-        .tab-btn {
-          padding: 10px 20px;
-          font-size: 14px;
-          font-weight: 600;
-          color: #6b7280;
-          background: none;
-          border: none;
-          border-bottom: 3px solid transparent;
-          margin-bottom: -2px;
-          cursor: pointer;
-          transition: all 0.2s;
-          white-space: nowrap;
-        }
-        .tab-btn:hover {
-          color: #1a2744;
-        }
-        .tab-btn.active {
-          color: #1a2744;
-          border-bottom-color: #1a2744;
-        }
-
-        /* ==============================
-           TAB CONTENT UMUM
-        ============================== */
-        .tab-content {
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 0;
         }
+
+        /* ==============================
+           SECTION BLOCKS
+        ============================== */
+        .content-section {
+          padding-bottom: 48px;
+          border-bottom: 1px solid #f3f4f6;
+          margin-bottom: 48px;
+        }
+        .content-section:last-child {
+          border-bottom: none;
+          margin-bottom: 0;
+        }
+        .section-heading {
+          font-size: 18px;
+          font-weight: 700;
+          color: #111827;
+          margin-bottom: 20px;
+        }
+
+        /* ==============================
+           DESKRIPSI
+        ============================== */
         .deskripsi-text {
           font-size: 14px;
           color: #374151;
-          line-height: 1.7;
+          line-height: 1.8;
+          margin-bottom: 20px;
         }
-        .info-block {
-          margin-top: 4px;
-        }
+        .info-block { margin-bottom: 16px; }
         .info-label {
           font-size: 13px;
           font-weight: 700;
@@ -421,32 +346,28 @@ export default function DetailEvent({ event }: DetailEventProps) {
         }
 
         /* ==============================
-           SECTION CARD
+           PENDAFTARAN
         ============================== */
         .section-card {
           background: #f9fafb;
           border: 1px solid #e5e7eb;
           border-radius: 10px;
           padding: 20px 24px;
+          margin-bottom: 16px;
         }
+        .section-card:last-child { margin-bottom: 0; }
         .section-header {
           display: flex;
           align-items: center;
           gap: 10px;
           margin-bottom: 16px;
         }
-        .section-icon {
-          font-size: 18px;
-        }
+        .section-icon { font-size: 18px; }
         .section-title {
           font-size: 16px;
           font-weight: 700;
           color: #1a2744;
         }
-
-        /* ==============================
-           LANGKAH PENDAFTARAN
-        ============================== */
         .langkah-list {
           list-style: none;
           padding: 0;
@@ -477,10 +398,6 @@ export default function DetailEvent({ event }: DetailEventProps) {
           flex-shrink: 0;
           margin-top: 1px;
         }
-
-        /* ==============================
-           LOKET TIKET
-        ============================== */
         .loket-subtitle {
           font-size: 13px;
           color: #6b7280;
@@ -489,7 +406,6 @@ export default function DetailEvent({ event }: DetailEventProps) {
         .loket-list {
           display: flex;
           flex-direction: column;
-          gap: 0;
           border: 1px solid #e5e7eb;
           border-radius: 8px;
           overflow: hidden;
@@ -502,9 +418,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
           border-bottom: 1px solid #e5e7eb;
           background: white;
         }
-        .loket-item:last-child {
-          border-bottom: none;
-        }
+        .loket-item:last-child { border-bottom: none; }
         .loket-harga {
           font-size: 15px;
           font-weight: 700;
@@ -530,25 +444,23 @@ export default function DetailEvent({ event }: DetailEventProps) {
           margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 12px;
         }
         .syarat-item {
           font-size: 14px;
           color: #374151;
-          line-height: 1.6;
+          line-height: 1.7;
           padding-left: 4px;
         }
 
         /* ==============================
            EVENT TERKAIT
         ============================== */
-        .event-terkait-section {
-          margin-top: 8px;
-        }
+        .event-terkait-section { margin-top: 8px; }
         .event-terkait-title {
-          font-size: 16px;
+          font-size: 18px;
           font-weight: 700;
-          color: #1a2744;
+          color: #111827;
           margin-bottom: 16px;
         }
         .event-terkait-grid {
@@ -562,6 +474,8 @@ export default function DetailEvent({ event }: DetailEventProps) {
           overflow: hidden;
           background: white;
           cursor: pointer;
+          text-decoration: none;
+          display: block;
           transition: box-shadow 0.2s;
         }
         .event-terkait-card:hover {
@@ -585,9 +499,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
           justify-content: center;
           font-size: 40px;
         }
-        .event-terkait-info {
-          padding: 12px;
-        }
+        .event-terkait-info { padding: 12px; }
         .ev-nama {
           font-size: 13px;
           font-weight: 700;
@@ -615,10 +527,11 @@ export default function DetailEvent({ event }: DetailEventProps) {
            SIDEBAR KANAN
         ============================== */
         .detail-sidebar {
-          width: 260px;
+          width: 280px;
           flex-shrink: 0;
           position: sticky;
-          top: 24px;
+          top: 72px; /* tinggi sticky-nav + sedikit jarak */
+          align-self: flex-start;
         }
         .sidebar-card {
           background: white;
@@ -653,10 +566,9 @@ export default function DetailEvent({ event }: DetailEventProps) {
           text-decoration: none;
           transition: background 0.2s;
           margin-bottom: 16px;
+          box-sizing: border-box;
         }
-        .btn-daftar:hover {
-          background: #243560;
-        }
+        .btn-daftar:hover { background: #243560; }
         .sidebar-divider {
           border: none;
           border-top: 1px solid #f3f4f6;
@@ -692,15 +604,9 @@ export default function DetailEvent({ event }: DetailEventProps) {
            RESPONSIVE
         ============================== */
         @media (max-width: 768px) {
-          .hero-container {
-            flex-direction: column-reverse;
-          }
-          .hero-right {
-            width: 100%;
-          }
-          .detail-layout {
-            flex-direction: column;
-          }
+          .hero-container { flex-direction: column-reverse; }
+          .hero-right { width: 100%; }
+          .detail-layout { flex-direction: column; }
           .detail-sidebar {
             width: 100%;
             position: static;
@@ -708,14 +614,14 @@ export default function DetailEvent({ event }: DetailEventProps) {
           .event-terkait-grid {
             grid-template-columns: repeat(2, 1fr);
           }
-          .tab-btn {
-            padding: 10px 12px;
+          .nav-btn {
+            padding: 12px 12px;
             font-size: 13px;
           }
         }
       `}</style>
 
-      {/* HERO */}
+      {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="hero-section">
         <div className="hero-container">
           <div className="hero-left">
@@ -723,7 +629,11 @@ export default function DetailEvent({ event }: DetailEventProps) {
             <h1 className="hero-judul">{event.nama}</h1>
             <div className="hero-meta">
               <span className="hero-meta-item">
-                {event.tipePlatform === "online" ? "🌐" : event.tipePlatform === "hybrid" ? "🔀" : "📍"}{" "}
+                {event.tipePlatform === "online"
+                  ? "🌐"
+                  : event.tipePlatform === "hybrid"
+                  ? "🔀"
+                  : "📍"}{" "}
                 <strong>
                   {event.tipePlatform === "online"
                     ? "Online"
@@ -736,9 +646,7 @@ export default function DetailEvent({ event }: DetailEventProps) {
               <span className="hero-meta-item">
                 📅 {formatTanggal(event.tanggal)}
               </span>
-              <span className="hero-meta-item">
-                🏷️ {event.kategori}
-              </span>
+              <span className="hero-meta-item">🏷️ {event.kategori}</span>
             </div>
           </div>
           <div className="hero-right">
@@ -751,36 +659,174 @@ export default function DetailEvent({ event }: DetailEventProps) {
         </div>
       </section>
 
-      {/* KONTEN + SIDEBAR */}
-      <div className="detail-layout">
-        {/* KONTEN UTAMA */}
-        <div className="detail-main">
-          {/* TAB NAVIGATION */}
-          <nav className="tab-nav">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`tab-btn ${activeTab === tab.id ? "active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+      {/* ── STICKY NAV ───────────────────────────────────────── */}
+      <nav className="sticky-nav" ref={navRef}>
+        <div className="sticky-nav-inner">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              className={`nav-btn ${activeSection === item.id ? "active" : ""}`}
+              onClick={() => scrollToSection(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </nav>
 
-          {/* KONTEN TAB */}
-          {activeTab === "deskripsi" && <TabDeskripsi event={event} />}
-          {activeTab === "pendaftaran" && <TabPendaftaran event={event} />}
-          {activeTab === "syarat" && <TabSyarat event={event} />}
+      {/* ── LAYOUT UTAMA ─────────────────────────────────────── */}
+      <div className="detail-layout">
+        {/* KOLOM KIRI */}
+        <div className="detail-main">
+
+          {/* ── SECTION: DESKRIPSI ─────────────────────────── */}
+          <section
+            id="deskripsi"
+            className="content-section"
+            ref={(el) => { sectionRefs.current.deskripsi = el; }}
+          >
+            <h2 className="section-heading">Deskripsi</h2>
+            <p className="deskripsi-text">{teks}</p>
+
+            {event.pembicara && (
+              <div className="info-block">
+                <p className="info-label">Special Speaker:</p>
+                <p className="info-value">{event.pembicara}</p>
+              </div>
+            )}
+
+            <div className="info-block">
+              <p className="info-label">Pelaksanaan:</p>
+              <p className="info-value">{formatTanggal(event.tanggal)}</p>
+              <p className="info-value lokasi">{event.lokasi}</p>
+            </div>
+
+            {materi.length > 0 && (
+              <div className="info-block">
+                <p className="info-label">Materi yang Dipelajari:</p>
+                <ol className="materi-list">
+                  {materi.map((item, i) => (
+                    <li key={i} className="materi-item">
+                      {i + 1}. {item}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </section>
+
+          {/* ── SECTION: PENDAFTARAN ───────────────────────── */}
+          <section
+            id="pendaftaran"
+            className="content-section"
+            ref={(el) => { sectionRefs.current.pendaftaran = el; }}
+          >
+            <h2 className="section-heading">Pendaftaran</h2>
+
+            <div className="section-card">
+              <div className="section-header">
+                <span className="section-icon">📋</span>
+                <h3 className="section-title">Langkah Pendaftaran</h3>
+              </div>
+              <ol className="langkah-list">
+                {event.langkahPendaftaran.map((langkah, i) => (
+                  <li key={i} className="langkah-item">
+                    <span className="langkah-num">{i + 1}</span>
+                    <span dangerouslySetInnerHTML={{ __html: langkah }} />
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {event.loket.length > 0 && (
+              <div className="section-card">
+                <div className="section-header">
+                  <span className="section-icon">🎟️</span>
+                  <h3 className="section-title">Loket Platform</h3>
+                </div>
+                <p className="loket-subtitle">
+                  {event.loket.length} kategori pendaftaran – harga mulai dari{" "}
+                  {formatRupiah(event.harga)}
+                </p>
+                <div className="loket-list">
+                  {event.loket.map((tiket, i) => (
+                    <div key={i} className="loket-item">
+                      <div className="loket-harga">
+                        {formatRupiah(tiket.harga)}
+                      </div>
+                      <div>
+                        <p className="loket-nama">{tiket.nama}</p>
+                        <p className="loket-keterangan">{tiket.keterangan}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* ── SECTION: SYARAT & KETENTUAN ────────────────── */}
+          <section
+            id="syarat"
+            className="content-section"
+            ref={(el) => { sectionRefs.current.syarat = el; }}
+          >
+            <h2 className="section-heading">Syarat dan Ketentuan</h2>
+            <div className="section-card">
+              <div className="section-header">
+                <span className="section-icon">📜</span>
+                <h3 className="section-title">Ketentuan Peserta</h3>
+              </div>
+              <ol className="syarat-list">
+                {event.syaratKetentuan.map((syarat, i) => (
+                  <li key={i} className="syarat-item">
+                    {i + 1}. {syarat}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+
+          {/* ── EVENT TERKAIT (selalu di bawah semua section) ── */}
+          {event.eventTerkait.length > 0 && (
+            <div className="event-terkait-section">
+              <h2 className="event-terkait-title">Event Untuk Kamu</h2>
+              <div className="event-terkait-grid">
+                {event.eventTerkait.map((ev) => (
+                  <a
+                    key={ev.id}
+                    href={`/event/${ev.id}`}
+                    className="event-terkait-card"
+                  >
+                    <div className="event-terkait-img">
+                      {ev.gambar ? (
+                        <img src={ev.gambar} alt={ev.nama} />
+                      ) : (
+                        <div className="img-placeholder">📅</div>
+                      )}
+                    </div>
+                    <div className="event-terkait-info">
+                      <p className="ev-nama">{ev.nama}</p>
+                      <p className="ev-tanggal">{ev.tanggal}</p>
+                      <p className="ev-harga">{formatRupiah(ev.harga)}</p>
+                      <p className="ev-penyelenggara">
+                        👤 {ev.penyelenggara}
+                      </p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* SIDEBAR */}
+        {/* KOLOM KANAN — STICKY SIDEBAR */}
         <aside className="detail-sidebar">
           <div className="sidebar-card">
             <p className="sidebar-harga-label">Harga mulai dari</p>
             <p className="sidebar-harga">{formatRupiah(event.harga)}</p>
             <a href={`/registrasi-event/${event.id}`} className="btn-daftar">
-              Daftar
+              {isLoggedIn ? "Daftar" : "Login untuk Daftar"}
             </a>
             <hr className="sidebar-divider" />
             <div className="sidebar-penyelenggara">
