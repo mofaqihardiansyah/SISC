@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -54,8 +54,20 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
+        // Ambil session untuk cek role
+        const session = await getSession();
+        const role = (session?.user as { role?: string })?.role;
+
         toast.success('Berhasil masuk!');
-        router.push('/');
+        
+        if (role === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (role === 'organizer') {
+          router.push('/penyelenggara');
+        } else {
+          router.push('/');
+        }
+        
         router.refresh();
       }
     } catch (error) {

@@ -8,9 +8,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { verifyOtpAction, resendOtpAction } from '@/actions/auth';
 import { Loader2 } from 'lucide-react';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 
 function VerifyContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
   const [otp, setOtp] = React.useState('');
@@ -45,13 +46,22 @@ function VerifyContent() {
       });
       
       if (signInResult?.ok) {
-        window.location.href = '/';
+        const session = await getSession();
+        const role = (session?.user as { role?: string })?.role;
+
+        if (role === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (role === 'organizer') {
+          router.push('/penyelenggara');
+        } else {
+          router.push('/');
+        }
         return;
       }
     }
     
     setIsVerifying(false);
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   const handleResend = async () => {

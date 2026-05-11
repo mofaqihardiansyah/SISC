@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, users, peserta, transaksi } from "@/db/schema";
+import { event, users, peserta, pendaftaran } from "@/db/schema";
 import { count, eq, and, gte, lte, sql } from "drizzle-orm";
 
 export async function getDashboardStats() {
@@ -28,8 +28,8 @@ export async function getDashboardStats() {
     const [ticketsSold] = await db
       .select({ value: count() })
       .from(peserta)
-      .innerJoin(transaksi, eq(peserta.transaksiId, transaksi.id))
-      .where(eq(transaksi.status, 'confirmed'));
+      .innerJoin(pendaftaran, eq(peserta.pendaftaranId, pendaftaran.id))
+      .where(eq(pendaftaran.status, 'terdaftar'));
 
     return {
       pendingApproval: pendingEvents.value,
