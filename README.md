@@ -31,7 +31,7 @@ npm install
 Buat file bernama `.env` di root proyek Anda, lalu _copy-paste_ teks berikut (sesuai dengan konfigurasi Docker kita):
 
 ```env
-DATABASE_URL="postgresql://db_user:db_password@localhost:5433/nama_db"
+DATABASE_URL="postgresql://sisc_user:sisc_password@localhost:5433/sisc_db"
 ```
 
 ---
@@ -44,24 +44,33 @@ Kita menggunakan kontainer Docker untuk mempermudah. Pastikan aplikasi Docker De
 docker-compose up -d
 ```
 
-> **Catatan**: Ini akan menjalankan server PostgreSQL `sisc_db` di _background_. Data Anda akan tersimpan aman di dalam _volume_ Docker meskipun dijeda.
+> **Catatan**: Ini akan menjalankan server PostgreSQL `sisc-postgres` di _background_. Data Anda akan tersimpan aman di dalam _volume_ Docker meskipun dijeda.
 
 ---
 
-## 🗄️ 4. Migrasi Skema Drizzle ORM
+## 🗄️ 4. Setup Database (Migrasi & Seed)
 
-Setelah kontainer database menyala, Anda wajib mensinkronisasi struktur/skema tabel menggunakan Drizzle:
+Setelah kontainer database menyala, Anda wajib mensinkronisasi struktur tabel dan mengisi data awal:
+
+### Sinkronisasi Skema (Drizzle)
+Jalankan perintah ini untuk membuat tabel di database:
 
 ```bash
-# Untuk sinkronisasi otomatis skema tabel ke database
-npx drizzle-kit push
+npm run db:push
+```
+
+### Mengisi Data (Seeding) - WAJIB
+Jalankan perintah ini untuk mengisi data kategori, provinsi, kota, dan akun dummy:
+
+```bash
+npm run db:seed
 ```
 
 **Melihat/Mengontrol Isi Database**:
-Jika ingin melihat visualisasi tabel layaknya phpMyAdmin, jalankan ini di terminal baru:
+Jika ingin melihat visualisasi tabel layaknya phpMyAdmin, jalankan ini:
 
 ```bash
-npx drizzle-kit studio
+npm run db:studio
 ```
 
 _(Buka URL yang muncul di konsol, biasanya `https://local.drizzle.studio`)_
