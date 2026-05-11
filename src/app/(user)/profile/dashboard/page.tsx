@@ -2,8 +2,9 @@ import React from 'react';
 import Link from 'next/link';
 import { Activity, Megaphone, MapPin, Calendar, Bookmark, History } from 'lucide-react';
 import { db } from '@/db'; 
-import { event } from '@/db/schema'; 
-import { desc, eq } from 'drizzle-orm';
+import { auth } from '@/auth';
+import { event, bookmark, pendaftaran } from '@/db/schema'; 
+import { desc, eq, and } from 'drizzle-orm';
 
 function StatsCard({ label, value, bg, renderIcon }: { 
   label: string; 
@@ -25,13 +26,21 @@ function StatsCard({ label, value, bg, renderIcon }: {
 }
 
 export default async function UserDashboard() {
+  const session = await auth();
+  const userId = session?.user?.id ? Number(session.user.id) : null;
+  // 3. Query data spesifik user
+  const userBookmarks = userId 
+    ? await db.select().from(bookmark).where(eq(bookmark.userId, userId))
+    : [];
+  const userRegistrations = userId
+    ? await db.select().from(pendaftaran).where(eq(pendaftaran.userId, userId))
+    : [];
   const activeEvents = await db.select()
     .from(event)
     .where(eq(event.status, 'published'));
 
   const upcomingEventsData = await db.select().from(event).limit(3);
-  
-  // SOLUSI: Mengambil 2 Event Terbaru sebagai pengganti tabel pemberitahuan
+
   const latestEventsData = await db.select()
     .from(event)
     .where(eq(event.status, 'published'))
@@ -47,13 +56,13 @@ export default async function UserDashboard() {
     },
     {
       label: 'Event Favorit',
-      value: '0', 
+      value: userBookmarks.length, 
       bg: 'from-violet-100 to-violet-50 border-violet-200',
       icon: <Bookmark className="w-8 h-8 text-violet-600" />
     },
     {
       label: 'Event Diikuti',
-      value: '0', 
+      value: userRegistrations.length, 
       bg: 'from-blue-100 to-blue-50 border-blue-200',
       icon: <History className="w-8 h-8 text-blue-600" />
     },

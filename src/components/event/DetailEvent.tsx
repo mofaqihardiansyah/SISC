@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import EventCard from "@/components/shared/EventCard";
 
 // ============================================================
 // TIPE DATA
@@ -14,12 +15,16 @@ interface LoketTiket {
 }
 
 interface EventTerkait {
-  id: number;
-  nama: string;
-  tanggal: string;
-  harga: number | null;
-  penyelenggara: string;
-  gambar: string;
+  id: string;
+  title: string;
+  date: string;
+  price: number | null;
+  category: string;
+  type: "POLINES" | "UMUM";
+  imageUrl: string;
+  tipePlatform: string;
+  kotaNama: string;
+  kategoriNama: string;
 }
 
 interface DetailEventProps {
@@ -454,76 +459,6 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
         }
 
         /* ==============================
-           EVENT TERKAIT
-        ============================== */
-        .event-terkait-section { margin-top: 8px; }
-        .event-terkait-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #111827;
-          margin-bottom: 16px;
-        }
-        .event-terkait-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 16px;
-        }
-        .event-terkait-card {
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          overflow: hidden;
-          background: white;
-          cursor: pointer;
-          text-decoration: none;
-          display: block;
-          transition: box-shadow 0.2s;
-        }
-        .event-terkait-card:hover {
-          box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-        .event-terkait-img {
-          height: 120px;
-          overflow: hidden;
-          background: #f3f4f6;
-        }
-        .event-terkait-img img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .img-placeholder {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 40px;
-        }
-        .event-terkait-info { padding: 12px; }
-        .ev-nama {
-          font-size: 13px;
-          font-weight: 700;
-          color: #111827;
-          margin-bottom: 4px;
-          line-height: 1.3;
-        }
-        .ev-tanggal {
-          font-size: 11px;
-          color: #9ca3af;
-          margin-bottom: 6px;
-        }
-        .ev-harga {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1a2744;
-          margin-bottom: 4px;
-        }
-        .ev-penyelenggara {
-          font-size: 11px;
-          color: #6b7280;
-        }
-
-        /* ==============================
            SIDEBAR KANAN
         ============================== */
         .detail-sidebar {
@@ -786,39 +721,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
               </ol>
             </div>
           </section>
-
-          {/* ── EVENT TERKAIT (selalu di bawah semua section) ── */}
-          {event.eventTerkait.length > 0 && (
-            <div className="event-terkait-section">
-              <h2 className="event-terkait-title">Event Untuk Kamu</h2>
-              <div className="event-terkait-grid">
-                {event.eventTerkait.map((ev) => (
-                  <a
-                    key={ev.id}
-                    href={`/event/${ev.id}`}
-                    className="event-terkait-card"
-                  >
-                    <div className="event-terkait-img">
-                      {ev.gambar ? (
-                        <img src={ev.gambar} alt={ev.nama} />
-                      ) : (
-                        <div className="img-placeholder">📅</div>
-                      )}
-                    </div>
-                    <div className="event-terkait-info">
-                      <p className="ev-nama">{ev.nama}</p>
-                      <p className="ev-tanggal">{ev.tanggal}</p>
-                      <p className="ev-harga">{formatRupiah(ev.harga)}</p>
-                      <p className="ev-penyelenggara">
-                        👤 {ev.penyelenggara}
-                      </p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        </div> {/* detail-main */}
 
         {/* KOLOM KANAN — STICKY SIDEBAR */}
         <aside className="detail-sidebar">
@@ -838,7 +741,19 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             </div>
           </div>
         </aside>
-      </div>
+      </div> {/* detail-layout */}
+
+      {/* ── EVENT TERKAIT (DI LUAR SPLIT LAYOUT UNTUK LEBAR PENUH) ── */}
+      {event.eventTerkait.length > 0 && (
+        <div className="max-w-[1100px] mx-auto px-6 pb-24 mt-16 border-t border-slate-100 pt-16">
+          <h2 className="text-3xl font-extrabold text-slate-900 mb-10 text-center">Event Untuk Kamu</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {event.eventTerkait.map((ev) => (
+              <EventCard key={ev.id} {...ev} isLoggedIn={isLoggedIn} />
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }

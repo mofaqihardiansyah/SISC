@@ -1,5 +1,5 @@
 {
-  "id": "9e97e719-4e2a-44b0-b186-e17b2d10dd25",
+  "id": "d76f06bf-e5db-4fc4-86b4-7928ae73c50b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -852,7 +852,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(50)",
+          "type": "paper_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
           "default": "'review'"
@@ -942,7 +943,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(50)",
+          "type": "pendaftaran_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
           "default": "'terdaftar'"
@@ -1052,7 +1054,8 @@
         },
         "jenis_kelamin": {
           "name": "jenis_kelamin",
-          "type": "varchar(20)",
+          "type": "jenis_kelamin",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -1304,7 +1307,8 @@
         },
         "jenis_kelamin": {
           "name": "jenis_kelamin",
-          "type": "varchar(20)",
+          "type": "jenis_kelamin",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -1316,9 +1320,11 @@
         },
         "role": {
           "name": "role",
-          "type": "varchar(50)",
+          "type": "user_role",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'visitor'"
         },
         "is_terverifikasi": {
           "name": "is_terverifikasi",
@@ -1389,6 +1395,32 @@
         "conference"
       ]
     },
+    "public.jenis_kelamin": {
+      "name": "jenis_kelamin",
+      "schema": "public",
+      "values": [
+        "Laki-laki",
+        "Perempuan"
+      ]
+    },
+    "public.paper_status": {
+      "name": "paper_status",
+      "schema": "public",
+      "values": [
+        "review",
+        "accepted",
+        "rejected"
+      ]
+    },
+    "public.pendaftaran_status": {
+      "name": "pendaftaran_status",
+      "schema": "public",
+      "values": [
+        "terdaftar",
+        "dibatalkan",
+        "hadir"
+      ]
+    },
     "public.tipe_harga": {
       "name": "tipe_harga",
       "schema": "public",
@@ -1404,6 +1436,15 @@
         "online",
         "offline",
         "hybrid"
+      ]
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "organizer",
+        "visitor"
       ]
     }
   },
