@@ -45,13 +45,20 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
           confirmButtonColor: '#0052cc',
         });
       } else {
-        throw new Error("Gagal");
+        // Tampilkan pesan error spesifik dari server (misal: "Anda sudah terdaftar")
+        Swal.fire({
+          title: 'Perhatian!',
+          text: res.error || 'Terjadi kesalahan saat menyimpan data.',
+          icon: 'warning',
+          confirmButtonText: 'Ok',
+          confirmButtonColor: '#f59e0b',
+        });
       }
     } catch (error) {
-      // Tampilan Pop-up Gagal
+      // Tampilan Pop-up Gagal (Kesalahan Sistem/Network)
       Swal.fire({
-        title: 'Gagal Menyimpan Data!',
-        text: 'Mohon maaf, sepertinya terjadi kesalahan sistem saat mencoba menyimpan pendaftaran kamu.',
+        title: 'Kesalahan Sistem!',
+        text: 'Mohon maaf, sepertinya terjadi gangguan koneksi atau sistem.',
         icon: 'error',
         confirmButtonText: 'Coba Lagi',
         confirmButtonColor: '#ef4444',
