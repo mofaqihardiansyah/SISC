@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { db } from './index';
-import { users, bookmark, pendaftaran, peserta, paperSubmission, event } from './schema';
+import { users, bookmark, pendaftaran, peserta, paperSubmission } from './schema';
 import { eq } from 'drizzle-orm';
 
 export async function seedProfileDemo() {
@@ -63,7 +63,7 @@ export async function seedProfileDemo() {
         namaLengkap: visitor.namaLengkap,
         email: visitor.email,
         nomorTelepon: visitor.nomorTelepon,
-        jenisKelamin: (visitor.jenisKelamin as any) || 'Laki-laki',
+        jenisKelamin: visitor.jenisKelamin || 'Laki-laki',
       });
     }
   }
@@ -104,7 +104,12 @@ export async function seedProfileDemo() {
   for (const p of papers) {
     await db.insert(paperSubmission).values({
       userId,
-      ...p
+      eventId: p.eventId,
+      judul: p.judul,
+      penulis: p.penulis,
+      fileUrl: p.fileUrl,
+      status: p.status as "accepted" | "review" | "rejected",
+      komentarPenolakan: p.komentarPenolakan
     });
   }
 

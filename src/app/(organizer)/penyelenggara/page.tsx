@@ -58,18 +58,18 @@ export default async function PenyelenggaraDashboard() {
           title="Total Peserta" 
           value={totalPesertaResult.total.toLocaleString()} 
           trend="+0%" 
-          icon={Users} 
+          icon={Users}
         />
         <StatCard 
           title="Event Aktif" 
           value={eventAktifResult.total.toLocaleString()} 
           trend="Real-time" 
-          icon={Ticket} 
+          icon={Ticket}
         />
         <StatCard 
           title="Total Event Lalu" 
           value={eventLaluResult.total.toLocaleString()} 
-          icon={CalendarCheck} 
+          icon={CalendarCheck}
         />
       </div>
 

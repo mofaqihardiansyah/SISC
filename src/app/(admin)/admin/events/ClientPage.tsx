@@ -22,6 +22,7 @@ import { id } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
+import { cn } from "@/lib/utils";
 import DataEvent from './DataEvent';
 import EditEvent from './EditEvent';
 
@@ -30,16 +31,21 @@ export type Event = {
   judul: string;
   penyelenggara: string | null;
   tanggalMulai: Date;
+  tanggalSelesai: Date | null;
   status: 'pending' | 'published' | 'rejected';
   bannerUrl: string | null;
   deskripsi: string | null;
   syaratDanKetentuan: string | null;
   detailLokasi: string | null;
   kuota: number | null;
-  tipeHarga: string | null;
+  isEventPolines: boolean;
+  jenisEvent: 'seminar' | 'conference' | null;
+  tipePlatform: 'online' | 'offline' | 'hybrid' | null;
+  tipeHarga: 'free' | 'paid' | null;
   harga: number | null;
   participantCount?: number;
-  jenisEvent: 'seminar' | 'conference' | null;
+  namaPembicara: string | null;
+  websiteSumber: string | null;
   emailKontak: string | null;
   teleponKontak: string | null;
 };
@@ -156,27 +162,28 @@ export default function ClientPage({ initialEvents: initialEventsData, initialSt
         </button>
       </div>
 
-      {/* Mini Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6">
-        {statsDisplay.map((stat, i) => (
-          <div key={i} className="group bg-white border border-slate-200/60 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300 relative overflow-hidden">
-            <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.glow} rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500`}></div>
-            <div className="relative z-10 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
-                <p className="text-3xl font-black text-[#0E215D]">{stat.count}</p>
-              </div>
-              <div className={`
-                ${stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : ''}
-                ${stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : ''}
-                ${stat.color === 'amber' ? 'bg-amber-50 text-amber-500' : ''}
-                ${stat.color === 'rose' ? 'bg-rose-50 text-rose-600' : ''}
-                ${stat.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : ''}
-                p-4 rounded-2xl transition-transform group-hover:scale-110 duration-300
-              `}>
-                <stat.icon size={26} strokeWidth={2.5} />
-              </div>
+      {/* Monitoring Stats Row - Clean & Professional */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statsDisplay.filter(s => ['Total Event', 'Published', 'Event Seminar', 'Event Conference'].includes(s.label)).map((stat, i) => (
+          <div key={i} className="group relative bg-white border border-slate-200/60 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-[#0E215D]/5 transition-all duration-300 flex items-center gap-5 overflow-hidden">
+            <div className={`
+              w-12 h-12 shrink-0
+              ${stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : ''}
+              ${stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : ''}
+              ${stat.color === 'rose' ? 'bg-rose-50 text-rose-600' : ''}
+              ${stat.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : ''}
+              rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 duration-300
+            `}>
+              <stat.icon size={22} strokeWidth={2.5} />
             </div>
+
+            <div className="relative z-10">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{stat.label}</p>
+              <p className="text-3xl font-black text-[#0E215D] tracking-tight leading-none">{stat.count}</p>
+            </div>
+
+            {/* Subtle Accent Glow */}
+            <div className={`absolute -right-4 -bottom-4 w-20 h-20 ${stat.glow} rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
           </div>
         ))}
       </div>
