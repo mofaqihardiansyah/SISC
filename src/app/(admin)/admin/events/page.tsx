@@ -13,7 +13,7 @@ export default async function AdminEventsPage() {
   const statsResponse = await getAdminEventStats();
 
   const initialEvents = eventsResponse.success && eventsResponse.data ? (eventsResponse.data as Event[]) : [];
-  const initialStats = statsResponse.success && statsResponse.data ? (statsResponse.data as Stats) : { total: 0, pending: 0, published: 0, rejected: 0 };
+  const initialStats = statsResponse.success && statsResponse.data ? (statsResponse.data as Stats) : { total: 0, seminar: 0, conference: 0, published: 0, polines: 0, umum: 0 };
 
   return (
     <ClientPage 

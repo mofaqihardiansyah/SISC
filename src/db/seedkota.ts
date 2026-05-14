@@ -1,7 +1,7 @@
 import { db } from "./index";
 import { kota } from "./schema";
 
-async function main() {
+export async function seedKota() {
   const data = [
   { "id": 1, "provinsiId": 1, "nama": "Banda Aceh" },
   { "id": 2, "provinsiId": 14, "nama": "Semarang" },
@@ -25,10 +25,4 @@ async function main() {
     });
   }
   console.log("✅ Kota seeded!");
-  process.exit(0);
-}
-
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+}

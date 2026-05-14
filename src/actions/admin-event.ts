@@ -5,13 +5,10 @@ import { event, pendaftaran } from "@/db/schema";
 import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getAdminEvents(search?: string, status?: string) {
+export async function getAdminEvents(search?: string, type?: string) {
   try {
     const conditions = [];
     
-    // Always exclude deleted ones if you have soft delete
-    // conditions.push(sql`${event.dihapusPada} IS NULL`);
-
     if (search && search.trim()) {
       conditions.push(
         or(
@@ -21,8 +18,8 @@ export async function getAdminEvents(search?: string, status?: string) {
       );
     }
 
-    if (status && status !== 'all') {
-      conditions.push(eq(event.status, status as "pending" | "published" | "rejected"));
+    if (type && type !== 'all') {
+      conditions.push(eq(event.jenisEvent, type as "seminar" | "conference"));
     }
 
     const results = await db
@@ -51,30 +48,51 @@ export async function getAdminEvents(search?: string, status?: string) {
 
 export async function getAdminEventStats() {
   try {
-    const stats = await db
-      .select({
-        status: event.status,
-        count: sql<number>`count(*)`,
-      })
-      .from(event)
-      .groupBy(event.status);
-
     const total = await db.select({ count: sql<number>`count(*)` }).from(event);
+    
+    const seminar = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(event)
+      .where(eq(event.jenisEvent, 'seminar'));
+
+    const conference = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(event)
+      .where(eq(event.jenisEvent, 'conference'));
+
+    const published = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(event)
+      .where(eq(event.status, 'published'));
+
+    const polines = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(event)
+      .where(eq(event.isEventPolines, true));
+
+    const umum = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(event)
+      .where(eq(event.isEventPolines, false));
 
     return {
       success: true,
       data: {
         total: Number(total[0]?.count || 0),
-        pending: Number(stats.find((s) => s.status === "pending")?.count || 0),
-        published: Number(stats.find((s) => s.status === "published")?.count || 0),
-        rejected: Number(stats.find((s) => s.status === "rejected")?.count || 0),
+        seminar: Number(seminar[0]?.count || 0),
+        conference: Number(conference[0]?.count || 0),
+        published: Number(published[0]?.count || 0),
+        polines: Number(polines[0]?.count || 0),
+        umum: Number(umum[0]?.count || 0),
       },
     };
+
   } catch (error) {
     console.error("[getAdminEventStats] Error:", error);
     return { success: false, error: "Gagal mengambil statistik" };
   }
 }
+
 
 export async function updateEventStatus(id: number, status: "pending" | "published" | "rejected", reason?: string) {
   try {
@@ -87,7 +105,7 @@ export async function updateEventStatus(id: number, status: "pending" | "publish
       })
       .where(eq(event.id, id));
 
-    revalidatePath("/(admin)/admin/events", "page");
+    revalidatePath("/admin/events");
     return { success: true, message: `Status event berhasil diupdate ke ${status}` };
   } catch (error) {
     console.error("[updateEventStatus] Error:", error);
@@ -100,7 +118,7 @@ export async function deleteEvent(id: number) {
     // Hard delete for now, or use soft delete if dihapusPada is preferred
     await db.delete(event).where(eq(event.id, id));
     
-    revalidatePath("/(admin)/admin/events", "page");
+    revalidatePath("/admin/events");
     return { success: true, message: "Event berhasil dihapus" };
   } catch (error) {
     console.error("[deleteEvent] Error:", error);
@@ -108,20 +126,77 @@ export async function deleteEvent(id: number) {
   }
 }
 
-export async function updateEvent(id: number, data: Partial<typeof event.$inferInsert>) {
+export async function updateEvent(id: number, data: Record<string, unknown>) {
+  console.log("[updateEvent] Request for ID:", id, "Data:", data);
   try {
+    if (!id) throw new Error("ID event tidak ditemukan");
+
+    // Sanitize data: only allow valid columns and ensure numbers are numbers
+    const sanitizedData: Record<string, unknown> = {};
+    const validFields = [
+      'judul', 'penyelenggara', 'deskripsi', 'syaratDanKetentuan', 
+      'tanggalMulai', 'tanggalSelesai', 'batasRegistrasi', 
+      'jenisEvent', 'tipePlatform', 'tipeHarga', 'harga', 
+      'detailLokasi', 'linkEksternal', 'namaKontak', 'emailKontak', 
+      'teleponKontak', 'kuota', 'maksTiketPerTransaksi', 
+      'satuAkunSatuTransaksi', 'status', 'namaPembicara', 
+      'peranPembicara', 'fotoPembicaraUrl'
+    ];
+
+    Object.keys(data).forEach(key => {
+      if (validFields.includes(key)) {
+        let value = data[key];
+        
+        // Convert to number if it should be an integer
+        if (['harga', 'kuota', 'maksTiketPerTransaksi'].includes(key)) {
+          if (value === null || value === undefined || value === '') {
+            value = 0;
+          } else {
+            const parsed = parseInt(value.toString());
+            value = isNaN(parsed) ? 0 : parsed;
+          }
+        }
+        
+        if (value !== undefined) {
+          sanitizedData[key] = value;
+        }
+      }
+    });
+
+    console.log("[updateEvent] Sanitized Data to update:", sanitizedData);
+
+    // Use a simpler update call to avoid complex object serialization issues
     await db
       .update(event)
       .set({
-        ...data,
+        ...sanitizedData,
         diperbaruiPada: new Date()
       })
       .where(eq(event.id, id));
 
-    revalidatePath("/(admin)/admin/events", "page");
-    return { success: true, message: "Event berhasil diperbarui" };
+    console.log("[updateEvent] Database update successful for ID:", id);
+
+    revalidatePath("/admin/events");
+    
+    // Return a very simple object to ensure successful serialization
+    return { 
+      success: true, 
+      message: "Event berhasil diperbarui" 
+    };
   } catch (error) {
-    console.error("[updateEvent] Error:", error);
-    return { success: false, error: "Gagal memperbarui event" };
+    console.error("[updateEvent] Server Action Error:", error);
+    
+    let errorMessage = "Gagal memperbarui event";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      // Log stack trace for deeper debugging in terminal
+      console.error(error.stack);
+    }
+    
+    return { success: false, error: errorMessage };
   }
 }
+
+
+
+

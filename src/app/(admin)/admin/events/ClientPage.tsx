@@ -12,11 +12,15 @@ import {
   Eye, 
   Trash2,
   Users,
-  Edit3
+  Edit3,
+  Mic,
+  ShieldCheck,
+  Globe
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
 import DataEvent from './DataEvent';
 import EditEvent from './EditEvent';
@@ -42,9 +46,11 @@ export type Event = {
 
 export type Stats = {
   total: number;
-  pending: number;
+  seminar: number;
+  conference: number;
   published: number;
-  rejected: number;
+  polines: number;
+  umum: number;
 };
 
 type ClientPageProps = {
@@ -53,9 +59,16 @@ type ClientPageProps = {
 };
 
 export default function ClientPage({ initialEvents: initialEventsData, initialStats }: ClientPageProps) {
+  const router = useRouter();
   const [events, setEvents] = useState<Event[]>(initialEventsData);
+
+  // Sync state with props when server data refreshes
+  React.useEffect(() => {
+    setEvents(initialEventsData);
+  }, [initialEventsData]);
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -64,18 +77,20 @@ export default function ClientPage({ initialEvents: initialEventsData, initialSt
   const statsDisplay = [
     { label: 'Total Event', count: initialStats.total, icon: Calendar, color: 'blue', glow: 'bg-blue-500/10' },
     { label: 'Published', count: initialStats.published, icon: CheckCircle, color: 'emerald', glow: 'bg-emerald-500/10' },
-    { label: 'Pending', count: initialStats.pending, icon: Clock, color: 'amber', glow: 'bg-amber-500/10' },
-    { label: 'Rejected', count: initialStats.rejected, icon: AlertCircle, color: 'rose', glow: 'bg-rose-500/10' },
+    { label: 'Event Seminar', count: initialStats.seminar, icon: Mic, color: 'amber', glow: 'bg-amber-500/10' },
+    { label: 'Event Conference', count: initialStats.conference, icon: Building2, color: 'indigo', glow: 'bg-indigo-500/10' },
+    { label: 'Event Polines', count: initialStats.polines, icon: ShieldCheck, color: 'rose', glow: 'bg-rose-500/10' },
+    { label: 'Event Umum', count: initialStats.umum, icon: Globe, color: 'blue', glow: 'bg-blue-500/10' },
   ];
 
   const filteredEvents = useMemo(() => {
     return events.filter(e => {
       const matchesSearch = e.judul.toLowerCase().includes(searchTerm.toLowerCase()) || 
         (e.penyelenggara && e.penyelenggara.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesStatus = statusFilter === 'all' || e.status === statusFilter;
-      return matchesSearch && matchesStatus;
+      const matchesType = typeFilter === 'all' || e.jenisEvent === typeFilter;
+      return matchesSearch && matchesType;
     });
-  }, [events, searchTerm, statusFilter]);
+  }, [events, searchTerm, typeFilter]);
 
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus event ini?')) return;
@@ -120,8 +135,9 @@ export default function ClientPage({ initialEvents: initialEventsData, initialSt
   };
 
   const handleEditSuccess = () => {
-    // We could re-fetch or just update local state. Re-fetching is safer.
-    window.location.reload(); 
+    // router.refresh() will update the server-side props
+    // and trigger a re-render without a full page reload
+    router.refresh(); 
   };
 
   return (
@@ -131,7 +147,7 @@ export default function ClientPage({ initialEvents: initialEventsData, initialSt
         <div className="space-y-1">
           <h1 className="text-4xl font-black text-[#0E215D] tracking-tight">Manajemen Event</h1>
           <p className="text-slate-500 font-medium max-w-2xl">
-            Kelola, verifikasi, dan pantau seluruh event yang didaftarkan oleh penyelenggara di platform.
+            Kelola event yang didaftarkan oleh penyelenggara di platform.
           </p>
         </div>
         <button className="bg-[#0E215D] text-white px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-[#0E215D]/20 hover:bg-[#1a3280] transition-all flex items-center gap-3">
@@ -141,7 +157,7 @@ export default function ClientPage({ initialEvents: initialEventsData, initialSt
       </div>
 
       {/* Mini Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6">
         {statsDisplay.map((stat, i) => (
           <div key={i} className="group bg-white border border-slate-200/60 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300 relative overflow-hidden">
             <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.glow} rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500`}></div>
@@ -155,6 +171,7 @@ export default function ClientPage({ initialEvents: initialEventsData, initialSt
                 ${stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : ''}
                 ${stat.color === 'amber' ? 'bg-amber-50 text-amber-500' : ''}
                 ${stat.color === 'rose' ? 'bg-rose-50 text-rose-600' : ''}
+                ${stat.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : ''}
                 p-4 rounded-2xl transition-transform group-hover:scale-110 duration-300
               `}>
                 <stat.icon size={26} strokeWidth={2.5} />
@@ -180,14 +197,13 @@ export default function ClientPage({ initialEvents: initialEventsData, initialSt
         <div className="flex gap-2 p-1">
           <div className="relative min-w-[180px]">
             <select 
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
               className="w-full appearance-none bg-slate-50 text-slate-700 pl-5 pr-12 py-3.5 rounded-[1.25rem] outline-none text-xs font-black uppercase tracking-widest cursor-pointer border border-transparent focus:border-[#0E215D]/20 transition-all"
             >
-              <option value="all">Semua Status</option>
-              <option value="pending">Pending</option>
-              <option value="published">Published</option>
-              <option value="rejected">Rejected</option>
+              <option value="all">Semua Jenis</option>
+              <option value="seminar">Seminar</option>
+              <option value="conference">Conference</option>
             </select>
             <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
           </div>

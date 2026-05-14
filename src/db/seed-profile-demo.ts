@@ -3,7 +3,7 @@ import { db } from './index';
 import { users, bookmark, pendaftaran, peserta, paperSubmission, event } from './schema';
 import { eq } from 'drizzle-orm';
 
-async function seedProfileDemo() {
+export async function seedProfileDemo() {
   console.log("🚀 Memulai proses seeding data demo profil...");
 
   // 1. Cari User "Pengunjung"
@@ -13,7 +13,7 @@ async function seedProfileDemo() {
 
   if (!visitor) {
     console.error("❌ User 'visitor@gmail.com' tidak ditemukan. Jalankan seed-users.ts dulu!");
-    process.exit(1);
+    throw new Error("User visitor@gmail.com not found");
   }
 
   const userId = visitor.id;
@@ -109,11 +109,6 @@ async function seedProfileDemo() {
   }
 
   console.log("✅ Berhasil seeding data demo profil (Bookmarks, Pendaftaran, & Paper Submissions)!");
-  process.exit(0);
 }
 
-seedProfileDemo().catch(err => {
-  console.error("❌ Error seeding profile demo:", err);
-  process.exit(1);
-});
 

@@ -52,11 +52,14 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
         toast.error(res.error || 'Gagal memperbarui event');
       }
     } catch (err) {
-      console.error(err);
-      toast.error('Terjadi kesalahan');
+      console.error("[EditEvent] Submit error:", err);
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem';
+      toast.error(message);
     } finally {
+
       setIsSubmitting(false);
     }
+
   };
 
   return (
