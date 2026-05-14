@@ -18,7 +18,7 @@ const DEFAULT_TERMS = `1. Peserta wajib melakukan registrasi melalui website SIS
 7. Panitia berhak membatalkan keikutsertaan jika peserta melanggar aturan yang ditetapkan.
 8. Keputusan panitia bersifat mutlak dan tidak dapat diganggu gugat.`;
 
-async function main() {
+export async function seedEvents() {
   console.log("🚀 Seeding 18 events with Banners & Terms...");
 
   const events = [
@@ -54,7 +54,7 @@ async function main() {
       satuAkunSatuTransaksi: false,
       hasilScraping: false,
       dibuatPada: new Date(),
-    } as any).onConflictDoUpdate({
+    } as typeof event.$inferInsert).onConflictDoUpdate({
       target: event.slug,
       set: { 
         judul: e.judul, 
@@ -74,7 +74,5 @@ async function main() {
   }
 
   console.log("✅ 18 events with Banners & Terms seeded!");
-  process.exit(0);
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
