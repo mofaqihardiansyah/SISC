@@ -59,9 +59,23 @@ export default async function PenyelenggaraDashboard() {
     <div className="space-y-8">
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard title="Total Peserta" value={totalPesertaResult.total.toLocaleString()} trend="+0%" icon={Users} />
-        <StatCard title="Event Aktif" value={eventAktifResult.total.toLocaleString()} trend="Real-time" icon={Ticket} />
-        <StatCard title="Total Event Lalu" value={eventLaluResult.total.toLocaleString()} icon={CalendarCheck} />
+        <StatCard 
+          title="Total Peserta" 
+          value={totalPesertaResult.total.toLocaleString()} 
+          trend="+0%" 
+          icon={Users} 
+        />
+        <StatCard 
+          title="Event Aktif" 
+          value={eventAktifResult.total.toLocaleString()} 
+          trend="Real-time" 
+          icon={Ticket} 
+        />
+        <StatCard 
+          title="Total Event Lalu" 
+          value={eventLaluResult.total.toLocaleString()} 
+          icon={CalendarCheck} 
+        />
       </div>
 
       {/* CHART AREA */}

@@ -1,7 +1,7 @@
 import { db } from "./index";
 import { sql } from "drizzle-orm";
 
-async function main() {
+export async function seedReset() {
   console.log("🧹 Membersihkan seluruh database (Struktur Baru)...");
 
   try {
@@ -31,11 +31,9 @@ async function main() {
     }
 
     console.log("✨ Database sekarang benar-benar kosong dan bersih!");
-    process.exit(0);
   } catch (error) {
     console.error("❌ Gagal membersihkan database:", error);
-    process.exit(1);
+    throw error;
   }
 }
 
-main();

@@ -7,7 +7,7 @@ import {
 } from './schema';
 import { eq } from 'drizzle-orm';
 
-async function main() {
+export async function seedDummy() {
   console.log("🚀 Seeding data dummy yang dirampingkan (profil, tag, pembicara, jadwal, bookmark, log)...");
 
   // 1. PROFIL PENYELENGGARA
@@ -122,7 +122,5 @@ async function main() {
   }
 
   console.log("✅ Data dummy berhasil disesuaikan dengan struktur baru!");
-  process.exit(0);
 }
 
-main().catch(err => { console.error("❌ Error:", err); process.exit(1); });
