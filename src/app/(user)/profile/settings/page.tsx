@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -16,6 +16,8 @@ export default function SettingsPage() {
   });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // FETCH DATA USER
   useEffect(() => {
@@ -37,6 +39,44 @@ export default function SettingsPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran file maksimal 2MB');
+      return;
+    }
+
+    setIsUploading(true);
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+    uploadData.append('type', 'avatar');
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Gagal upload foto');
+      }
+
+      const data = await res.json();
+      setFormData(prev => ({ ...prev, avatarUrl: data.url }));
+      toast.success('Foto profil berhasil diupload. Jangan lupa klik Simpan Perubahan.');
+    } catch (error: any) {
+      toast.error(error.message || 'Terjadi kesalahan saat upload foto');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   // UPDATE
   const handleSave = async () => {
     try {
@@ -49,6 +89,7 @@ export default function SettingsPage() {
       if (!res.ok) throw new Error();
 
       toast.success('Pengaturan berhasil disimpan!');
+      router.refresh();
     } catch {
       toast.error('Gagal menyimpan');
     }
@@ -98,11 +139,23 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                Ubah Foto Profil
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/jpeg, image/png, image/webp"
+                onChange={handleFileChange}
+              />
+              <button 
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
+              >
+                {isUploading ? 'Mengupload...' : 'Ubah Foto Profil'}
               </button>
               <p className="text-xs text-slate-500 mt-1">
-                Format: JPG, PNG. Maks: 5MB
+                Format: JPG, PNG, WEBP. Maks: 2MB
               </p>
             </div>
           </div>
