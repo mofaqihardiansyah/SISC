@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { Search, Download, Users, Loader2, Check, X, Pencil, Trash2, Info, ChevronLeft, ChevronRight } from "lucide-react";
 
 // ============================================================
 // TIPE DATA
@@ -404,7 +405,7 @@ export default function InformasiPesertaPage() {
         {/* TOOLBAR */}
         <div className="ip-toolbar">
           <div className="ip-search-wrap">
-            <span className="ip-search-icon">🔍</span>
+            <span className="ip-search-icon"><Search size={15} /></span>
             <input
               className="ip-search"
               placeholder="Cari nama peserta, email, atau nomor telepon..."
@@ -423,7 +424,7 @@ export default function InformasiPesertaPage() {
             <option value="dibatalkan">Ditolak</option>
           </select>
           <button className="ip-btn-export" onClick={exportCSV}>
-            ⬇ Export CSV
+            <Download size={14} /> Export CSV
           </button>
         </div>
 
@@ -438,10 +439,13 @@ export default function InformasiPesertaPage() {
         {/* TABEL */}
         <div className="ip-table-wrap">
           {loading ? (
-            <div className="ip-loading">⏳ Memuat data...</div>
+            <div className="ip-loading flex flex-col items-center justify-center gap-2">
+              <Loader2 className="animate-spin" size={24} />
+              <span>Memuat data...</span>
+            </div>
           ) : pesertaList.length === 0 ? (
             <div className="ip-empty">
-              <div className="ip-empty-icon">👥</div>
+              <div className="ip-empty-icon flex justify-center"><Users size={40} /></div>
               <div>Tidak ada peserta ditemukan</div>
             </div>
           ) : (
@@ -507,7 +511,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "hadir")}
                               >
-                                ✓
+                                <Check size={16} />
                               </button>
                               <button
                                 className="btn-aksi btn-tolak"
@@ -515,7 +519,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "dibatalkan")}
                               >
-                                ✕
+                                <X size={16} />
                               </button>
                             </>
                           )}
@@ -527,7 +531,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "terdaftar")}
                               >
-                                ✎
+                                <Pencil size={14} />
                               </button>
                               <button
                                 className="btn-aksi btn-hapus"
@@ -535,7 +539,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "dibatalkan")}
                               >
-                                🗑
+                                <Trash2 size={16} />
                               </button>
                             </>
                           )}
@@ -546,7 +550,7 @@ export default function InformasiPesertaPage() {
                                 title="Info"
                                 disabled
                               >
-                                ℹ
+                                <Info size={16} />
                               </button>
                               <button
                                 className="btn-aksi btn-edit"
@@ -554,7 +558,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "terdaftar")}
                               >
-                                ✎
+                                <Pencil size={14} />
                               </button>
                             </>
                           )}
@@ -580,7 +584,7 @@ export default function InformasiPesertaPage() {
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
               >
-                ‹
+                <ChevronLeft size={16} />
               </button>
               {getPageNumbers().map((p, i) =>
                 p === "..." ? (
@@ -600,7 +604,7 @@ export default function InformasiPesertaPage() {
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
               >
-                ›
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
