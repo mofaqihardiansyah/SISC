@@ -54,11 +54,11 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
   const heading = statusLabels[statusFilter] || 'SEMUA EVENTKU';
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-500">
       <FilterSection currentSearch={searchQuery} currentStatus={statusFilter} />
 
-      <div className="flex-1 flex flex-col">
-        <h3 className="text-lg font-extrabold text-slate-800 mb-6 uppercase tracking-tight flex items-center gap-3">
+      <div className="flex-1 flex flex-col mt-8">
+        <h3 className="text-lg font-extrabold text-slate-800 mb-6 uppercase tracking-tight flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-700">
           <span className="w-1.5 h-6 bg-[#0E215D] rounded-full"></span>
           {heading}
         </h3>

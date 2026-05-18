@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import AuthLayout from '@/components/auth/auth-layout';
 
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -22,17 +22,18 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    setIsLoading(true);
     try {
       const result = await signIn('credentials', {
         email: data.email,
@@ -40,19 +41,39 @@ export default function LoginPage() {
         redirect: false,
       });
 
-      if (result?.error) {
-        toast.error('Email atau kata sandi salah');
+      if (!result) {
+        toast.error('Terjadi kesalahan pada server');
+        setIsLoading(false);
         return;
       }
 
-      toast.success('Berhasil masuk!');
-      
-      // Redirect to home and let middleware handle role-based routing
-      router.push('/');
-      
-      router.refresh();
-    } catch (_error) {
+      if (result?.error) {
+        toast.error(result.error || 'Email atau kata sandi salah');
+        setIsLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        // Ambil session untuk cek role
+        const session = await getSession();
+        const role = (session?.user as { role?: string })?.role;
+
+        toast.success('Berhasil masuk!');
+        
+        if (role === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (role === 'organizer') {
+          router.push('/penyelenggara');
+        } else {
+          router.push('/');
+        }
+        
+        router.refresh();
+      }
+    } catch (error) {
+      console.error('Login error:', error);
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
+      setIsLoading(false);
     }
   };
 
@@ -78,6 +99,7 @@ export default function LoginPage() {
                 type="email" 
                 placeholder="Masukkan email anda" 
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                disabled={isLoading}
                 {...register('email')}
               />
               {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email.message}</p>}
@@ -94,6 +116,7 @@ export default function LoginPage() {
                 placeholder="Masukkan kata sandi" 
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 autoComplete="current-password"
+                disabled={isLoading}
                 {...register('password')}
               />
               {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}
@@ -103,9 +126,9 @@ export default function LoginPage() {
               <Button 
                 type="submit" 
                 className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
-                disabled={isSubmitting}
+                disabled={isLoading}
               >
-                {isSubmitting ? 'Masuk...' : 'Masuk'}
+                {isLoading ? 'Masuk...' : 'Masuk'}
               </Button>
             </div>
           </form>

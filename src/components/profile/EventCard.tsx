@@ -4,6 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Calendar, MapPin, User, Star, ImageOff } from 'lucide-react';
 
 interface EventCardProps {
   id: string | number;
@@ -62,7 +63,7 @@ export default function EventCard({
                   : 'bg-white/70 text-slate-400 hover:bg-white hover:text-yellow-500'
               }`}
             >
-              ⭐
+              <Star className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
             </button>
           </div>
         </div>
@@ -98,9 +99,18 @@ export default function EventCard({
           </div>
 
           <div className="space-y-2 text-sm text-slate-500 font-medium">
-            <p className="flex items-center gap-2">📅 {date}</p>
-            <p className="flex items-center gap-2">📍 <span className="truncate">{location}</span></p>
-            <p className="flex items-center gap-2">👤 {organizer}</p>
+            <p className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-blue-500" />
+              {date}
+            </p>
+            <p className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-blue-500" />
+              <span className="truncate">{location}</span>
+            </p>
+            <p className="flex items-center gap-2">
+              <User className="w-4 h-4 text-blue-500" />
+              {organizer}
+            </p>
           </div>
 
           <div className="flex gap-2 pt-2">
@@ -134,8 +144,8 @@ export default function EventCard({
             className="object-cover group-hover:scale-105 transition-transform duration-500" 
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-300 text-4xl">
-            🖼️
+          <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
+            <ImageOff size={40} strokeWidth={1.5} />
           </div>
         )}
       </div>
@@ -173,15 +183,15 @@ export default function EventCard({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-slate-500 font-medium">
             <p className="flex items-center gap-2">
-              <span className="text-lg">📅</span>
+              <Calendar className="w-4 h-4 text-blue-500" />
               {date}
             </p>
             <p className="flex items-center gap-2">
-              <span className="text-lg">📍</span>
+              <MapPin className="w-4 h-4 text-blue-500" />
               {location}
             </p>
             <p className="flex items-center gap-2">
-              <span className="text-lg">👤</span>
+              <User className="w-4 h-4 text-blue-500" />
               {organizer}
             </p>
           </div>
@@ -199,7 +209,7 @@ export default function EventCard({
                 : 'bg-slate-50 text-slate-300 hover:text-yellow-500 border border-slate-100 hover:border-yellow-100'
             }`}
           >
-            ⭐
+            <Star className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
           </button>
         </div>
 

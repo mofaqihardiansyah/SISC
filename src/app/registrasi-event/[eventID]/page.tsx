@@ -34,7 +34,7 @@ export default async function RegistrasiEventPage({
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       {/* Main Content memanggil Client Component Form */}
-      <main className="mx-auto mt-12 max-w-4xl px-4">
+      <main className="mx-auto mt-12 max-w-4xl px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Teruskan eventID hasil await ke component FormRegistrasi */}
         <FormRegistrasi eventId={eventID} dataEvent={dataEvent} />
       </main>

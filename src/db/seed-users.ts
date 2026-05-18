@@ -3,7 +3,7 @@ import { db } from './index';
 import { users } from './schema';
 import bcrypt from 'bcryptjs';
 
-async function seedUsers() {
+export async function seedUsers() {
   console.log("🚀 Memulai proses seeding user...");
   
   const userData = [
@@ -112,10 +112,5 @@ async function seedUsers() {
   }
 
   console.log("✅ Berhasil seed users!");
-  process.exit(0);
 }
 
-seedUsers().catch((err) => {
-  console.error("❌ Error seeding users:", err);
-  process.exit(1);
-});

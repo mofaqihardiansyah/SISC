@@ -1,7 +1,7 @@
 import { db } from "./index";
 import { kategori } from "./schema";
 
-async function main() {
+export async function seedKategori() {
   const data = [
     {
       "id": 1,
@@ -74,10 +74,4 @@ async function main() {
     });
   }
   console.log("✅ 10 Kategori updated!");
-  process.exit(0);
-}
-
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+}

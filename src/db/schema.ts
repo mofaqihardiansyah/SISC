@@ -1,11 +1,16 @@
-import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey, pgEnum, index } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey, pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const eventStatusEnum = pgEnum('event_status', ['pending', 'published', 'rejected']);
 export const jenisEventEnum = pgEnum('jenis_event', ['seminar', 'conference']);
 export const tipePlatformEnum = pgEnum('tipe_platform', ['online', 'offline', 'hybrid']);
 export const tipeHargaEnum = pgEnum('tipe_harga', ['free', 'paid']);
+export const paperStatusEnum = pgEnum('paper_status', ['review', 'accepted', 'rejected']);
+export const userRoleEnum = pgEnum('user_role', ['admin', 'organizer', 'visitor']);
+export const pendaftaranStatusEnum = pgEnum('pendaftaran_status', ['terdaftar', 'dibatalkan', 'hadir']);
+export const jenisKelaminEnum = pgEnum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
 
+// 1. USERS
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   namaLengkap: varchar('nama_lengkap', { length: 255 }),
@@ -15,9 +20,9 @@ export const users = pgTable('users', {
   password: varchar('password', { length: 255 }),
   emailVerified: timestamp('email_verified'),
   tanggalLahir: timestamp('tanggal_lahir'),
-  jenisKelamin: varchar('jenis_kelamin', { length: 20 }),
+  jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
   nik: varchar('nik', { length: 16 }),
-  role: varchar('role', { length: 50 }),
+  role: userRoleEnum('role').default('visitor'),
   isTerverifikasi: boolean('is_terverifikasi').default(false),
   avatarUrl: varchar('avatar_url', { length: 512 }).default("/uploads/avatars/fotodummy.jpg"),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
@@ -25,6 +30,7 @@ export const users = pgTable('users', {
   dihapusPada: timestamp('dihapus_pada'),
 });
 
+// 2. OTP CODES
 export const otpCodes = pgTable('otp_codes', {
   id: serial('id').primaryKey(),
   email: varchar('email').notNull(),
@@ -33,6 +39,7 @@ export const otpCodes = pgTable('otp_codes', {
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
+// 3. PROFIL PENYELENGGARA
 export const profilPenyelenggara = pgTable('profil_penyelenggara', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id).unique(),
@@ -44,29 +51,34 @@ export const profilPenyelenggara = pgTable('profil_penyelenggara', {
   diperbaruiPada: timestamp('diperbarui_pada'),
 });
 
+// 4. PROVINSI
 export const provinsi = pgTable('provinsi', {
   id: serial('id').primaryKey(),
   nama: varchar('nama', { length: 100 }).unique(),
 });
 
+// 5. KOTA
 export const kota = pgTable('kota', {
   id: serial('id').primaryKey(),
   provinsiId: integer('provinsi_id').references(() => provinsi.id),
   nama: varchar('nama', { length: 100 }),
 });
 
+// 6. KATEGORI
 export const kategori = pgTable('kategori', {
   id: serial('id').primaryKey(),
-  nama: varchar('nama', { length: 100 }), // IT, Medis, Ekonomi, dll
+  nama: varchar('nama', { length: 100 }),
   slug: varchar('slug', { length: 100 }).unique(),
   iconUrl: varchar('icon_url', { length: 512 }),
 });
 
+// 7. TAG
 export const tag = pgTable('tag', {
   id: serial('id').primaryKey(),
-  nama: varchar('nama', { length: 100 }).unique(), // #NextJS, #Webinar, dll
+  nama: varchar('nama', { length: 100 }).unique(),
 });
 
+// 8. EVENT TAG (Many-to-Many Bridge)
 export const eventTag = pgTable('event_tag', {
   eventId: integer('event_id').notNull().references(() => event.id),
   tagId: integer('tag_id').notNull().references(() => tag.id),
@@ -74,6 +86,7 @@ export const eventTag = pgTable('event_tag', {
   pk: primaryKey({ columns: [t.eventId, t.tagId] }),
 }));
 
+// 9. EVENT
 export const event = pgTable('event', {
   id: serial('id').primaryKey(),
   organizerId: integer('organizer_id').references(() => users.id),
@@ -84,44 +97,31 @@ export const event = pgTable('event', {
   deskripsi: text('deskripsi'),
   syaratDanKetentuan: text('syarat_dan_ketentuan'),
   bannerUrl: varchar('banner_url', { length: 512 }), 
-  
-  // Penambahan kolom penyelenggara untuk instansi Polines
   penyelenggara: varchar('penyelenggara', { length: 255 }), 
-  
   tanggalMulai: timestamp('tanggal_mulai').notNull(),
   tanggalSelesai: timestamp('tanggal_selesai'),
   batasRegistrasi: timestamp('batas_registrasi'),
-  
-  // Event Classification
   isEventPolines: boolean('is_event_polines').default(false),
-  jenisEvent: jenisEventEnum('jenis_event'), // 'seminar', 'conference'
-  tipePlatform: tipePlatformEnum('tipe_platform'), // 'online', 'offline', 'hybrid'
-  tipeHarga: tipeHargaEnum('tipe_harga'), // 'free', 'paid'
+  jenisEvent: jenisEventEnum('jenis_event'),
+  tipePlatform: tipePlatformEnum('tipe_platform'),
+  tipeHarga: tipeHargaEnum('tipe_harga'),
   harga: integer('harga').default(0), 
   detailLokasi: text('detail_lokasi'), 
   linkEksternal: varchar('link_eksternal', { length: 512 }), 
-  
-  // Contact Info
   namaKontak: varchar('nama_kontak', { length: 255 }),
   emailKontak: varchar('email_kontak', { length: 255 }),
   teleponKontak: varchar('telepon_kontak', { length: 20 }),
-  
-  // Registration Settings
   kuota: integer('kuota'), 
   maksTiketPerTransaksi: integer('maks_tiket_per_transaksi'),
   satuAkunSatuTransaksi: boolean('satu_akun_satu_transaksi').default(false),
-  
-  status: eventStatusEnum('status').default('pending'), // pending, published, rejected
+  status: eventStatusEnum('status').default('pending'),
   hasilScraping: boolean('hasil_scraping').default(false),
   websiteSumber: varchar('website_sumber', { length: 255 }), 
   jumlahTayangan: integer('jumlah_tayangan').default(0),
   alasanPenolakan: text('alasan_penolakan'),
-  
-  // Fields Pembicara (Pindahan dari tabel pembicara_event)
   namaPembicara: varchar('nama_pembicara', { length: 255 }),
   peranPembicara: varchar('peran_pembicara', { length: 100 }),
   fotoPembicaraUrl: varchar('foto_pembicara_url', { length: 512 }),
-
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),
@@ -131,40 +131,47 @@ export const event = pgTable('event', {
   statusIdx: index('status_idx').on(table.status),
 }));
 
+// 10. LAMPIRAN EVENT
 export const lampiranEvent = pgTable('lampiran_event', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
   fileUrl: varchar('file_url', { length: 512 }),
-  tipeFile: varchar('tipe_file', { length: 50 }), // image, pdf
+  tipeFile: varchar('tipe_file', { length: 50 }),
 });
 
+// 11. BOOKMARK
 export const bookmark = pgTable('bookmark', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
   eventId: integer('event_id').references(() => event.id),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
-});
+}, (t) => ({
+  unq: uniqueIndex('bookmark_user_event_idx').on(t.userId, t.eventId),
+}));
 
+// 12. LOG ADMIN
 export const logAdmin = pgTable('log_admin', {
   id: serial('id').primaryKey(),
   adminId: integer('admin_id').references(() => users.id),
   eventId: integer('event_id').references(() => event.id),
-  aksi: varchar('aksi', { length: 100 }), // approved, rejected, edited
+  aksi: varchar('aksi', { length: 100 }), 
   dataSebelumnya: jsonb('data_sebelumnya'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
+// 13. PENDAFTARAN
 export const pendaftaran = pgTable('pendaftaran', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
   userId: integer('user_id').references(() => users.id),
   kodePendaftaran: varchar('kode_pendaftaran', { length: 50 }).unique(),
-  status: varchar('status', { length: 50 }).default('terdaftar'), // terdaftar, dibatalkan, hadir
+  status: pendaftaranStatusEnum('status').default('terdaftar'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),
 });
 
+// 14. PESERTA
 export const peserta = pgTable('peserta', {
   id: serial('id').primaryKey(),
   pendaftaranId: integer('pendaftaran_id').references(() => pendaftaran.id),
@@ -172,11 +179,12 @@ export const peserta = pgTable('peserta', {
   namaLengkap: varchar('nama_lengkap', { length: 255 }),
   email: varchar('email', { length: 255 }),
   nomorTelepon: varchar('nomor_telepon', { length: 20 }),
-  jenisKelamin: varchar('jenis_kelamin', { length: 20 }),
+  jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
   sudahCheckIn: boolean('sudah_check_in').default(false),
   waktuCheckIn: timestamp('waktu_check_in'),
 });
 
+// 15. PAPER SUBMISSION
 export const paperSubmission = pgTable('paper_submission', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id).notNull(),
@@ -184,12 +192,13 @@ export const paperSubmission = pgTable('paper_submission', {
   judul: varchar('judul', { length: 255 }).notNull(),
   penulis: text('penulis').notNull(),
   fileUrl: varchar('file_url', { length: 512 }).notNull(),
-  status: varchar('status', { length: 50 }).default('review'), // review, accepted, rejected
+  status: paperStatusEnum('status').default('review'),
   komentarPenolakan: text('komentar_penolakan'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
 });
 
+// 16. JADWAL EVENT
 export const jadwalEvent = pgTable('jadwal_event', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
@@ -198,7 +207,7 @@ export const jadwalEvent = pgTable('jadwal_event', {
   deskripsi: text('deskripsi'), 
 });
 
-// RELATIONS
+// RELATIONS DEFINITIONS
 export const usersRelations = relations(users, ({ one, many }) => ({
   profilPenyelenggara: one(profilPenyelenggara, {
     fields: [users.id],

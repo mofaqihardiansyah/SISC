@@ -62,12 +62,10 @@ export const authConfig = {
         return true;
       }
 
-      // 4. Root Path Redirection (Jika sudah login, arahkan ke dashboard masing-masing)
-      if (path === "/") {
-        if (isLoggedIn) {
-          if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
-          if (userRole === 'organizer') return Response.redirect(new URL("/penyelenggara", nextUrl));
-        }
+      // 4. Registration Protection
+      if (path.startsWith("/registrasi-event")) {
+        if (!isLoggedIn) return false;
+        return true;
       }
 
       return true;

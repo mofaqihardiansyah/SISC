@@ -3,6 +3,7 @@ import { event } from "@/db/schema";
 import { eq, ne, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
+import { auth } from "@/auth";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -23,7 +24,6 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
           profilPenyelenggara: true,
         },
       },
-      pembicara: true,
       kota: {
         with: {
           provinsi: true,
@@ -37,19 +37,21 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   // Ambil event terkait
   const eventTerkait = await db.query.event.findMany({
     where: ne(event.id, eventId),
-    limit: 3,
+    limit: 4,
     orderBy: [desc(event.jumlahTayangan)],
     with: {
       organizer: true,
       kategori: true,
+      kota: true,
     },
   });
 
   // Nama pembicara
-  const namaPembicara =
-    eventData.pembicara.length > 0
-      ? eventData.pembicara.map((p) => `${p.nama} (${p.peran})`).join(", ")
-      : null;
+  const namaPembicara = eventData.namaPembicara
+    ? `${eventData.namaPembicara}${
+        eventData.peranPembicara ? ` (${eventData.peranPembicara})` : ""
+      }`
+    : null;
 
   // Nama penyelenggara
   const namaPenyelenggara =
@@ -80,6 +82,10 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     penyelenggara: namaPenyelenggara,
     gambar: eventData.bannerUrl ?? null,
     tipePlatform: eventData.tipePlatform ?? "offline",
+    isEventPolines: eventData.isEventPolines,
+    hasilScraping: eventData.hasilScraping,
+    websiteSumber: eventData.websiteSumber,
+    linkEksternal: eventData.linkEksternal,
     loket: [],
     langkahPendaftaran: [
       "Klik <strong>Daftar</strong> untuk mengisi data diri awal",
@@ -98,20 +104,27 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
           "Dengan melakukan registrasi ini, peserta sudah dianggap memahami seluruh syarat dan ketentuan.",
         ],
     eventTerkait: eventTerkait.map((ev) => ({
-      id: ev.id,
-      nama: ev.judul ?? "Tanpa Judul",
-      tanggal: ev.tanggalMulai
+      id: ev.id.toString(),
+      title: ev.judul ?? "Tanpa Judul",
+      date: ev.tanggalMulai
         ? new Intl.DateTimeFormat("id-ID", {
             day: "numeric",
             month: "long",
             year: "numeric",
           }).format(new Date(ev.tanggalMulai))
         : "TBA",
-      harga: ev.harga,
-      penyelenggara: ev.organizer?.namaLengkap ?? "Panitia",
-      gambar: ev.bannerUrl ?? "",
+      price: ev.harga,
+      category: ev.kategori?.nama ?? "Umum",
+      type: ev.isEventPolines ? "POLINES" : "UMUM" as "POLINES" | "UMUM",
+      imageUrl: ev.bannerUrl ?? "",
+      tipePlatform: ev.tipePlatform ?? "offline",
+      kotaNama: ev.kota?.nama ?? "-",
+      kategoriNama: ev.kategori?.nama ?? "Umum",
     })),
   };
 
- return <DetailEvent event={eventFormatted} />;
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
+  return <DetailEvent event={eventFormatted} isLoggedIn={isLoggedIn} />;
 }

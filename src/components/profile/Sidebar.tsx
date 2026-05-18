@@ -9,7 +9,8 @@ import {
   Bookmark, 
   LibraryBig,
   Info, 
-  HelpCircle
+  HelpCircle,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
