@@ -82,6 +82,10 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     penyelenggara: namaPenyelenggara,
     gambar: eventData.bannerUrl ?? null,
     tipePlatform: eventData.tipePlatform ?? "offline",
+    isEventPolines: eventData.isEventPolines,
+    hasilScraping: eventData.hasilScraping,
+    websiteSumber: eventData.websiteSumber,
+    linkEksternal: eventData.linkEksternal,
     loket: [],
     langkahPendaftaran: [
       "Klik <strong>Daftar</strong> untuk mengisi data diri awal",

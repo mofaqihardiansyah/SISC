@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import EventCard from "@/components/shared/EventCard";
+import { Globe, Shuffle, MapPin, Calendar, Tag, Tent, ClipboardList, Ticket, ScrollText, User } from "lucide-react";
 
 // ============================================================
 // TIPE DATA
@@ -40,6 +41,10 @@ interface DetailEventProps {
     penyelenggara: string;
     gambar: string | null;
     tipePlatform: string;
+    isEventPolines: boolean | null;
+    hasilScraping: boolean | null;
+    websiteSumber: string | null;
+    linkEksternal: string | null;
     loket: LoketTiket[];
     langkahPendaftaran: string[];
     syaratKetentuan: string[];
@@ -148,6 +153,44 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
   };
 
   const { teks, materi } = parseDeskripsi(event.deskripsi);
+
+  // ── Menentukan URL dan label pendaftaran berdasarkan jenis event ──
+  let urlPendaftaran = `/registrasi-event/${event.id}`;
+  let isExternalUrl = false;
+
+  if (event.isEventPolines) {
+    // Event Polines selalu menggunakan registrasi sistem
+    urlPendaftaran = `/registrasi-event/${event.id}`;
+  } else if (event.hasilScraping) {
+    // Event hasil scraping diarahkan ke website sumber atau link eksternal
+    urlPendaftaran = event.websiteSumber || event.linkEksternal || "#";
+    isExternalUrl = true;
+  } else if (event.linkEksternal) {
+    // Event umum yang tidak butuh registrasi sistem diarahkan ke link eksternalnya
+    urlPendaftaran = event.linkEksternal;
+    isExternalUrl = true;
+  }
+
+  const renderTombolDaftar = () => {
+    if (isExternalUrl) {
+      return (
+        <a 
+          href={urlPendaftaran} 
+          className="btn-daftar"
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+          Kunjungi Website
+        </a>
+      );
+    }
+    
+    return (
+      <a href={urlPendaftaran} className="btn-daftar">
+        {isLoggedIn ? "Daftar" : "Login untuk Daftar"}
+      </a>
+    );
+  };
 
   const navItems: { id: SectionId; label: string }[] = [
     { id: "deskripsi", label: "Deskripsi" },
@@ -565,10 +608,10 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             <div className="hero-meta">
               <span className="hero-meta-item">
                 {event.tipePlatform === "online"
-                  ? "🌐"
+                  ? <Globe size={18} />
                   : event.tipePlatform === "hybrid"
-                  ? "🔀"
-                  : "📍"}{" "}
+                  ? <Shuffle size={18} />
+                  : <MapPin size={18} />}{" "}
                 <strong>
                   {event.tipePlatform === "online"
                     ? "Online"
@@ -579,16 +622,16 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
                 </strong>
               </span>
               <span className="hero-meta-item">
-                📅 {formatTanggal(event.tanggal)}
+                <Calendar size={18} /> {formatTanggal(event.tanggal)}
               </span>
-              <span className="hero-meta-item">🏷️ {event.kategori}</span>
+              <span className="hero-meta-item"><Tag size={18} /> {event.kategori}</span>
             </div>
           </div>
           <div className="hero-right">
             {event.gambar ? (
               <img src={event.gambar} alt={event.nama} className="hero-img" />
             ) : (
-              <div className="hero-img-placeholder">🎪</div>
+              <div className="hero-img-placeholder"><Tent size={48} className="text-slate-400" /></div>
             )}
           </div>
         </div>
@@ -660,7 +703,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
 
             <div className="section-card">
               <div className="section-header">
-                <span className="section-icon">📋</span>
+                <span className="section-icon"><ClipboardList size={22} /></span>
                 <h3 className="section-title">Langkah Pendaftaran</h3>
               </div>
               <ol className="langkah-list">
@@ -676,7 +719,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             {event.loket.length > 0 && (
               <div className="section-card">
                 <div className="section-header">
-                  <span className="section-icon">🎟️</span>
+                  <span className="section-icon"><Ticket size={22} /></span>
                   <h3 className="section-title">Loket Platform</h3>
                 </div>
                 <p className="loket-subtitle">
@@ -709,7 +752,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             <h2 className="section-heading">Syarat dan Ketentuan</h2>
             <div className="section-card">
               <div className="section-header">
-                <span className="section-icon">📜</span>
+                <span className="section-icon"><ScrollText size={22} /></span>
                 <h3 className="section-title">Ketentuan Peserta</h3>
               </div>
               <ol className="syarat-list">
@@ -728,12 +771,10 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
           <div className="sidebar-card">
             <p className="sidebar-harga-label">Harga mulai dari</p>
             <p className="sidebar-harga">{formatRupiah(event.harga)}</p>
-            <a href={`/registrasi-event/${event.id}`} className="btn-daftar">
-              {isLoggedIn ? "Daftar" : "Login untuk Daftar"}
-            </a>
+            {renderTombolDaftar()}
             <hr className="sidebar-divider" />
             <div className="sidebar-penyelenggara">
-              <div className="penyelenggara-avatar">👤</div>
+              <div className="penyelenggara-avatar"><User size={20} className="text-slate-500" /></div>
               <div>
                 <p className="penyelenggara-label">Diselenggarakan oleh</p>
                 <p className="penyelenggara-nama">{event.penyelenggara}</p>
