@@ -114,7 +114,7 @@ async function main() {
         namaLengkap: p.namaLengkap,
         email: p.email,
         nomorTelepon: p.nomorTelepon,
-        jenisKelamin: p.jenisKelamin,
+        jenisKelamin: p.jenisKelamin as "Laki-laki" | "Perempuan",
         sudahCheckIn: p.sudahCheckIn || false,
         waktuCheckIn: p.sudahCheckIn ? new Date() : null,
       });

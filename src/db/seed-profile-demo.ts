@@ -104,7 +104,12 @@ async function seedProfileDemo() {
   for (const p of papers) {
     await db.insert(paperSubmission).values({
       userId,
-      ...p
+      eventId: p.eventId,
+      judul: p.judul,
+      penulis: p.penulis,
+      fileUrl: p.fileUrl,
+      status: p.status as "review" | "accepted" | "rejected",
+      komentarPenolakan: p.komentarPenolakan,
     });
   }
 

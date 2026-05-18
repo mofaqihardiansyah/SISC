@@ -19,11 +19,16 @@ interface DataEvent {
 
 export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string; dataEvent: DataEvent }) {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    nama_lengkap: string;
+    email: string;
+    nomor_telepon: string;
+    jenis_kelamin: "Laki-laki" | "Perempuan";
+  }>({
     nama_lengkap: '',
     email: '',
     nomor_telepon: '',
-    jenis_kelamin: 'pria'
+    jenis_kelamin: 'Laki-laki'
   });
 
   const handleSimpanData = async () => {
@@ -99,11 +104,11 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
                   <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Jenis Kelamin</Label>
                   <select 
                     value={formData.jenis_kelamin}
-                    onChange={(e) => setFormData({...formData, jenis_kelamin: e.target.value})}
+                    onChange={(e) => setFormData({...formData, jenis_kelamin: e.target.value as "Laki-laki" | "Perempuan"})}
                     className="flex h-12 w-full rounded-md border-none bg-gray-50 px-3 py-2 text-sm outline-none"
                   >
-                    <option value="pria">Pria</option>
-                    <option value="wanita">Wanita</option>
+                    <option value="Laki-laki">Pria</option>
+                    <option value="Perempuan">Wanita</option>
                   </select>
                 </div>
               </div>

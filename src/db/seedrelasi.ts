@@ -7,14 +7,21 @@ async function seedRelasi() {
       { userId: 1, eventId: 1 },
       { userId: 1, eventId: 2 }
     ]);
+    console.log('Data favorit berhasil ditambahkan');
 
     await db.insert(pendaftaran).values([
-      { userId: 1, eventId: 1, statusKehadiran: 'Terdaftar' }
+      { 
+        userId: 1, 
+        eventId: 1, 
+        status: 'terdaftar'
+      }
     ]);
+    console.log('Data pendaftaran berhasil ditambahkan');
 
-    console.log('Data relasi favorit dan pendaftaran berhasil dimasukkan');
   } catch (error) {
-    console.error('Gagal mengisi data relasi database');
+    console.error('Gagal menambahkan data relasi:', error);
+  } finally {
+    process.exit(0);
   }
 }
 
