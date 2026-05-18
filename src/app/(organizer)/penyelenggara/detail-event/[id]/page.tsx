@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/penyelenggara/detail-event/Header";
 import Sidebar from "@/components/penyelenggara/detail-event/Sidebar";
 import Content from "@/components/penyelenggara/detail-event/Content";
+import SetMainOverflow from "@/components/penyelenggara/detail-event/SetMainOverflow";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -29,33 +30,30 @@ export default async function DetailEventPage({ params }: Props) {
   if (!detailEvent) notFound();
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[#F8FAFC]">
+  <>
+    <SetMainOverflow />
+    <div className="flex flex-col h-full bg-[#F8FAFC]">
 
-  {/* HEADER — flex-shrink-0 sudah benar, tidak akan scroll */}
-  <div className="flex-shrink-0 px-8 pt-2 pb-6">
-    <Header event={detailEvent} />
-  </div>
-
-  {/* BODY */}
-  <div className="flex-1 min-h-0 overflow-hidden px-8 pb-8">
-    <div className="grid grid-cols-[240px_1fr] gap-8 h-full min-h-0">
-
-      {/* SIDEBAR */}
-      <div className="sticky top-0 self-start">
-        <Sidebar />
+      {/* HEADER — diam */}
+      <div className="flex-shrink-0 pb-3">
+        <Header event={detailEvent} />
       </div>
 
-      {/* CONTENT SCROLL — tambahkan data-scroll */}
-      <div
-  id="detail-scroll"
-  style={{ minHeight: 0 }}
-  className="overflow-y-auto pr-2"
->
-  <Content event={detailEvent} />
-</div>
+      {/* BODY */}
+      <div className="flex flex-1 gap-4 min-h-0">
 
+        {/* SIDEBAR — diam */}
+        <div className="w-[200px] flex-shrink-0">
+          <Sidebar />
+        </div>
+
+        {/* CONTENT — satu-satunya yang scroll */}
+        <div className="flex-1 overflow-y-auto pb-8 min-w-0" id="detail-scroll">
+          <Content event={detailEvent} />
+        </div>
+
+      </div>
     </div>
-  </div>
-</div>
-  );
+  </>
+);
 }

@@ -13,9 +13,9 @@ export default function OrganizerLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
 
-        <main className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto h-0 px-4 md:px-6 lg:px-8">
+  {children}
+</main>
       </div>
     </div>
   );

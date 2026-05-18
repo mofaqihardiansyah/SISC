@@ -4,33 +4,33 @@ import { useEffect, useState, useRef } from "react";
 import clsx from "clsx";
 
 const menus = [
-  { id: "deskripsi", label: "Deskripsi" },
-  { id: "pendaftaran", label: "Pendaftaran" },
-  { id: "syarat", label: "Syarat & Ketentuan" },
+  { id: "tipe-event",       label: "Tipe Event" },
+  { id: "detail-umum",      label: "Detail Umum" },
+  { id: "deskripsi-poster", label: "Deskripsi & Poster" },
+  { id: "syarat",           label: "Syarat & Ketentuan" },
+  { id: "jadwal-kuota",     label: "Jadwal & Kuota" },
+  { id: "link-pendaftaran", label: "Link Pendaftaran" },
 ];
 
 export default function Sidebar() {
-  const [activeSection, setActiveSection] = useState("deskripsi");
-  const isclicking = useRef(false); // ← cegah scroll event saat klik
+  const [activeSection, setActiveSection] = useState("tipe-event");
+  const isClicking = useRef(false);
 
   const scrollToSection = (id: string) => {
     const container = document.getElementById("detail-scroll") as HTMLElement;
     const section = document.getElementById(id);
     if (!container || !section) return;
 
-    isclicking.current = true;
-    setActiveSection(id); // langsung set aktif saat diklik
+    isClicking.current = true;
+    setActiveSection(id);
 
-    const sectionRect = section.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
-    const offset = container.scrollTop + sectionRect.top - containerRect.top - 16;
+    const sectionRect = section.getBoundingClientRect();
+    const offset = sectionRect.top - containerRect.top + container.scrollTop - 12;
 
     container.scrollTo({ top: offset, behavior: "smooth" });
 
-    // Setelah animasi scroll selesai, baru aktifkan scroll-spy lagi
-    setTimeout(() => {
-      isclicking.current = false;
-    }, 800);
+    setTimeout(() => { isClicking.current = false; }, 800);
   };
 
   useEffect(() => {
@@ -38,46 +38,61 @@ export default function Sidebar() {
     if (!container) return;
 
     const handleScroll = () => {
-      if (isclicking.current) return; // skip saat sedang klik
+  if (isClicking.current) return;
 
-      const containerRect = container.getBoundingClientRect();
+  let current = menus[0].id;
+  const containerRect = container.getBoundingClientRect();
+  const containerBottom = container.scrollTop + container.clientHeight;
+  const contentHeight = container.scrollHeight;
 
-      for (let i = menus.length - 1; i >= 0; i--) {
-        const el = document.getElementById(menus[i].id);
-        if (!el) continue;
+  // Kalau scroll paling bawah → aktifkan menu terakhir
+  if (containerBottom >= contentHeight - 10) {
+    setActiveSection(menus[menus.length - 1].id);
+    return;
+  }
 
-        const elTop = el.getBoundingClientRect().top - containerRect.top;
+  // Kalau belum scroll sama sekali → aktifkan menu pertama
+  if (container.scrollTop === 0) {
+    setActiveSection(menus[0].id);
+    return;
+  }
 
-        if (elTop <= 50) {
-          setActiveSection(menus[i].id);
-          break;
-        }
-      }
-    };
+  for (const menu of menus) {
+    const el = document.getElementById(menu.id);
+    if (!el) continue;
+
+    const elRect = el.getBoundingClientRect();
+    const elTopRelative = elRect.top - containerRect.top;
+
+    if (elTopRelative <= containerRect.height / 2) {
+      current = menu.id;
+    }
+  }
+
+  setActiveSection(current);
+};
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <div className="sticky top-4 h-fit">
-      <div className="bg-white rounded-2xl border p-3">
-        <div className="flex flex-col gap-1">
-          {menus.map((menu) => (
-            <button
-              key={menu.id}
-              onClick={() => scrollToSection(menu.id)}
-              className={clsx(
-                "px-4 py-3 rounded-xl transition-all font-medium text-left w-full",
-                activeSection === menu.id
-                  ? "bg-[#13254C] text-white"
-                  : "hover:bg-gray-100 text-gray-600"
-              )}
-            >
-              {menu.label}
-            </button>
-          ))}
-        </div>
+    <div className="bg-white rounded-2xl border border-gray-200 p-2 h-fit">
+      <div className="flex flex-col gap-0.5">
+        {menus.map((menu) => (
+          <button
+            key={menu.id}
+            onClick={() => scrollToSection(menu.id)}
+            className={clsx(
+              "px-3 py-2 rounded-xl transition-all text-sm font-medium text-left w-full",
+              activeSection === menu.id
+                ? "bg-[#13254C] text-white"
+                : "hover:bg-gray-100 text-gray-600"
+            )}
+          >
+            {menu.label}
+          </button>
+        ))}
       </div>
     </div>
   );

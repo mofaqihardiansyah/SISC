@@ -1,29 +1,26 @@
 "use client";
 
-
 type Props = {
   event: any;
 };
 
 export default function Header({ event }: Props) {
   return (
-    <div data-header className="bg-[#13254C] rounded-3xl p-8 text-white shadow-lg">
-
-      <div className="flex items-center justify-between gap-10">
+    <div data-header className="bg-[#13254C] rounded-2xl px-6 py-4 text-white shadow-md">
+      <div className="flex items-center justify-between gap-6">
 
         {/* KIRI */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
 
-          <div className="inline-block bg-white/10 px-4 py-2 rounded-lg text-sm font-medium mb-5">
+          <div className="inline-block bg-white/10 px-3 py-1 rounded-md text-xs font-medium mb-3">
             {event.kategori?.nama ?? "Umum"}
           </div>
 
-          <h1 className="text-4xl font-bold mb-6 leading-tight">
+          <h1 className="text-2xl font-bold mb-3 leading-snug truncate">
             {event.judul}
           </h1>
 
-          <div className="space-y-3 text-white/85">
-
+          <div className="space-y-1.5 text-white/80 text-sm">
             <div className="flex items-center gap-2">
               <span>📍</span>
               <p>
@@ -54,30 +51,25 @@ export default function Header({ event }: Props) {
               <span>🏷️</span>
               <p>{event.kategori?.nama ?? "Umum"}</p>
             </div>
-
           </div>
-
         </div>
 
-        {/* KANAN */}
-        <div className="w-[320px] shrink-0">
-
+        {/* KANAN — gambar lebih kecil */}
+        <div className="w-[200px] shrink-0">
           {event.bannerUrl ? (
             <img
               src={event.bannerUrl}
               alt={event.judul}
-              className="rounded-2xl object-cover w-full h-[220px]"
+              className="rounded-xl object-cover w-full h-[130px]"
             />
           ) : (
-            <div className="rounded-2xl w-full h-[220px] bg-white/10 flex items-center justify-center text-6xl">
+            <div className="rounded-xl w-full h-[130px] bg-white/10 flex items-center justify-center text-4xl">
               🎪
             </div>
           )}
-
         </div>
 
       </div>
-
     </div>
   );
 }
