@@ -150,7 +150,7 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
               <li>Pada kolom catatan/berita transfer, disarankan mengetik format: <code className="bg-white px-1.5 py-0.5 rounded border text-blue-700 font-mono text-xs">Nama_IDEvent</code> untuk mempercepat proses verifikasi oleh panitia.</li>
               <li>Pastikan Anda menyimpan bukti transfer resmi berupa screenshot (m-banking/e-wallet) atau foto struk fisik yang terlihat jelas tulisannya (tidak blur).</li>
               <li>Unggah file bukti transfer tersebut pada area <span className="font-medium text-gray-800">Drag & Drop Bukti Pembayaran</span> yang telah disediakan di bagian bawah halaman ini.</li>
-              <li>Setelah menekan tombol "Simpan dan Selesai", data Anda akan divalidasi. Status pendaftaran dan e-ticket dapat dipantau secara berkala pada Dashboard menu <strong className="text-gray-900">'Eventku'</strong>.</li>
+              <li>Setelah menekan tombol &quot;Simpan dan Selesai&quot;, data Anda akan divalidasi. Status pendaftaran dan e-ticket dapat dipantau secara berkala pada Dashboard menu <strong className="text-gray-900">&apos;Eventku&apos;</strong>.</li>
             </ul>
           </div>
 
