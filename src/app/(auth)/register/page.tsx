@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
@@ -19,10 +19,14 @@ const visitorSchema = z.object({
   namaLengkap: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
   email: z.string().email('Email tidak valid'),
   nomorTelepon: z.string().min(10, 'Nomor telepon minimal 10 digit'),
+  tanggalLahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
+  jenisKelamin: z.enum(['Laki-laki', 'Perempuan'], { message: 'Pilih jenis kelamin' }),
+  institution: z.string().min(3, 'Institusi minimal 3 karakter'),
+  pekerjaan: z.string().min(3, 'Pekerjaan minimal 3 karakter'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
 });
 
-const organizerSchema = visitorSchema.extend({
+const organizerSchema = visitorSchema.omit({ institution: true, tanggalLahir: true, jenisKelamin: true, pekerjaan: true, namaLengkap: true }).extend({
   namaInstansi: z.string().min(3, 'Nama instansi minimal 3 karakter'),
   deskripsiInstansi: z.string().min(10, 'Deskripsi minimal 10 karakter'),
   dokumenLegalitasUrl: z.string().optional(),
@@ -32,7 +36,7 @@ type VisitorValues = z.infer<typeof visitorSchema>;
 type OrganizerValues = z.infer<typeof organizerSchema>;
 
 export default function RegisterPage() {
-  const [role, setRole] = React.useState('visitor');
+  const router = useRouter();
 
   const visitorForm = useForm<VisitorValues>({
     resolver: zodResolver(visitorSchema),
@@ -45,6 +49,11 @@ export default function RegisterPage() {
     }
   });
 
+  const currentDokumenUrl = useWatch({
+    control: organizerForm.control,
+    name: 'dokumenLegalitasUrl',
+  });
+
   const onVisitorSubmit = async (data: VisitorValues) => {
     const result = await registerUser(data, 'visitor');
     if (result.error) {
@@ -53,7 +62,7 @@ export default function RegisterPage() {
     }
     toast.success('Pendaftaran berhasil! Periksa email anda untuk kode OTP.');
     sessionStorage.setItem('temp_pass', data.password);
-    window.location.href = '/register/verify?email=' + encodeURIComponent(data.email);
+    router.push('/register/verify?email=' + encodeURIComponent(data.email));
   };
 
   const onOrganizerSubmit = async (data: OrganizerValues) => {
@@ -69,7 +78,7 @@ export default function RegisterPage() {
     }
     toast.success('Pendaftaran berhasil! Periksa email anda untuk kode OTP.');
     sessionStorage.setItem('temp_pass', data.password);
-    window.location.href = '/register/verify?email=' + encodeURIComponent(data.email);
+    router.push('/register/verify?email=' + encodeURIComponent(data.email));
   };
 
   return (
@@ -84,17 +93,17 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="visitor" className="w-full" onValueChange={setRole}>
+        <Tabs defaultValue="visitor" className="w-full">
           <TabsList variant="line" className="flex w-full bg-transparent p-0 border-b border-slate-200 mb-8 gap-0 h-12">
             <TabsTrigger 
               value="visitor" 
-              className="flex-1 px-0 py-3 text-slate-400 data-[active]:text-primary data-[active]:font-bold transition-all"
+              className="flex-1 px-0 py-3 text-slate-400 data-active:text-primary data-active:font-bold transition-all"
             >
               Pengunjung
             </TabsTrigger>
             <TabsTrigger 
               value="organizer" 
-              className="flex-1 px-0 py-3 text-slate-400 data-[active]:text-primary data-[active]:font-bold transition-all"
+              className="flex-1 px-0 py-3 text-slate-400 data-active:text-primary data-active:font-bold transition-all"
             >
               Penyelenggara
             </TabsTrigger>
@@ -132,17 +141,65 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('nomorTelepon')}
                   />
+                  {visitorForm.formState.errors.nomorTelepon && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.nomorTelepon.message}</p>}
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Tanggal Lahir</Label>
+                  <Input 
+                    type="date"
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...visitorForm.register('tanggalLahir')}
+                  />
+                  {visitorForm.formState.errors.tanggalLahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.tanggalLahir.message}</p>}
                 </div>
                 <div className="flex-1 space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
-                  <Input 
-                    type="password" 
-                    autoComplete="new-password"
-                    placeholder="Password Minimal 6 Karakter" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...visitorForm.register('password')}
-                  />
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Jenis Kelamin</Label>
+                  <select 
+                    className="flex h-12 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium ring-offset-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 transition-all"
+                    {...visitorForm.register('jenisKelamin')}
+                  >
+                    <option value="">Pilih Kelamin</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                  {visitorForm.formState.errors.jenisKelamin && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.jenisKelamin.message}</p>}
                 </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Institusi / Asal Instansi</Label>
+                  <Input 
+                    placeholder="Nama Sekolah/Kampus/Perusahaan"
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...visitorForm.register('institution')}
+                  />
+                  {visitorForm.formState.errors.institution && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.institution.message}</p>}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Pekerjaan</Label>
+                  <Input 
+                    placeholder="Contoh: Mahasiswa, Dosen, dll"
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...visitorForm.register('pekerjaan')}
+                  />
+                  {visitorForm.formState.errors.pekerjaan && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.pekerjaan.message}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
+                <Input 
+                  type="password" 
+                  autoComplete="new-password"
+                  placeholder="Password Minimal 6 Karakter" 
+                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                  {...visitorForm.register('password')}
+                />
+                {visitorForm.formState.errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.password.message}</p>}
               </div>
               <Button 
                 type="submit" 
@@ -156,36 +213,7 @@ export default function RegisterPage() {
 
           <TabsContent value="organizer">
             <form onSubmit={organizerForm.handleSubmit(onOrganizerSubmit)} className="space-y-4" autoComplete="off">
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Lengkap</Label>
-                <Input 
-                  placeholder="Nama Lengkap" 
-                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                  {...organizerForm.register('namaLengkap')}
-                />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1 space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Alamat Email</Label>
-                  <Input 
-                    type="email" 
-                    autoComplete="off"
-                    placeholder="Masukkan email anda" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...organizerForm.register('email')}
-                  />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
-                  <Input 
-                    type="password" 
-                    autoComplete="new-password"
-                    placeholder="Password Minimal 6 Karakter" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...organizerForm.register('password')}
-                  />
-                </div>
-              </div>
+
               <div className="flex gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Institusi</Label>
@@ -194,14 +222,7 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('namaInstansi')}
                   />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
-                  <Input 
-                    placeholder="Nomor Telepon" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...organizerForm.register('nomorTelepon')}
-                  />
+                  {organizerForm.formState.errors.namaInstansi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.namaInstansi.message}</p>}
                 </div>
               </div>
               <div className="space-y-2">
@@ -212,12 +233,50 @@ export default function RegisterPage() {
                   {...organizerForm.register('deskripsiInstansi')}
                 />
               </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Alamat Email</Label>
+                  <Input 
+                    type="email" 
+                    autoComplete="off"
+                    placeholder="Masukkan email anda" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...organizerForm.register('email')}
+                  />
+                  {organizerForm.formState.errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.email.message}</p>}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
+                  <Input 
+                    placeholder="Nomor Telepon" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...organizerForm.register('nomorTelepon')}
+                  />
+                  {organizerForm.formState.errors.nomorTelepon && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.nomorTelepon.message}</p>}
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
+                  <Input 
+                    type="password" 
+                    autoComplete="new-password"
+                    placeholder="Password Minimal 6 Karakter" 
+                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...organizerForm.register('password')}
+                  />
+                  {organizerForm.formState.errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.password.message}</p>}
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Dokumen Legalitas (PDF)</Label>
                 <FileUpload
                   type="document"
                   variant="button"
-                  currentUrl={organizerForm.watch('dokumenLegalitasUrl')}
+                  currentUrl={currentDokumenUrl}
                   onSuccess={(url) => {
                     organizerForm.setValue('dokumenLegalitasUrl', url);
                   }}
