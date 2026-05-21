@@ -50,11 +50,11 @@ function VerifyContent() {
         const role = (session?.user as { role?: string })?.role;
 
         if (role === 'admin') {
-          router.push('/admin/dashboard');
+          window.location.assign('/admin/dashboard');
         } else if (role === 'organizer') {
-          router.push('/penyelenggara');
+          window.location.assign('/penyelenggara');
         } else {
-          router.push('/');
+          window.location.assign('/');
         }
         return;
       }
@@ -79,12 +79,6 @@ function VerifyContent() {
 
   return (
     <AuthLayout leftTitle="Amankan akun anda dengan kode verifikasi.">
-      <div className="absolute top-8 left-8 flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-xl">P</span>
-        </div>
-        <span className="text-primary font-black text-xl tracking-tighter">POLIVENTS</span>
-      </div>
       <div className="space-y-8">
         <div>
           <h2 className="text-3xl font-heading font-black text-slate-900 mb-2 tracking-tight">
