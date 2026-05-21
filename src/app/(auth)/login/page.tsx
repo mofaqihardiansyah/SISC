@@ -10,7 +10,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { signIn, getSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -21,7 +20,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -61,14 +59,12 @@ export default function LoginPage() {
         toast.success('Berhasil masuk!');
         
         if (role === 'admin') {
-          router.push('/admin/dashboard');
+          window.location.assign('/admin/dashboard');
         } else if (role === 'organizer') {
-          router.push('/penyelenggara');
+          window.location.assign('/penyelenggara');
         } else {
-          router.push('/');
+          window.location.assign('/');
         }
-        
-        router.refresh();
       }
     } catch (error) {
       console.error('Login error:', error);

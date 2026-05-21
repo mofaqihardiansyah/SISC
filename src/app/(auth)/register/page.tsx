@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
@@ -14,11 +14,15 @@ import { toast } from 'sonner';
 import { registerUser } from '@/actions/auth';
 import { FileUpload } from '@/components/shared/FileUpload';
 import { FileText } from 'lucide-react';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const visitorSchema = z.object({
   namaLengkap: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
   email: z.string().email('Email tidak valid'),
-  nomorTelepon: z.string().min(10, 'Nomor telepon minimal 10 digit'),
+  nomorTelepon: z.string({ message: 'Nomor HP wajib diisi' }).min(1, 'Nomor HP wajib diisi').refine((val) => {
+    try { return isValidPhoneNumber(val); } catch { return false; }
+  }, 'Nomor telepon tidak valid untuk negara tersebut'),
   tanggalLahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
   jenisKelamin: z.enum(['Laki-laki', 'Perempuan'], { message: 'Pilih jenis kelamin' }),
   institution: z.string().min(3, 'Institusi minimal 3 karakter'),
@@ -83,6 +87,27 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout leftTitle="Bergabunglah dengan platform acara terbaik.">
+      <style>{`
+        .phone-input-custom { display: flex; align-items: center; }
+        .phone-input-custom .PhoneInputInput {
+          flex: 1;
+          height: 3rem;
+          padding: 0 1rem;
+          border-radius: 0.5rem;
+          border: 1px solid #e2e8f0;
+          background-color: #ffffff;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #0f172a;
+          outline: none;
+          transition: all 0.2s;
+        }
+        .phone-input-custom .PhoneInputInput:focus-visible {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 1px #2563eb;
+        }
+        .phone-input-custom .PhoneInputCountry { margin-right: 0.75rem; }
+      `}</style>
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-heading font-black text-slate-900 mb-1 tracking-tight">
@@ -136,10 +161,18 @@ export default function RegisterPage() {
               <div className="flex gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
-                  <Input 
-                    placeholder="Nomor Telepon" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...visitorForm.register('nomorTelepon')}
+                  <Controller
+                    name="nomorTelepon"
+                    control={visitorForm.control}
+                    render={({ field }) => (
+                      <PhoneInput
+                        {...field}
+                        international
+                        defaultCountry="ID"
+                        placeholder="Contoh: 812 3456 7890"
+                        className="phone-input-custom"
+                      />
+                    )}
                   />
                   {visitorForm.formState.errors.nomorTelepon && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.nomorTelepon.message}</p>}
                 </div>
@@ -248,10 +281,18 @@ export default function RegisterPage() {
                 </div>
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
-                  <Input 
-                    placeholder="Nomor Telepon" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...organizerForm.register('nomorTelepon')}
+                  <Controller
+                    name="nomorTelepon"
+                    control={organizerForm.control}
+                    render={({ field }) => (
+                      <PhoneInput
+                        {...field}
+                        international
+                        defaultCountry="ID"
+                        placeholder="Contoh: 812 3456 7890"
+                        className="phone-input-custom"
+                      />
+                    )}
                   />
                   {organizerForm.formState.errors.nomorTelepon && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.nomorTelepon.message}</p>}
                 </div>
