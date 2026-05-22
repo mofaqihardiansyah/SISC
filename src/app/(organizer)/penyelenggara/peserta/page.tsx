@@ -20,8 +20,6 @@ interface PesertaData {
     email: string;
     nomorTelepon: string;
     jenisKelamin: string | null;
-    sudahCheckIn: boolean;
-    waktuCheckIn: string | null;
   } | null;
 }
 
@@ -127,26 +125,46 @@ export default function InformasiPesertaPage() {
     }
   };
 
-  // ── Export CSV ───────────────────────────────────────────────
-  const exportCSV = () => {
-    const header = ["Nama", "Email", "No. HP", "Event", "Status", "Kode Pendaftaran", "Tanggal Daftar"];
-    const rows = pesertaList.map((p) => [
-      p.peserta?.namaLengkap ?? "-",
-      p.peserta?.email ?? "-",
-      p.peserta?.nomorTelepon ?? "-",
-      p.namaEvent,
-      STATUS_LABEL[p.status]?.label ?? p.status,
-      p.kodePendaftaran,
-      new Date(p.dibuatPada).toLocaleDateString("id-ID"),
-    ]);
-    const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "peserta.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+  // ── Export CSV (semua data, bukan hanya halaman saat ini) ───
+  const [exporting, setExporting] = useState(false);
+
+  const exportCSV = async () => {
+    setExporting(true);
+    try {
+      // Fetch semua data tanpa pagination untuk export
+      const params = new URLSearchParams({
+        search,
+        status: filterStatus,
+        page: "1",
+        perPage: "99999",
+      });
+      const res = await fetch(`/api/organizer/peserta?${params}`);
+      const json = await res.json();
+      const allData: PesertaData[] = json.data ?? [];
+
+      const header = ["Nama", "Email", "No. HP", "Event", "Status", "Kode Pendaftaran", "Tanggal Daftar"];
+      const rows = allData.map((p) => [
+        `"${p.peserta?.namaLengkap ?? "-"}"`,
+        `"${p.peserta?.email ?? "-"}"`,
+        `"${p.peserta?.nomorTelepon ?? "-"}"`,
+        `"${p.namaEvent}"`,
+        `"${STATUS_LABEL[p.status]?.label ?? p.status}"`,
+        `"${p.kodePendaftaran}"`,
+        `"${new Date(p.dibuatPada).toLocaleDateString("id-ID")}"`,
+      ]);
+      const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `peserta_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export CSV gagal:", err);
+    } finally {
+      setExporting(false);
+    }
   };
 
   // ── Pagination ───────────────────────────────────────────────
@@ -423,8 +441,9 @@ export default function InformasiPesertaPage() {
             <option value="hadir">Terverifikasi</option>
             <option value="dibatalkan">Ditolak</option>
           </select>
-          <button className="ip-btn-export" onClick={exportCSV}>
-            <Download size={14} /> Export CSV
+          <button className="ip-btn-export" onClick={exportCSV} disabled={exporting}>
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            {exporting ? "Mengekspor..." : "Export CSV"}
           </button>
         </div>
 

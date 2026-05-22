@@ -180,8 +180,6 @@ export const peserta = pgTable('peserta', {
   email: varchar('email', { length: 255 }),
   nomorTelepon: varchar('nomor_telepon', { length: 20 }),
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
-  sudahCheckIn: boolean('sudah_check_in').default(false),
-  waktuCheckIn: timestamp('waktu_check_in'),
 });
 
 // 15. PAPER SUBMISSION

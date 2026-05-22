@@ -91,8 +91,8 @@ export async function seedDummy() {
   // 8. PENDAFTARAN & PESERTA
   console.log("  📦 Pendaftaran & Peserta...");
   const pendaftarans = [
-    { eventId: 1, userId: 4, kodePendaftaran: "REG-1-001", status: "terdaftar", namaLengkap: "Dewi Anggraini", email: "dewi.anggraini@gmail.com", nomorTelepon: "082111222336", jenisKelamin: "Perempuan", kodePeserta: "P-1-001" },
-    { eventId: 1, userId: 5, kodePendaftaran: "REG-1-002", status: "hadir", namaLengkap: "Fajar Setiawan", email: "fajar.setiawan@gmail.com", nomorTelepon: "082111222337", jenisKelamin: "Laki-laki", kodePeserta: "P-1-002", sudahCheckIn: true },
+    { eventId: 1, userId: 4, kodePendaftaran: "REG-1-001", status: "terdaftar", namaLengkap: "Dewi Anggraini", email: "dewi.anggraini@gmail.com", nomorTelepon: "082111222336", jenisKelamin: "Perempuan" as const, kodePeserta: "P-1-001" },
+    { eventId: 1, userId: 5, kodePendaftaran: "REG-1-002", status: "hadir", namaLengkap: "Fajar Setiawan", email: "fajar.setiawan@gmail.com", nomorTelepon: "082111222337", jenisKelamin: "Laki-laki" as const, kodePeserta: "P-1-002" },
   ];
 
   for (const p of pendaftarans) {
@@ -115,8 +115,6 @@ export async function seedDummy() {
         email: p.email,
         nomorTelepon: p.nomorTelepon,
         jenisKelamin: p.jenisKelamin,
-        sudahCheckIn: p.sudahCheckIn || false,
-        waktuCheckIn: p.sudahCheckIn ? new Date() : null,
       });
     }
   }

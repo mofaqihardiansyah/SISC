@@ -71,8 +71,7 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
         nomorTelepon: formData.nomor_telepon,
         jenisKelamin: jenisKelaminMap[formData.jenis_kelamin] || "Laki-laki", 
         pendaftaranId: newPendaftaran.id, 
-        kodePeserta: `PES-${idEvent}-${idUser}-${Math.floor(Math.random() * 1000)}`, 
-        sudahCheckIn: false,
+        kodePeserta: `PES-${idEvent}-${idUser}-${Math.floor(Math.random() * 1000)}`,
       });
     });
 
