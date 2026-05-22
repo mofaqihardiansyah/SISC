@@ -20,8 +20,6 @@ interface PesertaData {
     email: string;
     nomorTelepon: string;
     jenisKelamin: string | null;
-    sudahCheckIn: boolean;
-    waktuCheckIn: string | null;
   } | null;
 }
 

@@ -85,8 +85,6 @@ export async function GET(req: NextRequest) {
             email: p.peserta[0].email,
             nomorTelepon: p.peserta[0].nomorTelepon,
             jenisKelamin: p.peserta[0].jenisKelamin,
-            sudahCheckIn: p.peserta[0].sudahCheckIn,
-            waktuCheckIn: p.peserta[0].waktuCheckIn,
           }
         : null,
     }));
@@ -131,17 +129,6 @@ export async function PATCH(req: NextRequest) {
         diperbaruiPada: new Date(),
       })
       .where(eq(pendaftaran.id, pendaftaranId));
-
-    // Kalau diverifikasi (hadir), update sudahCheckIn di tabel peserta
-    if (status === "hadir") {
-      await db
-        .update(peserta)
-        .set({
-          sudahCheckIn: true,
-          waktuCheckIn: new Date(),
-        })
-        .where(eq(peserta.pendaftaranId, pendaftaranId));
-    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
