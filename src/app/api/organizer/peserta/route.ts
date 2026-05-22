@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { pendaftaran, peserta, event, users } from "@/db/schema";
-import { eq, and, or, ilike, sql } from "drizzle-orm";
+import { pendaftaran, peserta, event } from "@/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 
 // ── GET: Ambil daftar peserta milik organizer yang login ──────
@@ -85,8 +85,6 @@ export async function GET(req: NextRequest) {
             email: p.peserta[0].email,
             nomorTelepon: p.peserta[0].nomorTelepon,
             jenisKelamin: p.peserta[0].jenisKelamin,
-            sudahCheckIn: p.peserta[0].sudahCheckIn,
-            waktuCheckIn: p.peserta[0].waktuCheckIn,
           }
         : null,
     }));
@@ -114,6 +112,12 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "pendaftaranId dan status wajib diisi" }, { status: 400 });
     }
 
+    // Validasi nilai status
+    const validStatuses = ["terdaftar", "hadir", "dibatalkan"];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json({ error: "Status tidak valid. Gunakan: terdaftar, hadir, atau dibatalkan" }, { status: 400 });
+    }
+
     // Pastikan pendaftaran ini milik event organizer yg login
     const data = await db.query.pendaftaran.findFirst({
       where: eq(pendaftaran.id, pendaftaranId),
@@ -132,16 +136,6 @@ export async function PATCH(req: NextRequest) {
       })
       .where(eq(pendaftaran.id, pendaftaranId));
 
-    // Kalau diverifikasi (hadir), update sudahCheckIn di tabel peserta
-    if (status === "hadir") {
-      await db
-        .update(peserta)
-        .set({
-          sudahCheckIn: true,
-          waktuCheckIn: new Date(),
-        })
-        .where(eq(peserta.pendaftaranId, pendaftaranId));
-    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

@@ -140,12 +140,20 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
       'detailLokasi', 'linkEksternal', 'namaKontak', 'emailKontak', 
       'teleponKontak', 'kuota', 'maksTiketPerTransaksi', 
       'satuAkunSatuTransaksi', 'status', 'namaPembicara', 
-      'peranPembicara', 'fotoPembicaraUrl'
+      'peranPembicara', 'fotoPembicaraUrl', 'bannerUrl',
+      'isEventPolines', 'websiteSumber'
     ];
 
     Object.keys(data).forEach(key => {
       if (validFields.includes(key)) {
         let value = data[key];
+        
+        // Convert boolean fields
+        if (['isEventPolines', 'satuAkunSatuTransaksi'].includes(key)) {
+          if (typeof value === 'string') {
+            value = value === 'true';
+          }
+        }
         
         // Convert to number if it should be an integer
         if (['harga', 'kuota', 'maksTiketPerTransaksi'].includes(key)) {
