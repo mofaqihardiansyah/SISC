@@ -93,6 +93,8 @@ export async function seedDummy() {
   const pendaftarans = [
     { eventId: 1, userId: 4, kodePendaftaran: "REG-1-001", status: "terdaftar", namaLengkap: "Dewi Anggraini", email: "dewi.anggraini@gmail.com", nomorTelepon: "082111222336", jenisKelamin: "Perempuan" as const, kodePeserta: "P-1-001" },
     { eventId: 1, userId: 5, kodePendaftaran: "REG-1-002", status: "hadir", namaLengkap: "Fajar Setiawan", email: "fajar.setiawan@gmail.com", nomorTelepon: "082111222337", jenisKelamin: "Laki-laki" as const, kodePeserta: "P-1-002" },
+    { eventId: 1, userId: 4, kodePendaftaran: "REG-1-001", status: "terdaftar", namaLengkap: "Dewi Anggraini", email: "dewi.anggraini@gmail.com", nomorTelepon: "082111222336", jenisKelamin: "Perempuan", kodePeserta: "P-1-001" },
+    { eventId: 1, userId: 5, kodePendaftaran: "REG-1-002", status: "hadir", namaLengkap: "Fajar Setiawan", email: "fajar.setiawan@gmail.com", nomorTelepon: "082111222337", jenisKelamin: "Laki-laki", kodePeserta: "P-1-002" },
   ];
 
   for (const p of pendaftarans) {
