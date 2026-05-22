@@ -343,3 +343,17 @@ export const jadwalEventRelations = relations(jadwalEvent, ({ one }) => ({
     references: [event.id],
   }),
 }));
+
+export const tayanganLog = pgTable('tayangan_log', {
+  eventId: integer('event_id').references(() => event.id),
+  tanggal: timestamp('tanggal').defaultNow().notNull(),
+}, (t) => ({
+  idx: index('tayangan_log_idx').on(t.eventId, t.tanggal),
+}));
+
+export const tayanganLogRelations = relations(tayanganLog, ({ one }) => ({
+  event: one(event, {
+    fields: [tayanganLog.eventId],
+    references: [event.id],
+  }),
+}));

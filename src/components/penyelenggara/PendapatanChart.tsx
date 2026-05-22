@@ -2,24 +2,19 @@
 
 import { useState, useEffect } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Area, AreaChart,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer,
 } from "recharts";
 
 type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
-interface DataPoint {
-  tanggal: string;
-  jumlah: number;
+interface PendapatanChartProps {
+  initialData: { tanggal: string; jumlah: number }[];
 }
 
-interface EventChartProps {
-  initialData: DataPoint[];
-}
-
-export function EventChart({ initialData }: EventChartProps) {
+export function PendapatanChart({ initialData }: PendapatanChartProps) {
   const [filter, setFilter] = useState<FilterType>("bulan-ini");
-  const [data, setData] = useState<DataPoint[]>(initialData);
+  const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -28,7 +23,7 @@ export function EventChart({ initialData }: EventChartProps) {
       return;
     }
     setLoading(true);
-    fetch(`/api/organizer/grafik?filter=${filter}`)
+    fetch(`/api/organizer/grafik-pendapatan?filter=${filter}`)
       .then(r => r.json())
       .then(setData)
       .finally(() => setLoading(false));
@@ -38,8 +33,8 @@ export function EventChart({ initialData }: EventChartProps) {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="text-lg font-bold text-gray-900">Grafik Peserta</h3>
-          <p className="text-sm text-gray-400">Data pendaftaran real-time</p>
+          <h3 className="text-lg font-bold text-gray-900">Grafik Pendapatan</h3>
+          <p className="text-sm text-gray-400">Data pendapatan real-time</p>
         </div>
         <select
           value={filter}
@@ -59,19 +54,17 @@ export function EventChart({ initialData }: EventChartProps) {
           </div>
         )}
         <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorPeserta" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+          <BarChart data={data} margin={{ left: 20, right: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={50} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-            <Tooltip formatter={(val) => [val, 'Pendaftar']} />
-            <Area type="monotone" dataKey="jumlah" stroke="#1E3A8A" fill="url(#colorPeserta)" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-          </AreaChart>
+            <YAxis
+              tick={{ fontSize: 11 }}
+              tickFormatter={(val) => `Rp ${Number(val).toLocaleString('id-ID')}`}
+              width={90}
+            />
+            <Tooltip formatter={(val) => [`Rp ${Number(val).toLocaleString('id-ID')}`, 'Pendapatan']} />
+            <Bar dataKey="jumlah" fill="#16a34a" radius={[4, 4, 0, 0]} maxBarSize={20} />
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>

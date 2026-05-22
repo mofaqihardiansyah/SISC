@@ -1,13 +1,15 @@
 import { StatCard } from "@/components/penyelenggara/stat-card";
-import { EventChart } from "@/components/penyelenggara/EventChart"; // ← tambah
-import { Users, Ticket, CalendarCheck } from "lucide-react";        // ← hapus TrendingUp
+import { EventChart } from "@/components/penyelenggara/EventChart";
+import { Ticket } from "lucide-react";
 import { db } from "@/db";
-import { event, peserta, pendaftaran } from "@/db/schema";
-import { count, eq, and, lt, gte, sql } from "drizzle-orm";         // ← tambah gte, sql
+import { event, peserta, pendaftaran, tayanganLog } from "@/db/schema";
+import { count, eq, and, lt, gte, sql, sum } from "drizzle-orm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { ViewChart } from "@/components/penyelenggara/ViewChart";
+import { PendapatanChart } from "@/components/penyelenggara/PendapatanChart";
 
 export default async function PenyelenggaraDashboard() {
   const session = await auth();
@@ -31,23 +33,106 @@ export default async function PenyelenggaraDashboard() {
   const [eventLaluResult] = await db
     .select({ total: count() })
     .from(event)
-    .where(and(eq(event.organizerId, userId), lt(event.tanggalSelesai, new Date())));
+    .where(eq(event.organizerId, userId));
 
-  // ← query grafik baru
-  const awalBulanIni = new Date();
-  awalBulanIni.setDate(1);
-  awalBulanIni.setHours(0, 0, 0, 0);
+  const [eventPendingResult] = await db
+    .select({ total: count() })
+    .from(event)
+    .where(and(eq(event.organizerId, userId), eq(event.status, "pending")));
 
-  const grafikData = await db
+  const [totalTayanganResult] = await db
+    .select({ total: sum(event.jumlahTayangan) })
+    .from(event)
+    .where(eq(event.organizerId, userId));
+
+  const [totalPendapatanResult] = await db
+    .select({ total: sum(event.harga) })
+    .from(pendaftaran)
+    .innerJoin(event, eq(pendaftaran.eventId, event.id))
+    .where(and(
+      eq(event.organizerId, userId),
+      eq(pendaftaran.status, "terdaftar")
+    ));
+
+  const today = new Date();
+  const tahun = today.getFullYear();
+  const bulan = today.getMonth();
+  const jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
+  const awalBulan = new Date(tahun, bulan, 1);
+
+  // Grafik Peserta
+  const rawData = await db
     .select({
-      tanggal: sql<string>`TO_CHAR(${pendaftaran.dibuatPada}, 'DD Mon')`,
+      tanggal: sql<string>`TO_CHAR(${pendaftaran.dibuatPada}, 'YYYY-MM-DD')`,
       jumlah: count(),
     })
     .from(pendaftaran)
     .innerJoin(event, eq(pendaftaran.eventId, event.id))
-    .where(and(eq(event.organizerId, userId), gte(pendaftaran.dibuatPada, awalBulanIni)))
-    .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'DD Mon')`)
-    .orderBy(sql`MIN(${pendaftaran.dibuatPada})`);
+    .where(and(eq(event.organizerId, userId), gte(pendaftaran.dibuatPada, awalBulan)))
+    .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'YYYY-MM-DD')`)
+    .orderBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'YYYY-MM-DD')`);
+
+  const dataMap = Object.fromEntries(rawData.map(r => [r.tanggal, r.jumlah]));
+
+  const grafikData = Array.from({ length: jumlahHari }, (_, i) => {
+    const d = new Date(tahun, bulan, i + 1);
+    const key = d.toISOString().split('T')[0];
+    const label = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    return { tanggal: label, jumlah: dataMap[key] ?? 0 };
+  });
+
+  // Grafik Pendapatan
+  const rawPendapatan = await db
+    .select({
+      tanggal: sql<string>`TO_CHAR(${pendaftaran.dibuatPada}, 'YYYY-MM-DD')`,
+      jumlah: sum(event.harga),
+    })
+    .from(pendaftaran)
+    .innerJoin(event, eq(pendaftaran.eventId, event.id))
+    .where(and(
+      eq(event.organizerId, userId),
+      eq(pendaftaran.status, "terdaftar"),
+      gte(pendaftaran.dibuatPada, awalBulan)
+    ))
+    .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'YYYY-MM-DD')`)
+    .orderBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'YYYY-MM-DD')`);
+
+  const pendapatanMap = Object.fromEntries(
+    rawPendapatan.map(r => [r.tanggal, Number(r.jumlah ?? 0)])
+  );
+
+  const grafikPendapatan = Array.from({ length: jumlahHari }, (_, i) => {
+    const d = new Date(tahun, bulan, i + 1);
+    const key = d.toISOString().split('T')[0];
+    const label = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    return { tanggal: label, jumlah: pendapatanMap[key] ?? 0 };
+  });
+
+  // Grafik Tayangan (dari tayanganLog)
+  const rawTayanganData = await db
+    .select({
+      tanggal: sql<string>`TO_CHAR(${tayanganLog.tanggal}, 'YYYY-MM-DD')`,
+      jumlah: count(),
+    })
+    .from(tayanganLog)
+    .innerJoin(event, eq(tayanganLog.eventId, event.id))
+    .where(and(
+      eq(event.organizerId, userId),
+      gte(tayanganLog.tanggal, awalBulan)
+    ))
+    .groupBy(sql`TO_CHAR(${tayanganLog.tanggal}, 'YYYY-MM-DD')`)
+    .orderBy(sql`TO_CHAR(${tayanganLog.tanggal}, 'YYYY-MM-DD')`);
+
+  const tayanganMap = Object.fromEntries(
+    rawTayanganData.map(r => [r.tanggal, Number(r.jumlah ?? 0)])
+  );
+
+  const grafikTayanganData = Array.from({ length: jumlahHari }, (_, i) => {
+    const d = new Date(tahun, bulan, i + 1);
+    const key = d.toISOString().split('T')[0];
+    const label = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    return { tanggal: label, jumlah: tayanganMap[key] ?? 0 };
+  });
 
   const recentEvents = await db.query.event.findMany({
     where: eq(event.organizerId, userId),
@@ -55,86 +140,109 @@ export default async function PenyelenggaraDashboard() {
     limit: 5,
   });
 
+  const pastEvents = await db.query.event.findMany({
+    where: and(
+      eq(event.organizerId, userId),
+      lt(event.tanggalSelesai, new Date())
+    ),
+    orderBy: (event, { desc }) => [desc(event.tanggalSelesai)],
+    limit: 5,
+  });
+
   return (
     <div className="space-y-8">
-      {/* STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard 
-          title="Total Peserta" 
-          value={totalPesertaResult.total.toLocaleString()} 
-          trend="+0%" 
-          icon={Users} 
-        />
-        <StatCard 
-          title="Event Aktif" 
-          value={eventAktifResult.total.toLocaleString()} 
-          trend="Real-time" 
-          icon={Ticket} 
-        />
-        <StatCard 
-          title="Total Event Lalu" 
-          value={eventLaluResult.total.toLocaleString()} 
-          icon={CalendarCheck} 
-        />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-stretch">
+        <StatCard title="Total Peserta" value={totalPesertaResult.total.toLocaleString()} trend="+0%" className="h-full" />
+        <StatCard title="Event Aktif" value={`${eventAktifResult.total.toLocaleString()} Event`} trend="Real-time" className="h-full" />
+        <StatCard title="Total Event" value={`${eventLaluResult.total.toLocaleString()} Event`} className="h-full" />
+        <StatCard title="Event Pending" value={`${eventPendingResult.total.toLocaleString()} Review`} className="h-full" />
+        <StatCard title="Total Tayangan" value={(totalTayanganResult.total ?? 0).toLocaleString()} className="h-full" />
+        <StatCard title="Total Pendapatan" value={`Rp ${Number(totalPendapatanResult?.total ?? 0).toLocaleString('id-ID')}`} className="h-full" />
       </div>
 
-      {/* CHART AREA */}
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 font-heading">Grafik Peserta Bulan Ini</h3>
-            <p className="text-sm text-gray-400 font-medium">Data pendaftaran real-time</p>
+      {/* GRAFIK PESERTA */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <EventChart initialData={grafikData} />
+      </div>
+
+      {/* GRAFIK PENDAPATAN + TAYANGAN */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <PendapatanChart initialData={grafikPendapatan} />
+        </div>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <ViewChart initialData={grafikTayanganData} />
+        </div>
+      </div>
+
+      {/* RECENT EVENTS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="text-base font-extrabold text-gray-900 mb-4">Event Terbaru</h3>
+          <div className="space-y-3">
+            {recentEvents.length > 0 ? recentEvents.map((ev) => (
+              <Link key={ev.id} href={`/penyelenggara/detail-event/${ev.id}`}
+                className="flex items-center justify-between p-3 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 overflow-hidden relative flex-shrink-0">
+                    {ev.bannerUrl ? (
+                      <Image src={ev.bannerUrl} alt={ev.judul || ""} fill className="object-cover" />
+                    ) : (
+                      <Ticket className="w-5 h-5" />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">{ev.judul}</h4>
+                    <p className="text-xs text-gray-400">
+                      {ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Tanggal belum diatur'}
+                    </p>
+                  </div>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase flex-shrink-0 ${ev.status === 'published' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'}`}>
+                  {ev.status}
+                </span>
+              </Link>
+            )) : (
+              <div className="text-center py-8">
+                <Ticket className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <p className="text-sm text-gray-400">Belum ada event.</p>
+              </div>
+            )}
           </div>
-          <select className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5 font-bold outline-none">
-            <option>Bulan Ini</option>
-            <option>Bulan Lalu</option>
-            <option>Tahun Ini</option>
-          </select>
         </div>
 
-        {/* CHART — ganti placeholder lama dengan ini */}
-        <div className="h-[300px] w-full">
-          {grafikData.length > 0 ? (
-            <EventChart data={grafikData} />
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center text-gray-300">
-              <p className="font-bold">Belum ada data pendaftaran bulan ini</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* RECENT EVENTS SECTION */}
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <h3 className="text-lg font-bold text-gray-900 font-heading mb-6">Event Terbaru Anda</h3>
-        <div className="space-y-4">
-          {recentEvents.length > 0 ? recentEvents.map((ev) => (
-  <Link key={ev.id} href={`/penyelenggara/detail-event/${ev.id}`} className="flex items-center justify-between p-4 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer">
-    <div className="flex items-center gap-4">
-      <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden relative">
-        {ev.bannerUrl ? (
-          <Image src={ev.bannerUrl} alt={ev.judul || ""} fill className="object-cover" />
-        ) : (
-          <Ticket className="w-6 h-6" />
-        )}
-      </div>
-      <div>
-        <h4 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{ev.judul}</h4>
-        <p className="text-xs text-gray-400 font-medium">
-          {ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Tanggal belum diatur'}
-        </p>
-      </div>
-    </div>
-    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${ev.status === 'published' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'}`}>
-      {ev.status}
-    </span>
-  </Link>
-)) : (
-            <div className="text-center py-12">
-              <Ticket className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-              <p className="text-gray-400 font-medium">Belum ada event yang dibuat.</p>
-            </div>
-          )}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="text-base font-extrabold text-gray-900 mb-4">Event Lalu</h3>
+          <div className="space-y-3">
+            {pastEvents.length > 0 ? pastEvents.map((ev) => (
+              <Link key={ev.id} href={`/penyelenggara/detail-event/${ev.id}`}
+                className="flex items-center justify-between p-3 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden relative flex-shrink-0">
+                    {ev.bannerUrl ? (
+                      <Image src={ev.bannerUrl} alt={ev.judul || ""} fill className="object-cover opacity-70" />
+                    ) : (
+                      <Ticket className="w-5 h-5" />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-500 group-hover:text-blue-600 transition-colors line-clamp-1">{ev.judul}</h4>
+                    <p className="text-xs text-gray-400">
+                      {ev.tanggalSelesai ? new Date(ev.tanggalSelesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase flex-shrink-0 bg-gray-100 text-gray-500">
+                  Selesai
+                </span>
+              </Link>
+            )) : (
+              <div className="text-center py-8">
+                <Ticket className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <p className="text-sm text-gray-400">Belum ada event lalu.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
