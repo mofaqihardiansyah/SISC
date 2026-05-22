@@ -49,8 +49,7 @@ export const authConfig = {
       // 2. Organizer Routes Protection
       if (path.startsWith("/penyelenggara")) {
         if (!isLoggedIn) return false;
-        if (userRole !== 'organizer' && userRole !== 'admin') { 
-          if (userRole === 'admin') return Response.redirect(new URL("/admin/dashboard", nextUrl));
+        if (userRole !== 'organizer' && userRole !== 'admin') {
           return Response.redirect(new URL("/", nextUrl));
         }
         return true;
