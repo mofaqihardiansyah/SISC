@@ -233,7 +233,10 @@ export function PaperUploadForm({
     }
 
     try {
-      await onSubmit(formData as Required<typeof formData>);
+      await onSubmit({
+        ...formData,
+        file: formData.file!,
+      });
       setFormData({
         judul: '',
         abstrak: '',

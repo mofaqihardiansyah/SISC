@@ -11,7 +11,7 @@ async function getHandler() {
     const { scrapeEvents } = await import("@/lib/inngest/functions");
     _handler = serve({ client: inngest, functions: [scrapeEvents] });
   }
-  return _handler;
+  return _handler!;
 }
 
 export async function GET(req: NextRequest) {
