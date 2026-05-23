@@ -24,6 +24,8 @@ export const users = pgTable('users', {
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
   role: userRoleEnum('role').default('visitor'),
   isApproved: boolean('is_approved').default(false),
+  isSuspended: boolean('is_suspended').default(false),   // 👈 BARU
+  lastActiveAt: timestamp('last_active_at'),              // 👈 BARU
   avatarUrl: varchar('avatar_url', { length: 512 }).default("/uploads/avatars/fotodummy.jpg"),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
