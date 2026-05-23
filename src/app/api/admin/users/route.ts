@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { users } from '@/db/schema';
-import { eq, isNull, ilike, or, sql } from 'drizzle-orm';
+import { eq, isNull, ilike, or, sql, and, ne } from 'drizzle-orm';
 import { auth } from '@/auth';
 
-// GET ALL USERS (admin only)
+// GET ALL USERS (admin only) + stats via ?type=stats
 export async function GET(req: Request) {
   try {
     const session = await auth();
@@ -13,14 +13,49 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
+
+    // ── Stats endpoint ──────────────────────────────────────────────
+    if (searchParams.get('type') === 'stats') {
+      const baseWhere = and(isNull(users.dihapusPada), ne(users.role, 'admin'));
+
+      const [totalResult, suspendedResult, pendingResult] = await Promise.all([
+        db.select({ count: sql<number>`count(*)` }).from(users).where(baseWhere),
+        db.select({ count: sql<number>`count(*)` }).from(users).where(
+          and(baseWhere, eq(users.isSuspended, true))
+        ),
+        db.select({ count: sql<number>`count(*)` }).from(users).where(
+          and(baseWhere, eq(users.isApproved, false), eq(users.role, 'organizer'))
+        ),
+      ]);
+
+      // "Aktif" = lastActiveAt dalam 30 hari terakhir
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const activeResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(and(baseWhere, sql`${users.lastActiveAt} >= ${thirtyDaysAgo}`));
+
+      return NextResponse.json({
+        total: Number(totalResult[0]?.count ?? 0),
+        suspended: Number(suspendedResult[0]?.count ?? 0),
+        pending: Number(pendingResult[0]?.count ?? 0),
+        active: Number(activeResult[0]?.count ?? 0),
+      });
+    }
+
+    // ── List users ──────────────────────────────────────────────────
     const search = searchParams.get('search') ?? '';
     const role = searchParams.get('role') ?? '';
     const page = Math.max(1, Number(searchParams.get('page') ?? '1'));
     const limit = 5;
     const offset = (page - 1) * limit;
 
-    // Build where conditions
-    const conditions = [isNull(users.dihapusPada)];
+    // Exclude admin selalu
+    const conditions = [
+      isNull(users.dihapusPada),
+      ne(users.role, 'admin'),
+    ];
 
     if (search.trim()) {
       conditions.push(
@@ -32,10 +67,10 @@ export async function GET(req: Request) {
     }
 
     if (role && role !== 'Semua Tipe') {
-      conditions.push(eq(users.role, role as 'admin' | 'organizer' | 'visitor'));
+      conditions.push(eq(users.role, role as 'organizer' | 'visitor'));
     }
 
-    const whereClause = conditions.length === 1 ? conditions[0] : sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}`;
+    const whereClause = and(...conditions);
 
     const [allUsers, countResult] = await Promise.all([
       db
@@ -44,10 +79,10 @@ export async function GET(req: Request) {
           namaLengkap: users.namaLengkap,
           email: users.email,
           role: users.role,
+          isSuspended: users.isSuspended,
+          isApproved: users.isApproved,
           dibuatPada: users.dibuatPada,
           avatarUrl: users.avatarUrl,
-          nomorTelepon: users.nomorTelepon,
-          institution: users.institution,
         })
         .from(users)
         .where(whereClause)
@@ -55,10 +90,7 @@ export async function GET(req: Request) {
         .limit(limit)
         .offset(offset),
 
-      db
-        .select({ count: sql<number>`count(*)` })
-        .from(users)
-        .where(whereClause),
+      db.select({ count: sql<number>`count(*)` }).from(users).where(whereClause),
     ]);
 
     const total = Number(countResult[0]?.count ?? 0);

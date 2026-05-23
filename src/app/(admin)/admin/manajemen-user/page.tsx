@@ -2,17 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Search,
-  Trash2,
-  MoreVertical,
-  ChevronLeft,
-  ChevronRight,
-  Users,
-  UserCheck,
-  UserX,
-  Clock,
-  TrendingUp,
-  Loader2,
+  Search, Trash2, MoreVertical, ChevronLeft, ChevronRight,
+  Users, UserCheck, UserX, Clock, TrendingUp, Loader2,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -21,7 +12,9 @@ interface User {
   id: number;
   namaLengkap: string;
   email: string;
-  role: "admin" | "organizer" | "visitor";
+  role: "organizer" | "visitor";
+  isSuspended: boolean;
+  isApproved: boolean;
   dibuatPada: string;
   avatarUrl: string | null;
 }
@@ -33,11 +26,18 @@ interface ApiResponse {
   totalPages: number;
 }
 
+interface Stats {
+  total: number;
+  active: number;
+  pending: number;
+  suspended: number;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const AVATAR_COLORS = [
-  "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899",
-  "#14b8a6", "#ef4444", "#22c55e", "#f97316",
+  "#f59e0b","#3b82f6","#8b5cf6","#ec4899",
+  "#14b8a6","#ef4444","#22c55e","#f97316",
 ];
 
 function getAvatarColor(id: number) {
@@ -45,32 +45,50 @@ function getAvatarColor(id: number) {
 }
 
 function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+  return name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase();
 }
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+    day: "2-digit", month: "short", year: "numeric",
   });
 }
 
 const ROWS_PER_PAGE = 5;
 
-const stats = [
-  { icon: Users, label: "Total Users", value: "1,240", sub: "+12% dari bulan lalu", subColor: "#22c55e", iconColor: "#3b82f6", iconBg: "#eff6ff", subIcon: TrendingUp },
-  { icon: UserCheck, label: "Aktif Sekarang", value: "856", sub: "Real-time sessions", subColor: "#6b7280", iconColor: "#22c55e", iconBg: "#f0fdf4", subIcon: null },
-  { icon: Clock, label: "Menunggu Persetujuan", value: "14", sub: "Perlu diperhatikan", subColor: "#f59e0b", iconColor: "#f59e0b", iconBg: "#fffbeb", subIcon: null },
-  { icon: UserX, label: "User Suspended", value: "3", sub: "Pelanggaran Ketentuan", subColor: "#ef4444", iconColor: "#ef4444", iconBg: "#fef2f2", subIcon: null },
-];
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function StatCard({
+  icon: Icon, label, value, sub, subColor, iconColor, iconBg, subIcon: SubIcon, loading,
+}: {
+  icon: React.ElementType; label: string; value: string | number;
+  sub: string; subColor: string; iconColor: string; iconBg: string;
+  subIcon?: React.ElementType | null; loading?: boolean;
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1">
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-1" style={{ backgroundColor: iconBg }}>
+        <Icon className="w-5 h-5" style={{ color: iconColor }} />
+      </div>
+      {/* Label — paling besar */}
+      <div className="text-sm font-bold text-gray-800">{label}</div>
+      {/* Nilai — lebih kecil dari label */}
+      {loading ? (
+        <Loader2 className="w-4 h-4 animate-spin text-gray-300 my-1" />
+      ) : (
+        <div className="text-lg font-semibold text-gray-600">
+          {typeof value === "number" ? value.toLocaleString("id-ID") : value}
+        </div>
+      )}
+      <div className="text-[10px] font-medium flex items-center gap-1" style={{ color: subColor }}>
+        {SubIcon && <SubIcon className="w-3 h-3" />}
+        {sub}
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ManajemenUserPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -78,6 +96,9 @@ export default function ManajemenUserPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -88,7 +109,25 @@ export default function ManajemenUserPage() {
   const [deleteModal, setDeleteModal] = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // ── Fetch data ──────────────────────────────────────────────────────────────
+  // ── Fetch stats ─────────────────────────────────────────────────────────────
+
+  const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
+    try {
+      const res = await fetch("/api/admin/users?type=stats");
+      if (!res.ok) throw new Error();
+      const data: Stats = await res.json();
+      setStats(data);
+    } catch {
+      // stats gagal tidak perlu block halaman
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  // ── Fetch users ─────────────────────────────────────────────────────────────
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -100,12 +139,12 @@ export default function ManajemenUserPage() {
         role: tipe === "Semua Tipe" ? "" : tipe,
       });
       const res = await fetch(`/api/admin/users?${params}`);
-      if (!res.ok) throw new Error("Gagal memuat data");
+      if (!res.ok) throw new Error();
       const data: ApiResponse = await res.json();
       setUsers(data.users);
       setTotal(data.total);
       setTotalPages(data.totalPages);
-    } catch (e) {
+    } catch {
       setError("Gagal memuat data pengguna. Coba lagi.");
     } finally {
       setLoading(false);
@@ -131,18 +170,12 @@ export default function ManajemenUserPage() {
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedRows.includes(id));
 
   const toggleAll = () => {
-    if (allPageSelected) {
-      setSelectedRows((prev) => prev.filter((id) => !pageIds.includes(id)));
-    } else {
-      setSelectedRows((prev) => [...new Set([...prev, ...pageIds])]);
-    }
+    if (allPageSelected) setSelectedRows((p) => p.filter((id) => !pageIds.includes(id)));
+    else setSelectedRows((p) => [...new Set([...p, ...pageIds])]);
   };
 
-  const toggleRow = (id: number) => {
-    setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
-    );
-  };
+  const toggleRow = (id: number) =>
+    setSelectedRows((p) => p.includes(id) ? p.filter((r) => r !== id) : [...p, id]);
 
   // ── Delete ──────────────────────────────────────────────────────────────────
 
@@ -153,6 +186,7 @@ export default function ManajemenUserPage() {
       if (!res.ok) throw new Error();
       setDeleteModal(null);
       fetchUsers();
+      fetchStats();
     } catch {
       alert("Gagal menghapus pengguna. Coba lagi.");
     } finally {
@@ -160,7 +194,7 @@ export default function ManajemenUserPage() {
     }
   };
 
-  // ── Pagination buttons ───────────────────────────────────────────────────────
+  // ── Pagination ───────────────────────────────────────────────────────────────
 
   const getPageButtons = (): (number | string)[] => {
     if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -179,11 +213,34 @@ export default function ManajemenUserPage() {
 
   return (
     <div className="flex-1 p-6 bg-gray-50 min-h-screen overflow-y-auto">
-      {/* Page Title */}
       <h1 className="text-xl font-bold text-gray-800 mb-5">Manajemen User</h1>
 
+      {/* Stats Cards — di atas tabel */}
+      <div className="grid grid-cols-4 gap-4 mb-5">
+        <StatCard
+          icon={Users} label="Total Users" value={stats?.total ?? 0}
+          sub="+12% dari bulan lalu" subColor="#22c55e"
+          iconColor="#3b82f6" iconBg="#eff6ff" subIcon={TrendingUp} loading={statsLoading}
+        />
+        <StatCard
+          icon={UserCheck} label="Aktif 30 Hari" value={stats?.active ?? 0}
+          sub="Pengguna aktif bulan ini" subColor="#6b7280"
+          iconColor="#22c55e" iconBg="#f0fdf4" loading={statsLoading}
+        />
+        <StatCard
+          icon={Clock} label="Menunggu Persetujuan" value={stats?.pending ?? 0}
+          sub="Organizer belum disetujui" subColor="#f59e0b"
+          iconColor="#f59e0b" iconBg="#fffbeb" loading={statsLoading}
+        />
+        <StatCard
+          icon={UserX} label="User Suspended" value={stats?.suspended ?? 0}
+          sub="Pelanggaran Ketentuan" subColor="#ef4444"
+          iconColor="#ef4444" iconBg="#fef2f2" loading={statsLoading}
+        />
+      </div>
+
       {/* Main Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <h2 className="text-base font-bold text-gray-800 mb-4">Daftar Pengguna</h2>
 
         {/* Filters */}
@@ -217,7 +274,6 @@ export default function ManajemenUserPage() {
               <option>Semua Tipe</option>
               <option value="organizer">Organizer</option>
               <option value="visitor">Visitor</option>
-              <option value="admin">Admin</option>
             </select>
           </div>
 
@@ -236,17 +292,12 @@ export default function ManajemenUserPage() {
               <tr className="border-b-2 border-gray-100">
                 <th className="py-2.5 px-3 w-10">
                   <input
-                    type="checkbox"
-                    checked={allPageSelected}
-                    onChange={toggleAll}
+                    type="checkbox" checked={allPageSelected} onChange={toggleAll}
                     className="accent-blue-600 cursor-pointer w-3.5 h-3.5"
                   />
                 </th>
-                {["Nama", "Peran", "Email", "Tanggal Bergabung", "Aksi"].map((h) => (
-                  <th
-                    key={h}
-                    className="py-2.5 px-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider"
-                  >
+                {["Nama", "Peran", "Status", "Email", "Tanggal Bergabung", "Aksi"].map((h) => (
+                  <th key={h} className="py-2.5 px-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                     {h}
                   </th>
                 ))}
@@ -255,21 +306,21 @@ export default function ManajemenUserPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-400">
+                  <td colSpan={7} className="py-12 text-center text-gray-400">
                     <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-400" />
                     Memuat data...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-red-400 text-xs">
+                  <td colSpan={7} className="py-8 text-center text-red-400 text-xs">
                     {error}
                     <button onClick={fetchUsers} className="ml-2 underline">Coba lagi</button>
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-gray-400">
+                  <td colSpan={7} className="py-8 text-center text-gray-400">
                     Tidak ada data ditemukan
                   </td>
                 </tr>
@@ -283,8 +334,7 @@ export default function ManajemenUserPage() {
                   >
                     <td className="py-2.5 px-3">
                       <input
-                        type="checkbox"
-                        checked={selectedRows.includes(user.id)}
+                        type="checkbox" checked={selectedRows.includes(user.id)}
                         onChange={() => toggleRow(user.id)}
                         className="accent-blue-600 cursor-pointer w-3.5 h-3.5"
                       />
@@ -292,11 +342,8 @@ export default function ManajemenUserPage() {
                     <td className="py-2.5 px-3">
                       <div className="flex items-center gap-2.5">
                         {user.avatarUrl ? (
-                          <img
-                            src={user.avatarUrl}
-                            alt={user.namaLengkap}
-                            className="w-8 h-8 rounded-full object-cover shrink-0"
-                          />
+                          <img src={user.avatarUrl} alt={user.namaLengkap}
+                            className="w-8 h-8 rounded-full object-cover shrink-0" />
                         ) : (
                           <div
                             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
@@ -312,21 +359,32 @@ export default function ManajemenUserPage() {
                       </div>
                     </td>
                     <td className="py-2.5 px-3">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
-                          user.role === "organizer"
-                            ? "bg-blue-50 text-blue-600"
-                            : user.role === "admin"
-                            ? "bg-purple-50 text-purple-600"
-                            : "bg-green-50 text-green-600"
-                        }`}
-                      >
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
+                        user.role === "organizer"
+                          ? "bg-blue-50 text-blue-600"
+                          : "bg-green-50 text-green-600"
+                      }`}>
                         {user.role}
                       </span>
                     </td>
+                    <td className="py-2.5 px-3">
+                      {user.isSuspended ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-500">
+                          Suspended
+                        </span>
+                      ) : user.role === "organizer" && !user.isApproved ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-50 text-yellow-600">
+                          Pending
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-green-50 text-green-600">
+                          Aktif
+                        </span>
+                      )}
+                    </td>
                     <td className="py-2.5 px-3 text-gray-500">{user.email}</td>
                     <td className="py-2.5 px-3 text-gray-500 whitespace-nowrap">
-                      {formatDate(user.dibuatPada)}
+                      {user.dibuatPada ? formatDate(user.dibuatPada) : "-"}
                     </td>
                     <td className="py-2.5 px-3">
                       <div className="flex gap-1.5">
@@ -391,31 +449,7 @@ export default function ManajemenUserPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center mb-2.5"
-              style={{ backgroundColor: s.iconBg }}
-            >
-              <s.icon className="w-5 h-5" style={{ color: s.iconColor }} />
-            </div>
-            <div className="text-[10px] text-gray-400 font-medium">{s.label}</div>
-            <div className="text-2xl font-extrabold text-gray-900 my-1">{s.value}</div>
-            <div
-              className="text-[10px] font-medium flex items-center gap-1"
-              style={{ color: s.subColor }}
-            >
-              {s.subIcon && <s.subIcon className="w-3 h-3" />}
-              {s.label === "User Suspended" && <span>⊘</span>}
-              {s.sub}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {deleteModal !== null && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 shadow-xl w-80">
@@ -425,15 +459,13 @@ export default function ManajemenUserPage() {
             </p>
             <div className="flex gap-2 justify-end">
               <button
-                onClick={() => setDeleteModal(null)}
-                disabled={deleteLoading}
+                onClick={() => setDeleteModal(null)} disabled={deleteLoading}
                 className="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 Batal
               </button>
               <button
-                onClick={() => handleDelete(deleteModal)}
-                disabled={deleteLoading}
+                onClick={() => handleDelete(deleteModal)} disabled={deleteLoading}
                 className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
               >
                 {deleteLoading && <Loader2 className="w-3 h-3 animate-spin" />}

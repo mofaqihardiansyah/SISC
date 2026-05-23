@@ -1,5 +1,5 @@
 {
-  "id": "b3456f05-803f-4c39-8c80-acbef5fee4a2",
+  "id": "23c02c92-8b9e-45a1-a794-e9f0aa8f1ce7",
   "prevId": "d76f06bf-e5db-4fc4-86b4-7928ae73c50b",
   "version": "7",
   "dialect": "postgresql",
@@ -1394,6 +1394,19 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "is_suspended": {
+          "name": "is_suspended",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "last_active_at": {
+          "name": "last_active_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "avatar_url": {
           "name": "avatar_url",
