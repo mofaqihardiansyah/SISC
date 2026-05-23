@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Search, Trash2, MoreVertical, ChevronLeft, ChevronRight,
+  Search, Trash2, ChevronLeft, ChevronRight,
   Users, UserCheck, UserX, Clock, TrendingUp, Loader2,
 } from "lucide-react";
 
@@ -388,10 +388,7 @@ export default function ManajemenUserPage() {
                     </td>
                     <td className="py-2.5 px-3">
                       <div className="flex gap-1.5">
-                        <button className="w-6 h-6 rounded-md bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors">
-                          <MoreVertical className="w-3.5 h-3.5" />
-                        </button>
-                        <button
+                         <button
                           onClick={() => setDeleteModal(user.id)}
                           className="w-6 h-6 rounded-md bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors"
                         >
