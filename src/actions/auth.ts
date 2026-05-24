@@ -225,6 +225,7 @@ export async function verifyResetOtpAction(email: string, code: string) {
 }
 
 export async function resetPassword(email: string, code: string, newPassword: string) {
+  // Rate limiting could be added here in the future
   const otpRecord = await db.query.otpCodes.findFirst({
     where: and(
       eq(otpCodes.email, email),

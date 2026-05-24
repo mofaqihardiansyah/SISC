@@ -28,6 +28,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
+          // Cek jika akun ditangguhkan (Suspended)
+          if (user.isSuspended) {
+            console.log(`[AUTH] Login ditolak: Akun ditangguhkan (${email})`);
+            throw new Error("Akun Anda telah ditangguhkan. Silakan hubungi admin.");
+          }
+
           // Pastikan email sudah terverifikasi
           if (!user.emailVerified && user.role !== 'admin') {
             console.log(`[AUTH] Login ditolak: Email belum diverifikasi (${email})`);
