@@ -24,6 +24,8 @@ import { daftarEvent } from '@/actions/peserta';
 interface DataEvent {
   judul: string;
   linkEksternal?: string | null;
+  kategori?: string | null;
+  harga?: number | string | null;
 }
 
 interface CurrentUser {

@@ -162,16 +162,16 @@ export default async function PenyelenggaraDashboard() {
 
       {/* GRAFIK PESERTA */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <EventChart data={grafikData} />
+        <EventChart initialData={grafikData} />
       </div>
 
       {/* GRAFIK PENDAPATAN + TAYANGAN */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <PendapatanChart data={grafikPendapatan} />
+          <PendapatanChart initialData={grafikPendapatan} />
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <ViewChart data={grafikTayanganData} />
+          <ViewChart initialData={grafikTayanganData} />
         </div>
       </div>
 
