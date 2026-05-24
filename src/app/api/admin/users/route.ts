@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { users } from '@/db/schema';
+import { users, profilPenyelenggara } from '@/db/schema';
 import { eq, isNull, ilike, or, sql, and, ne, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
 
@@ -62,6 +62,37 @@ export async function GET(req: Request) {
       return NextResponse.json(user[0]);
     }
 
+    // ── List penyelenggara (untuk halaman validasi akses) ──────────
+    if (searchParams.get('type') === 'penyelenggara') {
+      const rows = await db
+        .select({
+          id: users.id,
+          namaOrganisasi: profilPenyelenggara.namaInstansi,
+          email: users.email,
+          noTelepon: users.nomorTelepon,
+          isApproved: users.isApproved,
+          isSuspended: users.isSuspended,
+        })
+        .from(users)
+        .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
+        .where(and(eq(users.role, 'organizer'), isNull(users.dihapusPada)))
+        .orderBy(users.dibuatPada);
+
+      const data = rows.map((row) => ({
+        id: String(row.id).padStart(5, '0'),
+        rawId: row.id,
+        namaOrganisasi: row.namaOrganisasi ?? '-',
+        email: row.email ?? '-',
+        noTelepon: row.noTelepon ?? '-',
+        status:
+          row.isSuspended ? 'rejected' :
+          row.isApproved  ? 'approved' :
+          'pending',
+      }));
+
+      return NextResponse.json({ success: true, data });
+    }
+
     // ── List users ─────────────────────────────────────────────────
     const search = searchParams.get('search') ?? '';
     const role = searchParams.get('role') ?? '';
@@ -82,7 +113,6 @@ export async function GET(req: Request) {
 
     const whereClause = and(...conditions);
 
-    // Sort column mapping
     const sortColumn =
       sortBy === 'namaLengkap' ? users.namaLengkap :
       sortBy === 'role' ? users.role :
@@ -113,6 +143,39 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Gagal mengambil data' }, { status: 500 });
+  }
+}
+
+// ── PATCH — update status validasi penyelenggara ───────────────────────────
+// Body: { userId: number, status: "approved" | "rejected" }
+
+export async function PATCH(req: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { userId, status } = body as { userId: number; status: 'approved' | 'rejected' };
+
+    if (!userId || !['approved', 'rejected'].includes(status)) {
+      return NextResponse.json({ error: 'Input tidak valid.' }, { status: 400 });
+    }
+
+    await db
+      .update(users)
+      .set({
+        isApproved: status === 'approved',
+        isSuspended: status === 'rejected',
+        diperbaruiPada: new Date(),
+      })
+      .where(and(eq(users.id, userId), eq(users.role, 'organizer')));
+
+    return NextResponse.json({ success: true, message: 'Status berhasil diperbarui.' });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Gagal memperbarui status.' }, { status: 500 });
   }
 }
 
