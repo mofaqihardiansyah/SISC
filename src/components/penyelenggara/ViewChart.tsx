@@ -19,15 +19,17 @@ export function ViewChart({ initialData }: ViewChartProps) {
 
   useEffect(() => {
     if (filter === "bulan-ini") {
-      setData(initialData);
       return;
     }
-    setLoading(true);
-    fetch(`/api/organizer/grafik-tayangan?filter=${filter}`)
-      .then(r => r.json())
+    const controller = new AbortController();
+    fetch(`/api/organizer/grafik-tayangan?filter=${filter}`, { signal: controller.signal })
+      .then(r => { setLoading(true); return r.json(); })
       .then(setData)
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [filter]);
+
+  const displayData = filter === "bulan-ini" ? initialData : data;
 
   return (
     <div>
@@ -54,7 +56,7 @@ export function ViewChart({ initialData }: ViewChartProps) {
           </div>
         )}
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart layout="vertical" data={data} margin={{ left: 40, right: 20 }}>
+          <BarChart layout="vertical" data={displayData} margin={{ left: 40, right: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
             <XAxis type="number" tick={{ fontSize: 11 }} />
             <YAxis type="category" dataKey="tanggal" tick={{ fontSize: 10 }} width={50} />

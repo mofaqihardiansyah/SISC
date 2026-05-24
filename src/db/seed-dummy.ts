@@ -109,12 +109,11 @@ export async function seedDummy() {
       }).returning();
 
       await db.insert(peserta).values({
-        pendaftaranId: newReg.id,
         kodePeserta: p.kodePeserta,
         namaLengkap: p.namaLengkap,
         email: p.email,
         nomorTelepon: p.nomorTelepon,
-        jenisKelamin: p.jenisKelamin,
+        jenisKelamin: p.jenisKelamin as "Laki-laki" | "Perempuan",
       });
     }
   }

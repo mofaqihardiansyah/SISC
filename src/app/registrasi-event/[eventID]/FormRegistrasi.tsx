@@ -67,12 +67,12 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
     }
   };
 
-  const formatGenderEnum = (gender: string | null | undefined) => {
+  const formatGenderEnum = (gender: string | null | undefined): "Laki-laki" | "Perempuan" => {
     if (!gender) return "Laki-laki";
     const lower = gender.toLowerCase();
     if (lower === "pria" || lower === "laki-laki" || lower === "male") return "Laki-laki";
     if (lower === "wanita" || lower === "perempuan" || lower === "female") return "Perempuan";
-    return gender;
+    return "Laki-laki";
   };
 
   const checkIsConference = () => {
@@ -128,6 +128,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
         });
       }
     } catch (err) {
+      console.error("Error mendaftar event:", err);
       setIsLoading(false);
       setModalStatus({
         isOpen: true,

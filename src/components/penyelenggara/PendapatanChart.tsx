@@ -19,15 +19,17 @@ export function PendapatanChart({ initialData }: PendapatanChartProps) {
 
   useEffect(() => {
     if (filter === "bulan-ini") {
-      setData(initialData);
       return;
     }
-    setLoading(true);
-    fetch(`/api/organizer/grafik-pendapatan?filter=${filter}`)
-      .then(r => r.json())
+    const controller = new AbortController();
+    fetch(`/api/organizer/grafik-pendapatan?filter=${filter}`, { signal: controller.signal })
+      .then(r => { setLoading(true); return r.json(); })
       .then(setData)
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [filter]);
+
+  const displayData = filter === "bulan-ini" ? initialData : data;
 
   return (
     <div>
@@ -54,7 +56,7 @@ export function PendapatanChart({ initialData }: PendapatanChartProps) {
           </div>
         )}
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} margin={{ left: 20, right: 20 }}>
+          <BarChart data={displayData} margin={{ left: 20, right: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={50} />
             <YAxis

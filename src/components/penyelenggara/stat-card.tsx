@@ -1,27 +1,34 @@
 import { cn } from "@/lib/utils";
+import React from 'react';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   trend?: string;
   className?: string;
+  icon?: React.ComponentType<{ className?: string; size?: number }>;
 }
 
-export function StatCard({ title, value, trend, className }: StatCardProps) {
+export function StatCard({ title, value, trend, className, icon: Icon }: StatCardProps) {
   return (
     <div className={cn(
-      "bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-between text-center min-h-[120px]",
+      "bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-between text-center min-h-[140px]",
       className
     )}>
-      {/* Judul — fixed height agar semua card sejajar */}
-      <div className="h-10 flex items-center justify-center">
+      {/* Icon & Title */}
+      <div className="flex flex-col items-center gap-2">
+        {Icon && (
+          <div className="p-2 bg-slate-50 text-slate-500 rounded-lg">
+            <Icon className="w-5 h-5" />
+          </div>
+        )}
         <p className="text-xs font-extrabold text-gray-900 uppercase tracking-wide leading-tight">
           {title}
         </p>
       </div>
 
       {/* Value */}
-      <h3 className="text-lg font-medium text-gray-400 leading-tight">
+      <h3 className="text-lg font-medium text-gray-400 leading-tight mt-1">
         {value}
       </h3>
 

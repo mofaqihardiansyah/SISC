@@ -32,31 +32,25 @@ type ClientPageProps = {
 
 export default function ClientPage({ initialRegisteredEvents, initialSubmittedPapers }: ClientPageProps) {
   const searchParams = useSearchParams();
-  const [view, setView] = useState<'list' | 'submit' | 'detail'>('list');
-  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
-  const [selectedPaperId, setSelectedPaperId] = useState<number | null>(null);
+  // Parse query parameters immediately in the component render phase to avoid useEffect cascading renders
+  const eventIdParam = searchParams.get('eventId');
+  const initialEventId = eventIdParam ? parseInt(eventIdParam) : null;
+  const initialEventExists = initialEventId ? initialRegisteredEvents.some(e => e.id === initialEventId) : false;
+  
+  const initialExistingPaper = initialEventExists ? initialSubmittedPapers.find(p => p.eventId === initialEventId) : undefined;
+  const hasValidPaper = initialExistingPaper && initialExistingPaper.status !== 'rejected';
+
+  const [view, setView] = useState<'list' | 'submit' | 'detail'>(
+    initialEventExists ? (hasValidPaper ? 'detail' : 'submit') : 'list'
+  );
+  const [selectedEventId, setSelectedEventId] = useState<number | null>(
+    initialEventExists && !hasValidPaper ? initialEventId : null
+  );
+  const [selectedPaperId, setSelectedPaperId] = useState<number | null>(
+    initialEventExists && hasValidPaper && initialExistingPaper ? initialExistingPaper.id : null
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-
-  // Handle direct event selection from URL query params
-  useEffect(() => {
-    const eventIdParam = searchParams.get('eventId');
-    if (eventIdParam) {
-      const id = parseInt(eventIdParam);
-      const exists = initialRegisteredEvents.some(e => e.id === id);
-      if (exists) {
-        // Cek jika paper sudah disubmit sebelumnya untuk event ini
-        const existingPaper = initialSubmittedPapers.find(p => p.eventId === id);
-        if (existingPaper && existingPaper.status !== 'rejected') {
-          setSelectedPaperId(existingPaper.id);
-          setView('detail');
-        } else {
-          setSelectedEventId(id);
-          setView('submit');
-        }
-      }
-    }
-  }, [searchParams, initialRegisteredEvents, initialSubmittedPapers]);
 
   const selectedEvent = initialRegisteredEvents.find(e => e.id === selectedEventId);
 
@@ -90,10 +84,7 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
     }
   };
 
-  const handleViewDetailByPaper = (paperId: number) => {
-    setSelectedPaperId(paperId);
-    setView('detail');
-  };
+
 
   const handleBackToList = () => {
     setView('list');

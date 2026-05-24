@@ -9,7 +9,7 @@ interface RegistrationData {
   nama_lengkap: string;
   email: string;
   nomor_telepon: string;
-  jenis_kelamin: string;
+  jenis_kelamin: "Laki-laki" | "Perempuan";
 }
 
 export async function daftarEvent(formData: RegistrationData, eventId: number) {

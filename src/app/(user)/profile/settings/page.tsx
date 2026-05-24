@@ -67,8 +67,8 @@ export default function SettingsPage() {
       const data = await res.json();
       setFormData(prev => ({ ...prev, avatarUrl: data.url }));
       toast.success('Foto profil berhasil diupload. Jangan lupa klik Simpan Perubahan.');
-    } catch (error: any) {
-      toast.error(error.message || 'Terjadi kesalahan saat upload foto');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan saat upload foto');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

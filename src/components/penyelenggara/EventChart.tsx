@@ -24,15 +24,17 @@ export function EventChart({ initialData }: EventChartProps) {
 
   useEffect(() => {
     if (filter === "bulan-ini") {
-      setData(initialData);
       return;
     }
-    setLoading(true);
-    fetch(`/api/organizer/grafik?filter=${filter}`)
-      .then(r => r.json())
+    const controller = new AbortController();
+    fetch(`/api/organizer/grafik?filter=${filter}`, { signal: controller.signal })
+      .then(r => { setLoading(true); return r.json(); })
       .then(setData)
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [filter]);
+
+  const displayData = filter === "bulan-ini" ? initialData : data;
 
   return (
     <div>
@@ -59,7 +61,7 @@ export function EventChart({ initialData }: EventChartProps) {
           </div>
         )}
         <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={data}>
+          <AreaChart data={displayData}>
             <defs>
               <linearGradient id="colorPeserta" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.15} />

@@ -1,6 +1,6 @@
 import { StatCard } from "@/components/penyelenggara/stat-card";
 import { EventChart } from "@/components/penyelenggara/EventChart";
-import { Ticket } from "lucide-react";
+import { Users, Calendar, Archive, Clock, Eye, Coins, Ticket } from "lucide-react";
 import { db } from "@/db";
 import { event, peserta, pendaftaran, tayanganLog } from "@/db/schema";
 import { count, eq, and, lt, gte, sql, sum } from "drizzle-orm";
@@ -152,12 +152,12 @@ export default async function PenyelenggaraDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-stretch">
-        <StatCard title="Total Peserta" value={totalPesertaResult.total.toLocaleString()} trend="+0%" className="h-full" />
-        <StatCard title="Event Aktif" value={`${eventAktifResult.total.toLocaleString()} Event`} trend="Real-time" className="h-full" />
-        <StatCard title="Total Event" value={`${eventLaluResult.total.toLocaleString()} Event`} className="h-full" />
-        <StatCard title="Event Pending" value={`${eventPendingResult.total.toLocaleString()} Review`} className="h-full" />
-        <StatCard title="Total Tayangan" value={(totalTayanganResult.total ?? 0).toLocaleString()} className="h-full" />
-        <StatCard title="Total Pendapatan" value={`Rp ${Number(totalPendapatanResult?.total ?? 0).toLocaleString('id-ID')}`} className="h-full" />
+        <StatCard title="Total Peserta" value={totalPesertaResult.total.toLocaleString()} trend="+0%" icon={Users} className="h-full" />
+        <StatCard title="Event Aktif" value={`${eventAktifResult.total.toLocaleString()} Event`} trend="Real-time" icon={Calendar} className="h-full" />
+        <StatCard title="Total Event" value={`${eventLaluResult.total.toLocaleString()} Event`} icon={Archive} className="h-full" />
+        <StatCard title="Event Pending" value={`${eventPendingResult.total.toLocaleString()} Review`} icon={Clock} className="h-full" />
+        <StatCard title="Total Tayangan" value={(totalTayanganResult.total ?? 0).toLocaleString()} icon={Eye} className="h-full" />
+        <StatCard title="Total Pendapatan" value={`Rp ${Number(totalPendapatanResult?.total ?? 0).toLocaleString('id-ID')}`} icon={Coins} className="h-full" />
       </div>
 
       {/* GRAFIK PESERTA */}
@@ -184,7 +184,7 @@ export default async function PenyelenggaraDashboard() {
               <Link key={ev.id} href={`/penyelenggara/detail-event/${ev.id}`}
                 className="flex items-center justify-between p-3 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 overflow-hidden relative flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 overflow-hidden relative shrink-0">
                     {ev.bannerUrl ? (
                       <Image src={ev.bannerUrl} alt={ev.judul || ""} fill className="object-cover" />
                     ) : (
@@ -198,7 +198,7 @@ export default async function PenyelenggaraDashboard() {
                     </p>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase flex-shrink-0 ${ev.status === 'published' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'}`}>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0 ${ev.status === 'published' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'}`}>
                   {ev.status}
                 </span>
               </Link>
@@ -218,7 +218,7 @@ export default async function PenyelenggaraDashboard() {
               <Link key={ev.id} href={`/penyelenggara/detail-event/${ev.id}`}
                 className="flex items-center justify-between p-3 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden relative flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden relative shrink-0">
                     {ev.bannerUrl ? (
                       <Image src={ev.bannerUrl} alt={ev.judul || ""} fill className="object-cover opacity-70" />
                     ) : (
@@ -232,7 +232,7 @@ export default async function PenyelenggaraDashboard() {
                     </p>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase flex-shrink-0 bg-gray-100 text-gray-500">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0 bg-gray-100 text-gray-500">
                   Selesai
                 </span>
               </Link>
