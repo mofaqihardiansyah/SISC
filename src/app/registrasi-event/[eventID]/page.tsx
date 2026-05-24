@@ -3,23 +3,30 @@ import { db } from "@/db";
 import { event } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import FormRegistrasi from './FormRegistrasi';
+import { auth } from "@/auth"; 
+import { redirect } from "next/navigation";
 
-// Next.js 15 mewajibkan params di-await karena bersifat asynchronous
 export default async function RegistrasiEventPage({ 
   params 
 }: { 
   params: Promise<{ eventID: string }> 
 }) {
   
-  // 1. Await params untuk mengambil eventID dari URL
+  // 1. Cek session login user
+  const session = await auth();
+  
+  if (!session || !session.user) {
+    redirect("/login"); 
+  }
+
+  // 2. Ambil eventID dari URL
   const { eventID } = await params;
 
-  // 2. Ambil data event berdasarkan ID (pastikan dikonversi ke Number)
+  // 3. Ambil data event dari database
   const dataEvent = await db.query.event.findFirst({
     where: eq(event.id, Number(eventID)),
   });
 
-  // Jika event tidak ada di database
   if (!dataEvent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -33,10 +40,18 @@ export default async function RegistrasiEventPage({
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
-      {/* Main Content memanggil Client Component Form */}
       <main className="mx-auto mt-12 max-w-4xl px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {/* Teruskan eventID hasil await ke component FormRegistrasi */}
-        <FormRegistrasi eventId={eventID} dataEvent={dataEvent} />
+        {/* Sekarang kita ikut passing property 'harga' ke form */}
+        <FormRegistrasi 
+          eventId={eventID} 
+          dataEvent={{
+            judul: dataEvent.judul,
+            linkEksternal: dataEvent.linkEksternal,
+            kategori: dataEvent.kategori,
+            harga: dataEvent.harga // <-- Ambil nilai harga dari DB (contoh: 0 atau 50000)
+          }} 
+          currentUser={session.user} 
+        />
       </main>
     </div>
   );
