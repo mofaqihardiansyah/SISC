@@ -1,67 +1,84 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer,
-} from "recharts";
+  Chart,
+  LineElement,
+  PointElement,
+  LineController,
+  CategoryScale,
+  LinearScale,
+  Filler,
+  Tooltip,
+} from "chart.js";
 
-type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
+Chart.register(LineElement, PointElement, LineController, CategoryScale, LinearScale, Filler, Tooltip);
 
 interface ViewChartProps {
-  initialData: { tanggal: string; jumlah: number }[];
+  data: { tanggal: string; jumlah: number }[];
 }
 
-export function ViewChart({ initialData }: ViewChartProps) {
-  const [filter, setFilter] = useState<FilterType>("bulan-ini");
-  const [data, setData] = useState(initialData);
-  const [loading, setLoading] = useState(false);
+export function ViewChart({ data }: ViewChartProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<Chart | null>(null);
 
   useEffect(() => {
-    if (filter === "bulan-ini") {
-      setData(initialData);
-      return;
-    }
-    setLoading(true);
-    fetch(`/api/organizer/grafik-tayangan?filter=${filter}`)
-      .then(r => r.json())
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [filter]);
+    if (!canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+
+    chartRef.current = new Chart(canvasRef.current, {
+      type: "line",
+      data: {
+        labels: data.map((d) => d.tanggal),
+        datasets: [{
+          label: "Tayangan",
+          data: data.map((d) => d.jumlah),
+          borderColor: "#6366F1", // Indigo for views/logs
+          backgroundColor: "rgba(99, 102, 241, 0.08)",
+          borderWidth: 2.5,
+          pointBackgroundColor: "#6366F1",
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.parsed.y} tayangan`,
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: "#9CA3AF" } },
+          y: {
+            beginAtZero: true,
+            grid: { color: "#F3F4F6" },
+            ticks: {
+              font: { size: 11 },
+              color: "#9CA3AF",
+              stepSize: 1,
+            },
+          },
+        },
+      },
+    });
+
+    return () => { chartRef.current?.destroy(); };
+  }, [data]);
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">Grafik Total Tayangan</h3>
-          <p className="text-sm text-gray-400">Data tayangan real-time</p>
-        </div>
-        <select
-          value={filter}
-          onChange={e => setFilter(e.target.value as FilterType)}
-          className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl p-2.5 font-bold outline-none"
-        >
-          <option value="bulan-ini">Bulan Ini</option>
-          <option value="bulan-lalu">Bulan Lalu</option>
-          <option value="tahun-ini">Tahun Ini</option>
-        </select>
+    <div className="w-full h-full min-h-[300px]">
+      <div className="flex justify-between items-center mb-4">
+        <h4 className="text-sm font-extrabold text-gray-900">Grafik Tayangan Bulan Ini</h4>
       </div>
-
-      <div className="relative">
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10 rounded-xl">
-            <p className="text-sm text-gray-400">Memuat data...</p>
-          </div>
-        )}
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart layout="vertical" data={data} margin={{ left: 40, right: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 11 }} />
-            <YAxis type="category" dataKey="tanggal" tick={{ fontSize: 10 }} width={50} />
-            <Tooltip formatter={(val) => [Number(val).toLocaleString('id-ID'), 'Tayangan']} />
-            <Bar dataKey="jumlah" fill="#f59e0b" radius={[0, 4, 4, 0]} maxBarSize={12} />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="h-[250px] relative">
+        <canvas ref={canvasRef} />
       </div>
     </div>
   );
