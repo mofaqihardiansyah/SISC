@@ -59,29 +59,29 @@ export function EventList({ events, onStartSubmit, onViewDetail }: EventListProp
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="bg-slate-50/75 border-b border-slate-200">
-              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider w-12">No</th>
-              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nama Conference</th>
-              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Penyelenggara</th>
-              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tanggal Mulai</th>
-              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Status Paper</th>
-              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right w-32">Aksi</th>
+              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider w-12">No</th>
+              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nama Conference</th>
+              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Penyelenggara</th>
+              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tanggal Mulai</th>
+              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Status Paper</th>
+              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right w-32">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {events.map((event, index) => (
               <tr key={event.id} className="hover:bg-slate-50/25 transition-colors">
-                <td className="px-4 py-2 text-xs text-slate-400 tabular-nums">{index + 1}</td>
-                <td className="px-4 py-2">
+                <td className="px-6 py-3.5 text-xs text-slate-400 tabular-nums">{index + 1}</td>
+                <td className="px-6 py-3.5">
                   <span className="font-semibold text-slate-800 text-[13px]">{event.judul}</span>
                 </td>
-                <td className="px-4 py-2 text-xs text-slate-500">{event.penyelenggara || '-'}</td>
-                <td className="px-4 py-2 text-xs text-slate-500 whitespace-nowrap">
+                <td className="px-6 py-3.5 text-xs text-slate-500">{event.penyelenggara || '-'}</td>
+                <td className="px-6 py-3.5 text-xs text-slate-500 whitespace-nowrap">
                   {format(new Date(event.tanggalMulai), 'd MMMM yyyy', { locale: id })}
                 </td>
-                <td className="px-4 py-2 text-center">
+                <td className="px-6 py-3.5 text-center">
                   <StatusBadge status={event.submissionStatus} />
                 </td>
-                <td className="px-4 py-2 text-right">
+                <td className="px-6 py-3.5 text-right">
                   <ActionButton status={event.submissionStatus} onClick={() => onStartSubmit(event.id)} onViewDetail={() => onViewDetail(event.id)} />
                 </td>
               </tr>

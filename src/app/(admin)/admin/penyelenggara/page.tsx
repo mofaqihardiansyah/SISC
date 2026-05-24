@@ -27,9 +27,9 @@ const DUMMY: Penyelenggara[] = [
 const ITEMS_PER_PAGE = 6;
 
 const STATUS_BADGE: Record<Status, string> = {
-  DISETUJUI: "bg-teal-100 text-teal-600 border border-teal-300",
-  MENUNGGU:  "bg-purple-100 text-purple-600 border border-purple-300",
-  DITOLAK:   "bg-red-100 text-red-500 border border-red-300",
+  DISETUJUI: "bg-emerald-50 text-emerald-700 border border-emerald-200/60",
+  MENUNGGU:  "bg-amber-50 text-amber-700 border border-amber-200/60",
+  DITOLAK:   "bg-rose-50 text-rose-700 border border-rose-200/60",
 };
 
 export default function PenyelenggaraPage() {
@@ -54,38 +54,38 @@ export default function PenyelenggaraPage() {
       </p>
 
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-400 tracking-widest w-24">ID</th>
-              <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-400 tracking-widest">NAMA ORGANISASI</th>
-              <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-400 tracking-widest">EMAIL</th>
-              <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-400 tracking-widest w-36">NO. TELEPON</th>
-              <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-400 tracking-widest w-36">STATUS</th>
-              <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-400 tracking-widest w-28">VALIDASI</th>
+        <table className="w-full">
+          <thead className="bg-slate-50 border-b border-slate-200/60">
+            <tr>
+              <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24">ID</th>
+              <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nama Organisasi</th>
+              <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</th>
+              <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider w-36">No. Telepon</th>
+              <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider w-36">Status</th>
+              <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider w-28">Validasi</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100">
             {paged.length === 0 && (
               <tr>
                 <td colSpan={6} className="text-center py-16 text-sm text-gray-300">Tidak ada data.</td>
               </tr>
             )}
             {paged.map((item, i) => (
-              <tr key={item.id} className={`hover:bg-gray-50/80 transition-colors ${i < paged.length - 1 ? "border-b border-gray-100" : ""}`}>
-                <td className="px-6 py-4 font-mono text-xs text-gray-400">{fmtId(item.id)}</td>
-                <td className="px-6 py-4 text-sm font-semibold text-gray-800">{item.namaOrganisasi}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{item.email}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{item.noTelepon}</td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wider ${STATUS_BADGE[item.status]}`}>
+              <tr key={item.id} className={`hover:bg-slate-50/25 transition-colors ${i < paged.length - 1 ? "border-b border-slate-100" : ""}`}>
+                <td className="px-6 py-3.5 font-mono text-xs text-gray-400">{fmtId(item.id)}</td>
+                <td className="px-6 py-3.5 text-sm font-semibold text-gray-800">{item.namaOrganisasi}</td>
+                <td className="px-6 py-3.5 text-xs text-gray-500">{item.email}</td>
+                <td className="px-6 py-3.5 text-xs text-gray-500">{item.noTelepon}</td>
+                <td className="px-6 py-3.5">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap ${STATUS_BADGE[item.status]}`}>
                     {item.status}
                   </span>
                 </td>
-                <td className="px-6 py-4">
-                  {item.status === "DISETUJUI" && <CheckCircle className="w-6 h-6 text-teal-500" />}
-                  {item.status === "MENUNGGU"  && <Clock       className="w-6 h-6 text-purple-500" />}
-                  {item.status === "DITOLAK"   && <XCircle     className="w-6 h-6 text-red-500" />}
+                <td className="px-6 py-3.5">
+                  {item.status === "DISETUJUI" && <CheckCircle className="w-5 h-5 text-emerald-500" />}
+                  {item.status === "MENUNGGU"  && <Clock       className="w-5 h-5 text-amber-500" />}
+                  {item.status === "DITOLAK"   && <XCircle     className="w-5 h-5 text-rose-500" />}
                 </td>
               </tr>
             ))}
@@ -106,7 +106,7 @@ export default function PenyelenggaraPage() {
             key={p}
             onClick={() => setPage(p)}
             className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition
-              ${p === page ? "bg-teal-500 text-white" : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100"}`}
+              ${p === page ? "bg-[#0E215D] text-white" : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100"}`}
           >
             {p}
           </button>

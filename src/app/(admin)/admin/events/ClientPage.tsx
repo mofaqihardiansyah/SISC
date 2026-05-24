@@ -270,8 +270,8 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200/60 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                <th className="px-4 py-3 w-16 text-center">
+              <tr className="bg-slate-50 border-b border-slate-200/60 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 w-16 text-center">
                   <div className="flex items-center justify-center gap-2">
                     <input 
                       type="checkbox" 
@@ -282,18 +282,18 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                     <span>#</span>
                   </div>
                 </th>
-                <th className="px-4 py-3 whitespace-nowrap">Event</th>
-                <th className="px-4 py-3 whitespace-nowrap">Penyelenggara & Waktu</th>
-                <th className="px-4 py-3 whitespace-nowrap text-center">Kategori</th>
-                <th className="px-4 py-3 text-center whitespace-nowrap">Pendaftar</th>
-                <th className="px-4 py-3 text-center whitespace-nowrap">Status</th>
-                <th className="px-4 py-3 text-right whitespace-nowrap">Aksi</th>
+                <th className="px-6 py-3 whitespace-nowrap">Event</th>
+                <th className="px-6 py-3 whitespace-nowrap">Penyelenggara & Waktu</th>
+                <th className="px-6 py-3 text-center whitespace-nowrap">Kategori</th>
+                <th className="px-6 py-3 text-center whitespace-nowrap">Pendaftar</th>
+                <th className="px-6 py-3 text-center whitespace-nowrap">Status</th>
+                <th className="px-6 py-3 text-right whitespace-nowrap">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200/60 text-xs">
               {sortedEvents.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-16 text-center text-slate-500">
+                  <td colSpan={7} className="px-6 py-16 text-center text-slate-500">
                     <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mx-auto mb-3 border border-slate-100 shadow-inner">
                       <Search className="text-slate-300" size={20} />
                     </div>
@@ -303,9 +303,9 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                 </tr>
               ) : (
                 sortedEvents.map((event, index) => (
-                  <tr key={event.id} className={cn("hover:bg-slate-50/50 transition-colors group", selectedRowIds.has(event.id) && "bg-blue-50/30")}>
+                  <tr key={event.id} className={cn("hover:bg-slate-50/25 transition-colors group", selectedRowIds.has(event.id) && "bg-blue-50/30")}>
                     {/* Checkbox & Number */}
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-6 py-3.5 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <input 
                           type="checkbox" 
@@ -316,9 +316,9 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                         <span className="text-[10px] font-bold text-slate-400">{index + 1}</span>
                       </div>
                     </td>
-
+ 
                     {/* Column 1: Event */}
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200/60 group-hover:border-[#0E215D]/20 transition-colors">
                           {event.bannerUrl ? (
@@ -330,59 +330,64 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                             </div>
                           )}
                         </div>
-                        <div className="font-bold text-slate-900 group-hover:text-[#0E215D] transition-colors truncate max-w-[200px]" title={event.judul}>
+                        <div className="font-semibold text-slate-800 text-[13px] group-hover:text-[#0E215D] transition-colors truncate max-w-[200px]" title={event.judul}>
                           {event.judul}
                         </div>
                       </div>
                     </td>
-
+ 
                     {/* Column 2: Penyelenggara & Waktu */}
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-3.5">
                       <div className="font-semibold text-slate-700 truncate max-w-[150px]">{event.penyelenggara || 'Institusi Polines'}</div>
                       <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
                         <Clock size={10} className="text-slate-400" />
                         {format(new Date(event.tanggalMulai), 'dd MMM yyyy', { locale: id })}
                       </div>
                     </td>
-
+ 
                     {/* Column 3: Kategori */}
-                    <td className="px-4 py-3 text-center">
-                      <div className="inline-block px-2 py-1 rounded text-[9px] font-black bg-blue-50 text-blue-600 uppercase tracking-wider border border-blue-100/50">
-                        {event.jenisEvent || 'Event'}
-                      </div>
+                    <td className="px-6 py-3.5 text-center">
+                      <span className={cn(
+                        "inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold border tracking-wider uppercase whitespace-nowrap",
+                        event.jenisEvent === 'conference'
+                          ? "bg-blue-50 text-blue-700 border-blue-200/60"
+                          : "bg-indigo-50 text-indigo-700 border-indigo-200/60"
+                      )}>
+                        {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'}
+                      </span>
                     </td>
                     
                     {/* Column 4: Monitoring */}
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-3.5">
                       <div className="flex justify-center">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-[#0E215D] rounded-full text-xs font-black border border-slate-200/50">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-slate-50 text-[#0E215D] rounded-full text-xs font-bold border border-slate-200/60">
                           <Users size={12} strokeWidth={2.5} />
                           {event.participantCount || 0}
                         </div>
                       </div>
                     </td>
-
+ 
                     {/* Column 5: Status */}
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-3.5">
                       <div className="flex justify-center">
                         {event.status === 'pending' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black bg-amber-50 text-amber-600 uppercase tracking-widest border border-amber-200/50">
-                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span> Pending
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 uppercase tracking-wider border border-amber-200/60">
+                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span> Menunggu
                           </span>
                         ) : event.status === 'published' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-600 uppercase tracking-widest border border-emerald-200/50">
-                            <CheckCircle size={12} strokeWidth={3} /> Published
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 uppercase tracking-wider border border-emerald-200/60">
+                            <CheckCircle size={10} strokeWidth={3} /> Disetujui
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black bg-rose-50 text-rose-600 uppercase tracking-widest border border-rose-200/50">
-                            <AlertCircle size={12} strokeWidth={3} /> Rejected
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-700 uppercase tracking-wider border border-rose-200/60">
+                            <AlertCircle size={10} strokeWidth={3} /> Ditolak
                           </span>
                         )}
                       </div>
                     </td>
-
+ 
                     {/* Column 6: Aksi */}
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-6 py-3.5 text-right">
                       <div className="flex justify-end items-center gap-1">
                         <button 
                           onClick={() => openDetail(event)}
