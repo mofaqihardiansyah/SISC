@@ -11,7 +11,7 @@ const paperSchema = z.object({
   eventId: z.number(),
   judul: z.string().min(5, "Judul minimal 5 karakter"),
   penulis: z.string().min(3, "Penulis harus diisi"),
-  fileUrl: z.string().url("URL file tidak valid"),
+  fileUrl: z.string().min(1, "URL file tidak valid"),
 });
 
 export async function getSubmissionData() {
