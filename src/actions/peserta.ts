@@ -5,11 +5,13 @@ import { peserta, pendaftaran, event } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/auth";
 
+// Tambahkan field bukti_pembayaran di interface agar lolos validasi tipe data
 interface RegistrationData {
   nama_lengkap: string;
   email: string;
   nomor_telepon: string;
   jenis_kelamin: string;
+  bukti_pembayaran: string; // Tipe string untuk menampung nama file
 }
 
 export async function daftarEvent(formData: RegistrationData, eventId: number) {
@@ -52,6 +54,8 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
         kodePendaftaran: kodePendaftaran,
         status: 'terdaftar',
         dibuatPada: new Date(),
+        // Jika di tabel pendaftaran kelompokmu ada kolom untuk bukti bayar, buka komen di bawah ini:
+        // buktiPembayaran: formData.bukti_pembayaran 
       }).returning({ id: pendaftaran.id });
 
       if (!newPendaftaran) {
