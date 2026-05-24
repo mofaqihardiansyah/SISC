@@ -1,79 +1,64 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Area, AreaChart,
-} from "recharts";
+  Chart,
+  LineElement,
+  PointElement,
+  LineController,
+  CategoryScale,
+  LinearScale,
+  Filler,
+  Tooltip,
+} from "chart.js";
 
-type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
-
-interface DataPoint {
-  tanggal: string;
-  jumlah: number;
-}
+Chart.register(LineElement, PointElement, LineController, CategoryScale, LinearScale, Filler, Tooltip);
 
 interface EventChartProps {
-  initialData: DataPoint[];
+  data: { tanggal: string; jumlah: number }[];
 }
 
-export function EventChart({ initialData }: EventChartProps) {
-  const [filter, setFilter] = useState<FilterType>("bulan-ini");
-  const [data, setData] = useState<DataPoint[]>(initialData);
-  const [loading, setLoading] = useState(false);
+export function EventChart({ data }: EventChartProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<Chart | null>(null);
 
   useEffect(() => {
-    if (filter === "bulan-ini") {
-      setData(initialData);
-      return;
-    }
-    setLoading(true);
-    fetch(`/api/organizer/grafik?filter=${filter}`)
-      .then(r => r.json())
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [filter]);
+    if (!canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
 
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">Grafik Peserta</h3>
-          <p className="text-sm text-gray-400">Data pendaftaran real-time</p>
-        </div>
-        <select
-          value={filter}
-          onChange={e => setFilter(e.target.value as FilterType)}
-          className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl p-2.5 font-bold outline-none"
-        >
-          <option value="bulan-ini">Bulan Ini</option>
-          <option value="bulan-lalu">Bulan Lalu</option>
-          <option value="tahun-ini">Tahun Ini</option>
-        </select>
-      </div>
+    chartRef.current = new Chart(canvasRef.current, {
+      type: "line",
+      data: {
+        labels: data.map((d) => d.tanggal),
+        datasets: [{
+          label: "Pendaftar",
+          data: data.map((d) => d.jumlah),
+          borderColor: "#1E3A8A",
+          backgroundColor: "rgba(30, 58, 138, 0.08)",
+          borderWidth: 2.5,
+          pointBackgroundColor: "#1E3A8A",
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.y} pendaftar` } },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: "#9CA3AF" } },
+          y: { beginAtZero: true, grid: { color: "#F3F4F6" }, ticks: { font: { size: 11 }, color: "#9CA3AF", stepSize: 1 } },
+        },
+      },
+    });
 
-      <div className="relative">
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10 rounded-xl">
-            <p className="text-sm text-gray-400">Memuat data...</p>
-          </div>
-        )}
-        <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorPeserta" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={50} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-            <Tooltip formatter={(val) => [val, 'Pendaftar']} />
-            <Area type="monotone" dataKey="jumlah" stroke="#1E3A8A" fill="url(#colorPeserta)" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
+    return () => { chartRef.current?.destroy(); };
+  }, [data]);
+
+  return <canvas ref={canvasRef} />;
 }
