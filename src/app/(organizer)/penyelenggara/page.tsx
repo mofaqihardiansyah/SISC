@@ -1,6 +1,6 @@
 import { StatCard } from "@/components/penyelenggara/stat-card";
 import { EventChart } from "@/components/penyelenggara/EventChart";
-import { Ticket } from "lucide-react";
+import { Users, Calendar, Archive, Clock, Eye, Coins, Ticket } from "lucide-react";
 import { db } from "@/db";
 import { event, peserta, pendaftaran, tayanganLog } from "@/db/schema";
 import { count, eq, and, lt, gte, sql, sum } from "drizzle-orm";
@@ -152,12 +152,12 @@ export default async function PenyelenggaraDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-stretch">
-        <StatCard title="Total Peserta" value={totalPesertaResult.total.toLocaleString()} trend="+0%" className="h-full" />
-        <StatCard title="Event Aktif" value={`${eventAktifResult.total.toLocaleString()} Event`} trend="Real-time" className="h-full" />
-        <StatCard title="Total Event" value={`${eventLaluResult.total.toLocaleString()} Event`} className="h-full" />
-        <StatCard title="Event Pending" value={`${eventPendingResult.total.toLocaleString()} Review`} className="h-full" />
-        <StatCard title="Total Tayangan" value={(totalTayanganResult.total ?? 0).toLocaleString()} className="h-full" />
-        <StatCard title="Total Pendapatan" value={`Rp ${Number(totalPendapatanResult?.total ?? 0).toLocaleString('id-ID')}`} className="h-full" />
+        <StatCard title="Total Peserta" value={totalPesertaResult.total.toLocaleString()} trend="+0%" icon={Users} className="h-full" />
+        <StatCard title="Event Aktif" value={`${eventAktifResult.total.toLocaleString()} Event`} trend="Real-time" icon={Calendar} className="h-full" />
+        <StatCard title="Total Event" value={`${eventLaluResult.total.toLocaleString()} Event`} icon={Archive} className="h-full" />
+        <StatCard title="Event Pending" value={`${eventPendingResult.total.toLocaleString()} Review`} icon={Clock} className="h-full" />
+        <StatCard title="Total Tayangan" value={(totalTayanganResult.total ?? 0).toLocaleString()} icon={Eye} className="h-full" />
+        <StatCard title="Total Pendapatan" value={`Rp ${Number(totalPendapatanResult?.total ?? 0).toLocaleString('id-ID')}`} icon={Coins} className="h-full" />
       </div>
 
       {/* GRAFIK PESERTA */}
