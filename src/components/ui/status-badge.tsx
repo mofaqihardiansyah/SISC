@@ -23,7 +23,7 @@ export function StatusBadge({ status }: { status: string }) {
   const { label, className } = STATUS_CONFIG[status] || STATUS_CONFIG.belum_submit;
 
   return (
-    <span className={cn('inline-block px-2.5 py-1 text-[11px] font-semibold rounded border', className)}>
+    <span className={cn('inline-block px-2 py-0.5 text-[10px] font-bold rounded-md border tracking-wide whitespace-nowrap', className)}>
       {label}
     </span>
   );

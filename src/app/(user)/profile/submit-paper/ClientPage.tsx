@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SubmissionForm } from './SubmissionForm';
 import { EventList } from './EventList';
-import { SubmissionTimeline } from './SubmissionTimeline';
+import { SubmissionDetail } from './SubmissionDetail';
 
 type RegisteredEvent = {
   id: number;
@@ -16,6 +16,8 @@ type RegisteredEvent = {
 type SubmittedPaper = {
   id: number;
   judul: string;
+  penulis: string;
+  fileUrl: string;
   status: 'review' | 'accepted' | 'rejected' | null;
   komentarPenolakan: string | null;
   dibuatPada: Date | null;
@@ -30,8 +32,9 @@ type ClientPageProps = {
 
 export default function ClientPage({ initialRegisteredEvents, initialSubmittedPapers }: ClientPageProps) {
   const searchParams = useSearchParams();
-  const [view, setView] = useState<'list' | 'submit'>('list');
+  const [view, setView] = useState<'list' | 'submit' | 'detail'>('list');
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+  const [selectedPaperId, setSelectedPaperId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -42,11 +45,18 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
       const id = parseInt(eventIdParam);
       const exists = initialRegisteredEvents.some(e => e.id === id);
       if (exists) {
-        setSelectedEventId(id);
-        setView('submit');
+        // Cek jika paper sudah disubmit sebelumnya untuk event ini
+        const existingPaper = initialSubmittedPapers.find(p => p.eventId === id);
+        if (existingPaper && existingPaper.status !== 'rejected') {
+          setSelectedPaperId(existingPaper.id);
+          setView('detail');
+        } else {
+          setSelectedEventId(id);
+          setView('submit');
+        }
       }
     }
-  }, [searchParams, initialRegisteredEvents]);
+  }, [searchParams, initialRegisteredEvents, initialSubmittedPapers]);
 
   const selectedEvent = initialRegisteredEvents.find(e => e.id === selectedEventId);
 
@@ -72,26 +82,40 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
     setView('submit');
   };
 
+  const handleViewDetailByEvent = (eventId: number) => {
+    const paper = initialSubmittedPapers.find(p => p.eventId === eventId);
+    if (paper) {
+      setSelectedPaperId(paper.id);
+      setView('detail');
+    }
+  };
+
+  const handleViewDetailByPaper = (paperId: number) => {
+    setSelectedPaperId(paperId);
+    setView('detail');
+  };
+
   const handleBackToList = () => {
     setView('list');
     setSelectedEventId(null);
+    setSelectedPaperId(null);
   };
 
   return (
     <div className="min-h-screen bg-slate-50/50">
-      <div className="max-w-7xl mx-auto space-y-8 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-6 py-6 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
             Submit Paper
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-0.5">
             Kirim paper untuk conference yang sudah Anda daftarkan.
           </p>
         </div>
 
         {view === 'list' ? (
-          <div className="space-y-8 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-in fade-in duration-300">
             {/* Search & Filter */}
             <div className="flex flex-col sm:flex-row gap-3">
               <input
@@ -116,15 +140,14 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
 
             {/* Event List Table */}
             <div>
-              <h2 className="text-sm font-semibold text-slate-900 mb-3">Conference Terdaftar</h2>
+              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Conference Terdaftar</h2>
               <EventList
                 events={filteredEvents}
                 onStartSubmit={handleStartSubmit}
+                onViewDetail={handleViewDetailByEvent}
               />
             </div>
 
-            {/* Submission History */}
-            <SubmissionTimeline papers={initialSubmittedPapers} />
 
             {/* Info Note */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -133,11 +156,16 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
               </p>
             </div>
           </div>
-        ) : (
+        ) : view === 'submit' ? (
           <SubmissionForm
             selectedEvent={selectedEvent}
             onBack={handleBackToList}
             onSuccess={handleBackToList}
+          />
+        ) : (
+          <SubmissionDetail
+            paper={initialSubmittedPapers.find(p => p.id === selectedPaperId)}
+            onBack={handleBackToList}
           />
         )}
       </div>
