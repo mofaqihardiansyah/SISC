@@ -28,7 +28,7 @@ export default function AdminUserMenu({ user }: AdminUserMenuProps) {
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef} suppressHydrationWarning>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-3 pl-4 border-l border-gray-100 group transition-all"
