@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { SubmissionForm } from './SubmissionForm';
 import { EventList } from './EventList';
 import { SubmissionTimeline } from './SubmissionTimeline';
@@ -28,10 +29,24 @@ type ClientPageProps = {
 };
 
 export default function ClientPage({ initialRegisteredEvents, initialSubmittedPapers }: ClientPageProps) {
+  const searchParams = useSearchParams();
   const [view, setView] = useState<'list' | 'submit'>('list');
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Handle direct event selection from URL query params
+  useEffect(() => {
+    const eventIdParam = searchParams.get('eventId');
+    if (eventIdParam) {
+      const id = parseInt(eventIdParam);
+      const exists = initialRegisteredEvents.some(e => e.id === id);
+      if (exists) {
+        setSelectedEventId(id);
+        setView('submit');
+      }
+    }
+  }, [searchParams, initialRegisteredEvents]);
 
   const selectedEvent = initialRegisteredEvents.find(e => e.id === selectedEventId);
 

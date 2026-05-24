@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -20,6 +22,7 @@ interface DataEvent {
 }
 
 export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string; dataEvent: DataEvent }) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     nama_lengkap: '',
     email: '',
@@ -57,9 +60,10 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
 
     const res = await daftarEvent(formData, Number(eventId));
     if (res.success) {
-      alert(`Pendaftaran Berhasil Disimpan untuk Event: ${dataEvent.judul}`);
+      toast.success(`Pendaftaran Berhasil! Silakan lengkapi submission paper Anda.`);
+      router.push(`/profile/submit-paper?eventId=${eventId}`);
     } else {
-      alert("Gagal menyimpan data. Cek terminal!");
+      toast.error(res.error || "Gagal menyimpan data.");
     }
   };
 
