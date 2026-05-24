@@ -11,24 +11,26 @@ interface StatCardProps {
 
 export function StatCard({ title, value, trend, icon: Icon, className }: StatCardProps) {
   return (
-    <div className={cn("bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between", className)}>
-        <div className="flex justify-between items-start">
-        <div>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{title}</p>
-          <h3 className="text-3xl font-extrabold mt-2 text-gray-900">{value}</h3>
-          {trend && (
-            <div className="flex items-center gap-1 mt-2">
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
-              {trend}
-            </span>
-              <span className="text-[10px] text-gray-400 font-medium">Bulan ini</span>
-            </div>
-          )}
+    <div className={cn("bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between", className)}>
+      <div className="w-full">
+        <div className="flex justify-between items-center gap-2 w-full">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate">{title}</p>
+          <div className="p-1.5 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+            <Icon className="w-4 h-4" />
+          </div>
         </div>
-        <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
-          <Icon className="w-6 h-6" />
-        </div>
+        <h3 className="text-lg sm:text-xl font-extrabold mt-2 text-gray-900 tracking-tight leading-none truncate" title={String(value)}>
+          {value}
+        </h3>
       </div>
+      {trend && (
+        <div className="flex items-center gap-1 mt-3 pt-2 border-t border-gray-50">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-green-100 text-green-700">
+            {trend}
+          </span>
+          <span className="text-[9px] text-gray-400 font-medium whitespace-nowrap">Bulan ini</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,11 +14,11 @@ import {
 
 Chart.register(LineElement, PointElement, LineController, CategoryScale, LinearScale, Filler, Tooltip);
 
-interface EventChartProps {
+interface ViewChartProps {
   data: { tanggal: string; jumlah: number }[];
 }
 
-export function EventChart({ data }: EventChartProps) {
+export function ViewChart({ data }: ViewChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
@@ -31,12 +31,12 @@ export function EventChart({ data }: EventChartProps) {
       data: {
         labels: data.map((d) => d.tanggal),
         datasets: [{
-          label: "Pendaftar",
+          label: "Tayangan",
           data: data.map((d) => d.jumlah),
-          borderColor: "#1E3A8A",
-          backgroundColor: "rgba(30, 58, 138, 0.08)",
+          borderColor: "#6366F1", // Indigo for views/logs
+          backgroundColor: "rgba(99, 102, 241, 0.08)",
           borderWidth: 2.5,
-          pointBackgroundColor: "#1E3A8A",
+          pointBackgroundColor: "#6366F1",
           pointRadius: 4,
           pointHoverRadius: 6,
           fill: true,
@@ -48,11 +48,23 @@ export function EventChart({ data }: EventChartProps) {
         maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.y} pendaftar` } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.parsed.y} tayangan`,
+            },
+          },
         },
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 11 }, color: "#9CA3AF" } },
-          y: { beginAtZero: true, grid: { color: "#F3F4F6" }, ticks: { font: { size: 11 }, color: "#9CA3AF", stepSize: 1 } },
+          y: {
+            beginAtZero: true,
+            grid: { color: "#F3F4F6" },
+            ticks: {
+              font: { size: 11 },
+              color: "#9CA3AF",
+              stepSize: 1,
+            },
+          },
         },
       },
     });
@@ -63,7 +75,7 @@ export function EventChart({ data }: EventChartProps) {
   return (
     <div className="w-full h-full min-h-[300px]">
       <div className="flex justify-between items-center mb-4">
-        <h4 className="text-sm font-extrabold text-gray-900">Grafik Pendaftar Bulan Ini</h4>
+        <h4 className="text-sm font-extrabold text-gray-900">Grafik Tayangan Bulan Ini</h4>
       </div>
       <div className="h-[250px] relative">
         <canvas ref={canvasRef} />

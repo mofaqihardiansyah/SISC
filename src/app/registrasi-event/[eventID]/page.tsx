@@ -25,6 +25,9 @@ export default async function RegistrasiEventPage({
   // 3. Ambil data event dari database
   const dataEvent = await db.query.event.findFirst({
     where: eq(event.id, Number(eventID)),
+    with: {
+      kategori: true,
+    },
   });
 
   if (!dataEvent) {
@@ -47,7 +50,7 @@ export default async function RegistrasiEventPage({
           dataEvent={{
             judul: dataEvent.judul,
             linkEksternal: dataEvent.linkEksternal,
-            kategori: dataEvent.kategori,
+            kategori: dataEvent.kategori?.nama,
             harga: dataEvent.harga // <-- Ambil nilai harga dari DB (contoh: 0 atau 50000)
           }} 
           currentUser={session.user} 
