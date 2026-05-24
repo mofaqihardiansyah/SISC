@@ -1,6 +1,7 @@
 import { getSubmissionData } from "@/actions/paper";
 import ClientPage from "./ClientPage";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export default async function Page() {
   const data = await getSubmissionData();
@@ -10,9 +11,11 @@ export default async function Page() {
   }
 
   return (
-    <ClientPage 
-      initialRegisteredEvents={data.registeredEvents || []} 
-      initialSubmittedPapers={data.submittedPapers || []} 
-    />
+    <Suspense fallback={<div className="p-8 text-center text-slate-500">Loading...</div>}>
+      <ClientPage 
+        initialRegisteredEvents={data.registeredEvents || []} 
+        initialSubmittedPapers={data.submittedPapers || []} 
+      />
+    </Suspense>
   );
 }
