@@ -5,6 +5,19 @@ import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin } from "lucide-
 // Import getDaftarEvent dan updateEventDatabase dengan aman
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 
+interface EventData {
+  id: number;
+  judul: string;
+  status: string;
+  kategori: string;
+  sub: string;
+  peserta: string;
+  harga: string;
+  tanggal: string;
+  img: string;
+  alasan?: string;
+}
+
 export default function KelolaEventPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);

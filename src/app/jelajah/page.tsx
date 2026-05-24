@@ -63,14 +63,14 @@ function JelajahContent() {
   useEffect(() => {
     fetch('/api/events?mode=kota')
       .then(res => res.json())
-      .then(data => setKotaList(data.map((k: any) => k.nama)))
+      .then(data => setKotaList(data.map((k: { nama: string }) => k.nama)))
       .catch(err => console.error("Gagal fetch kota:", err));
   }, []);
 
   useEffect(() => {
     fetch('/api/events?mode=kategori')
       .then(res => res.json())
-      .then(data => setKategoriList(data.map((k: any) => k.nama)))
+      .then(data => setKategoriList(data.map((k: { nama: string }) => k.nama)))
       .catch(err => console.error("Gagal fetch kategori:", err));
   }, []);
   
@@ -332,7 +332,7 @@ function JelajahContent() {
             <>
               <p className="text-sm text-gray-500 mb-6">
                 Menampilkan <b>{totalEvents}</b> event
-                {searchTerm && <span> untuk "<b>{searchTerm}</b>"</span>}
+                {searchTerm && <span> untuk &ldquo;<b>{searchTerm}</b>&rdquo;</span>}
               </p>
 
               {events.length === 0 ? (

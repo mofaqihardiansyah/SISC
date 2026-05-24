@@ -2,9 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { Activity, Megaphone, MapPin, Calendar, Bookmark, History } from 'lucide-react';
 import { db } from '@/db'; 
-import { auth } from '@/auth';
-import { event, bookmark, pendaftaran } from '@/db/schema'; 
-import { desc, eq, and } from 'drizzle-orm';
+import { event, pemberitahuan, favorit, pendaftaran } from '@/db/schema'; 
+import { desc, eq, count } from 'drizzle-orm';
 
 function StatsCard({ label, value, bg, renderIcon }: { 
   label: string; 
@@ -26,26 +25,12 @@ function StatsCard({ label, value, bg, renderIcon }: {
 }
 
 export default async function UserDashboard() {
-  const session = await auth();
-  const userId = session?.user?.id ? Number(session.user.id) : null;
-  // 3. Query data spesifik user
-  const userBookmarks = userId 
-    ? await db.select().from(bookmark).where(eq(bookmark.userId, userId))
-    : [];
-  const userRegistrations = userId
-    ? await db.select().from(pendaftaran).where(eq(pendaftaran.userId, userId))
-    : [];
-  const activeEvents = await db.select()
-    .from(event)
-    .where(eq(event.status, 'published'));
-
+  const activeEvents = await db.select().from(event).where(eq(event.status, 'published'));
   const upcomingEventsData = await db.select().from(event).limit(3);
-
-  const latestEventsData = await db.select()
-    .from(event)
-    .where(eq(event.status, 'published'))
-    .orderBy(desc(event.dibuatPada))
-    .limit(4);
+  const pemberitahuanData = await db.select().from(pemberitahuan).orderBy(desc(pemberitahuan.createdAt)).limit(4);
+  
+  const favoriteRes = await db.select({ value: count() }).from(favorit);
+  const registeredRes = await db.select({ value: count() }).from(pendaftaran);
 
   const stats = [
     {
@@ -56,17 +41,28 @@ export default async function UserDashboard() {
     },
     {
       label: 'Event Favorit',
-      value: userBookmarks.length, 
+      value: favoriteRes[0]?.value ?? 0, 
       bg: 'from-violet-100 to-violet-50 border-violet-200',
       icon: <Bookmark className="w-8 h-8 text-violet-600" />
     },
     {
       label: 'Event Diikuti',
-      value: userRegistrations.length, 
+      value: registeredRes[0]?.value ?? 0, 
       bg: 'from-blue-100 to-blue-50 border-blue-200',
       icon: <History className="w-8 h-8 text-blue-600" />
     },
   ];
+
+  const getRelativeTime = (date: Date | null | undefined) => {
+    if (!date) return 'Waktu tidak tersedia';
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return 'Baru saja';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m lalu`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}j lalu`;
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  };
 
   return (
     <div className="space-y-8 p-6 md:p-8 bg-slate-50">
@@ -129,18 +125,16 @@ export default async function UserDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {latestEventsData.length > 0 ? (
-            latestEventsData.map((data) => (
-              <div key={data.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-blue-200 transition-all group">
+          {pemberitahuanData.length > 0 ? (
+            pemberitahuanData.map((news) => (
+              <div key={news.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-blue-200 transition-all group">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="px-2 py-1 rounded text-[10px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">
-                    Event Baru
+                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${news.tag === 'Penting' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
+                    {news.tag}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Baru Saja</span>
+                  <span className="text-[10px] text-slate-400 font-medium">{getRelativeTime(news.createdAt)}</span>
                 </div>
-                <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900">
-                  <span className="font-bold text-[#0E215D]">{data.judul}</span> telah dibuka pendaftarannya! Jangan sampai kehabisan kuota.
-                </p>
+                <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900">{news.isi}</p>
               </div>
             ))
           ) : (

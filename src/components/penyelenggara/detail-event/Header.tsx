@@ -1,7 +1,15 @@
 "use client";
 
+import type { event } from "@/db/schema";
+import type { InferSelectModel } from "drizzle-orm";
+
+type EventWithKategori = InferSelectModel<typeof event> & {
+  kategori?: { nama: string | null } | null;
+  kota?: { provinsi?: { nama: string | null } | null } | null;
+};
+
 type Props = {
-  event: any;
+  event: EventWithKategori;
 };
 
 export default function Header({ event }: Props) {
