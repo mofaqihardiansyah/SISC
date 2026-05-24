@@ -135,7 +135,7 @@ export async function approveEvent(id: number) {
       .set({ status: "published", diperbaruiPada: new Date() })
       .where(eq(event.id, id));
 
-    revalidatePath("/admin/persetujuan-event");
+    revalidatePath("/admin/persetujuan");
     return { success: true, message: "Event berhasil disetujui" };
   } catch (error) {
     console.error("[approveEvent] Error:", error);
@@ -154,7 +154,7 @@ export async function rejectEvent(id: number, reason?: string) {
       })
       .where(eq(event.id, id));
 
-    revalidatePath("/admin/persetujuan-event");
+    revalidatePath("/admin/persetujuan");
     return { success: true, message: "Event berhasil ditolak" };
   } catch (error) {
     console.error("[rejectEvent] Error:", error);

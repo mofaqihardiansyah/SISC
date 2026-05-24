@@ -67,12 +67,12 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
     }
   };
 
-  const formatGenderEnum = (gender: string | null | undefined) => {
+  const formatGenderEnum = (gender: string | null | undefined): "Laki-laki" | "Perempuan" => {
     if (!gender) return "Laki-laki";
     const lower = gender.toLowerCase();
     if (lower === "pria" || lower === "laki-laki" || lower === "male") return "Laki-laki";
     if (lower === "wanita" || lower === "perempuan" || lower === "female") return "Perempuan";
-    return gender;
+    return "Laki-laki";
   };
 
   const checkIsConference = () => {
@@ -102,8 +102,6 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
       email: currentUser?.email || "visitor@gmail.com",
       nomor_telepon: currentUser?.nomorTelepon && currentUser.nomorTelepon !== "-" ? currentUser.nomorTelepon : "08123456789",
       jenis_kelamin: formatGenderEnum(currentUser?.jenisKelamin),
-      // Jika gratis, isi nama file bukti pembayaran dengan tanda khusus "GRATIS" agar database aman
-      bukti_pembayaran: isGratis ? "GRATIS_EVENT" : (buktiPembayaran?.name || "tanpa_bukti")
     };
 
     try {
@@ -130,6 +128,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
         });
       }
     } catch (err) {
+      console.error("Error mendaftar event:", err);
       setIsLoading(false);
       setModalStatus({
         isOpen: true,
@@ -144,7 +143,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
     setModalStatus((prev) => ({ ...prev, isOpen: false }));
     if (modalStatus.type === 'success' || modalStatus.title === 'Sudah Terdaftar') {
       if (checkIsConference()) {
-        router.push('/profile/submit-paper');
+        router.push(`/profile/submit-paper?eventId=${eventId}`);
       } else {
         router.push(`/event/${eventId}`);
       }

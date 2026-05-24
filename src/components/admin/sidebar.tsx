@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
-  { icon: FileCheck, label: 'Persetujuan', href: '/admin/persetujuan-event' },
+  { icon: FileCheck, label: 'Persetujuan', href: '/admin/persetujuan' },
   { icon: Users, label: 'Penyelenggara', href: '/admin/penyelenggara' },
   { icon: Calendar, label: 'Events', href: '/admin/events' },
   { icon: UserCog, label: 'Manajemen User', href: '/admin/manajemen-user' },
