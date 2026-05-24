@@ -42,12 +42,14 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
     }
 
     // Optimasi 2: Gunakan Database Transaction agar proses insert atomic
-    // Jika `insert(peserta)` gagal, maka `insert(pendaftaran)` akan otomatis di-rollback.
     await db.transaction(async (tx) => {
       // 1. Buat data pendaftaran terlebih dahulu
+      const kodePendaftaran = `REG-${idEvent}-${idUser}-${Date.now()}`;
+      
       const [newPendaftaran] = await tx.insert(pendaftaran).values({
         eventId: idEvent,
         userId: idUser,
+        kodePendaftaran: kodePendaftaran,
         status: 'terdaftar',
         dibuatPada: new Date(),
       }).returning({ id: pendaftaran.id });
@@ -56,15 +58,20 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
         throw new Error("Gagal membuat data pendaftaran");
       }
 
+      // Mapping Jenis Kelamin dari form ke Enum Database
+      const jenisKelaminMap: Record<string, "Laki-laki" | "Perempuan"> = {
+        pria: "Laki-laki",
+        wanita: "Perempuan",
+      };
+
       // 2. Gunakan ID pendaftaran yang baru dibuat untuk mendaftarkan peserta
       await tx.insert(peserta).values({
         namaLengkap: formData.nama_lengkap, 
         email: formData.email,
         nomorTelepon: formData.nomor_telepon,
-        jenisKelamin: formData.jenis_kelamin, 
+        jenisKelamin: jenisKelaminMap[formData.jenis_kelamin] || "Laki-laki", 
         pendaftaranId: newPendaftaran.id, 
-        kodePeserta: `REG-${idEvent}-${Date.now()}`, 
-        sudahCheckIn: false,
+        kodePeserta: `PES-${idEvent}-${idUser}-${Math.floor(Math.random() * 1000)}`,
       });
     });
 

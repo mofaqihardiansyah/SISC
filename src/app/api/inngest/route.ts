@@ -2,7 +2,11 @@ import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-let _handler: { GET: Function; POST: Function; PUT: Function } | null = null;
+let _handler: {
+  GET: (req: NextRequest, ...args: unknown[]) => Promise<Response>;
+  POST: (req: NextRequest, ...args: unknown[]) => Promise<Response>;
+  PUT: (req: NextRequest, ...args: unknown[]) => Promise<Response>;
+} | null = null;
 
 async function getHandler() {
   if (!_handler) {
@@ -11,7 +15,7 @@ async function getHandler() {
     const { scrapeEvents } = await import("@/lib/inngest/functions");
     _handler = serve({ client: inngest, functions: [scrapeEvents] });
   }
-  return _handler;
+  return _handler!;
 }
 
 export async function GET(req: NextRequest) {

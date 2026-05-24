@@ -9,8 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { signIn, getSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -21,7 +20,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -54,9 +52,19 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
+        // Ambil session untuk cek role
+        const session = await getSession();
+        const role = (session?.user as { role?: string })?.role;
+
         toast.success('Berhasil masuk!');
-        router.push('/');
-        router.refresh();
+        
+        if (role === 'admin') {
+          window.location.assign('/admin/dashboard');
+        } else if (role === 'organizer') {
+          window.location.assign('/penyelenggara');
+        } else {
+          window.location.assign('/');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

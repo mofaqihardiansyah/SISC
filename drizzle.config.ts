@@ -8,6 +8,6 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: "postgresql://sisc_user:sisc_password@localhost:5433/sisc_db",
+    url: process.env.DATABASE_URL || "postgresql://sisc_user:sisc_password@localhost:5433/sisc_db",
   },
 });

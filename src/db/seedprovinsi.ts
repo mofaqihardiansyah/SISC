@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { db } from "./index";
 import { provinsi } from "./schema";
 
-async function main() {
+export async function seedProvinsi() {
   console.log("🚀 Seeding provinsi...");
 
   const dataProvinsi = [
@@ -56,7 +56,3 @@ async function main() {
   console.log("✅ Berhasil seed provinsi!");
 }
 
-main().catch((err) => {
-  console.error("❌ Error seeding provinsi:", err);
-  process.exit(1);
-});

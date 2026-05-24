@@ -1,7 +1,11 @@
 CREATE TYPE "public"."event_status" AS ENUM('pending', 'published', 'rejected');--> statement-breakpoint
 CREATE TYPE "public"."jenis_event" AS ENUM('seminar', 'conference');--> statement-breakpoint
+CREATE TYPE "public"."jenis_kelamin" AS ENUM('Laki-laki', 'Perempuan');--> statement-breakpoint
+CREATE TYPE "public"."paper_status" AS ENUM('review', 'accepted', 'rejected');--> statement-breakpoint
+CREATE TYPE "public"."pendaftaran_status" AS ENUM('terdaftar', 'dibatalkan', 'hadir');--> statement-breakpoint
 CREATE TYPE "public"."tipe_harga" AS ENUM('free', 'paid');--> statement-breakpoint
 CREATE TYPE "public"."tipe_platform" AS ENUM('online', 'offline', 'hybrid');--> statement-breakpoint
+CREATE TYPE "public"."user_role" AS ENUM('admin', 'organizer', 'visitor');--> statement-breakpoint
 CREATE TABLE "bookmark" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer,
@@ -109,7 +113,7 @@ CREATE TABLE "paper_submission" (
 	"judul" varchar(255) NOT NULL,
 	"penulis" text NOT NULL,
 	"file_url" varchar(512) NOT NULL,
-	"status" varchar(50) DEFAULT 'review',
+	"status" "paper_status" DEFAULT 'review',
 	"komentar_penolakan" text,
 	"dibuat_pada" timestamp DEFAULT now(),
 	"diperbarui_pada" timestamp
@@ -120,7 +124,7 @@ CREATE TABLE "pendaftaran" (
 	"event_id" integer,
 	"user_id" integer,
 	"kode_pendaftaran" varchar(50),
-	"status" varchar(50) DEFAULT 'terdaftar',
+	"status" "pendaftaran_status" DEFAULT 'terdaftar',
 	"dibuat_pada" timestamp DEFAULT now(),
 	"diperbarui_pada" timestamp,
 	"dihapus_pada" timestamp,
@@ -134,7 +138,7 @@ CREATE TABLE "peserta" (
 	"nama_lengkap" varchar(255),
 	"email" varchar(255),
 	"nomor_telepon" varchar(20),
-	"jenis_kelamin" varchar(20),
+	"jenis_kelamin" "jenis_kelamin",
 	"sudah_check_in" boolean DEFAULT false,
 	"waktu_check_in" timestamp,
 	CONSTRAINT "peserta_kode_peserta_unique" UNIQUE("kode_peserta")
@@ -173,9 +177,9 @@ CREATE TABLE "users" (
 	"password" varchar(255),
 	"email_verified" timestamp,
 	"tanggal_lahir" timestamp,
-	"jenis_kelamin" varchar(20),
+	"jenis_kelamin" "jenis_kelamin",
 	"nik" varchar(16),
-	"role" varchar(50),
+	"role" "user_role" DEFAULT 'visitor',
 	"is_terverifikasi" boolean DEFAULT false,
 	"avatar_url" varchar(512) DEFAULT '/uploads/avatars/fotodummy.jpg',
 	"dibuat_pada" timestamp DEFAULT now(),

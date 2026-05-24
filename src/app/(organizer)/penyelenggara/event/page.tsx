@@ -3,9 +3,22 @@
 import React, { useState } from 'react';
 import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Calendar as CalendarIcon, DollarSign } from "lucide-react";
 
+interface EventData {
+  id: number;
+  judul: string;
+  status: string;
+  kategori: string;
+  sub: string;
+  peserta: string;
+  harga: string;
+  tanggal: string;
+  img: string;
+  alasan?: string;
+}
+
 export default function KelolaEventPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
 
   // Data Dummy untuk testing UI
   const events = [
@@ -45,7 +58,7 @@ export default function KelolaEventPage() {
     },
   ];
 
-  const openEditModal = (event: any) => {
+  const openEditModal = (event: EventData) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
   };

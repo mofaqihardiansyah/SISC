@@ -17,13 +17,15 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).unique(),
   nomorTelepon: varchar('nomor_telepon', { length: 20 }),
   institution: varchar('institution', { length: 255 }),
+  pekerjaan: varchar('pekerjaan', { length: 255 }),
   password: varchar('password', { length: 255 }),
   emailVerified: timestamp('email_verified'),
   tanggalLahir: timestamp('tanggal_lahir'),
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
-  nik: varchar('nik', { length: 16 }),
   role: userRoleEnum('role').default('visitor'),
-  isTerverifikasi: boolean('is_terverifikasi').default(false),
+  isApproved: boolean('is_approved').default(false),
+  isSuspended: boolean('is_suspended').default(false),   // 👈 BARU
+  lastActiveAt: timestamp('last_active_at'),              // 👈 BARU
   avatarUrl: varchar('avatar_url', { length: 512 }).default("/uploads/avatars/fotodummy.jpg"),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
@@ -193,8 +195,6 @@ export const peserta = pgTable('peserta', {
   email: varchar('email', { length: 255 }),
   nomorTelepon: varchar('nomor_telepon', { length: 20 }),
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
-  sudahCheckIn: boolean('sudah_check_in').default(false),
-  waktuCheckIn: timestamp('waktu_check_in'),
 });
 
 // 17. PAPER SUBMISSION
@@ -391,3 +391,17 @@ export const favorit = pgTable('favorit', {
 }, (t) => [
   primaryKey({ columns: [t.userId, t.eventId] })
 ]);
+
+export const tayanganLog = pgTable('tayangan_log', {
+  eventId: integer('event_id').references(() => event.id),
+  tanggal: timestamp('tanggal').defaultNow().notNull(),
+}, (t) => ({
+  idx: index('tayangan_log_idx').on(t.eventId, t.tanggal),
+}));
+
+export const tayanganLogRelations = relations(tayanganLog, ({ one }) => ({
+  event: one(event, {
+    fields: [tayanganLog.eventId],
+    references: [event.id],
+  }),
+}));

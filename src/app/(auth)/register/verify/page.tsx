@@ -8,9 +8,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { verifyOtpAction, resendOtpAction } from '@/actions/auth';
 import { Loader2 } from 'lucide-react';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 
 function VerifyContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
   const [otp, setOtp] = React.useState('');
@@ -45,13 +46,22 @@ function VerifyContent() {
       });
       
       if (signInResult?.ok) {
-        window.location.href = '/';
+        const session = await getSession();
+        const role = (session?.user as { role?: string })?.role;
+
+        if (role === 'admin') {
+          window.location.assign('/admin/dashboard');
+        } else if (role === 'organizer') {
+          window.location.assign('/penyelenggara');
+        } else {
+          window.location.assign('/');
+        }
         return;
       }
     }
     
     setIsVerifying(false);
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   const handleResend = async () => {
@@ -69,12 +79,6 @@ function VerifyContent() {
 
   return (
     <AuthLayout leftTitle="Amankan akun anda dengan kode verifikasi.">
-      <div className="absolute top-8 left-8 flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-xl">P</span>
-        </div>
-        <span className="text-primary font-black text-xl tracking-tighter">POLIVENTS</span>
-      </div>
       <div className="space-y-8">
         <div>
           <h2 className="text-3xl font-heading font-black text-slate-900 mb-2 tracking-tight">

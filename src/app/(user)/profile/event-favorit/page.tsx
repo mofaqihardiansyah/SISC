@@ -5,10 +5,24 @@ import { Search, Bookmark } from "lucide-react";
 import { getEvents } from "./action"; 
 import EventCard from "@/components/shared/EventCard"; 
 
+interface EventData {
+  id: number;
+  judul: string | null;
+  bannerUrl: string | null;
+  harga: number | null;
+  tanggalMulai: Date | null;
+  jenisEvent: string | null;
+  penyelenggara: string | null;
+  namaKota: string | null;
+  namaKategori: string | null;
+  isEventPolines: boolean | null;
+  tipePlatform: string | null;
+}
+
 export default function EventFavoritPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -93,20 +107,22 @@ export default function EventFavoritPage() {
               <EventCard 
                 key={item.id}
                 id={item.id.toString()}
-                title={item.judul}
-                imageUrl={item.bannerUrl}
-                date={new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
-                  day: 'numeric', month: 'long', year: 'numeric'
-                })}
-                price={item.harga || 0}
+                title={item.judul ?? ''}
+                imageUrl={item.bannerUrl ?? undefined}
+                date={item.tanggalMulai
+                  ? new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
+                      day: 'numeric', month: 'long', year: 'numeric'
+                    })
+                  : 'Tanggal belum ditentukan'}
+                price={item.harga ?? 0}
                 category={item.jenisEvent || "Seminar"}
                 
                 // Menerapkan logika deteksi
                 type={isPolines ? "POLINES" : "UMUM"}
                 
                 tipePlatform={item.tipePlatform || "Offline"}
-                kotaNama={item.namaKota || "Semarang"}
-                kategoriNama={item.namaKategori || "Pendidikan"}
+                kotaNama={item.namaKota ?? undefined}
+                kategoriNama={item.namaKategori ?? undefined}
                 isLoggedIn={true}
                 isBookmarked={true}
                 onRemove={() => handleRemoveVisual(item.id.toString())}

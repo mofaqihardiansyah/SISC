@@ -3,7 +3,7 @@ import { db } from './index';
 import { users } from './schema';
 import bcrypt from 'bcryptjs';
 
-async function seedUsers() {
+export async function seedUsers() {
   console.log("🚀 Memulai proses seeding user...");
   
   const userData = [
@@ -41,6 +41,7 @@ async function seedUsers() {
       nomorTelepon: "082111222333",
       institution: "Universitas Diponegoro",
       jenisKelamin: "Laki-laki",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Siti Nurhaliza",
@@ -50,6 +51,7 @@ async function seedUsers() {
       nomorTelepon: "082111222334",
       institution: "Universitas Gadjah Mada",
       jenisKelamin: "Perempuan",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Budi Santoso",
@@ -59,6 +61,7 @@ async function seedUsers() {
       nomorTelepon: "082111222335",
       institution: "Institut Teknologi Bandung",
       jenisKelamin: "Laki-laki",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Dewi Anggraini",
@@ -68,6 +71,7 @@ async function seedUsers() {
       nomorTelepon: "082111222336",
       institution: "Universitas Indonesia",
       jenisKelamin: "Perempuan",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Fajar Setiawan",
@@ -77,6 +81,7 @@ async function seedUsers() {
       nomorTelepon: "082111222337",
       institution: "Universitas Brawijaya",
       jenisKelamin: "Laki-laki",
+      pekerjaan: "Dosen",
     },
   ];
 
@@ -93,7 +98,8 @@ async function seedUsers() {
       nomorTelepon: user.nomorTelepon,
       institution: user.institution,
       jenisKelamin: (user as { jenisKelamin?: "Laki-laki" | "Perempuan" }).jenisKelamin,
-      isTerverifikasi: true,
+      pekerjaan: (user as { pekerjaan?: string }).pekerjaan,
+      isApproved: true,
       emailVerified: new Date(),
       avatarUrl: "/uploads/avatars/fotodummy.jpg",
     }).onConflictDoUpdate({
@@ -104,7 +110,9 @@ async function seedUsers() {
         role: user.role as "admin" | "organizer" | "visitor",
         nomorTelepon: user.nomorTelepon,
         institution: user.institution,
-        isTerverifikasi: true,
+        jenisKelamin: (user as { jenisKelamin?: 'Laki-laki' | 'Perempuan' }).jenisKelamin,
+        pekerjaan: (user as { pekerjaan?: string }).pekerjaan,
+        isApproved: true,
         emailVerified: new Date(),
         avatarUrl: "/uploads/avatars/fotodummy.jpg",
       }
@@ -112,10 +120,5 @@ async function seedUsers() {
   }
 
   console.log("✅ Berhasil seed users!");
-  process.exit(0);
 }
 
-seedUsers().catch((err) => {
-  console.error("❌ Error seeding users:", err);
-  process.exit(1);
-});
