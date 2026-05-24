@@ -11,7 +11,7 @@ interface RegistrationData {
   email: string;
   nomor_telepon: string;
   jenis_kelamin: string;
-  bukti_pembayaran: string; // Tipe string untuk menampung nama file
+  bukti_pembayaran?: string; // Tipe string untuk menampung nama file
 }
 
 export async function daftarEvent(formData: RegistrationData, eventId: number) {

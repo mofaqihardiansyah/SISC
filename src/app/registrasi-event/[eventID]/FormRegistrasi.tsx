@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -28,14 +26,21 @@ interface DataEvent {
   linkEksternal?: string | null;
 }
 
-export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string; dataEvent: DataEvent }) {
+interface CurrentUser {
+  name?: string | null;
+  email?: string | null;
+  nomorTelepon?: string | null; 
+  jenisKelamin?: string | null;
+}
+
+interface FormRegistrasiProps {
+  eventId: string;
+  dataEvent: DataEvent;
+  currentUser: CurrentUser; 
+}
+
+export default function FormRegistrasi({ eventId, dataEvent, currentUser }: FormRegistrasiProps) {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    nama_lengkap: '',
-    email: '',
-    nomor_telepon: '',
-    jenis_kelamin: 'pria'
-  });
   const [buktiPembayaran, setBuktiPembayaran] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,12 +65,12 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
     }
   };
 
-  const formatGenderEnum = (gender: string | null | undefined) => {
+  const formatGenderEnum = (gender: string | null | undefined): "Laki-laki" | "Perempuan" => {
     if (!gender) return "Laki-laki";
     const lower = gender.toLowerCase();
     if (lower === "pria" || lower === "laki-laki" || lower === "male") return "Laki-laki";
     if (lower === "wanita" || lower === "perempuan" || lower === "female") return "Perempuan";
-    return gender;
+    return "Laki-laki";
   };
 
   const checkIsConference = () => {
@@ -88,25 +93,59 @@ export default function FormRegistrasi({ eventId, dataEvent }: { eventId: string
       return;
     }
 
-    if (!buktiPembayaran) {
-      alert("Harap unggah bukti pembayaran terlebih dahulu!");
-      return;
+    setIsLoading(true);
+
+    const dataClean = {
+      nama_lengkap: currentUser?.name || "Pengunjung",
+      email: currentUser?.email || "visitor@gmail.com",
+      nomor_telepon: currentUser?.nomorTelepon && currentUser.nomorTelepon !== "-" ? currentUser.nomorTelepon : "08123456789",
+      jenis_kelamin: formatGenderEnum(currentUser?.jenisKelamin),
+    };
+
+    try {
+      const res = await daftarEvent(dataClean, Number(eventId));
+      setIsLoading(false);
+      
+      if (res && res.success) {
+        setModalStatus({
+          isOpen: true,
+          type: 'success',
+          title: 'Pendaftaran Berhasil!',
+          message: `Selamat, Anda berhasil terdaftar pada event "${dataEvent.judul}".`
+        });
+      } else {
+        const isAlreadyRegistered = res?.error?.toLowerCase().includes("sudah terdaftar") || res?.error?.toLowerCase().includes("unique");
+
+        setModalStatus({
+          isOpen: true,
+          type: isAlreadyRegistered ? 'warning' : 'error',
+          title: isAlreadyRegistered ? 'Sudah Terdaftar' : 'Gagal Mendaftar',
+          message: isAlreadyRegistered 
+            ? 'Anda sudah melakukan registrasi pada event ini sebelumnya.' 
+            : (res?.error || "Terjadi kesalahan internal pada server database.")
+        });
+      }
+    } catch (err) {
+      console.error("Error mendaftar event:", err);
+      setIsLoading(false);
+      setModalStatus({
+        isOpen: true,
+        type: 'error',
+        title: 'Gagal Mendaftar',
+        message: 'Terjadi kegagalan koneksi sistem saat menghubungi server.'
+      });
     }
+  };
 
-    // Menggunakan FormData untuk kebutuhan pengiriman file ke Server Action backend
-    const dataToSend = new FormData();
-    dataToSend.append("nama_lengkap", formData.nama_lengkap);
-    dataToSend.append("email", formData.email);
-    dataToSend.append("nomor_telepon", formData.nomor_telepon);
-    dataToSend.append("jenis_kelamin", formData.jenis_kelamin);
-    dataToSend.append("bukti_pembayaran", buktiPembayaran);
-
-    const res = await daftarEvent(formData, Number(eventId));
-    if (res.success) {
-      toast.success(`Pendaftaran Berhasil! Silakan lengkapi submission paper Anda.`);
-      router.push(`/profile/submit-paper?eventId=${eventId}`);
-    } else {
-      toast.error(res.error || "Gagal menyimpan data.");
+  const handleModalAction = () => {
+    setModalStatus((prev) => ({ ...prev, isOpen: false }));
+    if (modalStatus.type === 'success' || modalStatus.title === 'Sudah Terdaftar') {
+      if (checkIsConference()) {
+        router.push(`/profile/submit-paper?eventId=${eventId}`);
+      } else {
+        router.push(`/event/${eventId}`);
+      }
+      router.refresh();
     }
   };
 

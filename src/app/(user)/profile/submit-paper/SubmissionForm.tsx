@@ -38,6 +38,9 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
     if (e.target.files && e.target.files.length > 0) {
       const selected = e.target.files[0];
       if (selected.size > 10 * 1024 * 1024) return toast.error('File maksimal 10MB');
+      if (selected.type !== 'application/pdf' && !selected.name.toLowerCase().endsWith('.pdf')) {
+        return toast.error('Hanya file PDF yang diperbolehkan!');
+      }
       setFile(selected);
     }
   };
@@ -46,6 +49,9 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
     e.preventDefault();
     if (!selectedEvent || !paperTitle || authors.length === 0 || !file) {
       return toast.error('Harap lengkapi semua form dan upload dokumen!');
+    }
+    if (paperTitle.trim().length < 5) {
+      return toast.error('Judul paper minimal 5 karakter!');
     }
 
     setUploading(true);
@@ -173,8 +179,8 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                       <UploadCloud className="text-slate-400 group-hover:text-primary transition-colors" size={24} />
                     </div>
                     <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Klik untuk Unggah Dokumen</span>
-                    <span className="text-xs text-slate-400 mt-1">PDF atau DOCX (Maks. 10MB)</span>
-                    <input type="file" className="hidden" accept=".pdf,.docx,.doc" onChange={handleFileChange} />
+                    <span className="text-xs text-slate-400 mt-1">Hanya file PDF (Maks. 10MB)</span>
+                    <input type="file" className="hidden" accept=".pdf" onChange={handleFileChange} />
                   </label>
                 ) : (
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between animate-in slide-in-from-top-2 duration-300">
@@ -239,7 +245,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
               </li>
               <li className="flex gap-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
-                Pastikan format file sesuai (PDF/DOCX) dan ukuran tidak melebihi 10MB.
+                Pastikan format file sesuai (PDF) dan ukuran tidak melebihi 10MB.
               </li>
               <li className="flex gap-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />

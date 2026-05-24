@@ -1,84 +1,73 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
-  Chart,
-  LineElement,
-  PointElement,
-  LineController,
-  CategoryScale,
-  LinearScale,
-  Filler,
-  Tooltip,
-} from "chart.js";
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer,
+} from "recharts";
 
-Chart.register(LineElement, PointElement, LineController, CategoryScale, LinearScale, Filler, Tooltip);
+type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
 interface PendapatanChartProps {
-  data: { tanggal: string; jumlah: number }[];
+  initialData: { tanggal: string; jumlah: number }[];
 }
 
-export function PendapatanChart({ data }: PendapatanChartProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<Chart | null>(null);
+export function PendapatanChart({ initialData }: PendapatanChartProps) {
+  const [filter, setFilter] = useState<FilterType>("bulan-ini");
+  const [data, setData] = useState(initialData);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    if (chartRef.current) chartRef.current.destroy();
+    if (filter === "bulan-ini") {
+      return;
+    }
+    const controller = new AbortController();
+    fetch(`/api/organizer/grafik-pendapatan?filter=${filter}`, { signal: controller.signal })
+      .then(r => { setLoading(true); return r.json(); })
+      .then(setData)
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [filter]);
 
-    chartRef.current = new Chart(canvasRef.current, {
-      type: "line",
-      data: {
-        labels: data.map((d) => d.tanggal),
-        datasets: [{
-          label: "Pendapatan",
-          data: data.map((d) => d.jumlah),
-          borderColor: "#10B981", // Emerald green for revenue
-          backgroundColor: "rgba(16, 185, 129, 0.08)",
-          borderWidth: 2.5,
-          pointBackgroundColor: "#10B981",
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          fill: true,
-          tension: 0.4,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` Rp ${Number(ctx.parsed.y).toLocaleString("id-ID")}`,
-            },
-          },
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: "#9CA3AF" } },
-          y: {
-            beginAtZero: true,
-            grid: { color: "#F3F4F6" },
-            ticks: {
-              font: { size: 11 },
-              color: "#9CA3AF",
-              callback: (value) => `Rp ${Number(value).toLocaleString("id-ID")}`,
-            },
-          },
-        },
-      },
-    });
-
-    return () => { chartRef.current?.destroy(); };
-  }, [data]);
+  const displayData = filter === "bulan-ini" ? initialData : data;
 
   return (
-    <div className="w-full h-full min-h-[300px]">
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="text-sm font-extrabold text-gray-900">Grafik Pendapatan Bulan Ini</h4>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h3 className="text-lg font-bold text-gray-900">Grafik Pendapatan</h3>
+          <p className="text-sm text-gray-400">Data pendapatan real-time</p>
+        </div>
+        <select
+          value={filter}
+          onChange={e => setFilter(e.target.value as FilterType)}
+          className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl p-2.5 font-bold outline-none"
+        >
+          <option value="bulan-ini">Bulan Ini</option>
+          <option value="bulan-lalu">Bulan Lalu</option>
+          <option value="tahun-ini">Tahun Ini</option>
+        </select>
       </div>
-      <div className="h-[250px] relative">
-        <canvas ref={canvasRef} />
+
+      <div className="relative">
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10 rounded-xl">
+            <p className="text-sm text-gray-400">Memuat data...</p>
+          </div>
+        )}
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={displayData} margin={{ left: 20, right: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={50} />
+            <YAxis
+              tick={{ fontSize: 11 }}
+              tickFormatter={(val) => `Rp ${Number(val).toLocaleString('id-ID')}`}
+              width={90}
+            />
+            <Tooltip formatter={(val) => [`Rp ${Number(val).toLocaleString('id-ID')}`, 'Pendapatan']} />
+            <Bar dataKey="jumlah" fill="#16a34a" radius={[4, 4, 0, 0]} maxBarSize={20} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
