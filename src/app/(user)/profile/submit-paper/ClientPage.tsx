@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { CheckCircle, Clock, AlertCircle, FileText, Building2, ChevronDown, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { SubmissionForm } from './SubmissionForm';
 import { EventList } from './EventList';
+import { SubmissionTimeline } from './SubmissionTimeline';
 
 type RegisteredEvent = {
   id: number;
@@ -67,111 +69,74 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="max-w-7xl mx-auto space-y-10 py-8 px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black text-[#0E215D] tracking-tight">Submit Paper</h1>
-            <p className="text-slate-500 font-medium max-w-2xl">
-              Unggah, kelola, dan pantau status publikasi penelitian Anda di berbagai conference.
-            </p>
-          </div>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight font-heading">
+            Submit Paper
+          </h1>
+          <p className="text-slate-500 text-sm md:text-base max-w-2xl font-medium leading-relaxed">
+            Kelola pengiriman paper Anda dengan sistem yang terintegrasi dan transparan.
+          </p>
         </div>
 
         {view === 'list' ? (
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8">
             
-            {/* Mini Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { label: 'Terdaftar', count: initialRegisteredEvents.length, icon: Building2, color: 'blue', glow: 'bg-blue-500/10' },
-                { label: 'Paper Masuk', count: initialSubmittedPapers.length, icon: FileText, color: 'slate', glow: 'bg-slate-500/10' },
-                { label: 'Review', count: initialSubmittedPapers.filter((p: SubmittedPaper) => p.status === 'review').length, icon: Clock, color: 'amber', glow: 'bg-amber-500/10' },
-                { label: 'Diterima', count: initialSubmittedPapers.filter((p: SubmittedPaper) => p.status === 'accepted').length, icon: CheckCircle, color: 'emerald', glow: 'bg-emerald-500/10' }
-              ].map((stat, i) => (
-                <div key={i} className="group bg-white border border-slate-200/60 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300 relative overflow-hidden">
-                  <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.glow} rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500`}></div>
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
-                      <p className="text-3xl font-black text-[#0E215D]">{stat.count}</p>
-                    </div>
-                    <div className={`
-                      ${stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : ''}
-                      ${stat.color === 'slate' ? 'bg-slate-50 text-slate-600' : ''}
-                      ${stat.color === 'amber' ? 'bg-amber-50 text-amber-500' : ''}
-                      ${stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : ''}
-                      p-4 rounded-2xl transition-transform group-hover:scale-110 duration-300
-                    `}>
-                      <stat.icon size={26} strokeWidth={2.5} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Search and Filter */}
-            <div className="bg-white p-2 rounded-[2rem] border border-slate-200/60 shadow-sm flex flex-col md:flex-row gap-2">
-              {/* Search Bar */}
-              <div className="relative group flex-1">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#0E215D] transition-colors" size={20} />
+            {/* Table Controls */}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <div className="relative group w-full md:max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <input 
                   type="text" 
-                  placeholder="Cari event conference atau penyelenggara..." 
+                  placeholder="Cari conference atau penyelenggara..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-14 pr-6 py-4 bg-transparent outline-none text-sm font-semibold text-slate-700 placeholder:text-slate-400" 
+                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-primary/30 transition-all" 
                 />
               </div>
 
-              {/* Filter Dropdown & Button */}
-              <div className="flex gap-2 p-1">
-                <div className="relative min-w-[180px]">
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <span className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2 text-right">Filter Status:</span>
+                <div className="relative flex-1 md:w-40">
                   <select 
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full appearance-none bg-slate-50 text-slate-700 pl-5 pr-12 py-3.5 rounded-[1.25rem] outline-none text-xs font-black uppercase tracking-widest cursor-pointer border border-transparent focus:border-[#0E215D]/20 transition-all"
+                    className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-600 pl-4 pr-10 py-2 rounded-lg outline-none text-[10px] font-bold uppercase tracking-widest cursor-pointer focus:bg-white focus:border-primary/30 transition-all"
                   >
                     <option value="all">Semua Status</option>
-                    <option value="belum_submit">Belum Submit</option>
-                    <option value="review">Review</option>
-                    <option value="accepted">Diterima</option>
-                    <option value="rejected">Ditolak</option>
+                    <option value="belum_submit">Available</option>
+                    <option value="review">In Review</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="rejected">Rejected</option>
                   </select>
-                  <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
                 </div>
-                <button className="bg-[#0E215D] text-white px-8 py-3.5 rounded-[1.25rem] font-black text-xs uppercase tracking-widest shadow-lg shadow-[#0E215D]/20 hover:bg-[#1a3280] hover:-translate-y-0.5 active:scale-95 transition-all whitespace-nowrap">
-                  Terapkan
-                </button>
               </div>
             </div>
 
-            {/* Modern Grid List (Table Overhaul) */}
-            <div className="space-y-6">
-              <div className="hidden lg:grid grid-cols-12 gap-6 px-12">
-                <div className="col-span-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Informasi Event</div>
-                <div className="col-span-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Penyelenggara</div>
-                <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Status Paper</div>
-                <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Aksi</div>
-              </div>
-
+            {/* Main Table Content */}
+            <div className="space-y-4">
               <EventList 
                 events={filteredEvents} 
                 onStartSubmit={handleStartSubmit}
               />
             </div>
 
-            {/* Info Helper */}
-            <div className="bg-[#0E215D] border border-[#0E215D]/10 p-6 rounded-[2.5rem] flex items-start gap-5 shadow-2xl shadow-[#0E215D]/10 relative overflow-hidden group">
-              <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-              <div className="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/10 shrink-0">
-                <AlertCircle className="text-white" size={20} />
+            {/* Submission History Section */}
+            <SubmissionTimeline papers={initialSubmittedPapers} />
+
+            {/* Info Helper Minimalist */}
+            <div className="bg-slate-900 p-8 rounded-2xl flex items-start gap-6 relative overflow-hidden group">
+              <div className="absolute right-0 bottom-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -mr-20 -mb-20 group-hover:scale-110 transition-transform duration-1000"></div>
+              <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5 shrink-0">
+                <AlertCircle className="text-primary-foreground" size={20} />
               </div>
               <div className="relative z-10">
-                <h4 className="text-sm font-black text-white uppercase tracking-widest mb-1.5">Panduan Pengiriman</h4>
-                <p className="text-xs text-blue-100/70 font-medium leading-relaxed max-w-3xl">
-                  Pastikan Anda mengirimkan paper sebelum batas waktu yang ditentukan oleh penyelenggara. Paper yang sudah masuk ke tahap <span className="text-white font-black">Review</span> tidak dapat diubah kembali informasinya atau ditarik tanpa persetujuan admin.
+                <h4 className="text-sm font-bold text-white mb-2">Penting untuk Diketahui</h4>
+                <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-4xl">
+                  Setiap paper yang dikirimkan akan melalui proses review anonim. Pastikan file yang Anda unggah sesuai dengan <span className="text-white underline underline-offset-4 decoration-primary/50">template yang disediakan</span>. Status paper akan diperbarui secara berkala oleh komite reviewer.
                 </p>
               </div>
             </div>

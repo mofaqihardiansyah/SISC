@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, FileText, Send, UploadCloud } from 'lucide-react';
+import { X, FileText, Send, UploadCloud, ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { submitNewPaper } from '@/actions/paper';
+import { Stepper } from '@/components/ui/stepper';
+import { cn } from '@/lib/utils';
 
 type SubmissionFormProps = {
   selectedEvent: { id: number; judul: string } | undefined;
@@ -11,13 +13,45 @@ type SubmissionFormProps = {
   onSuccess: () => void;
 };
 
+type Step = 'event_info' | 'paper_details' | 'authors' | 'review_submit';
+
+const STEPS = [
+  { id: 'event_info', label: 'Event' },
+  { id: 'paper_details', label: 'Detail' },
+  { id: 'authors', label: 'Penulis' },
+  { id: 'review_submit', label: 'Review' },
+];
+
 export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionFormProps) {
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [paperTitle, setPaperTitle] = useState('');
   const [authors, setAuthors] = useState<string[]>([]);
   const [authorInput, setAuthorInput] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const currentStep = STEPS[currentStepIndex].id as Step;
+
+  const handleNext = () => {
+    if (currentStep === 'paper_details' && !paperTitle.trim()) {
+      return toast.error('Judul penelitian wajib diisi');
+    }
+    if (currentStep === 'authors' && authors.length === 0) {
+      return toast.error('Minimal harus ada satu penulis');
+    }
+    if (currentStepIndex < STEPS.length - 1) {
+      setCurrentStepIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(prev => prev - 1);
+    } else {
+      onBack();
+    }
+  };
 
   const handleAddAuthor = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
@@ -89,140 +123,193 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
   };
 
   return (
-    <section className="animate-in fade-in slide-in-from-right-4 duration-500">
-      <button 
-        onClick={onBack}
-        className="flex items-center gap-3 text-xs font-black text-slate-400 hover:text-[#0E215D] transition-all mb-8 group uppercase tracking-widest"
-      >
-        <div className="bg-white w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center group-hover:border-[#0E215D]/30 group-hover:bg-slate-50 shadow-sm transition-all">
-          <X size={18} />
-        </div>
-        Kembali ke Daftar
-      </button>
-
-      <div className="bg-[#0E215D] text-white p-8 md:p-12 rounded-t-[3rem] shadow-2xl relative overflow-hidden">
-        <div className="absolute -right-12 -top-12 w-64 h-64 bg-white/5 rounded-full blur-[80px]"></div>
-        <div className="absolute left-1/4 -bottom-12 w-48 h-48 bg-blue-400/10 rounded-full blur-[60px]"></div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="flex items-center gap-6">
-            <div className="bg-white/10 p-5 rounded-[1.5rem] backdrop-blur-xl border border-white/10 shadow-inner">
-              <FileText size={32} className="text-white" />
-            </div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+      {/* Header Form */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={handlePrev}
+              className="p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-slate-400 hover:text-slate-900 border border-transparent hover:border-slate-200"
+            >
+              <ChevronLeft size={20} />
+            </button>
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-blue-400/20 text-blue-100 text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg border border-white/10">Registration Ready</span>
-              </div>
-              <p className="text-blue-100/60 text-[10px] font-black uppercase tracking-widest mb-1">Pengiriman Paper Untuk:</p>
-              <h2 className="text-2xl md:text-3xl font-black leading-tight tracking-tight max-w-2xl">{selectedEvent?.judul}</h2>
+              <h2 className="text-xl font-bold text-slate-900 leading-tight">Pengiriman Paper Baru</h2>
+              <p className="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wider">{selectedEvent?.judul}</p>
             </div>
+          </div>
+          <div className="w-full md:w-64">
+            <Stepper steps={STEPS} currentStep={currentStepIndex} />
           </div>
         </div>
       </div>
 
-      <div className="bg-white border-x border-b border-slate-200 rounded-b-3xl shadow-sm p-6 md:p-10">
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 gap-10">
-            <div>
-              <label className="flex items-center gap-3 text-xs font-black text-slate-800 uppercase tracking-widest mb-4">
-                <span className="w-1.5 h-4 bg-[#0E215D] rounded-full"></span>
-                Judul Penelitian <span className="text-rose-500">*</span>
-              </label>
+      {/* Form Content */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden min-h-[400px] flex flex-col">
+        <div className="p-8 flex-1">
+          {currentStep === 'event_info' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
+                    <FileText className="text-primary" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 mb-1">Informasi Conference</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      Anda sedang mendaftarkan paper untuk event <strong>{selectedEvent?.judul}</strong>. Pastikan judul penelitian Anda relevan dengan tema conference ini.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 border border-amber-100 bg-amber-50/50 rounded-xl flex gap-4">
+                <AlertCircle className="text-amber-500 shrink-0" size={20} />
+                <p className="text-xs text-amber-700 font-medium leading-relaxed">
+                  Harap diperhatikan bahwa paper yang sudah disubmit tidak dapat diedit kembali tanpa persetujuan dari pihak penyelenggara atau administrator.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 'paper_details' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-4">
+              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider">Judul Penelitian</label>
               <textarea 
-                required 
-                rows={4}
+                rows={5}
                 value={paperTitle} 
                 onChange={(e) => setPaperTitle(e.target.value)} 
-                placeholder="Masukkan judul penelitian lengkap sesuai dengan dokumen yang diunggah..." 
-                className="w-full p-6 bg-slate-50 border border-slate-200 rounded-[1.5rem] focus:ring-4 focus:ring-[#0E215D]/5 focus:border-[#0E215D] focus:bg-white outline-none text-sm font-semibold text-slate-700 transition-all shadow-sm placeholder:text-slate-300" 
+                placeholder="Tuliskan judul lengkap paper Anda..." 
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white outline-none text-sm font-medium text-slate-700 transition-all placeholder:text-slate-400" 
               />
+              <p className="text-[10px] text-slate-400 font-medium italic">Gunakan kapitalisasi yang benar sesuai standar penulisan ilmiah.</p>
             </div>
+          )}
 
-            <div>
-              <label className="flex items-center gap-3 text-xs font-black text-slate-800 uppercase tracking-widest mb-4">
-                <span className="w-1.5 h-4 bg-[#0E215D] rounded-full"></span>
-                Daftar Penulis <span className="text-rose-500">*</span>
-              </label>
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-3 p-4 border border-slate-200 rounded-[1.5rem] bg-slate-50 focus-within:ring-4 focus-within:ring-[#0E215D]/5 focus-within:border-[#0E215D] focus-within:bg-white transition-all shadow-sm">
-                  {authors.map((author, idx) => (
-                    <span key={idx} className="bg-[#0E215D] text-white px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-3 shadow-lg shadow-[#0E215D]/20 animate-in zoom-in-95 duration-200">
-                      {author} 
-                      <button type="button" onClick={() => removeAuthor(idx)} className="text-blue-300 hover:text-white transition-colors">
-                        <X size={14} strokeWidth={3} />
-                      </button>
-                    </span>
-                  ))}
+          {currentStep === 'authors' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">Daftar Penulis</label>
+                <div className="flex flex-wrap gap-2 mb-4 min-h-[50px] p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  {authors.length === 0 ? (
+                    <p className="text-xs text-slate-400 font-medium self-center px-2">Belum ada penulis ditambahkan...</p>
+                  ) : (
+                    authors.map((author, idx) => (
+                      <span key={idx} className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-2 group transition-all hover:bg-slate-800">
+                        {author} 
+                        <button type="button" onClick={() => removeAuthor(idx)} className="text-slate-400 hover:text-white transition-colors">
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))
+                  )}
+                </div>
+                <div className="relative">
                   <input 
                     type="text" 
-                    placeholder={authors.length === 0 ? "Ketik nama penulis lalu tekan Enter..." : "Tambah penulis..."} 
-                    className="flex-1 outline-none text-sm font-semibold text-slate-700 p-2 bg-transparent min-w-[250px] placeholder:text-slate-300" 
+                    placeholder="Ketik nama penulis lalu tekan Enter..." 
+                    className="w-full pl-4 pr-12 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm font-medium text-slate-700 focus:border-primary transition-all shadow-sm" 
                     value={authorInput} 
                     onChange={e => setAuthorInput(e.target.value)} 
                     onKeyDown={handleAddAuthor} 
                   />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-[10px]">ENTER</div>
                 </div>
-                <p className="text-[10px] text-slate-400 font-bold italic ml-1">Tips: Tekan Enter atau Koma untuk memisahkan nama penulis.</p>
               </div>
             </div>
+          )}
 
-            <div>
-              <label className="flex items-center gap-3 text-xs font-black text-slate-800 uppercase tracking-widest mb-4">
-                <span className="w-1.5 h-4 bg-[#0E215D] rounded-full"></span>
-                Dokumen Full Paper <span className="text-rose-500">*</span>
-              </label>
-              <div className={`relative border-2 border-dashed rounded-[2rem] p-12 text-center transition-all duration-500 ${file ? 'border-[#0E215D]/20 bg-blue-50/30' : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/50 hover:border-[#0E215D]/20'}`}>
-                {!file ? (
-                  <div className="space-y-6">
-                    <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto shadow-sm border border-slate-100">
-                      <UploadCloud className="text-[#0E215D]" size={36} />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-lg font-black text-slate-800 tracking-tight">Tarik & Lepas File Paper</p>
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Mendukung PDF atau DOCX (Maks. 10MB)</p>
-                    </div>
-                    <label className="inline-block bg-[#0E215D] text-white px-10 py-4 rounded-[1.25rem] font-black text-[10px] uppercase tracking-[0.2em] cursor-pointer hover:bg-[#1a3280] transition-all shadow-xl shadow-[#0E215D]/20 active:scale-95">
-                      Cari Berkas <input type="file" className="hidden" accept=".pdf,.docx,.doc" onChange={handleFileChange} />
+          {currentStep === 'review_submit' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Judul Paper</p>
+                    <p className="text-sm font-bold text-slate-900 line-clamp-3">{paperTitle}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Daftar Penulis</p>
+                    <p className="text-sm font-medium text-slate-700">{authors.join(', ')}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Dokumen Paper</p>
+                  {!file ? (
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl p-6 cursor-pointer hover:bg-slate-50 hover:border-primary/30 transition-all group">
+                      <UploadCloud className="text-slate-300 group-hover:text-primary mb-2 transition-colors" size={24} />
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-slate-900 transition-colors">Pilih File (PDF/DOCX)</span>
+                      <input type="file" className="hidden" accept=".pdf,.docx,.doc" onChange={handleFileChange} />
                     </label>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xl w-full max-w-md relative overflow-hidden group">
-                      <div className="absolute top-0 left-0 w-1.5 h-full bg-[#0E215D]"></div>
-                      <div className="bg-slate-50 p-3.5 rounded-xl"><FileText className="text-[#0E215D]" size={28} /></div>
-                      <div className="text-left flex-1 overflow-hidden">
-                        <p className="text-sm font-black text-slate-900 truncate">{file.name}</p>
-                        <p className="text-[10px] font-bold text-[#0E215D]/60 mt-0.5">{(file.size / 1024 / 1024).toFixed(2)} MB • READY TO UPLOAD</p>
+                  ) : (
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between group">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="p-2 bg-white rounded-lg border border-slate-100 shadow-sm shrink-0">
+                          <FileText size={18} className="text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-slate-900 truncate">{file.name}</p>
+                          <p className="text-[10px] text-slate-400 font-medium">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
                       </div>
-                      <button type="button" onClick={() => setFile(null)} className="p-2.5 bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all"><X size={18} /></button>
+                      <button type="button" onClick={() => setFile(null)} className="p-1.5 hover:bg-white rounded-lg text-slate-400 hover:text-rose-500 transition-all">
+                        <X size={16} />
+                      </button>
                     </div>
-                    
-                    {uploading && (
-                      <div className="w-full max-w-md mt-8 space-y-2">
-                        <div className="flex justify-between text-[10px] font-black text-[#0E215D] uppercase tracking-widest">
-                          <span>Mengunggah Berkas...</span> <span>{uploadProgress}%</span>
-                        </div>
-                        <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
-                          <div className="bg-[#0E215D] h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(14,33,93,0.4)]" style={{ width: `${uploadProgress}%` }}></div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="pt-6">
-            <button type="submit" disabled={uploading} className="group w-full flex items-center justify-center gap-4 bg-[#0E215D] hover:bg-[#0a1845] text-white py-6 rounded-[1.5rem] font-black text-sm transition-all shadow-2xl shadow-blue-900/20 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-[0.3em]">
-              {uploading ? <>Sedang Memproses...</> : <><Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> Kirim Paper Sekarang</>}
+              {uploading && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span>Sedang mengunggah...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-100">
+                    <div className="h-full bg-primary transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="p-6 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between gap-4">
+          <button 
+            type="button"
+            onClick={handlePrev}
+            className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-white hover:text-slate-900 border border-transparent hover:border-slate-200 transition-all"
+          >
+            {currentStepIndex === 0 ? 'Batal' : 'Kembali'}
+          </button>
+
+          {currentStep === 'review_submit' ? (
+            <button 
+              onClick={handleSubmit}
+              disabled={uploading || !file}
+              className="px-8 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-slate-900/10 hover:bg-primary active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-3"
+            >
+              {uploading ? 'Memproses...' : (
+                <>
+                  Kirim Sekarang
+                  <Send size={14} />
+                </>
+              )}
             </button>
-            <p className="text-center text-[10px] text-slate-400 mt-8 font-black uppercase tracking-[0.2em] leading-relaxed max-w-lg mx-auto">
-              Pastikan data sudah benar. Paper yang disubmit akan melalui proses review oleh tim ahli.
-            </p>
-          </div>
-        </form>
+          ) : (
+            <button 
+              type="button"
+              onClick={handleNext}
+              className="px-8 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-slate-900/10 hover:bg-primary active:scale-95 transition-all flex items-center gap-3"
+            >
+              Lanjut
+              <ChevronRight size={14} />
+            </button>
+          )}
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

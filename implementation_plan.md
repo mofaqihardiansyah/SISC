@@ -1,62 +1,72 @@
-# Implementation Plan
+# Implementation Plan - Redesain Total Halaman Submit Paper
 
 [Overview]
-Refactor and fix bugs in the Paper Submission module to ensure data integrity and improve maintainability.
+Merombak total antarmuka (UI) dan pengalaman pengguna (UX) pada modul pengiriman paper agar lebih minimalis, modern, dan berstandar industri.
 
-The Paper Submission module currently has a critical data-matching bug (using titles instead of IDs), lacks robust validation, and contains significant UI code duplication. This plan addresses these issues by refactoring the UI into modular components, fixing the matching logic, and enhancing the server actions with validation.
+Tujuan utama adalah menciptakan antarmuka yang bersih, fokus pada fungsionalitas, dan mengurangi beban kognitif pengguna saat melakukan pengiriman karya ilmiah. Desain akan mengikuti prinsip desain minimalis dengan tipografi yang kuat, penggunaan ruang putih yang efektif, dan palet warna brand SISC yang konsisten.
 
-[Types]
-Align TypeScript interfaces with the database schema and actual API responses.
+[Types]  
+Pembaruan tipe data untuk mendukung state form multi-step dan metadata event yang lebih kaya.
 
-- **`RegisteredEvent`**: Update to include essential fields from `event` table.
-- **`SubmittedPaper`**: Update to use `eventId` for matching and align `status` with `paperStatusEnum`.
-- **`SubmissionDataResponse`**: Define a standard response type for `getSubmissionData`.
+```typescript
+type SubmissionStep = 'select_event' | 'paper_details' | 'authors' | 'review_submit';
+
+type EventWithMetadata = RegisteredEvent & {
+  deadlineDate?: Date;
+  submissionCount?: number;
+  status: 'open' | 'closed' | 'review';
+};
+```
 
 [Files]
-Modify existing files to improve structure and fix logic errors.
+Modifikasi file yang ada untuk mengimplementasikan arsitektur komponen yang lebih modular dan bersih.
 
 Detailed breakdown:
-- `src/actions/paper.ts`:
-  - Modify `getSubmissionData` to include `eventId` in `submittedPapers` result.
-  - Modify `submitNewPaper` to add Zod validation and prevent duplicate submissions for the same event (unless rejected).
-- `src/app/(user)/profile/submit-paper/ClientPage.tsx`:
-  - Fix matching logic in `eventsWithStatus` to use `eventId`.
-  - Refactor large JSX blocks into sub-components: `StatsGrid`, `EventFilters`, `EventList`, and `SubmissionForm`.
-- `src/components/profile/PaperSubmissionComponents.tsx`:
-  - Mark as deprecated or refactor to match the modern UI found in `ClientPage.tsx`.
+- `src/app/(user)/profile/submit-paper/ClientPage.tsx`: Modifikasi untuk mengelola state navigasi antar langkah (multi-step) dan layout utama yang lebih bersih.
+- `src/app/(user)/profile/submit-paper/EventList.tsx`: Redesain card event menjadi lebih minimalis dengan informasi yang lebih terstruktur.
+- `src/app/(user)/profile/submit-paper/SubmissionForm.tsx`: Perubahan total menjadi form multi-step dengan transisi halus.
+- `src/components/ui/stepper.tsx`: (Baru) Komponen pendukung untuk indikator langkah pada form.
+- `src/app/(user)/profile/submit-paper/SubmissionTimeline.tsx`: (Baru) Komponen untuk menampilkan status progres paper yang sudah dikirim.
 
 [Functions]
-Improve data handling and validation in key functions.
+Pembaruan logika frontend untuk menangani validasi per langkah dan transisi state.
 
 Detailed breakdown:
-- `getSubmissionData` (src/actions/paper.ts):
-  - Change `eventJudul: event.judul` to `eventId: event.id` in the `submittedPapers` select query.
-- `submitNewPaper` (src/actions/paper.ts):
-  - Add `zod` schema validation for input data.
-  - Add check: `if (existingSubmission && status !== 'rejected') throw Error`.
-- `eventsWithStatus` calculation (src/app/(user)/profile/submit-paper/ClientPage.tsx):
-  - Change `initialSubmittedPapers.find(p => p.eventJudul === event.judul)` to `initialSubmittedPapers.find(p => p.eventId === event.id)`.
+- `handleNextStep`: Mengatur transisi ke langkah berikutnya dengan validasi data di sisi client.
+- `handlePrevStep`: Navigasi kembali tanpa kehilangan state data yang sudah diisi.
+- `renderStepContent`: Fungsi switch untuk menampilkan konten form berdasarkan langkah aktif.
+- `formatFileSize`: Utility baru untuk menampilkan ukuran file secara manusiawi di UI upload.
 
 [Classes]
-No class modifications required as the project uses a functional approach with React and Server Actions.
+Penerapan utilitas Tailwind CSS yang lebih konsisten untuk gaya minimalis.
+
+Detailed breakdown:
+- Penggunaan `shadow-sm` dan `hover:shadow-md` dengan transisi halus (`duration-200`).
+- Border tipis `border-slate-100` atau `border-slate-200` untuk memisahkan elemen.
+- Penerapan `rounded-2xl` untuk elemen card agar terlihat modern namun tetap profesional.
+- Tipografi: `font-heading` (Montserrat) untuk judul besar dan `font-sans` (Inter) untuk teks informatif.
 
 [Dependencies]
-No new dependencies required; utilizing existing `zod` and `lucide-react`.
+Memanfaatkan library yang sudah ada secara maksimal.
+
+- `lucide-react`: Untuk ikonografi minimalis.
+- `framer-motion`: (Jika diizinkan/tersedia) Untuk animasi transisi antar langkah yang halus.
+- `clsx` & `tailwind-merge`: Untuk manajemen class CSS yang dinamis.
 
 [Testing]
-Verify functionality through manual testing and existing patterns.
+Strategi validasi untuk memastikan integritas data dan fungsionalitas UI.
 
-- Test 1: Verify that events with identical titles are correctly distinguished by ID.
-- Test 2: Verify that "Submit Ulang" works correctly for rejected papers.
-- Test 3: Verify that double-submission for a "review" status paper is blocked.
-- Test 4: Verify form validation errors are correctly displayed via `react-hot-toast`.
+- Uji coba pengisian form multi-step dari awal hingga akhir.
+- Validasi upload file (tipe file dan ukuran maksimal).
+- Pengujian responsivitas pada layar mobile, tablet, dan desktop.
+- Verifikasi sinkronisasi status paper setelah submission berhasil.
 
 [Implementation Order]
-Sequential steps to ensure a stable refactor.
+Langkah-langkah logis untuk mengeksekusi redesain tanpa merusak fungsionalitas.
 
-1. Update `src/actions/paper.ts` to include `eventId` in return data.
-2. Update `ClientPage.tsx` logic to use `eventId` for matching.
-3. Extract `SubmissionForm` from `ClientPage.tsx` into a separate component.
-4. Extract `EventList` and `EventCard` from `ClientPage.tsx`.
-5. Add Zod validation to `submitNewPaper` action.
-6. Final cleanup of unused types in `PaperSubmissionComponents.tsx`.
+1. Persiapan komponen UI dasar (Stepper, Card minimalis).
+2. Refactoring `ClientPage.tsx` untuk mendukung state multi-step.
+3. Implementasi redesain `EventList.tsx` dengan gaya minimalis baru.
+4. Pembangunan ulang `SubmissionForm.tsx` menjadi komponen multi-step.
+5. Integrasi `SubmissionTimeline.tsx` untuk visualisasi status paper.
+6. Final polishing: Penyesuaian spacing, warna, dan micro-interactions.
