@@ -73,9 +73,9 @@ function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string
 }
 
 function StatusBadge({ user }: { user: Pick<User, "isSuspended" | "isApproved" | "role"> }) {
-  if (user.isSuspended) return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-500">Suspended</span>;
-  if (user.role === "organizer" && !user.isApproved) return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-50 text-yellow-600">Pending</span>;
-  return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-green-50 text-green-600">Aktif</span>;
+  if (user.isSuspended) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-rose-50 text-rose-700 border-rose-200/60 whitespace-nowrap">Ditangguhkan</span>;
+  if (user.role === "organizer" && !user.isApproved) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-amber-50 text-amber-700 border-amber-200/60 whitespace-nowrap">Menunggu</span>;
+  return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200/60 whitespace-nowrap">Aktif</span>;
 }
 
 function SortIcon({ field, sortBy, sortDir }: { field: SortField; sortBy: SortField; sortDir: SortDir }) {
@@ -394,9 +394,9 @@ export default function ManajemenUserPage() {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b-2 border-gray-100">
-                <th className="py-2.5 px-3 w-10">
+            <thead className="bg-slate-50 border-b border-slate-200/60">
+              <tr>
+                <th className="px-6 py-3 w-10 text-center">
                   <input type="checkbox" checked={allPageSelected} onChange={toggleAll}
                     className="accent-blue-600 cursor-pointer w-3.5 h-3.5" />
                 </th>
@@ -406,18 +406,18 @@ export default function ManajemenUserPage() {
                   return (
                     <th key={field}
                       onClick={() => handleSort(field)}
-                      className="py-2.5 px-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 select-none whitespace-nowrap">
+                      className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 select-none whitespace-nowrap">
                       {labels[field]}
                       <SortIcon field={field} sortBy={sortBy} sortDir={sortDir} />
                     </th>
                   );
                 })}
                 {["Status", "Email", "Aksi"].map((h) => (
-                  <th key={h} className="py-2.5 px-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr><td colSpan={8} className="py-12 text-center text-gray-400">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-400" />Memuat data...
@@ -431,30 +431,30 @@ export default function ManajemenUserPage() {
               ) : (
                 users.map((user) => (
                   <tr key={user.id}
-                    className={`border-b border-gray-50 transition-colors ${selectedRows.includes(user.id) ? "bg-blue-50" : "hover:bg-gray-50"}`}>
-                    <td className="py-2.5 px-3">
+                    className={`hover:bg-slate-50/25 transition-colors ${selectedRows.includes(user.id) ? "bg-blue-50/30" : ""}`}>
+                    <td className="px-6 py-3.5 text-center">
                       <input type="checkbox" checked={selectedRows.includes(user.id)} onChange={() => toggleRow(user.id)}
                         className="accent-blue-600 cursor-pointer w-3.5 h-3.5" />
                     </td>
-                    <td className="py-2.5 px-3">
+                    <td className="px-6 py-3.5">
                       <button className="flex items-center gap-2.5 text-left hover:opacity-80 transition-opacity"
                         onClick={() => setDetailUserId(user.id)}>
                         <Avatar user={user} />
                         <div>
-                          <div className="font-semibold text-gray-800 text-xs hover:text-blue-600 transition-colors">{user.namaLengkap}</div>
+                          <div className="font-semibold text-gray-800 text-[13px] hover:text-blue-600 transition-colors">{user.namaLengkap}</div>
                           <div className="text-[10px] text-gray-400">{user.email}</div>
                         </div>
                       </button>
                     </td>
-                    <td className="py-2.5 px-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold capitalize ${user.role === "organizer" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"}`}>
-                        {user.role}
+                    <td className="px-6 py-3.5">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider whitespace-nowrap ${user.role === "organizer" ? "bg-indigo-50 text-indigo-700 border-indigo-200/60" : "bg-slate-50 text-slate-700 border-slate-200/60"}`}>
+                        {user.role === "organizer" ? "Penyelenggara" : "Pengunjung"}
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-gray-500 whitespace-nowrap">{formatDate(user.dibuatPada)}</td>
-                    <td className="py-2.5 px-3"><StatusBadge user={user} /></td>
-                    <td className="py-2.5 px-3 text-gray-500">{user.email}</td>
-                    <td className="py-2.5 px-3">
+                    <td className="px-6 py-3.5 text-gray-500 whitespace-nowrap text-xs">{formatDate(user.dibuatPada)}</td>
+                    <td className="px-6 py-3.5"><StatusBadge user={user} /></td>
+                    <td className="px-6 py-3.5 text-gray-500 text-xs">{user.email}</td>
+                    <td className="px-6 py-3.5">
                       <div className="flex gap-1.5">
                         <button onClick={() => setDetailUserId(user.id)}
                           className="w-6 h-6 rounded-md bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-500 transition-colors" title="Lihat Detail">

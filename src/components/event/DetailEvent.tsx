@@ -239,7 +239,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
       </section>
 
       {/* ── STICKY NAV ───────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200" ref={navRef}>
+      <nav className="sticky top-[64px] z-40 bg-white border-b border-gray-200" ref={navRef}>
         <div className="max-w-[1100px] mx-auto px-6 flex">
           {navItems.map((item) => (
             <button
@@ -372,7 +372,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
         </div> {/* flex-1 (detail-main) */}
 
         {/* KOLOM KANAN — STICKY SIDEBAR */}
-        <aside className="w-full md:w-[280px] shrink-0 static md:sticky md:top-[72px] self-start">
+        <aside className="w-full md:w-[280px] shrink-0 static md:sticky md:top-[128px] self-start">
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <p className="text-xs text-gray-400 mb-1">Harga mulai dari</p>
             <p className="text-[22px] font-extrabold text-[#1a2744] mb-4">{formatRupiah(event.harga)}</p>

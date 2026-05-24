@@ -3,19 +3,19 @@ import { cn } from '@/lib/utils';
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   belum_submit: {
     label: 'Belum Submit',
-    className: 'bg-slate-100 text-slate-600 border-slate-200',
+    className: 'bg-slate-50 text-slate-600 border-slate-200/60',
   },
   review: {
     label: 'Sedang Direview',
-    className: 'bg-amber-50 text-amber-700 border-amber-200',
+    className: 'bg-amber-50 text-amber-700 border-amber-200/60',
   },
   accepted: {
     label: 'Diterima',
-    className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    className: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
   },
   rejected: {
     label: 'Ditolak',
-    className: 'bg-red-50 text-red-700 border-red-200',
+    className: 'bg-rose-50 text-rose-700 border-rose-200/60',
   },
 };
 
