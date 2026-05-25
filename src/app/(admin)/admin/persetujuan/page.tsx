@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatCard } from '@/components/admin/StatCard';
 import { FileCheck, CheckCircle, Users, X, Calendar, MapPin, Users as UsersIcon, Wallet, Building2, Phone, Mail, Globe, Clock, Tag, Monitor } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { approveEvent, rejectEvent, getPendingEvents } from '@/actions/persetujuan-event';
 import type { PendingEvent } from '@/actions/persetujuan-event';
 
@@ -266,7 +265,20 @@ export default function PersetujuanEventPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => {
+    let active = true;
+    const init = async () => {
+      const result = await getPendingEvents();
+      if (active) {
+        if (result.success) setEvents(result.data);
+        setLoading(false);
+      }
+    };
+    init();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const pendingCount = events.filter(e => e.status === 'pending').length;
   const approvedCount = events.filter(e => e.status === 'published').length;

@@ -323,7 +323,7 @@ export default function RegisterPage() {
                   }}
                 />
                 <p className="mt-2 text-xs text-slate-400 flex items-center">
-                  <FileText className="w-3.5 h-3.5 mr-1.5" /> Pastikan dokumen dalam format PDF (Maks. 4MB)
+                  <FileText className="w-3.5 h-3.5 mr-1.5" /> Pastikan dokumen dalam format PDF (Maks. 20MB)
                 </p>
               </div>
 

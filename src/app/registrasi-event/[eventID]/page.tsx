@@ -4,7 +4,7 @@ import { eq, and } from "drizzle-orm";
 import FormRegistrasi from './FormRegistrasi';
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { event, pendaftaran } from "@/db/schema";
+import { event, pendaftaran, users } from "@/db/schema";
 
 export default async function RegistrasiEventPage({ 
   params 
@@ -22,13 +22,18 @@ export default async function RegistrasiEventPage({
   // 2. Await params untuk mengambil eventID dari URL
   const { eventID } = await params;
 
-  // 3. Ambil data event berdasarkan ID beserta relasi kategori
-  const dataEvent = await db.query.event.findFirst({
-    where: eq(event.id, Number(eventID)),
-    with: {
-      kategori: true,
-    },
-  });
+  // 3. Ambil data event & data user secara paralel
+  const [dataEvent, userData] = await Promise.all([
+    db.query.event.findFirst({
+      where: eq(event.id, Number(eventID)),
+      with: {
+        kategori: true,
+      },
+    }),
+    db.query.users.findFirst({
+      where: eq(users.id, Number(session.user.id)),
+    })
+  ]);
 
   if (!dataEvent) {
     return (
@@ -74,9 +79,20 @@ export default async function RegistrasiEventPage({
             judul: dataEvent.judul,
             linkEksternal: dataEvent.linkEksternal,
             kategori: dataEvent.kategori?.nama,
-            harga: dataEvent.harga
+            harga: dataEvent.harga,
+            namaBank: dataEvent.namaBank,
+            nomorRekening: dataEvent.nomorRekening,
+            pemilikRekening: dataEvent.pemilikRekening,
+            namaBankAlternatif: dataEvent.namaBankAlternatif,
+            nomorRekeningAlternatif: dataEvent.nomorRekeningAlternatif,
+            pemilikRekeningAlternatif: dataEvent.pemilikRekeningAlternatif,
           }} 
-          currentUser={session.user} 
+          currentUser={{
+            name: userData?.namaLengkap,
+            email: userData?.email,
+            nomorTelepon: userData?.nomorTelepon,
+            jenisKelamin: userData?.jenisKelamin
+          }} 
         />
       </main>
     </div>

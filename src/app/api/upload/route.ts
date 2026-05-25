@@ -7,25 +7,25 @@ import { auth } from '@/auth';
 const UPLOAD_CONFIG = {
   avatar: {
     allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
-    maxSize: 2 * 1024 * 1024, // 2MB
+    maxSize: 10 * 1024 * 1024, // 10MB
     folder: 'avatars',
     label: 'Foto Profil',
   },
   document: {
     allowedTypes: ['application/pdf'],
-    maxSize: 4 * 1024 * 1024, // 4MB
+    maxSize: 20 * 1024 * 1024, // 20MB
     folder: 'documents',
     label: 'Dokumen',
   },
   banner: {
     allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
-    maxSize: 4 * 1024 * 1024, // 4MB
+    maxSize: 20 * 1024 * 1024, // 20MB
     folder: 'banners',
     label: 'Banner',
   },
   paper: {
     allowedTypes: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'],
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 50 * 1024 * 1024, // 50MB
     folder: 'papers',
     label: 'Paper',
   },
@@ -36,9 +36,6 @@ type UploadType = keyof typeof UPLOAD_CONFIG;
 export async function POST(request: Request) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
-    }
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -51,6 +48,11 @@ export async function POST(request: Request) {
     if (!type || !(type in UPLOAD_CONFIG)) {
       const validTypes = Object.keys(UPLOAD_CONFIG).join(', ');
       return NextResponse.json({ error: `Tipe upload tidak valid. Gunakan: ${validTypes}` }, { status: 400 });
+    }
+
+    // Jika tidak terautentikasi, hanya izinkan upload dokumen legalitas ('document') untuk keperluan registrasi
+    if (!session?.user?.id && type !== 'document') {
+      return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
     }
 
     const config = UPLOAD_CONFIG[type as UploadType];
@@ -74,7 +76,8 @@ export async function POST(request: Request) {
     const lastDotIndex = file.name.lastIndexOf('.');
     const ext = lastDotIndex !== -1 ? file.name.slice(lastDotIndex + 1).toLowerCase() : 'bin';
     const timestamp = Date.now();
-    const fileName = `${session.user.id}_${timestamp}.${ext}`;
+    const userPrefix = session?.user?.id ? session.user.id : `reg_${Math.random().toString(36).substring(2, 10)}`;
+    const fileName = `${userPrefix}_${timestamp}.${ext}`;
 
     // Pastikan folder tujuan ada
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', config.folder);

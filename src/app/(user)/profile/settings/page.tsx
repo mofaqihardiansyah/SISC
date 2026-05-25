@@ -112,9 +112,9 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-10 py-8 space-y-8">
+    <div className="space-y-8 max-w-4xl animate-in fade-in duration-500">
 
-      {/* HEADER */}
+      {/* PAGE HEADER */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Pengaturan Akun</h1>
         <p className="text-slate-500 mt-2">
@@ -123,7 +123,7 @@ export default function SettingsPage() {
       </div>
 
       {/* INFORMASI PROFIL */}
-      <section className="w-full bg-white rounded-xl border border-slate-200 p-10 shadow-sm">
+      <section className="bg-white rounded-xl border border-slate-200 p-8 shadow-xs">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">
           Informasi Profil
         </h2>
@@ -220,7 +220,7 @@ export default function SettingsPage() {
       </section>
 
       {/* KEAMANAN */}
-      <section className="w-full bg-white rounded-xl border border-slate-200 p-10 shadow-sm">
+      <section className="bg-white rounded-xl border border-slate-200 p-8 shadow-xs">
         <h2 className="text-2xl font-bold mb-6">Keamanan & Privasi</h2>
 
         <button
@@ -232,7 +232,7 @@ export default function SettingsPage() {
       </section>
 
       {/* DANGER ZONE */}
-      <section className="w-full bg-red-50 border border-red-200 rounded-xl p-10 shadow-sm">
+      <section className="bg-red-50 border border-red-200 rounded-xl p-8 shadow-xs">
         <h2 className="text-2xl font-bold text-red-900 mb-6">
           Konfirmasi Penghapusan Akun
         </h2>

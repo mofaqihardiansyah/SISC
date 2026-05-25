@@ -26,6 +26,7 @@ import {
   Building2,
   Globe,
   CornerDownRight,
+  MoreHorizontal,
 } from "lucide-react";
 import type { PenyelenggaraItem, StatusValidasi } from "@/types/penyelenggara";
 
@@ -168,6 +169,16 @@ export function ValidasiAksesPenyelenggaraClient({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   
   const [, startTransition] = useTransition();
+
+  // Dropdown menu state
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = () => setOpenMenuId(null);
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
+  }, []);
 
   // Reset success/error messages after 5 seconds
   useEffect(() => {
@@ -414,6 +425,7 @@ export function ValidasiAksesPenyelenggaraClient({
           </button>
         </div>
       )}
+      
 
       {successMsg && (
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-xs font-semibold text-emerald-700 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
@@ -461,54 +473,17 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
 
         {/* Filters and Search Control Panel */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+        {/* Filters and Search Control Panel */}
+        <div className="flex flex-col gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
           
-          {/* Status Tabs Filter */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {(
-              [
-                { id: "all", label: "Semua", count: stats.total, activeClass: "bg-gray-800 text-white border-gray-800" },
-                { id: "pending", label: "Menunggu", count: stats.pending, activeClass: "bg-amber-600 text-white border-amber-600" },
-                { id: "approved", label: "Disetujui", count: stats.approved, activeClass: "bg-emerald-600 text-white border-emerald-600" },
-                { id: "rejected", label: "Ditolak", count: stats.rejected, activeClass: "bg-rose-600 text-white border-rose-600" },
-              ] as const
-            ).map((tab) => {
-              const isActive = statusTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setStatusTab(tab.id);
-                    setCurrentPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300 flex items-center gap-1.5 shadow-sm
-                    ${
-                      isActive
-                        ? tab.activeClass
-                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800"
-                    }`}
-                >
-                  {tab.label}
-                  <span
-                    className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold shadow-inner
-                      ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}
-                  >
-                    {tab.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Search box and Sorting control */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
-            
+          {/* Baris Atas: Search & Sorting */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Search Input */}
-            <div className="relative flex-1 sm:w-64">
+            <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Cari instansi, email, ID..."
+                placeholder="Cari instansi, email..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -531,8 +506,11 @@ export function ValidasiAksesPenyelenggaraClient({
             </div>
 
             {/* Sorting Dropdown */}
-            <div className="flex items-center gap-2 shrink-0 bg-white border border-slate-200 p-2 rounded-xl shadow-sm hover:border-slate-300 transition-colors">
-              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-2 shrink-0 bg-white border border-slate-200 p-2 rounded-xl shadow-sm hover:border-slate-300 transition-colors w-full sm:w-auto justify-between sm:justify-start">
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                <span className="text-xs text-slate-400 font-medium sm:hidden">Urutkan:</span>
+              </div>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
@@ -542,11 +520,51 @@ export function ValidasiAksesPenyelenggaraClient({
                 <option value="date-asc">Registrasi: Terlama</option>
                 <option value="name-asc">Nama Instansi: A - Z</option>
                 <option value="name-desc">Nama Instansi: Z - A</option>
-                <option value="id-asc">ID: Terendah</option>
-                <option value="id-desc">ID: Tertinggi</option>
               </select>
             </div>
+          </div>
 
+          {/* Garis Pembatas Tipis */}
+          <div className="h-px bg-slate-200/50" />
+
+          {/* Baris Bawah: Status Tabs Filter */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Filter Status:</span>
+            <div className="flex flex-wrap gap-1.5">
+              {(
+                [
+                  { id: "all", label: "Semua", count: stats.total, activeClass: "bg-gray-800 text-white border-gray-800" },
+                  { id: "pending", label: "Menunggu", count: stats.pending, activeClass: "bg-amber-600 text-white border-amber-600" },
+                  { id: "approved", label: "Disetujui", count: stats.approved, activeClass: "bg-emerald-600 text-white border-emerald-600" },
+                  { id: "rejected", label: "Ditolak", count: stats.rejected, activeClass: "bg-rose-600 text-white border-rose-600" },
+                ] as const
+              ).map((tab) => {
+                const isActive = statusTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setStatusTab(tab.id);
+                      setCurrentPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300 flex items-center gap-1.5 shadow-sm
+                      ${
+                        isActive
+                          ? tab.activeClass
+                          : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                      }`}
+                  >
+                    {tab.label}
+                    <span
+                      className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold shadow-inner
+                        ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}
+                    >
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -565,12 +583,12 @@ export function ValidasiAksesPenyelenggaraClient({
                   />
                 </th>
                 
-                {["ID", "Nama Organisasi & Penanggung Jawab", "Email", "No. Telepon", "Status", "Validasi"].map(
+                {["No.", "Nama Organisasi", "Email", "No. Telepon", "Status", "Aksi"].map(
                   (col, idx) => (
                     <th
                       key={col}
-                      className={`px-5 py-4 font-bold uppercase tracking-wider text-slate-400 text-[10px] text-left
-                        ${idx === 0 ? "w-20" : ""}`}
+                      className={`px-5 py-4 font-bold uppercase tracking-wider text-slate-400 text-[10px]
+                        ${idx === 0 ? "w-16 text-center" : "text-left"}`}
                     >
                       {col}
                     </th>
@@ -590,7 +608,7 @@ export function ValidasiAksesPenyelenggaraClient({
                   </td>
                 </tr>
               ) : (
-                pageItems.map((item) => {
+                pageItems.map((item, idx) => {
                   const isSelected = selectedIds.includes(item.rawId);
                   const isLoading = loadingId === item.rawId;
                   
@@ -604,32 +622,26 @@ export function ValidasiAksesPenyelenggaraClient({
                       {/* Checkbox Row Selection */}
                       <td className="px-5 py-3 text-center">
                         <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelectRow(item.rawId)}
-                          className="accent-indigo-600 cursor-pointer w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                           type="checkbox"
+                           checked={isSelected}
+                           onChange={() => toggleSelectRow(item.rawId)}
+                           className="accent-indigo-600 cursor-pointer w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         />
                       </td>
 
-                      {/* Display ID */}
-                      <td className="px-5 py-3 text-slate-500 font-mono text-[11px] font-bold">
-                        {item.id}
+                      {/* Display No. */}
+                      <td className="px-5 py-3 text-slate-500 font-mono text-[11px] font-bold text-center">
+                        {(currentPage - 1) * PAGE_SIZE + idx + 1}
                       </td>
 
-                      {/* Organization Name & Penanggung Jawab */}
+                      {/* Nama Organisasi */}
                       <td className="px-5 py-3">
-                        <div className="flex flex-col">
-                          <button
-                            onClick={() => setDetailItem(item)}
-                            className="text-left font-bold text-slate-800 text-[13px] hover:text-indigo-600 transition-colors group-hover/row:translate-x-0.5 transform duration-200"
-                          >
-                            {item.namaOrganisasi}
-                          </button>
-                          <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1 mt-0.5">
-                            <CornerDownRight className="w-3 h-3 text-slate-300" />
-                            P.J.: {item.namaLengkap}
-                          </span>
-                        </div>
+                        <button
+                          onClick={() => setDetailItem(item)}
+                          className="text-left font-bold text-slate-800 text-[13px] hover:text-indigo-600 transition-colors group-hover/row:translate-x-0.5 transform duration-200"
+                        >
+                          {item.namaOrganisasi}
+                        </button>
                       </td>
 
                       {/* Email */}
@@ -647,28 +659,69 @@ export function ValidasiAksesPenyelenggaraClient({
                         <StatusBadge status={item.status} />
                       </td>
 
-                      {/* Validation Actions */}
-                      <td className="px-5 py-3" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-2">
+                      {/* Validation Actions / Three Dots Menu */}
+                      <td className="px-5 py-3 relative" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-start gap-2">
                           {isLoading ? (
-                            <div className="flex items-center justify-center h-8 w-16">
+                            <div className="flex items-center justify-center h-8 w-8">
                               <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
                             </div>
                           ) : (
-                            <ValidationButtons
-                              currentStatus={item.status}
-                              isLoading={isLoading}
-                              onChangeStatus={(status) => handleChangeStatus(item.rawId, status)}
-                            />
+                            <>
+                              {/* Tombol Tinjau Detail Langsung */}
+                              <button
+                                onClick={() => setDetailItem(item)}
+                                className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 text-slate-500 flex items-center justify-center border border-slate-200/50 shadow-sm transition-all hover:scale-105 active:scale-95"
+                                title="Tinjau Detail"
+                              >
+                                <FileText className="w-4 h-4" />
+                              </button>
+
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(openMenuId === item.rawId ? null : item.rawId);
+                                  }}
+                                  className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center border border-slate-200/50 shadow-sm transition-all hover:scale-105 active:scale-95"
+                                  title="Buka menu aksi"
+                                >
+                                  <MoreHorizontal className="w-4 h-4" />
+                                </button>
+
+                                {/* Dropdown Menu Portal */}
+                                {openMenuId === item.rawId && (
+                                  <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-xl border border-slate-200/80 shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                                    {item.status !== "approved" && (
+                                      <button
+                                        onClick={() => {
+                                          handleChangeStatus(item.rawId, "approved");
+                                          setOpenMenuId(null);
+                                        }}
+                                        className="w-full px-3.5 py-2 text-left text-emerald-600 hover:bg-emerald-50/50 font-bold text-xs flex items-center gap-2.5 transition-colors"
+                                      >
+                                        <Check className="w-3.5 h-3.5" />
+                                        Setujui Akses
+                                      </button>
+                                    )}
+
+                                    {item.status !== "rejected" && (
+                                      <button
+                                        onClick={() => {
+                                          handleChangeStatus(item.rawId, "rejected");
+                                          setOpenMenuId(null);
+                                        }}
+                                        className="w-full px-3.5 py-2 text-left text-rose-600 hover:bg-rose-50/50 font-bold text-xs flex items-center gap-2.5 transition-colors border-t border-slate-100 first:border-t-0"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                        Tolak Akses
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </>
                           )}
-                          
-                          <button
-                            onClick={() => setDetailItem(item)}
-                            title="Tinjau Detail Profil Lengkap"
-                            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center border border-slate-200/50 shadow-sm transition-all"
-                          >
-                            <FileText className="w-4 h-4" />
-                          </button>
                         </div>
                       </td>
                     </tr>

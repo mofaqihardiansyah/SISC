@@ -54,10 +54,17 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
   const heading = statusLabels[statusFilter] || 'SEMUA EVENTKU';
 
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="space-y-8 max-w-4xl animate-in fade-in duration-500">
+      
+      {/* PAGE HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Eventku</h1>
+        <p className="text-slate-500 mt-2">Kelola pendaftaran dan riwayat keikutsertaan event Anda</p>
+      </div>
+
       <FilterSection currentSearch={searchQuery} currentStatus={statusFilter} />
 
-      <div className="flex-1 flex flex-col mt-8">
+      <div className="flex-1 flex flex-col">
         <h3 className="text-lg font-extrabold text-slate-800 mb-6 uppercase tracking-tight flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-700">
           <span className="w-1.5 h-6 bg-[#0E215D] rounded-full"></span>
           {heading}

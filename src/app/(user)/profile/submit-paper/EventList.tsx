@@ -11,6 +11,7 @@ type EventWithStatus = {
   penyelenggara: string | null;
   tanggalMulai: Date;
   submissionStatus: string;
+  rejectionReason?: string | null;
 };
 
 type EventListProps = {
@@ -69,22 +70,39 @@ export function EventList({ events, onStartSubmit, onViewDetail }: EventListProp
           </thead>
           <tbody className="divide-y divide-slate-100">
             {events.map((event, index) => (
-              <tr key={event.id} className="hover:bg-slate-50/25 transition-colors">
-                <td className="px-6 py-3.5 text-xs text-slate-400 tabular-nums">{index + 1}</td>
-                <td className="px-6 py-3.5">
-                  <span className="font-semibold text-slate-800 text-[13px]">{event.judul}</span>
-                </td>
-                <td className="px-6 py-3.5 text-xs text-slate-500">{event.penyelenggara || '-'}</td>
-                <td className="px-6 py-3.5 text-xs text-slate-500 whitespace-nowrap">
-                  {format(new Date(event.tanggalMulai), 'd MMMM yyyy', { locale: id })}
-                </td>
-                <td className="px-6 py-3.5 text-center">
-                  <StatusBadge status={event.submissionStatus} />
-                </td>
-                <td className="px-6 py-3.5 text-right">
-                  <ActionButton status={event.submissionStatus} onClick={() => onStartSubmit(event.id)} onViewDetail={() => onViewDetail(event.id)} />
-                </td>
-              </tr>
+              <React.Fragment key={event.id}>
+                <tr className="hover:bg-slate-50/25 transition-colors">
+                  <td className="px-6 py-3.5 text-xs text-slate-400 tabular-nums">{index + 1}</td>
+                  <td className="px-6 py-3.5">
+                    <span className="font-semibold text-slate-800 text-[13px]">{event.judul}</span>
+                  </td>
+                  <td className="px-6 py-3.5 text-xs text-slate-500">{event.penyelenggara || '-'}</td>
+                  <td className="px-6 py-3.5 text-xs text-slate-500 whitespace-nowrap">
+                    {format(new Date(event.tanggalMulai), 'd MMMM yyyy', { locale: id })}
+                  </td>
+                  <td className="px-6 py-3.5 text-center">
+                    <StatusBadge status={event.submissionStatus} />
+                  </td>
+                  <td className="px-6 py-3.5 text-right">
+                    <ActionButton status={event.submissionStatus} onClick={() => onStartSubmit(event.id)} onViewDetail={() => onViewDetail(event.id)} />
+                  </td>
+                </tr>
+                {event.submissionStatus === 'rejected' && event.rejectionReason && (
+                  <tr className="bg-rose-50/20">
+                    <td colSpan={6} className="px-6 py-3">
+                      <div className="flex items-start gap-2 bg-rose-50 border border-rose-100 rounded-lg p-3 animate-in slide-in-from-top-1 duration-300">
+                        <div className="mt-0.5 shrink-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[11px] font-bold text-rose-800 uppercase tracking-tight">Alasan Penolakan / Revisi:</p>
+                          <p className="text-xs text-rose-700 leading-relaxed font-medium">{event.rejectionReason}</p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -105,6 +123,12 @@ export function EventList({ events, onStartSubmit, onViewDetail }: EventListProp
             <div className="pt-2 border-t border-slate-100 flex justify-end">
               <ActionButton status={event.submissionStatus} onClick={() => onStartSubmit(event.id)} onViewDetail={() => onViewDetail(event.id)} />
             </div>
+            {event.submissionStatus === 'rejected' && event.rejectionReason && (
+              <div className="mt-3 bg-rose-50 border border-rose-100 rounded-lg p-2.5">
+                <p className="text-[10px] font-bold text-rose-800 uppercase tracking-tight mb-1">Alasan Penolakan:</p>
+                <p className="text-xs text-rose-700 leading-relaxed font-medium">{event.rejectionReason}</p>
+              </div>
+            )}
           </div>
         ))}
       </div>

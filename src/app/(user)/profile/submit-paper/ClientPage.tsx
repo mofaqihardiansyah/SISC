@@ -60,6 +60,7 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
     return {
       ...event,
       submissionStatus: submission ? (submission.status || 'review') : 'belum_submit',
+      rejectionReason: submission?.komentarPenolakan || null,
     };
   });
 
@@ -93,17 +94,16 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      <div className="max-w-7xl mx-auto space-y-6 py-6 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-            Submit Paper
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Kirim paper untuk conference yang sudah Anda daftarkan.
-          </p>
-        </div>
+    <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
+      {/* PAGE HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">
+          Submit Paper
+        </h1>
+        <p className="text-slate-500 mt-2">
+          Kirim paper untuk conference yang sudah Anda daftarkan
+        </p>
+      </div>
 
         {view === 'list' ? (
           <div className="space-y-6 animate-in fade-in duration-300">
@@ -159,7 +159,6 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
             onBack={handleBackToList}
           />
         )}
-      </div>
     </div>
   );
 }
