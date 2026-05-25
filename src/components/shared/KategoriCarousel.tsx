@@ -63,7 +63,7 @@ export default function KategoriCarousel({
       {canPrev && (
         <button
           onClick={() => scroll("prev")}
-          className="absolute -left-8 top-1/2 -translate-y-1/2 z-50 w-9 h-9 rounded-full bg-white/70 backdrop-blur-sm border border-black/40 shadow-sm flex items-center justify-center text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg transition-all duration-300"
+          className="absolute left-2 sm:-left-8 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/70 backdrop-blur-sm border border-black/40 shadow-sm flex items-center justify-center text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg transition-all duration-300"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -120,7 +120,7 @@ export default function KategoriCarousel({
       {canNext && (
         <button
           onClick={() => scroll("next")}
-          className="absolute -right-8 top-1/2 -translate-y-1/2 z-50 w-9 h-9 rounded-full bg-white/70 backdrop-blur-sm border border-black/40 shadow-sm flex items-center justify-center text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg transition-all duration-300"
+          className="absolute right-2 sm:-right-8 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/70 backdrop-blur-sm border border-black/40 shadow-sm flex items-center justify-center text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg transition-all duration-300"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

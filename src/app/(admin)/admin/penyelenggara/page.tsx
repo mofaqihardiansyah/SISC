@@ -15,6 +15,11 @@ async function fetchPenyelenggara(): Promise<PenyelenggaraItem[]> {
       noTelepon: users.nomorTelepon,
       isApproved: users.isApproved,
       isSuspended: users.isSuspended,
+      namaLengkap: users.namaLengkap,
+      deskripsiInstansi: profilPenyelenggara.deskripsiInstansi,
+      dokumenLegalitasUrl: profilPenyelenggara.dokumenLegalitasUrl,
+      websiteUrl: profilPenyelenggara.websiteUrl,
+      dibuatPada: users.dibuatPada,
     })
     .from(users)
     .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
@@ -31,6 +36,11 @@ async function fetchPenyelenggara(): Promise<PenyelenggaraItem[]> {
       row.isSuspended ? 'rejected' :
       row.isApproved  ? 'approved' :
       'pending',
+    namaLengkap: row.namaLengkap ?? '-',
+    deskripsiInstansi: row.deskripsiInstansi ?? null,
+    dokumenLegalitasUrl: row.dokumenLegalitasUrl ?? null,
+    websiteUrl: row.websiteUrl ?? null,
+    dibuatPada: row.dibuatPada ? row.dibuatPada.toISOString() : null,
   }));
 }
 

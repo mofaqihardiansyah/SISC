@@ -707,8 +707,27 @@ export async function seedEvents() {
 
   for (const e of events) {
     const s = slug(e.judul);
+    const isPaid = e.tipeHarga === "paid";
+    
+    const paymentInfo = isPaid ? {
+      namaBank: "Bank Mandiri",
+      nomorRekening: "132-000-1234-567",
+      pemilikRekening: "Panitia POLIVENTS",
+      namaBankAlternatif: "E-Wallet (Dana / ShopeePay)",
+      nomorRekeningAlternatif: "0812-3456-7890",
+      pemilikRekeningAlternatif: "POLIVENTS Internal"
+    } : {
+      namaBank: null,
+      nomorRekening: null,
+      pemilikRekening: null,
+      namaBankAlternatif: null,
+      nomorRekeningAlternatif: null,
+      pemilikRekeningAlternatif: null
+    };
+
     await db.insert(event).values({
       ...e,
+      ...paymentInfo,
       slug: s,
       status: e.status as "published" | "pending" | "rejected", 
       jenisEvent: e.jenisEvent as "seminar" | "conference",
@@ -732,6 +751,12 @@ export async function seedEvents() {
         peranPembicara: e.peranPembicara,
         fotoPembicaraUrl: e.fotoPembicaraUrl,
         linkEksternal: "linkEksternal" in e ? e.linkEksternal : null,
+        namaBank: paymentInfo.namaBank,
+        nomorRekening: paymentInfo.nomorRekening,
+        pemilikRekening: paymentInfo.pemilikRekening,
+        namaBankAlternatif: paymentInfo.namaBankAlternatif,
+        nomorRekeningAlternatif: paymentInfo.nomorRekeningAlternatif,
+        pemilikRekeningAlternatif: paymentInfo.pemilikRekeningAlternatif,
         dibuatPada: new Date() 
       }
     });

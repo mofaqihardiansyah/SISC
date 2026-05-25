@@ -4,7 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, MapPin, User, Star, ImageOff } from 'lucide-react';
+import { Calendar, MapPin, User, Bookmark, ImageOff } from 'lucide-react';
 
 interface EventCardProps {
   id: string | number;
@@ -14,7 +14,7 @@ interface EventCardProps {
   organizer: string;
   timeLeft?: string;
   image?: string;
-  status?: 'upcoming' | 'registered' | 'completed' | 'favorited';
+  status?: 'pending' | 'registered' | 'completed' | 'favorited';
   onFavoriteToggle?: () => void;
   isFavorited?: boolean;
   priority?: boolean;
@@ -63,7 +63,7 @@ export default function EventCard({
                   : 'bg-white/70 text-slate-400 hover:bg-white hover:text-yellow-500'
               }`}
             >
-              <Star className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
             </button>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function EventCard({
             {status && (
               <span
                 className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
-                  status === 'upcoming'
+                  status === 'pending'
                     ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
                       ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
@@ -84,11 +84,11 @@ export default function EventCard({
                 }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${
-                  status === 'upcoming' ? 'bg-amber-400' : 
+                  status === 'pending' ? 'bg-amber-400' : 
                   status === 'registered' ? 'bg-emerald-400' : 
                   status === 'completed' ? 'bg-slate-400' : 'bg-rose-400'
                 }`}></span>
-                {status === 'upcoming' ? 'Mendatang' : 
+                {status === 'pending' ? 'Menunggu Verifikasi' : 
                  status === 'registered' ? 'Terdaftar' : 
                  status === 'completed' ? 'Selesai' : 'Favorit'}
               </span>
@@ -157,7 +157,7 @@ export default function EventCard({
              {status && (
               <span
                 className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
-                  status === 'upcoming'
+                  status === 'pending'
                     ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
                       ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
@@ -167,11 +167,11 @@ export default function EventCard({
                 }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${
-                  status === 'upcoming' ? 'bg-amber-400' : 
+                  status === 'pending' ? 'bg-amber-400' : 
                   status === 'registered' ? 'bg-emerald-400' : 
                   status === 'completed' ? 'bg-slate-400' : 'bg-rose-400'
                 }`}></span>
-                {status === 'upcoming' ? 'Mendatang' : 
+                {status === 'pending' ? 'Menunggu Verifikasi' : 
                  status === 'registered' ? 'Terdaftar' : 
                  status === 'completed' ? 'Selesai' : 'Favorit'}
               </span>
@@ -209,7 +209,7 @@ export default function EventCard({
                 : 'bg-slate-50 text-slate-300 hover:text-yellow-500 border border-slate-100 hover:border-yellow-100'
             }`}
           >
-            <Star className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
+            <Bookmark className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
           </button>
         </div>
 
