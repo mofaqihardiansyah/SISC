@@ -4,6 +4,13 @@ import { useState, useTransition, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createEvent } from "@/actions/create-event";
 
+declare global {
+  interface Window {
+    __buatEventIsDirty?: () => boolean;
+    __buatEventShowModal?: () => void;
+  }
+}
+
 // ─── Popup Konfirmasi ─────────────────────────────────────────────
 function ConfirmDraftModal({
   onYes,
@@ -18,7 +25,7 @@ function ConfirmDraftModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
@@ -65,7 +72,6 @@ export default function BuatEventPage() {
   const [quota, setQuota] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [registrationLink, setRegistrationLink] = useState("");
   const [description, setDescription] = useState("");
   const [terms, setTerms] = useState("");
   const [dragOver, setDragOver] = useState(false);
@@ -94,13 +100,12 @@ export default function BuatEventPage() {
       quota !== "" ||
       startDate !== "" ||
       endDate !== "" ||
-      registrationLink.trim() !== "" ||
       description.trim() !== "" ||
       terms.trim() !== "" ||
       bannerFile !== null ||
       fee !== ""
     );
-  }, [eventTitle, location, speaker, quota, startDate, endDate, registrationLink, description, terms, bannerFile, fee]);
+  }, [eventTitle, location, speaker, quota, startDate, endDate, description, terms, bannerFile, fee]);
 
   // ─── Reset semua state form ke kosong ────────────────────────────
   const resetForm = useCallback(() => {
@@ -110,7 +115,6 @@ export default function BuatEventPage() {
     setQuota("");
     setStartDate("");
     setEndDate("");
-    setRegistrationLink("");
     setDescription("");
     setTerms("");
     setBannerFile(null);
@@ -128,11 +132,11 @@ export default function BuatEventPage() {
 
   // ─── Expose isDirty & showModal ke window agar bisa dipanggil dari header ───
   useEffect(() => {
-    (window as any).__buatEventIsDirty = isDirty;
-    (window as any).__buatEventShowModal = () => setShowDraftModal(true);
+    window.__buatEventIsDirty = isDirty;
+    window.__buatEventShowModal = () => setShowDraftModal(true);
     return () => {
-      delete (window as any).__buatEventIsDirty;
-      delete (window as any).__buatEventShowModal;
+      delete window.__buatEventIsDirty;
+      delete window.__buatEventShowModal;
     };
   }, [isDirty]);
 
@@ -170,7 +174,7 @@ export default function BuatEventPage() {
     formData.append("tanggalMulai", startDate);
     formData.append("tanggalSelesai", endDate);
     formData.append("kuota", quota);
-    formData.append("linkEksternal", registrationLink);
+    formData.append("linkEksternal", ""); // Hapus link form pendaftaran eksternal
     formData.append("kategoriId", kategoriId);
     formData.append("isDraft", isDraft ? "true" : "false");
     if (bannerFile) formData.append("banner", bannerFile);
@@ -456,7 +460,7 @@ export default function BuatEventPage() {
                 type="datetime-local"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-500 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-505 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -465,7 +469,7 @@ export default function BuatEventPage() {
                 type="datetime-local"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-500 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-505 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -480,21 +484,6 @@ export default function BuatEventPage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-        </div>
-
-        {/* ── Section 6: Link Form Pendaftaran ── */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-5">
-            <MonitorIcon />
-            <h2 className="text-lg font-semibold text-gray-800">Link Form Pendaftaran</h2>
-          </div>
-          <textarea
-            value={registrationLink}
-            onChange={(e) => setRegistrationLink(e.target.value)}
-            placeholder="Masukkan Link Form Pendaftaran untuk Peserta Event"
-            rows={3}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none placeholder-gray-400"
-          />
         </div>
 
         {/* ── Action Buttons ── */}
@@ -579,9 +568,6 @@ function ImageIcon() {
 }
 function CalendarIcon() {
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>;
-}
-function MonitorIcon() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>;
 }
 function UploadIcon() {
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>;

@@ -14,14 +14,28 @@ interface EventData {
   peserta: string;
   harga: string;
   tanggal: string;
+  rawTanggal?: string | Date;
   img: string;
   alasan?: string;
+  venue?: string;
+  deskripsi?: string;
+}
+
+interface EventFormData {
+  tipeEvent: string;
+  platform: string;
+  judul: string;
+  kategori: string;
+  venue: string;
+  tipeTiket: string;
+  harga: string;
+  deskripsi: string;
 }
 
 export default function KelolaEventClient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [dbEvents, setDbEvents] = useState<any[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
+  const [dbEvents, setDbEvents] = useState<EventData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,7 +46,7 @@ export default function KelolaEventClient() {
   const [hargaFilter, setHargaFilter] = useState("Semua Harga");
 
   // State Kontrol Form di Dalam Modal
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<EventFormData>({
     tipeEvent: "Seminar",
     platform: "ONLINE",
     judul: "",
@@ -49,7 +63,20 @@ export default function KelolaEventClient() {
     try {
       const result = await getDaftarEvent();
       if (result.success && result.data) {
-        const mapped = result.data.map((ev: any) => {
+        const mapped: EventData[] = result.data.map((ev: {
+          id: number;
+          status: string | null;
+          judul: string | null;
+          tanggalMulai: string | Date | null;
+          jenisEvent: string | null;
+          tipePlatform: string | null;
+          kuota: number | null;
+          harga: number | null;
+          bannerUrl: string | null;
+          alasanPenolakan: string | null;
+          detailLokasi: string | null;
+          deskripsi: string | null;
+        }) => {
           let uiStatus = "DRAFT";
           if (ev.status === "published") uiStatus = "DIPUBLIKASI";
           if (ev.status === "rejected") uiStatus = "DITOLAK";
@@ -75,7 +102,7 @@ export default function KelolaEventClient() {
         });
 
         // LOCK POSISI CARD: Di-sorting berdasarkan ID Ascending agar posisi card tetap konsisten di tempatnya
-        const sortedMapped = mapped.sort((a: any, b: any) => a.id - b.id);
+        const sortedMapped = mapped.sort((a, b) => a.id - b.id);
         
         setDbEvents(sortedMapped);
       }
@@ -119,7 +146,7 @@ export default function KelolaEventClient() {
   });
 
   // Membuka modal dan melakukan auto-fill state form
-  const openEditModal = (event: any) => {
+  const openEditModal = (event: EventData) => {
     setSelectedEvent(event);
     setFormData({
       tipeEvent: event.kategori || "Seminar",
