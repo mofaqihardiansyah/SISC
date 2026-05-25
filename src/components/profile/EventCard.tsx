@@ -14,7 +14,7 @@ interface EventCardProps {
   organizer: string;
   timeLeft?: string;
   image?: string;
-  status?: 'upcoming' | 'registered' | 'completed' | 'favorited';
+  status?: 'pending' | 'registered' | 'completed' | 'favorited';
   onFavoriteToggle?: () => void;
   isFavorited?: boolean;
   priority?: boolean;
@@ -74,7 +74,7 @@ export default function EventCard({
             {status && (
               <span
                 className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
-                  status === 'upcoming'
+                  status === 'pending'
                     ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
                       ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
@@ -84,11 +84,11 @@ export default function EventCard({
                 }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${
-                  status === 'upcoming' ? 'bg-amber-400' : 
+                  status === 'pending' ? 'bg-amber-400' : 
                   status === 'registered' ? 'bg-emerald-400' : 
                   status === 'completed' ? 'bg-slate-400' : 'bg-rose-400'
                 }`}></span>
-                {status === 'upcoming' ? 'Mendatang' : 
+                {status === 'pending' ? 'Menunggu Verifikasi' : 
                  status === 'registered' ? 'Terdaftar' : 
                  status === 'completed' ? 'Selesai' : 'Favorit'}
               </span>
@@ -157,7 +157,7 @@ export default function EventCard({
              {status && (
               <span
                 className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
-                  status === 'upcoming'
+                  status === 'pending'
                     ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
                       ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
@@ -167,11 +167,11 @@ export default function EventCard({
                 }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${
-                  status === 'upcoming' ? 'bg-amber-400' : 
+                  status === 'pending' ? 'bg-amber-400' : 
                   status === 'registered' ? 'bg-emerald-400' : 
                   status === 'completed' ? 'bg-slate-400' : 'bg-rose-400'
                 }`}></span>
-                {status === 'upcoming' ? 'Mendatang' : 
+                {status === 'pending' ? 'Menunggu Verifikasi' : 
                  status === 'registered' ? 'Terdaftar' : 
                  status === 'completed' ? 'Selesai' : 'Favorit'}
               </span>

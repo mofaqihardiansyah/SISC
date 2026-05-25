@@ -14,7 +14,7 @@ export interface UserEventItem {
   location: string;
   organizer: string;
   image: string | null;
-  status: 'upcoming' | 'registered' | 'completed' | 'favorited';
+  status: 'pending' | 'registered' | 'completed' | 'favorited';
   kodePendaftaran: string | null;
   pendaftaranStatus: string | null;
   tanggalMulai: Date;
@@ -27,24 +27,24 @@ export interface GetUserEventsResult {
   error?: string;
 }
 
-export type EventStatusFilter = 'all' | 'upcoming' | 'registered' | 'completed';
+export type EventStatusFilter = 'all' | 'pending' | 'registered' | 'completed';
 
 function determineEventStatus(
   pendaftaranStatus: string | null,
   tanggalMulai: Date,
   tanggalSelesai: Date | null
-): 'upcoming' | 'registered' | 'completed' {
+): 'pending' | 'registered' | 'completed' {
   const now = new Date();
   
   // Selama dia terdaftar/hadir (bukan dibatalkan)
   if (pendaftaranStatus === 'terdaftar' || pendaftaranStatus === 'hadir') {
      if (tanggalSelesai && tanggalSelesai < now) return 'completed';
-     if (tanggalMulai > now) return 'upcoming';
+     if (tanggalMulai > now) return 'pending';
      return 'registered'; // Sedang berlangsung hari ini
   }
   
   if (tanggalMulai > now) {
-    return 'upcoming';
+    return 'pending';
   }
   
   return 'completed';
