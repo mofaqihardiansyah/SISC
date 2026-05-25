@@ -24,10 +24,6 @@ export default function KelolaEventClient() {
   const [dbEvents, setDbEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  // ==========================================
-  // STATE FILTER UTAMA (Terhubung ke Database)
-  // ==========================================
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua Status");
