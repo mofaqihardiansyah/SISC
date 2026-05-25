@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { event } from "@/db/schema";
-import { eq, ne, desc } from "drizzle-orm";
+import { event, tayanganLog } from "@/db/schema";
+import { eq, ne, desc, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
 import { auth } from "@/auth";
@@ -33,6 +33,10 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   });
 
   if (!eventData) notFound();
+
+  // Increment jumlah tayangan dan log
+  await db.update(event).set({ jumlahTayangan: sql`${event.jumlahTayangan} + 1` }).where(eq(event.id, eventId));
+  await db.insert(tayanganLog).values({ eventId, tanggal: new Date() });
 
   // Ambil event terkait
   const eventTerkait = await db.query.event.findMany({

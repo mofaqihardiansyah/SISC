@@ -61,6 +61,10 @@ interface RegisterValues {
   password?: string;
   namaLengkap?: string;
   nomorTelepon?: string;
+  tanggalLahir?: string;
+  jenisKelamin?: string;
+  institution?: string;
+  pekerjaan?: string;
   namaInstansi?: string;
   deskripsiInstansi?: string;
   dokumenLegalitasUrl?: string;
@@ -84,9 +88,13 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
   try {
     // 3. Create user
     const [newUser] = await db.insert(users).values({
-      namaLengkap: values.namaLengkap,
+      namaLengkap: values.namaLengkap || values.namaInstansi,
       email: values.email,
       nomorTelepon: values.nomorTelepon,
+      tanggalLahir: values.tanggalLahir ? new Date(values.tanggalLahir) : null,
+      jenisKelamin: values.jenisKelamin as 'Laki-laki' | 'Perempuan',
+      institution: values.institution || values.namaInstansi, // Use namaInstansi as fallback for organizer
+      pekerjaan: values.pekerjaan,
       password: hashedPassword,
       role: role,
     }).returning();

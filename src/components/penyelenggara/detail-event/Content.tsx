@@ -1,22 +1,28 @@
-import { InferSelectModel } from "drizzle-orm";
-import { event as eventSchema } from "@/db/schema";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
 type EventType = {
   id: number;
   judul: string | null;
   deskripsi: string | null;
+  syaratDanKetentuan: string | null;
+  bannerUrl: string | null;
   namaPembicara: string | null;
   peranPembicara: string | null;
   tanggalMulai: Date | null;
+  tanggalSelesai: Date | null;
   detailLokasi: string | null;
   linkEksternal: string | null;
-  syaratDanKetentuan: string | null;
-
+  jenisEvent: "seminar" | "conference" | null;
+  tipePlatform: "online" | "offline" | "hybrid" | null;
+  tipeHarga: "free" | "paid" | null;
+  harga: number | null;
+  kuota: number | null;
+  isEventPolines: boolean | null;
+  kategori?: { nama: string | null } | null;
   kota?: {
     nama: string | null;
-    provinsi?: {
-      nama: string | null;
-    } | null;
+    provinsi?: { nama: string | null } | null;
   } | null;
 };
 
@@ -24,214 +30,228 @@ type Props = {
   event: EventType;
 };
 
-function parseDeskripsi(deskripsi?: string | null) {
-  if (!deskripsi?.trim()) {
-    return {
-      teks: "Tidak ada deskripsi.",
-      materi: [],
-    };
-  }
+// ── helpers ──────────────────────────────────────────────────────────────────
 
-  const [teksPart, materiPart] =
-    deskripsi.split("Materi yang Dipelajari:");
-
-  const materi =
-    materiPart
-      ?.split("\n")
-      .map((item) => item.trim())
-      .filter((item) => /^\d+\./.test(item))
-      .map((item) => item.replace(/^\d+\.\s*/, "")) || [];
-
-  return {
-    teks: teksPart.trim(),
-    materi,
-  };
+function ReadonlyField({
+  label,
+  value,
+  placeholder,
+}: {
+  label: string;
+  value?: string | null;
+  placeholder?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-gray-500">{label}</label>
+      <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 min-h-[36px]">
+        {value || (
+          <span className="text-gray-400 text-sm">{placeholder ?? "—"}</span>
+        )}
+      </div>
+    </div>
+  );
 }
 
+function SectionCard({
+  sectionId,
+  icon,
+  title,
+  children,
+}: {
+  sectionId: string;
+  icon: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div id={sectionId} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100 bg-gray-50/60">
+        <span className="text-sm">{icon}</span>
+        <h2 className="text-sm font-semibold text-gray-700">{title}</h2>
+      </div>
+      <div className="px-5 py-4">{children}</div>
+    </div>
+  );
+}
+
+// ── main component ────────────────────────────────────────────────────────────
+
 export default function Content({ event }: Props) {
-  const { teks, materi } = parseDeskripsi(event.deskripsi);
+  const jenisLabel =
+    event.jenisEvent === "seminar"
+      ? "Seminar"
+      : event.jenisEvent === "conference"
+      ? "Conference"
+      : "—";
 
-  const syaratList =
-    event.syaratDanKetentuan
-      ?.split("\n")
-      .map((item) => item.trim())
-      .filter(Boolean) || [];
+  const polinesLabel = event.isEventPolines ? "Polines" : "Umum";
 
-  // LANGKAH FIX TANPA LINK EKSTERNAL
-  const langkahPendaftaran = [
-    "Pendaftaran dilakukan langsung melalui platform POLIVENTS",
-    "Lengkapi data peserta",
-    "Konfirmasi pendaftaran",
-  ];
+  const platformLabel =
+    event.tipePlatform === "online"
+      ? "Daring"
+      : event.tipePlatform === "hybrid"
+      ? "Hybrid"
+      : "Luring";
+
+  const hargaLabel = event.tipeHarga === "free" ? "Gratis" : "Berbayar";
+  const biayaLabel =
+    event.tipeHarga === "paid" && event.harga
+      ? `Rp ${event.harga.toLocaleString("id-ID")}`
+      : event.tipeHarga === "free"
+      ? "Gratis"
+      : "—";
+
+  const fmtDate = (d: Date | null) =>
+    d ? format(new Date(d), "dd/MM/yyyy, HH:mm", { locale: id }) : "";
+
+  const deskripsiPlain = event.deskripsi
+    ? event.deskripsi.replace(/<[^>]*>/g, "").trim()
+    : "";
+
+  const syaratPlain = event.syaratDanKetentuan
+    ? event.syaratDanKetentuan.replace(/<[^>]*>/g, "").trim()
+    : "";
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-4 pb-8">
 
-      {/* DESKRIPSI */}
-      <section id="deskripsi" className="pt-2">
-        <h2 className="text-4xl font-bold text-[#1B1B1B] mb-8">
-          Deskripsi
-        </h2>
+      {/* ── 1. TIPE EVENT ─────────────────────────────────────────── */}
+      <SectionCard sectionId="tipe-event" icon="ℹ️" title="Tipe Event">
+        <div className="grid grid-cols-2 gap-3">
+          <ReadonlyField
+            label="Pilih Tipe Event (Seminar/Conference)"
+            value={jenisLabel}
+          />
+          <ReadonlyField
+            label="Pilih Jenis Event (Polines/Umum)"
+            value={polinesLabel}
+          />
+        </div>
+      </SectionCard>
 
-        {/* BOX DESKRIPSI */}
-        <div className="border border-gray-200 rounded-3xl p-8 bg-white">
+      {/* ── 2. DETAIL UMUM ────────────────────────────────────────── */}
+      <SectionCard sectionId="detail-umum" icon="ℹ️" title="Detail Umum">
+        <div className="space-y-3">
 
-          <div className="space-y-8 text-[#2B3A55]">
+          <ReadonlyField label="Judul Event" value={event.judul} />
 
-            {/* Isi Deskripsi */}
-            <div>
-              <p className="text-lg leading-relaxed text-gray-700">
-                {teks}
-              </p>
+          <div className="grid grid-cols-2 gap-3">
+            <ReadonlyField
+              label="Kategori Event"
+              value={event.kategori?.nama}
+            />
+            <ReadonlyField label="Tipe Platform" value={platformLabel} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <ReadonlyField
+              label="Lokasi"
+              value={
+                event.detailLokasi
+                  ? `${event.detailLokasi}${event.kota?.nama ? `, ${event.kota.nama}` : ""}`
+                  : event.kota?.nama
+              }
+              placeholder="Contoh: Jakarta, Bandung, Online Only"
+            />
+            <ReadonlyField
+              label="Pembicara (Opsional)"
+              value={
+                event.namaPembicara
+                  ? `${event.namaPembicara}${event.peranPembicara ? ` (${event.peranPembicara})` : ""}`
+                  : null
+              }
+              placeholder="Contoh: Pak Nakala"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <ReadonlyField label="Harga" value={hargaLabel} />
+            <ReadonlyField label="Biaya" value={biayaLabel} />
+          </div>
+
+        </div>
+      </SectionCard>
+
+      {/* ── 3. DESKRIPSI & POSTER ─────────────────────────────────── */}
+      <SectionCard sectionId="deskripsi-poster" icon="🖼️" title="Deskripsi & Poster">
+        <div className="space-y-3">
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-500">Deskripsi Event</label>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 min-h-[80px] whitespace-pre-line leading-relaxed">
+              {deskripsiPlain || (
+                <span className="text-gray-400">Tidak ada deskripsi.</span>
+              )}
             </div>
+          </div>
 
-            {/* Materi */}
-            {materi.length > 0 && (
-              <div>
-                <h3 className="text-2xl font-bold text-black mb-5">
-                  Materi yang Dipelajari
-                </h3>
-
-                <div className="space-y-4">
-                  {materi.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-4"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-[#13254C] text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                        {i + 1}
-                      </div>
-
-                      <p className="leading-7 text-gray-700">
-                        {item}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-500">Banner Event</label>
+            {event.bannerUrl ? (
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <img
+                  src={event.bannerUrl}
+                  alt={event.judul ?? "Banner"}
+                  className="w-full max-h-[200px] object-cover"
+                />
+              </div>
+            ) : (
+              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg h-[100px] flex flex-col items-center justify-center gap-1 text-gray-400">
+                <span className="text-2xl">🖼️</span>
+                <p className="text-xs">Belum ada banner</p>
               </div>
             )}
+          </div>
 
-            {/* Speaker */}
-            {event.namaPembicara && (
-              <div>
-                <h3 className="font-bold text-black mb-3 text-xl">
-                  Special Speaker
-                </h3>
+        </div>
+      </SectionCard>
 
-                <p className="text-lg text-gray-700">
-                  {event.namaPembicara}
-                  {event.peranPembicara &&
-                    ` (${event.peranPembicara})`}
-                </p>
-              </div>
+      {/* ── 4. SYARAT DAN KETENTUAN ───────────────────────────────── */}
+      <SectionCard sectionId="syarat" icon="📋" title="Syarat dan Ketentuan">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">
+            Detail Syarat &amp; Ketentuan Event
+          </label>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 min-h-[80px] whitespace-pre-line leading-relaxed">
+            {syaratPlain || (
+              <span className="text-gray-400">Belum ada syarat dan ketentuan.</span>
             )}
-
-            {/* Pelaksanaan */}
-            <div>
-              <h3 className="font-bold text-black mb-3 text-xl">
-                Pelaksanaan
-              </h3>
-
-              <p className="uppercase tracking-wide text-lg text-gray-800">
-  {event.tanggalMulai
-    ? new Date(event.tanggalMulai).toLocaleDateString(
-        "id-ID",
-        {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }
-      )
-    : "Tanggal belum ditentukan"}
-</p>
-
-              <p className="text-gray-500 text-lg mt-1">
-                {event.detailLokasi},{" "}
-                {event.kota?.nama}
-              </p>
-            </div>
-
           </div>
         </div>
-      </section>
+      </SectionCard>
 
-      {/* PENDAFTARAN */}
-      <section id="pendaftaran">
-        <h2 className="text-4xl font-bold mb-8">
-          Pendaftaran
-        </h2>
-
-        <div className="border border-gray-200 rounded-3xl p-8 bg-white">
-
-          <div className="flex items-center gap-3 mb-8">
-            <span className="text-3xl">📝</span>
-
-            <h3 className="text-2xl font-bold">
-              Langkah Pendaftaran
-            </h3>
+      {/* ── 5. JADWAL & KUOTA ─────────────────────────────────────── */}
+      <SectionCard sectionId="jadwal-kuota" icon="📅" title="Jadwal & Kuota">
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <ReadonlyField
+              label="Tanggal & Waktu Mulai"
+              value={fmtDate(event.tanggalMulai)}
+              placeholder="mm/dd/yyyy, --:-- --"
+            />
+            <ReadonlyField
+              label="Tanggal & Waktu Selesai"
+              value={fmtDate(event.tanggalSelesai)}
+              placeholder="mm/dd/yyyy, --:-- --"
+            />
           </div>
-
-          <div className="space-y-6">
-            {langkahPendaftaran.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-5"
-              >
-                <div className="w-9 h-9 rounded-full bg-[#13254C] text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                  {i + 1}
-                </div>
-
-                <p className="leading-8 text-gray-700 text-lg">
-                  {item}
-                </p>
-              </div>
-            ))}
-          </div>
+          <ReadonlyField
+            label="Kuota Peserta"
+            value={event.kuota ? String(event.kuota) : null}
+            placeholder="—"
+          />
         </div>
-      </section>
+      </SectionCard>
 
-      {/* SYARAT */}
-      <section id="syarat">
-        <h2 className="text-4xl font-bold mb-8">
-          Syarat dan Ketentuan
-        </h2>
-
-        <div className="border border-gray-200 rounded-3xl p-8 bg-white">
-
-          <div className="flex items-center gap-3 mb-8">
-            <span className="text-3xl">📋</span>
-
-            <h3 className="text-2xl font-bold">
-              Ketentuan Peserta
-            </h3>
-          </div>
-
-          {syaratList.length > 0 ? (
-            <div className="space-y-6">
-
-              {syaratList.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-5"
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#13254C] text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                    {i + 1}
-                  </div>
-
-                  <p className="leading-8 text-gray-700 text-lg">
-                    {item}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-lg">
-              Belum ada syarat dan ketentuan.
-            </p>
-          )}
-        </div>
-      </section>
+      {/* ── 6. LINK FORM PENDAFTARAN ──────────────────────────────── */}
+      <SectionCard sectionId="link-pendaftaran" icon="🔗" title="Link Form Pendaftaran">
+        <ReadonlyField
+          label="Link Form Pendaftaran untuk Peserta Event"
+          value={event.linkEksternal}
+          placeholder="https://..."
+        />
+      </SectionCard>
 
     </div>
   );

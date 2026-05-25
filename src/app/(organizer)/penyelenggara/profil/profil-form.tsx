@@ -15,7 +15,7 @@ interface ProfilFormProps {
     email: string | null;
     nomorTelepon: string | null;
     dokumenLegalitasUrl: string | null;
-    isTerverifikasi: boolean;
+    isApproved: boolean;
   };
 }
 
@@ -121,7 +121,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8">
         <h1 className="text-2xl font-bold text-slate-800">Profil Penyelenggara</h1>
-        {initialData.isTerverifikasi && (
+        {initialData.isApproved && (
           <span className="bg-emerald-100 text-emerald-600 w-fit text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
             Akun Terverifikasi

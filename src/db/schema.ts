@@ -17,13 +17,15 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).unique(),
   nomorTelepon: varchar('nomor_telepon', { length: 20 }),
   institution: varchar('institution', { length: 255 }),
+  pekerjaan: varchar('pekerjaan', { length: 255 }),
   password: varchar('password', { length: 255 }),
   emailVerified: timestamp('email_verified'),
   tanggalLahir: timestamp('tanggal_lahir'),
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
-  nik: varchar('nik', { length: 16 }),
   role: userRoleEnum('role').default('visitor'),
-  isTerverifikasi: boolean('is_terverifikasi').default(false),
+  isApproved: boolean('is_approved').default(false),
+  isSuspended: boolean('is_suspended').default(false),   // 👈 BARU
+  lastActiveAt: timestamp('last_active_at'),              // 👈 BARU
   avatarUrl: varchar('avatar_url', { length: 512 }).default("/uploads/avatars/fotodummy.jpg"),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
@@ -171,20 +173,31 @@ export const pendaftaran = pgTable('pendaftaran', {
   dihapusPada: timestamp('dihapus_pada'),
 });
 
-// 14. PESERTA
+// 14. TRANSAKSI
+export const transaksi = pgTable('transaksi', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').notNull().references(() => event.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  kodeTransaksi: varchar('kode_transaksi', { length: 50 }).unique(),
+  status: varchar('status', { length: 50 }).default('pending'),
+  totalHarga: integer('total_harga').default(0),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  diperbaruiPada: timestamp('diperbarui_pada'),
+});
+
+// 16. PESERTA
 export const peserta = pgTable('peserta', {
   id: serial('id').primaryKey(),
   pendaftaranId: integer('pendaftaran_id').references(() => pendaftaran.id),
+  transaksiId: integer('transaksi_id').references(() => transaksi.id),
   kodePeserta: varchar('kode_peserta', { length: 50 }).unique(), 
   namaLengkap: varchar('nama_lengkap', { length: 255 }),
   email: varchar('email', { length: 255 }),
   nomorTelepon: varchar('nomor_telepon', { length: 20 }),
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
-  sudahCheckIn: boolean('sudah_check_in').default(false),
-  waktuCheckIn: timestamp('waktu_check_in'),
 });
 
-// 15. PAPER SUBMISSION
+// 17. PAPER SUBMISSION
 export const paperSubmission = pgTable('paper_submission', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id).notNull(),
@@ -198,7 +211,7 @@ export const paperSubmission = pgTable('paper_submission', {
   diperbaruiPada: timestamp('diperbarui_pada'),
 });
 
-// 16. JADWAL EVENT
+// 18. JADWAL EVENT
 export const jadwalEvent = pgTable('jadwal_event', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
@@ -217,6 +230,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   bookmark: many(bookmark),
   logAdmin: many(logAdmin),
   pendaftaran: many(pendaftaran),
+  transaksi: many(transaksi),
   paperSubmission: many(paperSubmission),
 }));
 
@@ -276,6 +290,7 @@ export const eventRelations = relations(event, ({ one, many }) => ({
   lampiran: many(lampiranEvent),
   logAdmin: many(logAdmin),
   pendaftaran: many(pendaftaran),
+  transaksi: many(transaksi),
   jadwal: many(jadwalEvent),
   paperSubmission: many(paperSubmission),
 }));
@@ -321,10 +336,26 @@ export const pendaftaranRelations = relations(pendaftaran, ({ one, many }) => ({
   peserta: many(peserta),
 }));
 
+export const transaksiRelations = relations(transaksi, ({ one, many }) => ({
+  event: one(event, {
+    fields: [transaksi.eventId],
+    references: [event.id],
+  }),
+  user: one(users, {
+    fields: [transaksi.userId],
+    references: [users.id],
+  }),
+  peserta: many(peserta),
+}));
+
 export const pesertaRelations = relations(peserta, ({ one }) => ({
   pendaftaran: one(pendaftaran, {
     fields: [peserta.pendaftaranId],
     references: [pendaftaran.id],
+  }),
+  transaksi: one(transaksi, {
+    fields: [peserta.transaksiId],
+    references: [transaksi.id],
   }),
 }));
 
@@ -342,6 +373,35 @@ export const paperSubmissionRelations = relations(paperSubmission, ({ one }) => 
 export const jadwalEventRelations = relations(jadwalEvent, ({ one }) => ({
   event: one(event, {
     fields: [jadwalEvent.eventId],
+    references: [event.id],
+  }),
+}));
+
+export const pemberitahuan = pgTable('pemberitahuan', {
+  id: serial('id').primaryKey(),
+  tag: text('tag'),
+  isi: text('isi'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const favorit = pgTable('favorit', {
+  userId: integer('user_id').notNull().references(() => users.id),
+  eventId: integer('event_id').notNull().references(() => event.id),
+  createdAt: timestamp('created_at').defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.eventId] })
+]);
+
+export const tayanganLog = pgTable('tayangan_log', {
+  eventId: integer('event_id').references(() => event.id),
+  tanggal: timestamp('tanggal').defaultNow().notNull(),
+}, (t) => ({
+  idx: index('tayangan_log_idx').on(t.eventId, t.tanggal),
+}));
+
+export const tayanganLogRelations = relations(tayanganLog, ({ one }) => ({
+  event: one(event, {
+    fields: [tayanganLog.eventId],
     references: [event.id],
   }),
 }));

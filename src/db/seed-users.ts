@@ -41,6 +41,7 @@ export async function seedUsers() {
       nomorTelepon: "082111222333",
       institution: "Universitas Diponegoro",
       jenisKelamin: "Laki-laki",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Siti Nurhaliza",
@@ -50,6 +51,7 @@ export async function seedUsers() {
       nomorTelepon: "082111222334",
       institution: "Universitas Gadjah Mada",
       jenisKelamin: "Perempuan",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Budi Santoso",
@@ -59,6 +61,7 @@ export async function seedUsers() {
       nomorTelepon: "082111222335",
       institution: "Institut Teknologi Bandung",
       jenisKelamin: "Laki-laki",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Dewi Anggraini",
@@ -68,6 +71,7 @@ export async function seedUsers() {
       nomorTelepon: "082111222336",
       institution: "Universitas Indonesia",
       jenisKelamin: "Perempuan",
+      pekerjaan: "Mahasiswa",
     },
     {
       namaLengkap: "Fajar Setiawan",
@@ -77,6 +81,7 @@ export async function seedUsers() {
       nomorTelepon: "082111222337",
       institution: "Universitas Brawijaya",
       jenisKelamin: "Laki-laki",
+      pekerjaan: "Dosen",
     },
   ];
 
@@ -89,11 +94,12 @@ export async function seedUsers() {
       namaLengkap: user.namaLengkap,
       email: user.email,
       password: hashedPassword,
-      role: user.role,
+      role: user.role as "admin" | "organizer" | "visitor",
       nomorTelepon: user.nomorTelepon,
       institution: user.institution,
-      jenisKelamin: (user as { jenisKelamin?: string }).jenisKelamin,
-      isTerverifikasi: true,
+      jenisKelamin: (user as { jenisKelamin?: "Laki-laki" | "Perempuan" }).jenisKelamin,
+      pekerjaan: (user as { pekerjaan?: string }).pekerjaan,
+      isApproved: true,
       emailVerified: new Date(),
       avatarUrl: "/uploads/avatars/fotodummy.jpg",
     }).onConflictDoUpdate({
@@ -101,10 +107,12 @@ export async function seedUsers() {
       set: {
         namaLengkap: user.namaLengkap,
         password: hashedPassword,
-        role: user.role,
+        role: user.role as "admin" | "organizer" | "visitor",
         nomorTelepon: user.nomorTelepon,
         institution: user.institution,
-        isTerverifikasi: true,
+        jenisKelamin: (user as { jenisKelamin?: 'Laki-laki' | 'Perempuan' }).jenisKelamin,
+        pekerjaan: (user as { pekerjaan?: string }).pekerjaan,
+        isApproved: true,
         emailVerified: new Date(),
         avatarUrl: "/uploads/avatars/fotodummy.jpg",
       }

@@ -8,6 +8,7 @@ import {
   FileCheck, 
   Users, 
   Calendar, 
+  UserCog,
   Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ const menuItems = [
   { icon: FileCheck, label: 'Persetujuan', href: '/admin/persetujuan' },
   { icon: Users, label: 'Penyelenggara', href: '/admin/penyelenggara' },
   { icon: Calendar, label: 'Events', href: '/admin/events' },
+  { icon: UserCog, label: 'Manajemen User', href: '/admin/manajemen-user' },
   { icon: Settings, label: 'Pengaturan', href: '/admin/pengaturan' },
 ];
 

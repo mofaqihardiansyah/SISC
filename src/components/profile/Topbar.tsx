@@ -1,6 +1,7 @@
 import React from 'react';
 import { auth } from "@/auth";
 import UserMenu from "@/components/layout/UserMenu";
+import { db } from "@/db";
 
 interface TopbarProps {
   title?: string;
@@ -9,8 +10,20 @@ interface TopbarProps {
 export async function Topbar({ title = "User Profile" }: TopbarProps) {
   const session = await auth();
   
-  // Mock user for testing without login
-  const user = session?.user || {
+  let dbUser = null;
+  if (session?.user?.id) {
+    dbUser = await db.query.users.findFirst({
+      where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+    });
+  }
+
+  // Combine session data with latest DB data (especially for avatarUrl)
+  const user = dbUser ? {
+    name: dbUser.namaLengkap || session?.user?.name || "Demo User",
+    email: dbUser.email || session?.user?.email || "demo@example.com",
+    image: dbUser.avatarUrl || session?.user?.image,
+    role: session?.user?.role,
+  } : session?.user || {
     name: "Demo User",
     email: "demo@example.com",
   };
@@ -29,10 +42,10 @@ export async function Topbar({ title = "User Profile" }: TopbarProps) {
                 {user.name}
               </p>
               <p className="text-xs text-slate-500 capitalize">
-                {session.user.role || 'Pengunjung'}
+                {user.role || 'Pengunjung'}
               </p>
             </div>
-            {session?.user && <UserMenu user={session.user} />}
+            {session?.user && <UserMenu user={user} />}
           </div>
         )}
       </div>

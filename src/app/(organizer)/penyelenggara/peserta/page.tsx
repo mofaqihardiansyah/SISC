@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { Search, Download, Users, Loader2, Check, X, Pencil, Trash2, Info, ChevronLeft, ChevronRight } from "lucide-react";
 
 // ============================================================
 // TIPE DATA
@@ -19,8 +20,6 @@ interface PesertaData {
     email: string;
     nomorTelepon: string;
     jenisKelamin: string | null;
-    sudahCheckIn: boolean;
-    waktuCheckIn: string | null;
   } | null;
 }
 
@@ -126,26 +125,46 @@ export default function InformasiPesertaPage() {
     }
   };
 
-  // ── Export CSV ───────────────────────────────────────────────
-  const exportCSV = () => {
-    const header = ["Nama", "Email", "No. HP", "Event", "Status", "Kode Pendaftaran", "Tanggal Daftar"];
-    const rows = pesertaList.map((p) => [
-      p.peserta?.namaLengkap ?? "-",
-      p.peserta?.email ?? "-",
-      p.peserta?.nomorTelepon ?? "-",
-      p.namaEvent,
-      STATUS_LABEL[p.status]?.label ?? p.status,
-      p.kodePendaftaran,
-      new Date(p.dibuatPada).toLocaleDateString("id-ID"),
-    ]);
-    const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "peserta.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+  // ── Export CSV (semua data, bukan hanya halaman saat ini) ───
+  const [exporting, setExporting] = useState(false);
+
+  const exportCSV = async () => {
+    setExporting(true);
+    try {
+      // Fetch semua data tanpa pagination untuk export
+      const params = new URLSearchParams({
+        search,
+        status: filterStatus,
+        page: "1",
+        perPage: "99999",
+      });
+      const res = await fetch(`/api/organizer/peserta?${params}`);
+      const json = await res.json();
+      const allData: PesertaData[] = json.data ?? [];
+
+      const header = ["Nama", "Email", "No. HP", "Event", "Status", "Kode Pendaftaran", "Tanggal Daftar"];
+      const rows = allData.map((p) => [
+        `"${p.peserta?.namaLengkap ?? "-"}"`,
+        `"${p.peserta?.email ?? "-"}"`,
+        `"${p.peserta?.nomorTelepon ?? "-"}"`,
+        `"${p.namaEvent}"`,
+        `"${STATUS_LABEL[p.status]?.label ?? p.status}"`,
+        `"${p.kodePendaftaran}"`,
+        `"${new Date(p.dibuatPada).toLocaleDateString("id-ID")}"`,
+      ]);
+      const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `peserta_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export CSV gagal:", err);
+    } finally {
+      setExporting(false);
+    }
   };
 
   // ── Pagination ───────────────────────────────────────────────
@@ -404,7 +423,7 @@ export default function InformasiPesertaPage() {
         {/* TOOLBAR */}
         <div className="ip-toolbar">
           <div className="ip-search-wrap">
-            <span className="ip-search-icon">🔍</span>
+            <span className="ip-search-icon"><Search size={15} /></span>
             <input
               className="ip-search"
               placeholder="Cari nama peserta, email, atau nomor telepon..."
@@ -422,8 +441,9 @@ export default function InformasiPesertaPage() {
             <option value="hadir">Terverifikasi</option>
             <option value="dibatalkan">Ditolak</option>
           </select>
-          <button className="ip-btn-export" onClick={exportCSV}>
-            ⬇ Export CSV
+          <button className="ip-btn-export" onClick={exportCSV} disabled={exporting}>
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            {exporting ? "Mengekspor..." : "Export CSV"}
           </button>
         </div>
 
@@ -438,10 +458,13 @@ export default function InformasiPesertaPage() {
         {/* TABEL */}
         <div className="ip-table-wrap">
           {loading ? (
-            <div className="ip-loading">⏳ Memuat data...</div>
+            <div className="ip-loading flex flex-col items-center justify-center gap-2">
+              <Loader2 className="animate-spin" size={24} />
+              <span>Memuat data...</span>
+            </div>
           ) : pesertaList.length === 0 ? (
             <div className="ip-empty">
-              <div className="ip-empty-icon">👥</div>
+              <div className="ip-empty-icon flex justify-center"><Users size={40} /></div>
               <div>Tidak ada peserta ditemukan</div>
             </div>
           ) : (
@@ -507,7 +530,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "hadir")}
                               >
-                                ✓
+                                <Check size={16} />
                               </button>
                               <button
                                 className="btn-aksi btn-tolak"
@@ -515,7 +538,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "dibatalkan")}
                               >
-                                ✕
+                                <X size={16} />
                               </button>
                             </>
                           )}
@@ -527,7 +550,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "terdaftar")}
                               >
-                                ✎
+                                <Pencil size={14} />
                               </button>
                               <button
                                 className="btn-aksi btn-hapus"
@@ -535,7 +558,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "dibatalkan")}
                               >
-                                🗑
+                                <Trash2 size={16} />
                               </button>
                             </>
                           )}
@@ -546,7 +569,7 @@ export default function InformasiPesertaPage() {
                                 title="Info"
                                 disabled
                               >
-                                ℹ
+                                <Info size={16} />
                               </button>
                               <button
                                 className="btn-aksi btn-edit"
@@ -554,7 +577,7 @@ export default function InformasiPesertaPage() {
                                 disabled={isLoading}
                                 onClick={() => updateStatus(item.pendaftaranId, "terdaftar")}
                               >
-                                ✎
+                                <Pencil size={14} />
                               </button>
                             </>
                           )}
@@ -580,7 +603,7 @@ export default function InformasiPesertaPage() {
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
               >
-                ‹
+                <ChevronLeft size={16} />
               </button>
               {getPageNumbers().map((p, i) =>
                 p === "..." ? (
@@ -600,7 +623,7 @@ export default function InformasiPesertaPage() {
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
               >
-                ›
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>

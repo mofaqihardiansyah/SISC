@@ -29,9 +29,9 @@ const FAQ_LIST = [
   {
     id: 3,
     slug: "akun",
-    pertanyaan: "Bagaimana cara akun saya menjadi penyelenggara?",
+    pertanyaan: "Apakah saya bisa mengubah akun pengunjung menjadi penyelenggara?",
     jawaban:
-      "Untuk menjadi penyelenggara, lengkapi profil akun Anda dan ajukan permohonan melalui menu Profil Akun > Upgrade ke Penyelenggara.",
+      "Tidak. Peran pengunjung dan penyelenggara dipisahkan. Satu akun hanya dapat memiliki satu peran yang dipilih pada saat pendaftaran pertama kali.",
     defaultOpen: false,
   },
   {
@@ -98,7 +98,7 @@ function FaqItem({
         </span>
         <ChevronDown
           size={18}
-          className={`flex-shrink-0 ml-4 text-gray-400 transition-transform duration-300 ${
+          className={`shrink-0 ml-4 text-gray-400 transition-transform duration-300 ${
             open ? "rotate-180" : ""
           }`}
         />
@@ -161,7 +161,7 @@ export default function BantuanPage() {
         </div>
 
         {/* Pusat Bantuan Card */}
-        <div className="w-[190px] flex-shrink-0 bg-white rounded-2xl border border-gray-200 p-5 flex flex-col items-center text-center">
+        <div className="w-[190px] shrink-0 bg-white rounded-2xl border border-gray-200 p-5 flex flex-col items-center text-center">
           <svg
             viewBox="0 0 80 80"
             fill="none"
@@ -220,4 +220,3 @@ export default function BantuanPage() {
     </div>
   );
 }
-

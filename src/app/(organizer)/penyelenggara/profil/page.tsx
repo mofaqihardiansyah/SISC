@@ -27,7 +27,7 @@ export default async function ProfilPenyelenggaraPage() {
     email: user.email,
     nomorTelepon: user.nomorTelepon || "",
     dokumenLegalitasUrl: profil?.dokumenLegalitasUrl || "",
-    isTerverifikasi: user.isTerverifikasi || false,
+    isApproved: user.isApproved || false,
   };
 
   return <ProfilForm initialData={initialData} />;

@@ -1,25 +1,35 @@
 import React from 'react';
 import { db } from "@/db";
-import { event } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import FormRegistrasi from './FormRegistrasi';
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { event, pendaftaran } from "@/db/schema";
 
-// Next.js 15 mewajibkan params di-await karena bersifat asynchronous
 export default async function RegistrasiEventPage({ 
   params 
 }: { 
   params: Promise<{ eventID: string }> 
 }) {
   
-  // 1. Await params untuk mengambil eventID dari URL
+  // 1. Cek session login user
+  const session = await auth();
+  
+  if (!session || !session.user) {
+    redirect("/login"); 
+  }
+
+  // 2. Await params untuk mengambil eventID dari URL
   const { eventID } = await params;
 
-  // 2. Ambil data event berdasarkan ID (pastikan dikonversi ke Number)
+  // 3. Ambil data event berdasarkan ID beserta relasi kategori
   const dataEvent = await db.query.event.findFirst({
     where: eq(event.id, Number(eventID)),
+    with: {
+      kategori: true,
+    },
   });
 
-  // Jika event tidak ada di database
   if (!dataEvent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -31,12 +41,43 @@ export default async function RegistrasiEventPage({
     );
   }
 
+  // 4. Cek apakah user sudah terdaftar di event ini
+  const existingPendaftaran = await db
+    .select()
+    .from(pendaftaran)
+    .where(
+      and(
+        eq(pendaftaran.eventId, Number(eventID)),
+        eq(pendaftaran.userId, Number(session.user.id))
+      )
+    )
+    .limit(1);
+
+  if (existingPendaftaran.length > 0) {
+    const kategori = dataEvent.kategori?.nama?.toLowerCase() || "";
+    const judul = dataEvent.judul?.toLowerCase() || "";
+    const isConference = kategori === "conference" || kategori === "konferensi" || judul.includes("conference") || judul.includes("konferensi");
+
+    if (isConference) {
+      redirect(`/profile/submit-paper?eventId=${eventID}`);
+    } else {
+      redirect(`/event/${eventID}`);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
-      {/* Main Content memanggil Client Component Form */}
       <main className="mx-auto mt-12 max-w-4xl px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {/* Teruskan eventID hasil await ke component FormRegistrasi */}
-        <FormRegistrasi eventId={eventID} dataEvent={dataEvent} />
+        <FormRegistrasi 
+          eventId={eventID} 
+          dataEvent={{
+            judul: dataEvent.judul,
+            linkEksternal: dataEvent.linkEksternal,
+            kategori: dataEvent.kategori?.nama,
+            harga: dataEvent.harga
+          }} 
+          currentUser={session.user} 
+        />
       </main>
     </div>
   );
