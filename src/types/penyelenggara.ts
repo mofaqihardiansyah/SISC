@@ -11,4 +11,9 @@ export interface PenyelenggaraItem {
   email: string;
   noTelepon: string;
   status: StatusValidasi;
+  namaLengkap: string;
+  deskripsiInstansi: string | null;
+  dokumenLegalitasUrl: string | null;
+  websiteUrl: string | null;
+  dibuatPada: string | null;
 }
