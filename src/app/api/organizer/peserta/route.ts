@@ -77,6 +77,7 @@ export async function GET(req: NextRequest) {
       kodePendaftaran: p.kodePendaftaran,
       status: p.status,
       dibuatPada: p.dibuatPada,
+      buktiPembayaran: p.buktiPembayaran,
       namaEvent: eventMap[p.eventId ?? 0] ?? "Event",
       peserta: p.peserta?.[0]
         ? {
@@ -135,7 +136,6 @@ export async function PATCH(req: NextRequest) {
         diperbaruiPada: new Date(),
       })
       .where(eq(pendaftaran.id, pendaftaranId));
-
 
     return NextResponse.json({ success: true });
   } catch (err) {
