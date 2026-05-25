@@ -188,17 +188,31 @@ export default function BuatEventPage() {
     if (!eventTitle.trim()) return setError("Judul event wajib diisi.");
     if (!startDate) return setError("Tanggal mulai wajib diisi.");
 
+    // Validasi file di client-side agar tidak crash terkena body limit server
+    if (bannerFile && bannerFile.size > 5 * 1024 * 1024) {
+      return setError("Ukuran banner terlalu besar. Maksimal 5MB.");
+    }
+
     startTransition(async () => {
-      const result = await createEvent(buildFormData(isDraft));
-      if (result?.error) {
-        setError(result.error);
-      } else {
-        setSuccessMsg(
-          isDraft
-            ? "Event berhasil disimpan sebagai draft!"
-            : "Event berhasil diajukan ke admin untuk direview!"
+      try {
+        const result = await createEvent(buildFormData(isDraft));
+        if (result?.error) {
+          setError(result.error);
+        } else {
+          setSuccessMsg(
+            isDraft
+              ? "Event berhasil disimpan sebagai draft!"
+              : "Event berhasil diajukan ke admin untuk direview!"
+          );
+          setTimeout(() => router.push("/penyelenggara/event"), 1500);
+        }
+      } catch (err: any) {
+        console.error("Submit Error:", err);
+        setError(
+          err.message?.includes("exceeded")
+            ? "Ukuran form/file melebihi batas server. Maksimal 5MB."
+            : "Terjadi kesalahan jaringan atau server."
         );
-        setTimeout(() => router.push("/penyelenggara/event"), 1500);
       }
     });
   };
