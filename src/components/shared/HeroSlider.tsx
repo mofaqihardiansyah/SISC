@@ -28,17 +28,25 @@ export default function HeroSlider({ events }: HeroSliderProps) {
   }
 
   return (
-    <Swiper
-      modules={[Autoplay, Pagination]}
-      autoplay={{ delay: 5000, disableOnInteraction: false }}
-      pagination={{
-        clickable: true,
-        bulletActiveClass: "swiper-pagination-bullet-active !bg-white",
-      }}
-      loop={true}
-      grabCursor={true}
-      className="h-[350px] sm:h-[400px] rounded-2xl overflow-hidden shadow-xl"
-    >
+    // Tambah relative di wrapper luar
+    <div className="relative h-[350px] sm:h-[400px]">
+
+      {/* Badge di luar Swiper — tidak ikut bergerak */}
+      <span className="absolute top-4 left-6 sm:top-6 sm:left-12 bg-blue-500 text-white text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-20">
+        Paling Banyak Diminati
+      </span>
+
+      <Swiper
+        modules={[Autoplay, Pagination]}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        pagination={{
+          clickable: true,
+          bulletActiveClass: "swiper-pagination-bullet-active !bg-white",
+        }}
+        loop={true}
+        grabCursor={true}
+        className="h-full rounded-2xl overflow-hidden shadow-xl"
+      >
         {events.map((ev, index) => (
           <SwiperSlide key={ev.id}>
             <div className="relative h-full w-full">
@@ -51,11 +59,10 @@ export default function HeroSlider({ events }: HeroSliderProps) {
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+              {/* Konten bawah — ini yang bergerak saat slide */}
               <div className="absolute bottom-8 left-6 sm:bottom-12 sm:left-12 text-white z-10 max-w-[80%]">
-                <span className="bg-blue-500 text-white text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">
-                  Paling Banyak Diminati
-                </span>
-                <h1 className="text-3xl sm:text-5xl font-black mt-2 mb-4 leading-tight drop-shadow-lg">
+                <h1 className="text-3xl sm:text-5xl font-black mb-4 leading-tight drop-shadow-lg">
                   {ev.judul ?? "Untitled Event"}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-2">
@@ -90,6 +97,7 @@ export default function HeroSlider({ events }: HeroSliderProps) {
             </div>
           </SwiperSlide>
         ))}
-    </Swiper>
+      </Swiper>
+    </div>
   );
 }
