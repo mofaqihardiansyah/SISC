@@ -1,634 +1,417 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { Search, Download, Users, Loader2, Check, X, Pencil, Trash2, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import {
+  Search,
+  Pencil,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  Paperclip,
+  X,
+  ExternalLink,
+} from "lucide-react";
 
-// ============================================================
-// TIPE DATA
-// ============================================================
-type StatusPendaftaran = "terdaftar" | "dibatalkan" | "hadir";
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-interface PesertaData {
-  pendaftaranId: number;
-  kodePendaftaran: string;
-  status: StatusPendaftaran;
-  dibuatPada: string;
-  namaEvent: string;
-  peserta: {
-    id: number;
-    namaLengkap: string;
-    email: string;
-    nomorTelepon: string;
-    jenisKelamin: string | null;
-  } | null;
+type Status = "TERVERIFIKASI" | "MENUNGGU" | "DITOLAK";
+
+interface Peserta {
+  id: number;
+  nama: string;
+  event: string;
+  email: string;
+  noHp: string;
+  status: Status;
+  inisial: string;
+  warnaBg: string;
+  lampiranUrl?: string | null;
 }
 
-// ============================================================
-// HELPERS
-// ============================================================
-const STATUS_LABEL: Record<StatusPendaftaran, { label: string; color: string }> = {
-  terdaftar: { label: "MENUNGGU", color: "#f59e0b" },
-  hadir:     { label: "TERVERIFIKASI", color: "#10b981" },
-  dibatalkan:{ label: "DITOLAK", color: "#ef4444" },
-};
+// ─── Dummy Data ───────────────────────────────────────────────────────────────
 
-const getInisial = (nama: string) => {
-  const parts = nama.trim().split(" ");
-  return parts.length >= 2
-    ? (parts[0][0] + parts[1][0]).toUpperCase()
-    : nama.slice(0, 2).toUpperCase();
-};
+const DUMMY_DATA: Peserta[] = [
+  { id: 1, nama: "Andi Pratama",   event: "Marathon Jakarta 2024",  email: "andi.p@gmail.com",     noHp: "+62 812-3456-7890", status: "TERVERIFIKASI", inisial: "AP", warnaBg: "bg-orange-500", lampiranUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png" },
+  { id: 2, nama: "Siti Kusuma",    event: "Digital Summit Asia",    email: "siti.kus@company.id",  noHp: "+62 856-7890-1234", status: "MENUNGGU",     inisial: "SK", warnaBg: "bg-purple-500", lampiranUrl: null },
+  { id: 3, nama: "Budi Nugraha",   event: "Tech Conference 2024",   email: "budi_n@outlook.com",   noHp: "+62 811-2233-4455", status: "DITOLAK",      inisial: "BN", warnaBg: "bg-teal-600",   lampiranUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png" },
+  { id: 4, nama: "Rina Amelia",    event: "Marathon Jakarta 2024",  email: "rina.amel@gmail.com",  noHp: "+62 822-4455-6677", status: "TERVERIFIKASI", inisial: "RA", warnaBg: "bg-blue-500",   lampiranUrl: null },
+  { id: 5, nama: "Doni Setiawan",  event: "Webinar Design 2024",    email: "doni.s@gmail.com",     noHp: "+62 813-9988-7766", status: "MENUNGGU",     inisial: "DS", warnaBg: "bg-green-600",  lampiranUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png" },
+  { id: 6, nama: "Citra Lestari",  event: "Tech Conference 2024",   email: "citra.l@yahoo.com",    noHp: "+62 877-1122-3344", status: "TERVERIFIKASI", inisial: "CL", warnaBg: "bg-pink-500",   lampiranUrl: null },
+  { id: 7, nama: "Fajar Ramadhan", event: "Marathon Jakarta 2024",  email: "fajar.r@gmail.com",    noHp: "+62 821-5544-3322", status: "DITOLAK",      inisial: "FR", warnaBg: "bg-yellow-600", lampiranUrl: null },
+  { id: 8, nama: "Hana Wijaya",    event: "Digital Summit Asia",    email: "hana.w@company.id",    noHp: "+62 819-6677-8899", status: "TERVERIFIKASI", inisial: "HW", warnaBg: "bg-indigo-500", lampiranUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png" },
+  { id: 9, nama: "Irfan Maulana",  event: "Webinar Design 2024",    email: "irfan.m@gmail.com",    noHp: "+62 812-0011-2233", status: "MENUNGGU",     inisial: "IM", warnaBg: "bg-red-500",    lampiranUrl: null },
+  { id: 10, nama: "Juliana Putri", event: "Tech Conference 2024",   email: "julia.p@outlook.com",  noHp: "+62 857-3344-5566", status: "TERVERIFIKASI", inisial: "JP", warnaBg: "bg-cyan-600",   lampiranUrl: null },
+];
 
-const getBgColor = (nama: string) => {
-  const colors = ["#6366f1","#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899"];
-  let hash = 0;
-  for (let i = 0; i < nama.length; i++) hash = nama.charCodeAt(i) + ((hash << 5) - hash);
-  return colors[Math.abs(hash) % colors.length];
-};
+const TOTAL = 124;
+const PER_PAGE = 10;
+const TOTAL_PAGES = Math.ceil(TOTAL / PER_PAGE);
 
-// ============================================================
-// KOMPONEN STATUS BADGE
-// ============================================================
-function StatusBadge({ status }: { status: StatusPendaftaran }) {
-  const { label, color } = STATUS_LABEL[status];
+// ─── Status Badge ─────────────────────────────────────────────────────────────
+
+function StatusBadge({ status }: { status: Status }) {
+  if (status === "TERVERIFIKASI") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-green-300 bg-green-50 text-green-600">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        DISETUJUI
+      </span>
+    );
+  }
+  if (status === "MENUNGGU") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-yellow-300 bg-yellow-50 text-yellow-600">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        MENUNGGU
+      </span>
+    );
+  }
+  // DITOLAK
   return (
-    <span style={{
-      display: "inline-block",
-      padding: "3px 10px",
-      borderRadius: "999px",
-      fontSize: "11px",
-      fontWeight: 700,
-      letterSpacing: "0.5px",
-      color: "white",
-      backgroundColor: color,
-    }}>
-      {label}
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-red-300 bg-red-50 text-red-500">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <line x1="17" y1="8" x2="23" y2="14"/>
+        <line x1="23" y1="8" x2="17" y2="14"/>
+      </svg>
+      DITOLAK
     </span>
   );
 }
 
-// ============================================================
-// KOMPONEN UTAMA
-// ============================================================
+// ─── Action Buttons ───────────────────────────────────────────────────────────
+
+function ActionButtons({ status, onVerify, onTolak, onEdit, onDelete, onDetail }: {
+  status: Status;
+  onVerify: () => void;
+  onTolak: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onDetail: () => void;
+}) {
+  if (status === "MENUNGGU") {
+    return (
+      <div className="flex items-center gap-1.5">
+        <button onClick={onVerify} title="Verifikasi" className="w-7 h-7 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors">
+          <CheckCircle size={14} />
+        </button>
+        <button onClick={onTolak} title="Tolak" className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors">
+          <XCircle size={14} />
+        </button>
+      </div>
+    );
+  }
+  if (status === "DITOLAK") {
+    return (
+      <div className="flex items-center gap-1.5">
+        <button onClick={onDetail} title="Detail" className="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center transition-colors">
+          <Info size={14} />
+        </button>
+        <button onClick={onEdit} title="Edit" className="w-7 h-7 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center transition-colors">
+          <Pencil size={14} />
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1.5">
+      <button onClick={onEdit} title="Edit" className="text-gray-400 hover:text-blue-500 transition-colors">
+        <Pencil size={15} />
+      </button>
+      <button onClick={onDelete} title="Hapus" className="text-gray-400 hover:text-red-500 transition-colors">
+        <Trash2 size={15} />
+      </button>
+    </div>
+  );
+}
+
+// ─── Lampiran Popup ───────────────────────────────────────────────────────────
+
+function LampiranPopup({ url, nama, onClose }: { url: string; nama: string; onClose: () => void }) {
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  const isPdf   = /\.pdf$/i.test(url);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-5"
+      style={{ background: "rgba(0,0,0,0.6)" }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl overflow-hidden w-full max-w-2xl shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <p className="text-sm font-bold text-gray-800">Lampiran Peserta</p>
+            <p className="text-xs text-gray-400 mt-0.5">{nama}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1a2b4b] text-white text-xs font-medium rounded-lg hover:bg-[#243560] transition-colors"
+            >
+              <ExternalLink size={12} />
+              Buka di Tab Baru
+            </a>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50 transition-colors"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* Konten */}
+        <div className="p-5 bg-gray-50 flex items-center justify-center" style={{ minHeight: 320, maxHeight: "70vh", overflow: "auto" }}>
+          {isImage ? (
+            <img
+              src={url}
+              alt={`Lampiran ${nama}`}
+              className="max-w-full rounded-xl shadow-md object-contain"
+              style={{ maxHeight: "60vh" }}
+            />
+          ) : isPdf ? (
+            <iframe src={url} className="w-full rounded-xl border-0" style={{ height: "60vh" }} title="PDF Lampiran" />
+          ) : (
+            <div className="text-center py-10">
+              <div className="text-5xl mb-3">📎</div>
+              <p className="text-sm text-gray-500 mb-3">File tidak dapat dipreview</p>
+              <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">Download file</a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function InformasiPesertaPage() {
-
-  const [pesertaList, setPesertaList] = useState<PesertaData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch]             = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("semua");
-  const [page, setPage] = useState(1);
-  const [totalData, setTotalData] = useState(0);
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [currentPage, setCurrentPage]   = useState(1);
+  const [data, setData]                 = useState<Peserta[]>(DUMMY_DATA);
+  const [lampiran, setLampiran]         = useState<{ url: string; nama: string } | null>(null);
 
-  const PER_PAGE = 10;
+  // Filter
+  const filtered = data.filter((p) => {
+    const matchSearch =
+      p.nama.toLowerCase().includes(search.toLowerCase()) ||
+      p.email.toLowerCase().includes(search.toLowerCase()) ||
+      p.noHp.includes(search);
+    const matchStatus = filterStatus === "semua" || p.status === filterStatus.toUpperCase();
+    return matchSearch && matchStatus;
+  });
 
-  // ── Fetch data ──────────────────────────────────────────────
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        search,
-        status: filterStatus,
-        page: String(page),
-        perPage: String(PER_PAGE),
-      });
-      const res = await fetch(`/api/organizer/peserta?${params}`);
-      const json = await res.json();
-      setPesertaList(json.data ?? []);
-      setTotalData(json.total ?? 0);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, filterStatus, page]);
+  // Actions
+  const handleVerify = (id: number) => setData((prev) => prev.map((p) => p.id === id ? { ...p, status: "TERVERIFIKASI" } : p));
+  const handleTolak  = (id: number) => setData((prev) => prev.map((p) => p.id === id ? { ...p, status: "DITOLAK" } : p));
+  const handleDelete = (id: number) => setData((prev) => prev.filter((p) => p.id !== id));
 
-  useEffect(() => { fetchData(); }, [fetchData]);
-
-  // Reset page saat filter/search berubah
-  useEffect(() => { setPage(1); }, [search, filterStatus]);
-
-  // ── Update status ────────────────────────────────────────────
-  const updateStatus = async (pendaftaranId: number, newStatus: StatusPendaftaran) => {
-    setActionLoading(pendaftaranId);
-    try {
-      await fetch("/api/organizer/peserta", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pendaftaranId, status: newStatus }),
-      });
-      await fetchData();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // ── Export CSV (semua data, bukan hanya halaman saat ini) ───
-  const [exporting, setExporting] = useState(false);
-
-  const exportCSV = async () => {
-    setExporting(true);
-    try {
-      // Fetch semua data tanpa pagination untuk export
-      const params = new URLSearchParams({
-        search,
-        status: filterStatus,
-        page: "1",
-        perPage: "99999",
-      });
-      const res = await fetch(`/api/organizer/peserta?${params}`);
-      const json = await res.json();
-      const allData: PesertaData[] = json.data ?? [];
-
-      const header = ["Nama", "Email", "No. HP", "Event", "Status", "Kode Pendaftaran", "Tanggal Daftar"];
-      const rows = allData.map((p) => [
-        `"${p.peserta?.namaLengkap ?? "-"}"`,
-        `"${p.peserta?.email ?? "-"}"`,
-        `"${p.peserta?.nomorTelepon ?? "-"}"`,
-        `"${p.namaEvent}"`,
-        `"${STATUS_LABEL[p.status]?.label ?? p.status}"`,
-        `"${p.kodePendaftaran}"`,
-        `"${new Date(p.dibuatPada).toLocaleDateString("id-ID")}"`,
-      ]);
-      const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `peserta_${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Export CSV gagal:", err);
-    } finally {
-      setExporting(false);
-    }
-  };
-
-  // ── Pagination ───────────────────────────────────────────────
-  const totalPages = Math.ceil(totalData / PER_PAGE);
-  const startItem = (page - 1) * PER_PAGE + 1;
-  const endItem = Math.min(page * PER_PAGE, totalData);
-
-  const getPageNumbers = () => {
-    const pages: (number | "...")[] = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (page > 3) pages.push("...");
-      for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) pages.push(i);
-      if (page < totalPages - 2) pages.push("...");
-      pages.push(totalPages);
-    }
-    return pages;
+  // Pagination
+  const pages = () => {
+    const arr: (number | "...")[] = [];
+    if (TOTAL_PAGES <= 6) { for (let i = 1; i <= TOTAL_PAGES; i++) arr.push(i); }
+    else { arr.push(1, 2, 3, "...", TOTAL_PAGES); }
+    return arr;
   };
 
   return (
-    <>
-      <style>{`
-        .ip-page { padding: 32px 28px; background: #f8fafc; min-height: 100vh; }
-        .ip-header { margin-bottom: 8px; }
-        .ip-title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; }
-        .ip-subtitle { font-size: 13px; color: #64748b; margin: 4px 0 0; }
-
-        .ip-toolbar {
-          display: flex;
-          gap: 12px;
-          margin: 24px 0 20px;
-          align-items: center;
-          flex-wrap: wrap;
-        }
-        .ip-search-wrap {
-          position: relative;
-          flex: 1;
-          min-width: 240px;
-        }
-        .ip-search-icon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #94a3b8;
-          font-size: 15px;
-          pointer-events: none;
-        }
-        .ip-search {
-          width: 100%;
-          padding: 10px 14px 10px 36px;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          font-size: 14px;
-          background: white;
-          color: #0f172a;
-          outline: none;
-          box-sizing: border-box;
-          transition: border 0.15s;
-        }
-        .ip-search:focus { border-color: #6366f1; }
-        .ip-search::placeholder { color: #94a3b8; }
-
-        .ip-select {
-          padding: 10px 32px 10px 14px;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          font-size: 14px;
-          background: white;
-          color: #0f172a;
-          outline: none;
-          cursor: pointer;
-          appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 10px center;
-        }
-
-        .ip-btn-export {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 10px 16px;
-          background: #1e293b;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.15s;
-          white-space: nowrap;
-        }
-        .ip-btn-export:hover { background: #334155; }
-
-        .ip-section-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 16px;
-        }
-        .ip-section-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #0f172a;
-        }
-        .ip-total-badge {
-          font-size: 13px;
-          color: #64748b;
-          font-weight: 500;
-        }
-
-        .ip-table-wrap {
-          background: white;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
-          overflow: hidden;
-        }
-        .ip-table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        .ip-table thead {
-          background: #f8fafc;
-          border-bottom: 1px solid #e2e8f0;
-        }
-        .ip-table th {
-          padding: 12px 16px;
-          font-size: 11px;
-          font-weight: 700;
-          color: #64748b;
-          text-align: left;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-        }
-        .ip-table td {
-          padding: 14px 16px;
-          border-bottom: 1px solid #f1f5f9;
-          vertical-align: middle;
-        }
-        .ip-table tr:last-child td { border-bottom: none; }
-        .ip-table tr:hover td { background: #fafafa; }
-
-        .peserta-info { display: flex; align-items: center; gap: 10px; }
-        .peserta-avatar {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-          font-weight: 700;
-          color: white;
-          flex-shrink: 0;
-        }
-        .peserta-nama {
-          font-size: 14px;
-          font-weight: 600;
-          color: #0f172a;
-          line-height: 1.2;
-        }
-        .peserta-event {
-          font-size: 12px;
-          color: #64748b;
-          margin-top: 2px;
-        }
-        .peserta-email { font-size: 13px; color: #374151; }
-        .peserta-hp { font-size: 13px; color: #374151; }
-
-        .aksi-wrap { display: flex; align-items: center; gap: 6px; }
-        .btn-aksi {
-          width: 30px;
-          height: 30px;
-          border-radius: 6px;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 15px;
-          transition: opacity 0.15s;
-        }
-        .btn-aksi:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-verif { background: #d1fae5; color: #065f46; }
-        .btn-verif:hover:not(:disabled) { background: #a7f3d0; }
-        .btn-tolak { background: #fee2e2; color: #991b1b; }
-        .btn-tolak:hover:not(:disabled) { background: #fecaca; }
-        .btn-edit  { background: #f1f5f9; color: #475569; }
-        .btn-edit:hover:not(:disabled)  { background: #e2e8f0; }
-        .btn-hapus { background: #f1f5f9; color: #475569; }
-        .btn-hapus:hover:not(:disabled) { background: #fee2e2; color: #991b1b; }
-
-        .ip-empty {
-          text-align: center;
-          padding: 60px 20px;
-          color: #94a3b8;
-          font-size: 14px;
-        }
-        .ip-empty-icon { font-size: 40px; margin-bottom: 12px; }
-
-        .ip-loading {
-          text-align: center;
-          padding: 60px;
-          color: #94a3b8;
-          font-size: 14px;
-        }
-
-        .ip-pagination {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-top: 20px;
-          flex-wrap: wrap;
-          gap: 12px;
-        }
-        .ip-pagination-info { font-size: 13px; color: #64748b; }
-        .ip-pagination-btns { display: flex; gap: 4px; align-items: center; }
-        .ip-page-btn {
-          width: 32px;
-          height: 32px;
-          border-radius: 6px;
-          border: 1px solid #e2e8f0;
-          background: white;
-          font-size: 13px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #374151;
-          transition: all 0.15s;
-        }
-        .ip-page-btn:hover:not(:disabled) { background: #f8fafc; border-color: #6366f1; color: #6366f1; }
-        .ip-page-btn.active { background: #1e293b; color: white; border-color: #1e293b; font-weight: 700; }
-        .ip-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .ip-page-dots { font-size: 13px; color: #94a3b8; padding: 0 4px; }
-
-        @media (max-width: 768px) {
-          .ip-page { padding: 20px 16px; }
-          .ip-table th:nth-child(3),
-          .ip-table td:nth-child(3) { display: none; }
-          .ip-table th:nth-child(4),
-          .ip-table td:nth-child(4) { display: none; }
-        }
-      `}</style>
-
-      <div className="ip-page">
-        {/* HEADER */}
-        <div className="ip-header">
-          <h1 className="ip-title">Data & Validasi Peserta</h1>
-          <p className="ip-subtitle">Validasi Peserta</p>
-        </div>
-
-        {/* TOOLBAR */}
-        <div className="ip-toolbar">
-          <div className="ip-search-wrap">
-            <span className="ip-search-icon"><Search size={15} /></span>
-            <input
-              className="ip-search"
-              placeholder="Cari nama peserta, email, atau nomor telepon..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <select
-            className="ip-select"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="semua">Semua Status</option>
-            <option value="terdaftar">Menunggu</option>
-            <option value="hadir">Terverifikasi</option>
-            <option value="dibatalkan">Ditolak</option>
-          </select>
-          <button className="ip-btn-export" onClick={exportCSV} disabled={exporting}>
-            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-            {exporting ? "Mengekspor..." : "Export CSV"}
-          </button>
-        </div>
-
-        {/* SECTION HEADER */}
-        <div className="ip-section-header">
-          <span className="ip-section-title">
-            Daftar Peserta{" "}
-            <span className="ip-total-badge">({totalData} Total)</span>
-          </span>
-        </div>
-
-        {/* TABEL */}
-        <div className="ip-table-wrap">
-          {loading ? (
-            <div className="ip-loading flex flex-col items-center justify-center gap-2">
-              <Loader2 className="animate-spin" size={24} />
-              <span>Memuat data...</span>
-            </div>
-          ) : pesertaList.length === 0 ? (
-            <div className="ip-empty">
-              <div className="ip-empty-icon flex justify-center"><Users size={40} /></div>
-              <div>Tidak ada peserta ditemukan</div>
-            </div>
-          ) : (
-            <table className="ip-table">
-              <thead>
-                <tr>
-                  <th>PESERTA & EVENT</th>
-                  <th>EMAIL</th>
-                  <th>NOMOR HP</th>
-                  <th>STATUS</th>
-                  <th>AKSI</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pesertaList.map((item) => {
-                  const nama = item.peserta?.namaLengkap ?? "Peserta";
-                  const isLoading = actionLoading === item.pendaftaranId;
-                  return (
-                    <tr key={item.pendaftaranId}>
-                      {/* Peserta & Event */}
-                      <td>
-                        <div className="peserta-info">
-                          <div
-                            className="peserta-avatar"
-                            style={{ backgroundColor: getBgColor(nama) }}
-                          >
-                            {getInisial(nama)}
-                          </div>
-                          <div>
-                            <div className="peserta-nama">{nama}</div>
-                            <div className="peserta-event">{item.namaEvent}</div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Email */}
-                      <td>
-                        <span className="peserta-email">
-                          {item.peserta?.email ?? "-"}
-                        </span>
-                      </td>
-
-                      {/* No HP */}
-                      <td>
-                        <span className="peserta-hp">
-                          {item.peserta?.nomorTelepon ?? "-"}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td>
-                        <StatusBadge status={item.status} />
-                      </td>
-
-                      {/* Aksi */}
-                      <td>
-                        <div className="aksi-wrap">
-                          {item.status === "terdaftar" && (
-                            <>
-                              <button
-                                className="btn-aksi btn-verif"
-                                title="Verifikasi"
-                                disabled={isLoading}
-                                onClick={() => updateStatus(item.pendaftaranId, "hadir")}
-                              >
-                                <Check size={16} />
-                              </button>
-                              <button
-                                className="btn-aksi btn-tolak"
-                                title="Tolak"
-                                disabled={isLoading}
-                                onClick={() => updateStatus(item.pendaftaranId, "dibatalkan")}
-                              >
-                                <X size={16} />
-                              </button>
-                            </>
-                          )}
-                          {item.status === "hadir" && (
-                            <>
-                              <button
-                                className="btn-aksi btn-edit"
-                                title="Edit"
-                                disabled={isLoading}
-                                onClick={() => updateStatus(item.pendaftaranId, "terdaftar")}
-                              >
-                                <Pencil size={14} />
-                              </button>
-                              <button
-                                className="btn-aksi btn-hapus"
-                                title="Hapus Verifikasi"
-                                disabled={isLoading}
-                                onClick={() => updateStatus(item.pendaftaranId, "dibatalkan")}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </>
-                          )}
-                          {item.status === "dibatalkan" && (
-                            <>
-                              <button
-                                className="btn-aksi btn-edit"
-                                title="Info"
-                                disabled
-                              >
-                                <Info size={16} />
-                              </button>
-                              <button
-                                className="btn-aksi btn-edit"
-                                title="Pulihkan"
-                                disabled={isLoading}
-                                onClick={() => updateStatus(item.pendaftaranId, "terdaftar")}
-                              >
-                                <Pencil size={14} />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* PAGINATION */}
-        {totalData > 0 && (
-          <div className="ip-pagination">
-            <span className="ip-pagination-info">
-              Menampilkan {startItem} - {endItem} dari {totalData} peserta
-            </span>
-            <div className="ip-pagination-btns">
-              <button
-                className="ip-page-btn"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                <ChevronLeft size={16} />
-              </button>
-              {getPageNumbers().map((p, i) =>
-                p === "..." ? (
-                  <span key={`dots-${i}`} className="ip-page-dots">...</span>
-                ) : (
-                  <button
-                    key={p}
-                    className={`ip-page-btn ${page === p ? "active" : ""}`}
-                    onClick={() => setPage(p as number)}
-                  >
-                    {p}
-                  </button>
-                )
-              )}
-              <button
-                className="ip-page-btn"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Data & Validasi Peserta</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Validasi Peserta</p>
       </div>
-    </>
+
+      {/* Search + Filter */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Cari nama peserta, email, atau nomor telepon..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          />
+        </div>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[160px]"
+        >
+          <option value="semua">Semua Status</option>
+          <option value="TERVERIFIKASI">Terverifikasi</option>
+          <option value="MENUNGGU">Menunggu</option>
+          <option value="DITOLAK">Ditolak</option>
+        </select>
+      </div>
+
+      {/* Table Card */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Table Toolbar */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <p className="font-semibold text-gray-800 text-sm">
+            Daftar Peserta{" "}
+            <span className="text-gray-400 font-normal">({filtered.length} Total)</span>
+          </p>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                <th className="px-4 py-3 text-center font-semibold w-12">No.</th>
+                <th className="px-5 py-3 text-left font-semibold">Peserta & Event</th>
+                <th className="px-5 py-3 text-left font-semibold">Email</th>
+                <th className="px-5 py-3 text-left font-semibold">Nomor HP</th>
+                <th className="px-5 py-3 text-left font-semibold">Lampiran</th>
+                <th className="px-5 py-3 text-left font-semibold">Status</th>
+                <th className="px-5 py-3 text-left font-semibold">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-gray-400 text-sm">
+                    Tidak ada data peserta ditemukan.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((peserta, index) => (
+                  <tr key={peserta.id} className="hover:bg-gray-50/60 transition-colors">
+
+                    {/* No */}
+                    <td className="px-4 py-3.5 text-center">
+                      <span className="text-xs font-semibold text-gray-400">
+                        {(currentPage - 1) * PER_PAGE + index + 1}
+                      </span>
+                    </td>
+
+                    {/* Peserta & Event */}
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-full ${peserta.warnaBg} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                          {peserta.inisial}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm">{peserta.nama}</p>
+                          <p className="text-xs text-gray-400">{peserta.event}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Email */}
+                    <td className="px-5 py-3.5 text-gray-600 text-sm">{peserta.email}</td>
+
+                    {/* No HP */}
+                    <td className="px-5 py-3.5 text-gray-600 text-sm">{peserta.noHp}</td>
+
+                    {/* Lampiran */}
+                    <td className="px-5 py-3.5">
+                      {peserta.lampiranUrl ? (
+                        <button
+                          onClick={() => setLampiran({ url: peserta.lampiranUrl!, nama: peserta.nama })}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                        >
+                          <Paperclip size={12} />
+                          Lihat File
+                        </button>
+                      ) : (
+                        <span className="text-gray-300 text-sm">—</span>
+                      )}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-5 py-3.5">
+                      <StatusBadge status={peserta.status} />
+                    </td>
+
+                    {/* Aksi */}
+                    <td className="px-5 py-3.5">
+                      <ActionButtons
+                        status={peserta.status}
+                        onVerify={() => handleVerify(peserta.id)}
+                        onTolak={() => handleTolak(peserta.id)}
+                        onEdit={() => alert(`Edit: ${peserta.nama}`)}
+                        onDelete={() => handleDelete(peserta.id)}
+                        onDetail={() => alert(`Detail: ${peserta.nama}`)}
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
+          <p className="text-xs text-gray-400">
+            Menampilkan 1 - {Math.min(PER_PAGE, filtered.length)} dari {filtered.length} peserta
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            >
+              <ChevronLeft size={13} />
+            </button>
+            {pages().map((pg, idx) =>
+              pg === "..." ? (
+                <span key={idx} className="px-1 text-gray-400 text-sm">...</span>
+              ) : (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentPage(pg as number)}
+                  className={`w-7 h-7 flex items-center justify-center rounded text-xs font-medium border transition-colors ${
+                    currentPage === pg
+                      ? "bg-[#1a2b4b] text-white border-[#1a2b4b]"
+                      : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {pg}
+                </button>
+              )
+            )}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(TOTAL_PAGES, p + 1))}
+              disabled={currentPage === TOTAL_PAGES}
+              className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            >
+              <ChevronRight size={13} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Popup Lampiran */}
+      {lampiran && (
+        <LampiranPopup
+          url={lampiran.url}
+          nama={lampiran.nama}
+          onClose={() => setLampiran(null)}
+        />
+      )}
+    </div>
   );
 }
