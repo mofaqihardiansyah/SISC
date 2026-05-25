@@ -4,7 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, MapPin, User, Star, ImageOff } from 'lucide-react';
+import { Calendar, MapPin, User, Bookmark, ImageOff } from 'lucide-react';
 
 interface EventCardProps {
   id: string | number;
@@ -63,7 +63,7 @@ export default function EventCard({
                   : 'bg-white/70 text-slate-400 hover:bg-white hover:text-yellow-500'
               }`}
             >
-              <Star className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
             </button>
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function EventCard({
                 : 'bg-slate-50 text-slate-300 hover:text-yellow-500 border border-slate-100 hover:border-yellow-100'
             }`}
           >
-            <Star className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
+            <Bookmark className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
           </button>
         </div>
 
