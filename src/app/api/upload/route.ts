@@ -12,7 +12,7 @@ const UPLOAD_CONFIG = {
     label: 'Foto Profil',
   },
   document: {
-    allowedTypes: ['application/pdf'],
+    allowedTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
     maxSize: 20 * 1024 * 1024, // 20MB
     folder: 'documents',
     label: 'Dokumen',
