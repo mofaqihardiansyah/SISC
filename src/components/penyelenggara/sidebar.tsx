@@ -9,6 +9,7 @@ import {
   Users, 
   UserCircle, 
   HelpCircle,
+  ScrollText,
   Menu,
   X
 } from "lucide-react";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 const menuItems = [
   { label: "Dashboard", href: "/penyelenggara", icon: LayoutDashboard },
   { label: "Kelola Event", href: "/penyelenggara/event", icon: CalendarRange },
+  { label: "Review Paper", href: "/penyelenggara/review-papper", icon: ScrollText },
   { label: "Informasi Peserta", href: "/penyelenggara/peserta", icon: Users },
   { label: "Profil Akun", href: "/penyelenggara/profil", icon: UserCircle },
   { label: "Bantuan", href: "/penyelenggara/bantuan", icon: HelpCircle },

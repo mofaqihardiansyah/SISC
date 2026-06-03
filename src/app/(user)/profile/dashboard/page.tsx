@@ -28,24 +28,41 @@ function StatsCard({ label, value, bg, renderIcon }: {
 export default async function UserDashboard() {
   const session = await auth();
   const userId = session?.user?.id ? Number(session.user.id) : null;
-  // 3. Query data spesifik user
-  const userBookmarks = userId 
-    ? await db.select().from(bookmark).where(eq(bookmark.userId, userId))
-    : [];
-  const userRegistrations = userId
-    ? await db.select().from(pendaftaran).where(eq(pendaftaran.userId, userId))
-    : [];
-  const activeEvents = await db.select()
-    .from(event)
-    .where(eq(event.status, 'published'));
 
-  const upcomingEventsData = await db.select().from(event).limit(3);
+  // Safe DB queries with fallback on error to avoid runtime crash
+  let userBookmarks: any[] = [];
+  let userRegistrations: any[] = [];
+  let activeEvents: any[] = [];
+  let upcomingEventsData: any[] = [];
+  let latestEventsData: any[] = [];
 
-  const latestEventsData = await db.select()
-    .from(event)
-    .where(eq(event.status, 'published'))
-    .orderBy(desc(event.dibuatPada))
-    .limit(4);
+  try {
+    userBookmarks = userId
+      ? await db.select().from(bookmark).where(eq(bookmark.userId, userId))
+      : [];
+
+    userRegistrations = userId
+      ? await db.select().from(pendaftaran).where(eq(pendaftaran.userId, userId))
+      : [];
+
+    activeEvents = await db.select()
+      .from(event)
+      .where(eq(event.status, 'published'));
+
+    upcomingEventsData = await db.select().from(event).limit(3);
+
+    latestEventsData = await db.select()
+      .from(event)
+      .where(eq(event.status, 'published'))
+      .orderBy(desc(event.dibuatPada))
+      .limit(4);
+  } catch (err) {
+    // Log full error for debugging (server-side)
+    // Drizzle wraps DB errors; log the original for diagnosis
+    // eslint-disable-next-line no-console
+    console.error('Database query failed in UserDashboard:', err);
+    // keep fallbacks as empty arrays so the page still renders
+  }
 
   const stats = [
     {
