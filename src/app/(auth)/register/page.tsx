@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { registerUser } from '@/actions/auth';
 import { FileUpload } from '@/components/shared/FileUpload';
-import { FileText } from 'lucide-react';
+import { FileText, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
@@ -27,7 +27,9 @@ const visitorSchema = z.object({
   jenisKelamin: z.enum(['Laki-laki', 'Perempuan'], { message: 'Pilih jenis kelamin' }),
   institution: z.string().min(3, 'Institusi minimal 3 karakter'),
   pekerjaan: z.string().min(3, 'Pekerjaan minimal 3 karakter'),
-  password: z.string().min(6, 'Password minimal 6 karakter'),
+  password: z.string()
+    .min(8, 'Password minimal 8 karakter')
+    .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'Password harus mengandung kombinasi huruf dan angka'),
 });
 
 const organizerSchema = visitorSchema.omit({ institution: true, tanggalLahir: true, jenisKelamin: true, pekerjaan: true, namaLengkap: true }).extend({
@@ -58,30 +60,61 @@ export default function RegisterPage() {
     name: 'dokumenLegalitasUrl',
   });
 
+  const [showVisitorPassword, setShowVisitorPassword] = React.useState(false);
+  const [showOrganizerPassword, setShowOrganizerPassword] = React.useState(false);
+  const [globalError, setGlobalError] = React.useState<string | null>(null);
+  const [isVisitorSubmitting, setIsVisitorSubmitting] = React.useState(false);
+  const [isOrganizerSubmitting, setIsOrganizerSubmitting] = React.useState(false);
+
+  const visitorPasswordValue = useWatch({ control: visitorForm.control, name: 'password', defaultValue: '' });
+  const organizerPasswordValue = useWatch({ control: organizerForm.control, name: 'password', defaultValue: '' });
+
+  const calculateStrength = (pass: string) => {
+    let score = 0;
+    if (!pass) return { score: 0, label: '', color: 'bg-slate-200' };
+    if (pass.length >= 8) score += 1;
+    if (/[A-Z]/.test(pass)) score += 1;
+    if (/[0-9]/.test(pass)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+
+    if (score <= 1) return { score, label: 'Lemah', color: 'bg-red-500' };
+    if (score === 2 || score === 3) return { score, label: 'Sedang', color: 'bg-yellow-500' };
+    return { score, label: 'Kuat', color: 'bg-green-500' };
+  };
+
+  const visitorStrength = calculateStrength(visitorPasswordValue);
+  const organizerStrength = calculateStrength(organizerPasswordValue);
+
   const onVisitorSubmit = async (data: VisitorValues) => {
+    setIsVisitorSubmitting(true);
+    setGlobalError(null);
     const result = await registerUser(data, 'visitor');
+    setIsVisitorSubmitting(false);
+
     if (result.error) {
-      toast.error(result.error);
+      setGlobalError(result.error);
       return;
     }
     toast.success('Pendaftaran berhasil! Periksa email anda untuk kode OTP.');
-    sessionStorage.setItem('temp_pass', data.password);
     router.push('/register/verify?email=' + encodeURIComponent(data.email));
   };
 
   const onOrganizerSubmit = async (data: OrganizerValues) => {
     if (!data.dokumenLegalitasUrl) {
-      toast.error('Harap unggah dokumen legalitas (PDF)');
+      setGlobalError('Harap unggah dokumen legalitas (PDF)');
       return;
     }
 
+    setIsOrganizerSubmitting(true);
+    setGlobalError(null);
     const result = await registerUser(data, 'organizer');
+    setIsOrganizerSubmitting(false);
+
     if (result.error) {
-      toast.error(result.error);
+      setGlobalError(result.error);
       return;
     }
     toast.success('Pendaftaran berhasil! Periksa email anda untuk kode OTP.');
-    sessionStorage.setItem('temp_pass', data.password);
     router.push('/register/verify?email=' + encodeURIComponent(data.email));
   };
 
@@ -110,13 +143,20 @@ export default function RegisterPage() {
       `}</style>
       <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-heading font-black text-slate-900 mb-1 tracking-tight">
+          <h2 className="text-2xl font-heading font-black text-slate-900 mb-1 tracking-tight">
             Buat Akun
           </h2>
           <p className="text-slate-500 text-sm font-medium">
             Gabung dengan POLIVENTS dan mulai perjalanan anda hari ini.
           </p>
         </div>
+
+        {globalError && (
+          <div className="bg-red-50 text-red-600 border border-red-200 p-3 rounded-lg flex items-start gap-3 text-sm font-medium animate-in slide-in-from-top-2">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <p>{globalError}</p>
+          </div>
+        )}
 
         <Tabs defaultValue="visitor" className="w-full">
           <TabsList variant="line" className="flex w-full bg-transparent p-0 border-b border-slate-200 mb-8 gap-0 h-12">
@@ -225,13 +265,32 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
-                <Input 
-                  type="password" 
-                  autoComplete="new-password"
-                  placeholder="Password Minimal 6 Karakter" 
-                  className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                  {...visitorForm.register('password')}
-                />
+                <div className="relative">
+                  <Input 
+                    type={showVisitorPassword ? "text" : "password"} 
+                    autoComplete="new-password"
+                    placeholder="Minimal 8 Karakter (Huruf & Angka)" 
+                    className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                    {...visitorForm.register('password')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowVisitorPassword(!showVisitorPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                  >
+                    {showVisitorPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                {visitorPasswordValue && (
+                  <div className="mt-2 space-y-1">
+                    <div className="flex gap-1 h-1">
+                      <div className={`flex-1 rounded-full ${visitorStrength.score >= 1 ? visitorStrength.color : 'bg-slate-200'}`} />
+                      <div className={`flex-1 rounded-full ${visitorStrength.score >= 2 ? visitorStrength.color : 'bg-slate-200'}`} />
+                      <div className={`flex-1 rounded-full ${visitorStrength.score >= 4 ? visitorStrength.color : 'bg-slate-200'}`} />
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-500 text-right">{visitorStrength.label}</p>
+                  </div>
+                )}
                 {visitorForm.formState.errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.password.message}</p>}
               </div>
               <Button 
@@ -301,13 +360,32 @@ export default function RegisterPage() {
               <div className="flex gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
-                  <Input 
-                    type="password" 
-                    autoComplete="new-password"
-                    placeholder="Password Minimal 6 Karakter" 
-                    className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...organizerForm.register('password')}
-                  />
+                  <div className="relative">
+                    <Input 
+                      type={showOrganizerPassword ? "text" : "password"} 
+                      autoComplete="new-password"
+                      placeholder="Minimal 8 Karakter (Huruf & Angka)" 
+                      className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
+                      {...organizerForm.register('password')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowOrganizerPassword(!showOrganizerPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                    >
+                      {showOrganizerPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  {organizerPasswordValue && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex gap-1 h-1">
+                        <div className={`flex-1 rounded-full ${organizerStrength.score >= 1 ? organizerStrength.color : 'bg-slate-200'}`} />
+                        <div className={`flex-1 rounded-full ${organizerStrength.score >= 2 ? organizerStrength.color : 'bg-slate-200'}`} />
+                        <div className={`flex-1 rounded-full ${organizerStrength.score >= 4 ? organizerStrength.color : 'bg-slate-200'}`} />
+                      </div>
+                      <p className="text-[10px] font-bold text-slate-500 text-right">{organizerStrength.label}</p>
+                    </div>
+                  )}
                   {organizerForm.formState.errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.password.message}</p>}
                 </div>
               </div>
