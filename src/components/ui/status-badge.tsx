@@ -1,52 +1,30 @@
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
-interface StatusBadgeProps {
-  status: string | null;
-  className?: string;
-}
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  belum_submit: {
+    label: 'Belum Submit',
+    className: 'bg-slate-50 text-slate-600 border-slate-200/60',
+  },
+  review: {
+    label: 'Sedang Direview',
+    className: 'bg-amber-50 text-amber-700 border-amber-200/60',
+  },
+  accepted: {
+    label: 'Diterima',
+    className: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+  },
+  rejected: {
+    label: 'Ditolak',
+    className: 'bg-rose-50 text-rose-700 border-rose-200/60',
+  },
+};
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const getStatusStyles = (status: string | null) => {
-    switch (status?.toLowerCase()) {
-      case 'published':
-      case 'accepted':
-      case 'terdaftar':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-      case 'pending':
-      case 'review':
-      case 'sedang direview':
-        return 'bg-amber-50 text-amber-700 border-amber-100';
-      case 'rejected':
-      case 'ditolak':
-      case 'cancelled':
-        return 'bg-rose-50 text-rose-700 border-rose-100';
-      default:
-        return 'bg-slate-50 text-slate-600 border-slate-100';
-    }
-  };
-
-  const getStatusLabel = (status: string | null) => {
-    switch (status?.toLowerCase()) {
-      case 'published': return 'Published';
-      case 'accepted': return 'Diterima';
-      case 'terdaftar': return 'Terdaftar';
-      case 'pending': return 'Pending';
-      case 'review': return 'Dalam Review';
-      case 'sedang direview': return 'Sedang Direview';
-      case 'rejected': return 'Ditolak';
-      case 'ditolak': return 'Ditolak';
-      case 'cancelled': return 'Dibatalkan';
-      default: return status || 'Unknown';
-    }
-  };
+export function StatusBadge({ status }: { status: string }) {
+  const { label, className } = STATUS_CONFIG[status] || STATUS_CONFIG.belum_submit;
 
   return (
-    <span className={cn(
-      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border",
-      getStatusStyles(status),
-      className
-    )}>
-      {getStatusLabel(status)}
+    <span className={cn('inline-block px-2 py-0.5 text-[10px] font-bold rounded-md border tracking-wide whitespace-nowrap', className)}>
+      {label}
     </span>
   );
 }

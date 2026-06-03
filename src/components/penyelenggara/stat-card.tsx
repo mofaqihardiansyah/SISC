@@ -1,36 +1,48 @@
-import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import React from 'react';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   trend?: string;
-  icon: LucideIcon;
   className?: string;
+  icon?: React.ComponentType<{ className?: string; size?: number }>;
 }
 
-export function StatCard({ title, value, trend, icon: Icon, className }: StatCardProps) {
+export function StatCard({ title, value, trend, className, icon: Icon }: StatCardProps) {
   return (
-    <div className={cn("bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between", className)}>
-      <div className="w-full">
-        <div className="flex justify-between items-center gap-2 w-full">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate">{title}</p>
-          <div className="p-1.5 bg-blue-50 rounded-lg text-blue-600 shrink-0">
-            <Icon className="w-4 h-4" />
+    <div className={cn(
+      "bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-between text-center min-h-[140px]",
+      className
+    )}>
+      {/* Icon & Title */}
+      <div className="flex flex-col items-center gap-2">
+        {Icon && (
+          <div className="p-2 bg-slate-50 text-slate-500 rounded-lg">
+            <Icon className="w-5 h-5" />
           </div>
-        </div>
-        <h3 className="text-lg sm:text-xl font-extrabold mt-2 text-gray-900 tracking-tight leading-none truncate" title={String(value)}>
-          {value}
-        </h3>
+        )}
+        <p className="text-xs font-extrabold text-gray-900 uppercase tracking-wide leading-tight">
+          {title}
+        </p>
       </div>
-      {trend && (
-        <div className="flex items-center gap-1 mt-3 pt-2 border-t border-gray-50">
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-green-100 text-green-700">
-            {trend}
-          </span>
-          <span className="text-[9px] text-gray-400 font-medium whitespace-nowrap">Bulan ini</span>
-        </div>
-      )}
+
+      {/* Value */}
+      <h3 className="text-lg font-medium text-gray-400 leading-tight mt-1">
+        {value}
+      </h3>
+
+      {/* Trend */}
+      <div className="h-6 flex items-center justify-center">
+        {trend ? (
+          <div className="flex items-center gap-1">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+              {trend}
+            </span>
+            <span className="text-[10px] text-gray-400 font-medium">Bulan ini</span>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

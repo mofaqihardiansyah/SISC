@@ -108,8 +108,8 @@ export async function seedProfileDemo() {
       judul: p.judul,
       penulis: p.penulis,
       fileUrl: p.fileUrl,
-      status: p.status as "accepted" | "review" | "rejected",
-      komentarPenolakan: p.komentarPenolakan
+      status: p.status as "review" | "accepted" | "rejected",
+      komentarPenolakan: p.komentarPenolakan,
     });
   }
 

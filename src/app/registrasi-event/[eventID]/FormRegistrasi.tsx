@@ -24,8 +24,14 @@ import { daftarEvent } from '@/actions/peserta';
 interface DataEvent {
   judul: string;
   linkEksternal?: string | null;
-  kategori?: string | null; 
-  harga?: number | string | null; // Tambahkan properti harga di interface
+  kategori?: string | null;
+  harga?: number | string | null;
+  namaBank?: string | null;
+  nomorRekening?: string | null;
+  pemilikRekening?: string | null;
+  namaBankAlternatif?: string | null;
+  nomorRekeningAlternatif?: string | null;
+  pemilikRekeningAlternatif?: string | null;
 }
 
 interface CurrentUser {
@@ -67,12 +73,12 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
     }
   };
 
-  const formatGenderEnum = (gender: string | null | undefined) => {
+  const formatGenderEnum = (gender: string | null | undefined): "Laki-laki" | "Perempuan" => {
     if (!gender) return "Laki-laki";
     const lower = gender.toLowerCase();
     if (lower === "pria" || lower === "laki-laki" || lower === "male") return "Laki-laki";
     if (lower === "wanita" || lower === "perempuan" || lower === "female") return "Perempuan";
-    return gender;
+    return "Laki-laki";
   };
 
   const checkIsConference = () => {
@@ -83,7 +89,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
 
   const handleSimpanData = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // VALIDASI PEMBAYARAN: Hanya dijalankan kalau eventnya BERBAYAR (!isGratis)
     if (!isGratis && !buktiPembayaran) {
       setModalStatus({
@@ -97,16 +103,49 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
 
     setIsLoading(true);
 
-    const dataClean = {
-      nama_lengkap: currentUser?.name || "Pengunjung",
-      email: currentUser?.email || "visitor@gmail.com",
-      nomor_telepon: currentUser?.nomorTelepon && currentUser.nomorTelepon !== "-" ? currentUser.nomorTelepon : "08123456789",
-      jenis_kelamin: formatGenderEnum(currentUser?.jenisKelamin),
-      // Jika gratis, isi nama file bukti pembayaran dengan tanda khusus "GRATIS" agar database aman
-      bukti_pembayaran: isGratis ? "GRATIS_EVENT" : (buktiPembayaran?.name || "tanpa_bukti")
-    };
-
     try {
+      let fileUrl = "";
+
+      // PROSES UPLOAD BUKTI PEMBAYARAN (Jika Ada)
+      if (buktiPembayaran) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', buktiPembayaran);
+        formDataUpload.append('type', 'document'); // Menggunakan config 'document' dari API upload
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formDataUpload,
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok || !uploadData.success) {
+          throw new Error(uploadData.error || "Gagal mengunggah bukti pembayaran");
+        }
+
+        fileUrl = uploadData.url;
+      }
+
+      const dataClean = {
+        nama_lengkap: currentUser?.name || "",
+        email: currentUser?.email || "",
+        nomor_telepon: currentUser?.nomorTelepon && currentUser.nomorTelepon !== "-" ? currentUser.nomorTelepon : "",
+        jenis_kelamin: formatGenderEnum(currentUser?.jenisKelamin),
+        bukti_pembayaran: fileUrl || undefined,
+      };
+
+      // Validasi data minimal
+      if (!dataClean.nama_lengkap || !dataClean.email) {
+        setModalStatus({
+          isOpen: true,
+          type: 'error',
+          title: 'Data Tidak Lengkap',
+          message: 'Data profil Anda belum lengkap. Silakan lengkapi profil Anda terlebih dahulu.'
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const res = await daftarEvent(dataClean, Number(eventId));
       setIsLoading(false);
       
@@ -130,6 +169,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
         });
       }
     } catch (err) {
+      console.error("Error mendaftar event:", err);
       setIsLoading(false);
       setModalStatus({
         isOpen: true,
@@ -144,7 +184,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
     setModalStatus((prev) => ({ ...prev, isOpen: false }));
     if (modalStatus.type === 'success' || modalStatus.title === 'Sudah Terdaftar') {
       if (checkIsConference()) {
-        router.push('/profile/submit-paper');
+        router.push(`/profile/submit-paper?eventId=${eventId}`);
       } else {
         router.push(`/event/${eventId}`);
       }
@@ -224,14 +264,14 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
                 <hr className="border-blue-100 my-2" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                   <div className="p-3 bg-white rounded-lg border shadow-sm">
-                    <span className="text-xs text-gray-400 block">Bank Transfer (Bank Mandiri)</span>
-                    <strong className="text-base text-gray-800">132-000-1234-567</strong>
-                    <span className="text-xs text-gray-500 block mt-1">a.n. Panitia POLIVENTS</span>
+                    <span className="text-xs text-gray-400 block">{dataEvent.namaBank || "Bank Transfer (Bank Mandiri)"}</span>
+                    <strong className="text-base text-gray-800">{dataEvent.nomorRekening || "132-000-1234-567"}</strong>
+                    <span className="text-xs text-gray-500 block mt-1">a.n. {dataEvent.pemilikRekening || "Panitia POLIVENTS"}</span>
                   </div>
                   <div className="p-3 bg-white rounded-lg border shadow-sm">
-                    <span className="text-xs text-gray-400 block">E-Wallet (Dana / ShopeePay)</span>
-                    <strong className="text-base text-gray-800">0812-3456-7890</strong>
-                    <span className="text-xs text-gray-500 block mt-1">a.n. POLIVENTS Internal</span>
+                    <span className="text-xs text-gray-400 block">{dataEvent.namaBankAlternatif || "E-Wallet (Dana / ShopeePay)"}</span>
+                    <strong className="text-base text-gray-800">{dataEvent.nomorRekeningAlternatif || "0812-3456-7890"}</strong>
+                    <span className="text-xs text-gray-500 block mt-1">a.n. {dataEvent.pemilikRekeningAlternatif || "POLIVENTS Internal"}</span>
                   </div>
                 </div>
               </div>

@@ -1,8 +1,8 @@
 import { StatCard } from "@/components/penyelenggara/stat-card";
 import { EventChart } from "@/components/penyelenggara/EventChart";
-import { Ticket, Users, CalendarCheck, Clock, Eye, Coins } from "lucide-react";
+import { Users, Calendar, Archive, Clock, Eye, Coins, Ticket } from "lucide-react";
 import { db } from "@/db";
-import { event, peserta, pendaftaran, tayanganLog } from "@/db/schema";
+import { event, peserta, pendaftaran, tayanganLog, users } from "@/db/schema";
 import { count, eq, and, lt, gte, sql, sum } from "drizzle-orm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -17,6 +17,13 @@ export default async function PenyelenggaraDashboard() {
 
   const userId = parseInt(session.user.id, 10);
   if (isNaN(userId)) redirect("/login");
+
+  const [dbUser] = await db
+    .select({ isApproved: users.isApproved })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  const isApproved = dbUser?.isApproved || false;
 
   const [totalPesertaResult] = await db
     .select({ total: count() })
@@ -151,27 +158,44 @@ export default async function PenyelenggaraDashboard() {
 
   return (
     <div className="space-y-8">
+      {!isApproved && (
+        <div className="bg-amber-50 border border-amber-200/80 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0 animate-pulse">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-amber-800">Akun Menunggu Persetujuan Admin</h3>
+              <p className="text-sm text-amber-700/80 mt-1 leading-relaxed">
+                Akun penyelenggara Anda saat ini sedang dalam antrean verifikasi oleh tim verifikator kami. Fitur pembuatan dan pengelolaan event saat ini dinonaktifkan.
+                Silakan lengkapi profil organisasi dan unggah dokumen legalitas Anda di menu <Link href="/penyelenggara/profil" className="underline hover:text-amber-900 font-bold transition-colors">Profil Akun</Link> untuk mempercepat proses persetujuan.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-stretch">
-        <StatCard title="Total Peserta" icon={Users} value={totalPesertaResult.total.toLocaleString()} trend="+0%" className="h-full" />
-        <StatCard title="Event Aktif" icon={CalendarCheck} value={`${eventAktifResult.total.toLocaleString()} Event`} trend="Real-time" className="h-full" />
-        <StatCard title="Total Event" icon={Ticket} value={`${eventLaluResult.total.toLocaleString()} Event`} className="h-full" />
-        <StatCard title="Event Pending" icon={Clock} value={`${eventPendingResult.total.toLocaleString()} Review`} className="h-full" />
-        <StatCard title="Total Tayangan" icon={Eye} value={(totalTayanganResult.total ?? 0).toLocaleString()} className="h-full" />
-        <StatCard title="Total Pendapatan" icon={Coins} value={`Rp ${Number(totalPendapatanResult?.total ?? 0).toLocaleString('id-ID')}`} className="h-full" />
+        <StatCard title="Total Peserta" value={totalPesertaResult.total.toLocaleString()} trend="+0%" icon={Users} className="h-full" />
+        <StatCard title="Event Aktif" value={`${eventAktifResult.total.toLocaleString()} Event`} trend="Real-time" icon={Calendar} className="h-full" />
+        <StatCard title="Total Event" value={`${eventLaluResult.total.toLocaleString()} Event`} icon={Archive} className="h-full" />
+        <StatCard title="Event Pending" value={`${eventPendingResult.total.toLocaleString()} Review`} icon={Clock} className="h-full" />
+        <StatCard title="Total Tayangan" value={(totalTayanganResult.total ?? 0).toLocaleString()} icon={Eye} className="h-full" />
+        <StatCard title="Total Pendapatan" value={`Rp ${Number(totalPendapatanResult?.total ?? 0).toLocaleString('id-ID')}`} icon={Coins} className="h-full" />
       </div>
 
       {/* GRAFIK PESERTA */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <EventChart data={grafikData} />
+        <EventChart initialData={grafikData} />
       </div>
 
       {/* GRAFIK PENDAPATAN + TAYANGAN */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <PendapatanChart data={grafikPendapatan} />
+          <PendapatanChart initialData={grafikPendapatan} />
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <ViewChart data={grafikTayanganData} />
+          <ViewChart initialData={grafikTayanganData} />
         </div>
       </div>
 

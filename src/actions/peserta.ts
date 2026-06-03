@@ -11,7 +11,7 @@ interface RegistrationData {
   email: string;
   nomor_telepon: string;
   jenis_kelamin: string;
-  bukti_pembayaran: string; // Tipe string untuk menampung nama file
+  bukti_pembayaran?: string; // Tipe string untuk menampung nama file
 }
 
 export async function daftarEvent(formData: RegistrationData, eventId: number) {
@@ -53,27 +53,20 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
         userId: idUser,
         kodePendaftaran: kodePendaftaran,
         status: 'terdaftar',
+        buktiPembayaran: formData.bukti_pembayaran,
         dibuatPada: new Date(),
-        // Jika di tabel pendaftaran kelompokmu ada kolom untuk bukti bayar, buka komen di bawah ini:
-        // buktiPembayaran: formData.bukti_pembayaran 
       }).returning({ id: pendaftaran.id });
 
       if (!newPendaftaran) {
         throw new Error("Gagal membuat data pendaftaran");
       }
 
-      // Mapping Jenis Kelamin dari form ke Enum Database
-      const jenisKelaminMap: Record<string, "Laki-laki" | "Perempuan"> = {
-        pria: "Laki-laki",
-        wanita: "Perempuan",
-      };
-
       // 2. Gunakan ID pendaftaran yang baru dibuat untuk mendaftarkan peserta
       await tx.insert(peserta).values({
         namaLengkap: formData.nama_lengkap, 
         email: formData.email,
         nomorTelepon: formData.nomor_telepon,
-        jenisKelamin: jenisKelaminMap[formData.jenis_kelamin] || "Laki-laki", 
+        jenisKelamin: formData.jenis_kelamin as "Laki-laki" | "Perempuan", 
         pendaftaranId: newPendaftaran.id, 
         kodePeserta: `PES-${idEvent}-${idUser}-${Math.floor(Math.random() * 1000)}`,
       });

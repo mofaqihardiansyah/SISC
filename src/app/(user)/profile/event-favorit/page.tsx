@@ -5,10 +5,24 @@ import { Search, Bookmark } from "lucide-react";
 import { getEvents } from "./action"; 
 import EventCard from "@/components/shared/EventCard"; 
 
+interface EventData {
+  id: number;
+  judul: string | null;
+  bannerUrl: string | null;
+  harga: number | null;
+  tanggalMulai: Date | null;
+  jenisEvent: string | null;
+  penyelenggara: string | null;
+  namaKota: string | null;
+  namaKategori: string | null;
+  isEventPolines: boolean | null;
+  tipePlatform: string | null;
+}
+
 export default function EventFavoritPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,11 +52,16 @@ export default function EventFavoritPage() {
   });
 
   return (
-    <div className="w-full px-2">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8 font-heading">Event Favorit</h1>
+    <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
+      
+      {/* PAGE HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Event Favorit</h1>
+        <p className="text-slate-500 mt-2">Pantau event yang telah Anda tandai sebagai favorit</p>
+      </div>
 
       {/* SEARCH & FILTER */}
-      <div className="relative mb-10">
+      <div className="relative">
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-slate-100"></div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative">
           <div className="pb-2 w-full md:w-80 z-10">
@@ -93,20 +112,22 @@ export default function EventFavoritPage() {
               <EventCard 
                 key={item.id}
                 id={item.id.toString()}
-                title={item.judul}
-                imageUrl={item.bannerUrl}
-                date={new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
-                  day: 'numeric', month: 'long', year: 'numeric'
-                })}
-                price={item.harga || 0}
+                title={item.judul ?? ''}
+                imageUrl={item.bannerUrl ?? undefined}
+                date={item.tanggalMulai
+                  ? new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
+                      day: 'numeric', month: 'long', year: 'numeric'
+                    })
+                  : 'Tanggal belum ditentukan'}
+                price={item.harga ?? 0}
                 category={item.jenisEvent || "Seminar"}
                 
                 // Menerapkan logika deteksi
                 type={isPolines ? "POLINES" : "UMUM"}
                 
                 tipePlatform={item.tipePlatform || "Offline"}
-                kotaNama={item.namaKota || "Semarang"}
-                kategoriNama={item.namaKategori || "Pendidikan"}
+                kotaNama={item.namaKota ?? undefined}
+                kategoriNama={item.namaKategori ?? undefined}
                 isLoggedIn={true}
                 isBookmarked={true}
                 onRemove={() => handleRemoveVisual(item.id.toString())}

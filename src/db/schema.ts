@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, timestamp, boolean, integer, jsonb, primaryKey, pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
-export const eventStatusEnum = pgEnum('event_status', ['pending', 'published', 'rejected']);
+export const eventStatusEnum = pgEnum('event_status', ['draft', 'pending', 'published', 'rejected']);
 export const jenisEventEnum = pgEnum('jenis_event', ['seminar', 'conference']);
 export const tipePlatformEnum = pgEnum('tipe_platform', ['online', 'offline', 'hybrid']);
 export const tipeHargaEnum = pgEnum('tipe_harga', ['free', 'paid']);
@@ -24,8 +24,8 @@ export const users = pgTable('users', {
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
   role: userRoleEnum('role').default('visitor'),
   isApproved: boolean('is_approved').default(false),
-  isSuspended: boolean('is_suspended').default(false),   // 👈 BARU
-  lastActiveAt: timestamp('last_active_at'),              // 👈 BARU
+  isSuspended: boolean('is_suspended').default(false),
+  lastActiveAt: timestamp('last_active_at'),
   avatarUrl: varchar('avatar_url', { length: 512 }).default("/uploads/avatars/fotodummy.jpg"),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
@@ -98,8 +98,8 @@ export const event = pgTable('event', {
   slug: varchar('slug', { length: 255 }).unique(),
   deskripsi: text('deskripsi'),
   syaratDanKetentuan: text('syarat_dan_ketentuan'),
-  bannerUrl: varchar('banner_url', { length: 512 }), 
-  penyelenggara: varchar('penyelenggara', { length: 255 }), 
+  bannerUrl: varchar('banner_url', { length: 512 }),
+  penyelenggara: varchar('penyelenggara', { length: 255 }),
   tanggalMulai: timestamp('tanggal_mulai').notNull(),
   tanggalSelesai: timestamp('tanggal_selesai'),
   batasRegistrasi: timestamp('batas_registrasi'),
@@ -107,23 +107,29 @@ export const event = pgTable('event', {
   jenisEvent: jenisEventEnum('jenis_event'),
   tipePlatform: tipePlatformEnum('tipe_platform'),
   tipeHarga: tipeHargaEnum('tipe_harga'),
-  harga: integer('harga').default(0), 
-  detailLokasi: text('detail_lokasi'), 
-  linkEksternal: varchar('link_eksternal', { length: 512 }), 
+  harga: integer('harga').default(0),
+  detailLokasi: text('detail_lokasi'),
+  linkEksternal: varchar('link_eksternal', { length: 512 }),
   namaKontak: varchar('nama_kontak', { length: 255 }),
   emailKontak: varchar('email_kontak', { length: 255 }),
   teleponKontak: varchar('telepon_kontak', { length: 20 }),
-  kuota: integer('kuota'), 
+  kuota: integer('kuota'),
   maksTiketPerTransaksi: integer('maks_tiket_per_transaksi'),
   satuAkunSatuTransaksi: boolean('satu_akun_satu_transaksi').default(false),
   status: eventStatusEnum('status').default('pending'),
   hasilScraping: boolean('hasil_scraping').default(false),
-  websiteSumber: varchar('website_sumber', { length: 255 }), 
+  websiteSumber: varchar('website_sumber', { length: 255 }),
   jumlahTayangan: integer('jumlah_tayangan').default(0),
   alasanPenolakan: text('alasan_penolakan'),
   namaPembicara: varchar('nama_pembicara', { length: 255 }),
   peranPembicara: varchar('peran_pembicara', { length: 100 }),
   fotoPembicaraUrl: varchar('foto_pembicara_url', { length: 512 }),
+  namaBank: varchar('nama_bank', { length: 100 }),
+  nomorRekening: varchar('nomor_rekening', { length: 50 }),
+  pemilikRekening: varchar('pemilik_rekening', { length: 255 }),
+  namaBankAlternatif: varchar('nama_bank_alternatif', { length: 100 }),
+  nomorRekeningAlternatif: varchar('nomor_rekening_alternatif', { length: 50 }),
+  pemilikRekeningAlternatif: varchar('pemilik_rekening_alternatif', { length: 255 }),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),
@@ -156,7 +162,7 @@ export const logAdmin = pgTable('log_admin', {
   id: serial('id').primaryKey(),
   adminId: integer('admin_id').references(() => users.id),
   eventId: integer('event_id').references(() => event.id),
-  aksi: varchar('aksi', { length: 100 }), 
+  aksi: varchar('aksi', { length: 100 }),
   dataSebelumnya: jsonb('data_sebelumnya'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
@@ -168,15 +174,29 @@ export const pendaftaran = pgTable('pendaftaran', {
   userId: integer('user_id').references(() => users.id),
   kodePendaftaran: varchar('kode_pendaftaran', { length: 50 }).unique(),
   status: pendaftaranStatusEnum('status').default('terdaftar'),
+  buktiPembayaran: text('bukti_pembayaran'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),
 });
 
-// 14. PESERTA
+// 14. TRANSAKSI
+export const transaksi = pgTable('transaksi', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').notNull().references(() => event.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  kodeTransaksi: varchar('kode_transaksi', { length: 50 }).unique(),
+  status: varchar('status', { length: 50 }).default('pending'),
+  totalHarga: integer('total_harga').default(0),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  diperbaruiPada: timestamp('diperbarui_pada'),
+});
+
+// 16. PESERTA
 export const peserta = pgTable('peserta', {
   id: serial('id').primaryKey(),
   pendaftaranId: integer('pendaftaran_id').references(() => pendaftaran.id),
+  transaksiId: integer('transaksi_id').references(() => transaksi.id),
   kodePeserta: varchar('kode_peserta', { length: 50 }).unique(), 
   namaLengkap: varchar('nama_lengkap', { length: 255 }),
   email: varchar('email', { length: 255 }),
@@ -184,7 +204,7 @@ export const peserta = pgTable('peserta', {
   jenisKelamin: jenisKelaminEnum('jenis_kelamin'),
 });
 
-// 15. PAPER SUBMISSION
+// 17. PAPER SUBMISSION
 export const paperSubmission = pgTable('paper_submission', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id).notNull(),
@@ -198,13 +218,13 @@ export const paperSubmission = pgTable('paper_submission', {
   diperbaruiPada: timestamp('diperbarui_pada'),
 });
 
-// 16. JADWAL EVENT
+// 18. JADWAL EVENT
 export const jadwalEvent = pgTable('jadwal_event', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').references(() => event.id),
   waktuMulai: timestamp('waktu_mulai'),
   waktuSelesai: timestamp('waktu_selesai'),
-  deskripsi: text('deskripsi'), 
+  deskripsi: text('deskripsi'),
 });
 
 // RELATIONS DEFINITIONS
@@ -217,6 +237,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   bookmark: many(bookmark),
   logAdmin: many(logAdmin),
   pendaftaran: many(pendaftaran),
+  transaksi: many(transaksi),
   paperSubmission: many(paperSubmission),
 }));
 
@@ -276,6 +297,7 @@ export const eventRelations = relations(event, ({ one, many }) => ({
   lampiran: many(lampiranEvent),
   logAdmin: many(logAdmin),
   pendaftaran: many(pendaftaran),
+  transaksi: many(transaksi),
   jadwal: many(jadwalEvent),
   paperSubmission: many(paperSubmission),
 }));
@@ -321,10 +343,26 @@ export const pendaftaranRelations = relations(pendaftaran, ({ one, many }) => ({
   peserta: many(peserta),
 }));
 
+export const transaksiRelations = relations(transaksi, ({ one, many }) => ({
+  event: one(event, {
+    fields: [transaksi.eventId],
+    references: [event.id],
+  }),
+  user: one(users, {
+    fields: [transaksi.userId],
+    references: [users.id],
+  }),
+  peserta: many(peserta),
+}));
+
 export const pesertaRelations = relations(peserta, ({ one }) => ({
   pendaftaran: one(pendaftaran, {
     fields: [peserta.pendaftaranId],
     references: [pendaftaran.id],
+  }),
+  transaksi: one(transaksi, {
+    fields: [peserta.transaksiId],
+    references: [transaksi.id],
   }),
 }));
 
@@ -345,6 +383,21 @@ export const jadwalEventRelations = relations(jadwalEvent, ({ one }) => ({
     references: [event.id],
   }),
 }));
+
+export const pemberitahuan = pgTable('pemberitahuan', {
+  id: serial('id').primaryKey(),
+  tag: text('tag'),
+  isi: text('isi'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const favorit = pgTable('favorit', {
+  userId: integer('user_id').notNull().references(() => users.id),
+  eventId: integer('event_id').notNull().references(() => event.id),
+  createdAt: timestamp('created_at').defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.eventId] })
+]);
 
 export const tayanganLog = pgTable('tayangan_log', {
   eventId: integer('event_id').references(() => event.id),

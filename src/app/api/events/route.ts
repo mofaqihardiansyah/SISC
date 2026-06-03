@@ -48,7 +48,7 @@ export async function GET(req: Request) {
     if (polines === 'true') conditions.push(eq(event.isEventPolines, true));
     if (price === 'Gratis') conditions.push(eq(event.tipeHarga, 'free'));
     if (price === 'Berbayar') conditions.push(eq(event.tipeHarga, 'paid'));
-    if (type) conditions.push(eq(event.tipePlatform, type as any));
+    if (type) conditions.push(eq(event.tipePlatform, type as 'online' | 'offline' | 'hybrid'));
     if (location) conditions.push(eq(kota.nama, location));
     if (cat) conditions.push(eq(kategori.nama, cat));
 

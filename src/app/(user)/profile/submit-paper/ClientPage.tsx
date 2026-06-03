@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { CheckCircle, Clock, AlertCircle, FileText, Building2, ChevronDown, Search } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { SubmissionForm } from './SubmissionForm';
 import { EventList } from './EventList';
-import { SubmissionTimeline } from './SubmissionTimeline';
+import { SubmissionDetail } from './SubmissionDetail';
 
 type RegisteredEvent = {
   id: number;
@@ -18,6 +16,8 @@ type RegisteredEvent = {
 type SubmittedPaper = {
   id: number;
   judul: string;
+  penulis: string;
+  fileUrl: string;
   status: 'review' | 'accepted' | 'rejected' | null;
   komentarPenolakan: string | null;
   dibuatPada: Date | null;
@@ -31,28 +31,42 @@ type ClientPageProps = {
 };
 
 export default function ClientPage({ initialRegisteredEvents, initialSubmittedPapers }: ClientPageProps) {
-  // Navigation & View States
-  const [view, setView] = useState<'list' | 'submit'>('list');
-  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+  // Parse query parameters immediately in the component render phase to avoid useEffect cascading renders
+  const eventIdParam = searchParams.get('eventId');
+  const initialEventId = eventIdParam ? parseInt(eventIdParam) : null;
+  const initialEventExists = initialEventId ? initialRegisteredEvents.some(e => e.id === initialEventId) : false;
   
-  // Search & Filter States
+  const initialExistingPaper = initialEventExists ? initialSubmittedPapers.find(p => p.eventId === initialEventId) : undefined;
+  const hasValidPaper = initialExistingPaper && initialExistingPaper.status !== 'rejected';
+
+  const [view, setView] = useState<'list' | 'submit' | 'detail'>(
+    initialEventExists ? (hasValidPaper ? 'detail' : 'submit') : 'list'
+  );
+  const [selectedEventId, setSelectedEventId] = useState<number | null>(
+    initialEventExists && !hasValidPaper ? initialEventId : null
+  );
+  const [selectedPaperId, setSelectedPaperId] = useState<number | null>(
+    initialEventExists && hasValidPaper && initialExistingPaper ? initialExistingPaper.id : null
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  
+
   const selectedEvent = initialRegisteredEvents.find(e => e.id === selectedEventId);
 
-  // Enrich data with submission status
+  // Enrich events with submission status
   const eventsWithStatus = initialRegisteredEvents.map(event => {
     const submission = initialSubmittedPapers.find(p => p.eventId === event.id);
     return {
       ...event,
       submissionStatus: submission ? (submission.status || 'review') : 'belum_submit',
+      rejectionReason: submission?.komentarPenolakan || null,
     };
   });
 
-  // Filtered Events Logic
+  // Filter events
   const filteredEvents = eventsWithStatus.filter(e => {
-    const matchesSearch = e.judul.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = e.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (e.penyelenggara && e.penyelenggara.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || e.submissionStatus === statusFilter;
     return matchesSearch && matchesStatus;
@@ -63,92 +77,88 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
     setView('submit');
   };
 
+  const handleViewDetailByEvent = (eventId: number) => {
+    const paper = initialSubmittedPapers.find(p => p.eventId === eventId);
+    if (paper) {
+      setSelectedPaperId(paper.id);
+      setView('detail');
+    }
+  };
+
+
+
   const handleBackToList = () => {
     setView('list');
     setSelectedEventId(null);
+    setSelectedPaperId(null);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      <div className="max-w-7xl mx-auto space-y-10 py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight font-heading">
-            Submit Paper
-          </h1>
-          <p className="text-slate-500 text-sm md:text-base max-w-2xl font-medium leading-relaxed">
-            Kelola pengiriman paper Anda dengan sistem yang terintegrasi dan transparan.
-          </p>
-        </div>
+    <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
+      {/* PAGE HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">
+          Submit Paper
+        </h1>
+        <p className="text-slate-500 mt-2">
+          Kirim paper untuk conference yang sudah Anda daftarkan
+        </p>
+      </div>
 
         {view === 'list' ? (
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8">
-            
-            {/* Table Controls */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <div className="relative group w-full md:max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="Cari conference atau penyelenggara..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-primary/30 transition-all" 
-                />
-              </div>
-
-              <div className="flex items-center gap-2 w-full md:w-auto">
-                <span className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2 text-right">Filter Status:</span>
-                <div className="relative flex-1 md:w-40">
-                  <select 
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-600 pl-4 pr-10 py-2 rounded-lg outline-none text-[10px] font-bold uppercase tracking-widest cursor-pointer focus:bg-white focus:border-primary/30 transition-all"
-                  >
-                    <option value="all">Semua Status</option>
-                    <option value="belum_submit">Available</option>
-                    <option value="review">In Review</option>
-                    <option value="accepted">Accepted</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
-                </div>
-              </div>
+          <div className="space-y-6 animate-in fade-in duration-300">
+            {/* Search & Filter */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                placeholder="Cari conference atau penyelenggara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400 outline-none focus:border-primary/40 transition-colors"
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 outline-none focus:border-primary/40 transition-colors cursor-pointer sm:w-48"
+              >
+                <option value="all">Semua Status</option>
+                <option value="belum_submit">Belum Submit</option>
+                <option value="review">Sedang Direview</option>
+                <option value="accepted">Diterima</option>
+                <option value="rejected">Ditolak</option>
+              </select>
             </div>
 
-            {/* Main Table Content */}
-            <div className="space-y-4">
-              <EventList 
-                events={filteredEvents} 
+            {/* Event List Table */}
+            <div>
+              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Conference Terdaftar</h2>
+              <EventList
+                events={filteredEvents}
                 onStartSubmit={handleStartSubmit}
+                onViewDetail={handleViewDetailByEvent}
               />
             </div>
 
-            {/* Submission History Section */}
-            <SubmissionTimeline papers={initialSubmittedPapers} />
 
-            {/* Info Helper Minimalist */}
-            <div className="bg-slate-900 p-8 rounded-2xl flex items-start gap-6 relative overflow-hidden group">
-              <div className="absolute right-0 bottom-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -mr-20 -mb-20 group-hover:scale-110 transition-transform duration-1000"></div>
-              <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5 shrink-0">
-                <AlertCircle className="text-primary-foreground" size={20} />
-              </div>
-              <div className="relative z-10">
-                <h4 className="text-sm font-bold text-white mb-2">Penting untuk Diketahui</h4>
-                <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-4xl">
-                  Setiap paper yang dikirimkan akan melalui proses review anonim. Pastikan file yang Anda unggah sesuai dengan <span className="text-white underline underline-offset-4 decoration-primary/50">template yang disediakan</span>. Status paper akan diperbarui secara berkala oleh komite reviewer.
-                </p>
-              </div>
+            {/* Info Note */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-xs text-amber-800 leading-relaxed">
+                <span className="font-semibold">Catatan:</span> Setiap paper yang dikirimkan akan melalui proses review. Pastikan file yang diunggah sesuai dengan template yang disediakan. Status paper akan diperbarui secara berkala oleh komite reviewer.
+              </p>
             </div>
-          </section>
-          ) : (
-            <SubmissionForm 
-              selectedEvent={selectedEvent}
-              onBack={handleBackToList}
-              onSuccess={handleBackToList}
-            />
-          )}
-      </div>
+          </div>
+        ) : view === 'submit' ? (
+          <SubmissionForm
+            selectedEvent={selectedEvent}
+            onBack={handleBackToList}
+            onSuccess={handleBackToList}
+          />
+        ) : (
+          <SubmissionDetail
+            paper={initialSubmittedPapers.find(p => p.id === selectedPaperId)}
+            onBack={handleBackToList}
+          />
+        )}
     </div>
   );
 }

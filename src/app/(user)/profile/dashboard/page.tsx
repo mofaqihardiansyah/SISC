@@ -69,10 +69,12 @@ export default async function UserDashboard() {
   ];
 
   return (
-    <div className="space-y-8 p-6 md:p-8 bg-slate-50">
+    <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
+      
+      {/* PAGE HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pusat Aktivitas Anda</h1>
-        <p className="text-slate-500 mt-2">Pantau event favorit dan riwayat kegiatan Anda di sini.</p>
+        <h1 className="text-3xl font-bold text-slate-900">Pusat Aktivitas Anda</h1>
+        <p className="text-slate-500 mt-2">Pantau event favorit dan riwayat kegiatan Anda di sini</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -154,7 +156,14 @@ export default async function UserDashboard() {
   );
 }
 
-function EventCard({ judul, slug, date, location, organizer, bannerUrl }: any) {
+function EventCard({ judul, slug, date, location, organizer, bannerUrl }: {
+  judul: string;
+  slug: string;
+  date: string;
+  location: string;
+  organizer: string;
+  bannerUrl: string | null;
+}) {
   return (
     <Link href={`/events/${slug}`} className="block flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group bg-white">
       <div className="w-full md:w-40 h-32 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-200">
