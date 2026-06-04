@@ -7,8 +7,21 @@ import { eq } from "drizzle-orm";
 
 export async function Header() {
   const session = await auth();
-  const user = session?.user;
+  
+  let dbUser = null;
+  if (session?.user?.id) {
+    dbUser = await db.query.users.findFirst({
+      where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+    });
+  }
 
+  const user = dbUser ? {
+    name: dbUser.namaLengkap || session?.user?.name || "Penyelenggara",
+    email: dbUser.email || session?.user?.email,
+    image: dbUser.avatarUrl || session?.user?.image,
+    role: session?.user?.role,
+  } : session?.user;
+  
   let isApproved = false;
   if (user?.id) {
     const userId = parseInt(user.id, 10);

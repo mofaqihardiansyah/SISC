@@ -16,7 +16,9 @@ type RegisteredEvent = {
 type SubmittedPaper = {
   id: number;
   judul: string;
-  penulis: string;
+  kataKunci?: string | null;
+  track?: string | null;
+  penulis: { nama: string; email: string; afiliasi: string; isCorresponding: boolean }[];
   fileUrl: string;
   status: 'review' | 'accepted' | 'rejected' | null;
   komentarPenolakan: string | null;

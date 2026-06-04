@@ -37,7 +37,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const passwordsMatch = await bcrypt.compare(password, user.password);
           if (passwordsMatch) {
             console.log(`[AUTH] Login sukses: ${email}`);
-            return { id: user.id.toString(), email: user.email ?? "", name: user.namaLengkap ?? "", role: user.role ?? undefined };
+            return { id: user.id.toString(), email: user.email ?? "", name: user.namaLengkap ?? "", role: user.role ?? undefined, image: user.avatarUrl ?? undefined };
           } else {
             console.log(`[AUTH] Login ditolak: Password salah (${email})`);
           }

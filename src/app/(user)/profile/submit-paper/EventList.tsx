@@ -60,12 +60,12 @@ export function EventList({ events, onStartSubmit, onViewDetail }: EventListProp
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="bg-slate-50/75 border-b border-slate-200">
-              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider w-12">No</th>
-              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nama Conference</th>
-              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Penyelenggara</th>
-              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tanggal Mulai</th>
-              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Status Paper</th>
-              <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right w-32">Aksi</th>
+              <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider w-12">No</th>
+              <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Nama Conference</th>
+              <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Penyelenggara</th>
+              <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Tanggal Mulai</th>
+              <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Status Paper</th>
+              <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right w-32">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

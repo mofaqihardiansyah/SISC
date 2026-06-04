@@ -3,9 +3,24 @@ import { auth } from "@/auth";
 import UserMenu from "./UserMenu";
 import SearchInput from "./search-input";
 import { Suspense } from "react";
+import { db } from "@/db";
 
 export default async function Navbar() {
   const session = await auth();
+
+  let dbUser = null;
+  if (session?.user?.id) {
+    dbUser = await db.query.users.findFirst({
+      where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+    });
+  }
+
+  const user = dbUser ? {
+    name: dbUser.namaLengkap || session?.user?.name || "User",
+    email: dbUser.email || session?.user?.email,
+    image: dbUser.avatarUrl || session?.user?.image,
+    role: session?.user?.role,
+  } : session?.user;
 
   return (
     <nav className="sticky top-0 z-50 bg-[var(--brand-dark)] text-white shadow-md">
@@ -30,8 +45,8 @@ export default async function Navbar() {
           <Link href="/jelajah">Jelajah</Link>
           <Link href="/bantuan">Bantuan</Link>
 
-          {session?.user ? (
-            <UserMenu user={session.user} />
+          {user ? (
+            <UserMenu user={user} />
           ) : (
             <div className="flex items-center gap-4">
               <Link 
