@@ -1,4 +1,4 @@
-import { StatCard } from "@/components/penyelenggara/stat-card";
+import { StatCard } from "@/components/penyelenggara/StatCard";
 import { EventChart } from "@/components/penyelenggara/EventChart";
 import { Users, Calendar, Archive, Clock, Eye, Coins, Ticket } from "lucide-react";
 import { db } from "@/db";

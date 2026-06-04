@@ -1,14 +1,10 @@
-import React from 'react';
 import { auth } from "@/auth";
+import BuatEventButton from "./BuatEventButton";
 import { db } from "@/db";
 import { SharedDashboardTopbar } from '@/components/layout/SharedDashboardTopbar';
 import { LayoutDashboard, Settings } from 'lucide-react';
 
-interface TopbarProps {
-  title?: string;
-}
-
-export async function Topbar({ title = "User Profile" }: TopbarProps) {
+export async function Header() {
   const session = await auth();
   
   let dbUser = null;
@@ -19,25 +15,24 @@ export async function Topbar({ title = "User Profile" }: TopbarProps) {
   }
 
   const user = dbUser ? {
-    name: dbUser.namaLengkap || session?.user?.name || "Demo User",
-    email: dbUser.email || session?.user?.email || "demo@example.com",
+    name: dbUser.namaLengkap || session?.user?.name || "Penyelenggara",
+    email: dbUser.email || session?.user?.email,
     image: dbUser.avatarUrl || session?.user?.image,
-  } : session?.user || {
-    name: "Demo User",
-    email: "demo@example.com",
-  };
+  } : session?.user;
 
   const menuItems = [
-    { label: "Dashboard", href: "/profile/dashboard", icon: LayoutDashboard },
-    { label: "Pengaturan", href: "/profile/settings", icon: Settings },
+    { label: "Dashboard", href: "/penyelenggara", icon: LayoutDashboard },
+    { label: "Pengaturan", href: "/penyelenggara/profile", icon: Settings },
   ];
 
   return (
     <SharedDashboardTopbar 
-      title={title} 
+      title="Dashboard" 
       user={user as any} 
-      roleTitle={session?.user?.role || "Pengunjung"} 
+      roleTitle="Penyelenggara" 
       menuItems={menuItems}
-    />
+    >
+      <BuatEventButton />
+    </SharedDashboardTopbar>
   );
 }

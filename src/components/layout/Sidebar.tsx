@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type MenuItem = {
@@ -36,7 +36,7 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="md:hidden fixed top-5 left-4 z-60 p-2 bg-[#111827] text-white rounded-lg shadow-md hover:bg-gray-800 transition-colors"
       >
-        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isOpen ? <MoreVertical className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
       {/* Overlay Background Gelap saat Sidebar Terbuka di Mobile */}

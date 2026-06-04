@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import UserMenu from "./UserMenu";
-import SearchInput from "./search-input";
+import SearchInput from "./SearchInput";
 import { Suspense } from "react";
 import { db } from "@/db";
 

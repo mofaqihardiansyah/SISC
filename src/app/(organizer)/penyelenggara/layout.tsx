@@ -1,5 +1,5 @@
-import { Sidebar } from "@/components/penyelenggara/sidebar";
-import { Header } from "@/components/penyelenggara/header";
+import { Sidebar } from "@/components/penyelenggara/Sidebar";
+import { Header } from "@/components/penyelenggara/Topbar";
 
 export default function OrganizerLayout({
   children,
