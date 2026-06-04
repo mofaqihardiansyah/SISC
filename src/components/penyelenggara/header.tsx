@@ -1,10 +1,24 @@
 import { Plus, Bell } from "lucide-react";
 import { auth } from "@/auth";
 import DashboardUserMenu from "./DashboardUserMenu";
+import { db } from "@/db";
 
 export async function Header() {
   const session = await auth();
-  const user = session?.user;
+  
+  let dbUser = null;
+  if (session?.user?.id) {
+    dbUser = await db.query.users.findFirst({
+      where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+    });
+  }
+
+  const user = dbUser ? {
+    name: dbUser.namaLengkap || session?.user?.name || "Penyelenggara",
+    email: dbUser.email || session?.user?.email,
+    image: dbUser.avatarUrl || session?.user?.image,
+    role: session?.user?.role,
+  } : session?.user;
 
   return (
     <header className="h-20 bg-white border-b border-gray-100 pl-16 pr-4 md:px-8 flex items-center justify-between sticky top-0 z-20 transition-all">
