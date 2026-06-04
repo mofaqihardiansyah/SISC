@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/auth';
+import bcrypt from 'bcryptjs';
 
 // GET USER
 export async function GET(req: Request) {
@@ -40,7 +41,7 @@ export async function GET(req: Request) {
   }
 }
 
-// UPDATE USER
+// UPDATE USER ATAU PASSWORD
 export async function PUT(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -63,6 +64,34 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
+    // Jika ada passLama dan passBaru, ini berarti ganti password
+    if (body.passLama && body.passBaru) {
+      const user = await db.query.users.findFirst({
+        where: (u, { eq }) => eq(u.id, userId),
+      });
+
+      if (!user) {
+        return NextResponse.json({ error: 'User tidak ditemukan' }, { status: 404 });
+      }
+
+      const valid = await bcrypt.compare(body.passLama, user.passwordHash);
+      if (!valid) {
+        return NextResponse.json({ error: 'Kata sandi lama salah' }, { status: 400 });
+      }
+
+      const hashed = await bcrypt.hash(body.passBaru, 10);
+      await db
+        .update(users)
+        .set({
+          passwordHash: hashed,
+          diperbaruiPada: new Date(),
+        })
+        .where(eq(users.id, userId));
+
+      return NextResponse.json({ message: 'Kata sandi berhasil diperbarui' });
+    }
+
+    // Jika tidak ada parameter password, berarti update profil biasa
     await db
       .update(users)
       .set({

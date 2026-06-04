@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Camera, Globe, Mail, Phone, FileText, Eye, Loader2 } from 'lucide-react';
+import { Camera, Globe, Mail, Phone, FileText, Eye, Loader2, KeyRound } from 'lucide-react';
 import { updateProfilPenyelenggara } from './actions';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -21,6 +21,12 @@ interface ProfilFormProps {
 
 export default function ProfilForm({ initialData }: ProfilFormProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [passLama, setPassLama] = useState('');
+  const [passBaru, setPassBaru] = useState('');
+  const [passKonfirm, setPassKonfirm] = useState('');
+  const [loadingPass, setLoadingPass] = useState(false);
+  const [errorPass, setErrorPass] = useState('');
+
   const [formData, setFormData] = useState({
     avatarUrl: initialData.avatarUrl || '/uploads/avatars/fotodummy.jpg',
     namaInstansi: initialData.namaInstansi || '',
@@ -116,8 +122,44 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
     }
   };
 
+  const handleUpdatePassword = async () => {
+    setErrorPass('');
+    if (!passLama || !passBaru || !passKonfirm) {
+      setErrorPass('Semua kolom wajib diisi');
+      return;
+    }
+    if (passBaru !== passKonfirm) {
+      setErrorPass('Konfirmasi password tidak cocok');
+      return;
+    }
+    if (passBaru.length < 8) {
+      setErrorPass('Kata sandi baru minimal 8 karakter');
+      return;
+    }
+    setLoadingPass(true);
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passLama, passBaru }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal mengubah kata sandi');
+      }
+      toast.success('Kata sandi berhasil diperbarui');
+      setPassLama('');
+      setPassBaru('');
+      setPassKonfirm('');
+    } catch (error: unknown) {
+      setErrorPass(error instanceof Error ? error.message : 'Terjadi kesalahan jaringan');
+    } finally {
+      setLoadingPass(false);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="p-6 ml-0 md:ml-4">
+    <div className="p-6 ml-0 md:ml-4">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8">
         <h1 className="text-2xl font-bold text-slate-800">Profil Penyelenggara</h1>
@@ -320,17 +362,83 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
         </div>
       </div>
 
-      {/* Action Button Section */}
-      <div className="mt-8 flex justify-end">
+      {/* Action Button Section for Organization Profile */}
+      <div className="mt-8 flex justify-end pb-8 border-b border-slate-200">
         <button 
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           disabled={isSaving}
           className="px-8 py-3 bg-[#7C87A6] text-white rounded-lg font-semibold hover:bg-[#6A7591] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 flex items-center gap-2"
         >
           {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
-          {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+          {isSaving ? 'Menyimpan...' : 'Simpan Profil Organisasi'}
         </button>
       </div>
-    </form>
+
+      {/* Bagian Keamanan Akun di Bawah */}
+      <div className="mt-8">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm max-w-3xl">
+          <div className="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100">
+            <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg">
+              <KeyRound size={20} />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800">Keamanan Akun</h2>
+              <p className="text-sm text-slate-500">Perbarui kata sandi untuk akun administrator penyelenggara Anda.</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="max-w-md">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Kata Sandi Saat Ini</label>
+              <input
+                type="password"
+                value={passLama}
+                onChange={(e) => setPassLama(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
+                placeholder="Masukkan kata sandi saat ini"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Kata Sandi Baru</label>
+                <input
+                  type="password"
+                  value={passBaru}
+                  onChange={(e) => setPassBaru(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
+                  placeholder="Minimal 8 karakter"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Konfirmasi Kata Sandi</label>
+                <input
+                  type="password"
+                  value={passKonfirm}
+                  onChange={(e) => setPassKonfirm(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
+                  placeholder="Ketik ulang kata sandi baru"
+                />
+              </div>
+            </div>
+
+            {errorPass && <p className="text-sm text-red-600 font-medium">{errorPass}</p>}
+
+            <div className="pt-4 flex justify-start">
+              <button
+                type="button"
+                onClick={handleUpdatePassword}
+                disabled={loadingPass}
+                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
+              >
+                {loadingPass && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loadingPass ? 'Memperbarui...' : 'Perbarui Kata Sandi'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

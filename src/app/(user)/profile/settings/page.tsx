@@ -19,6 +19,12 @@ export default function SettingsPage() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [passLama, setPassLama] = useState('');
+  const [passBaru, setPassBaru] = useState('');
+  const [passKonfirm, setPassKonfirm] = useState('');
+  const [loadingPass, setLoadingPass] = useState(false);
+  const [errorPass, setErrorPass] = useState('');
+
   // FETCH DATA USER
   useEffect(() => {
     fetch('/api/user/profile')
@@ -92,6 +98,43 @@ export default function SettingsPage() {
       router.refresh();
     } catch {
       toast.error('Gagal menyimpan');
+    }
+  };
+
+  // UPDATE PASSWORD
+  const handleUpdatePassword = async () => {
+    setErrorPass('');
+    if (!passLama || !passBaru || !passKonfirm) {
+      setErrorPass('Semua kolom wajib diisi');
+      return;
+    }
+    if (passBaru !== passKonfirm) {
+      setErrorPass('Konfirmasi password tidak cocok');
+      return;
+    }
+    if (passBaru.length < 8) {
+      setErrorPass('Kata sandi baru minimal 8 karakter');
+      return;
+    }
+    setLoadingPass(true);
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passLama, passBaru }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal mengubah kata sandi');
+      }
+      toast.success('Kata sandi berhasil diperbarui');
+      setPassLama('');
+      setPassBaru('');
+      setPassKonfirm('');
+    } catch (error: unknown) {
+      setErrorPass(error instanceof Error ? error.message : 'Terjadi kesalahan jaringan');
+    } finally {
+      setLoadingPass(false);
     }
   };
 
@@ -223,12 +266,46 @@ export default function SettingsPage() {
       <section className="bg-white rounded-xl border border-slate-200 p-8 shadow-xs">
         <h2 className="text-2xl font-bold mb-6">Keamanan & Privasi</h2>
 
-        <button
-          onClick={() => router.push('/forgot-password')}
-          className="w-full border px-4 py-3 rounded-lg text-left hover:bg-slate-50"
-        >
-          Ubah Password
-        </button>
+        <div className="space-y-4 max-w-md">
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Kata Sandi Saat Ini</label>
+            <input
+              type="password"
+              value={passLama}
+              onChange={(e) => setPassLama(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg"
+              placeholder="Masukkan kata sandi lama"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Kata Sandi Baru</label>
+            <input
+              type="password"
+              value={passBaru}
+              onChange={(e) => setPassBaru(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg"
+              placeholder="Masukkan kata sandi baru"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Konfirmasi Kata Sandi Baru</label>
+            <input
+              type="password"
+              value={passKonfirm}
+              onChange={(e) => setPassKonfirm(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg"
+              placeholder="Ketik ulang kata sandi baru"
+            />
+          </div>
+          {errorPass && <p className="text-sm text-red-600">{errorPass}</p>}
+          <button
+            onClick={handleUpdatePassword}
+            disabled={loadingPass}
+            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold disabled:opacity-50"
+          >
+            {loadingPass ? 'Menyimpan...' : 'Perbarui Kata Sandi'}
+          </button>
+        </div>
       </section>
 
       {/* DANGER ZONE */}

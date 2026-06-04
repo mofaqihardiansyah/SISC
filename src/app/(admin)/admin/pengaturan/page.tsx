@@ -21,6 +21,10 @@ export default function AdminSettingsPage() {
   const [loadingProfil, setLoadingProfil] = useState(false);
   const [loadingPass, setLoadingPass] = useState(false);
 
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   // Ambil data admin dari DB saat halaman load
   useEffect(() => {
     fetch("/api/admin/pengaturan")
@@ -31,6 +35,7 @@ export default function AdminSettingsPage() {
           setInisial(data.namaLengkap.charAt(0).toUpperCase());
         }
         if (data.email) setEmail(data.email);
+        if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
       })
       .catch(() => {});
   }, []);
@@ -53,7 +58,7 @@ export default function AdminSettingsPage() {
       const res = await fetch("/api/admin/pengaturan", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ namaLengkap, email }),
+        body: JSON.stringify({ namaLengkap, email, avatarUrl }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -66,6 +71,43 @@ export default function AdminSettingsPage() {
       setErrorProfil("Terjadi kesalahan jaringan");
     } finally {
       setLoadingProfil(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("Ukuran file maksimal 2MB");
+      return;
+    }
+
+    setIsUploading(true);
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+    uploadData.append('type', 'avatar');
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadData,
+      });
+
+      if (!res.ok) {
+        throw new Error('Gagal upload foto');
+      }
+
+      const data = await res.json();
+      setAvatarUrl(data.url);
+      showToast('Foto profil diupload. Klik Simpan Perubahan.');
+    } catch (error: unknown) {
+      showToast('Gagal upload foto');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -195,9 +237,27 @@ export default function AdminSettingsPage() {
 
           <div className="sg-profil-row">
             <div className="sg-foto-col">
-              <div className="sg-foto">{inisial}</div>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profil" className="sg-foto" style={{ objectFit: 'cover' }} />
+              ) : (
+                <div className="sg-foto">{inisial}</div>
+              )}
               <p className="sg-foto-hint">Format: JPG, PNG. Maks 2MB.</p>
-              <span className="sg-link">Ganti Foto Profil</span>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                style={{ display: 'none' }}
+                accept="image/jpeg, image/png, image/webp"
+                onChange={handleFileChange}
+              />
+              <span 
+                className="sg-link" 
+                onClick={() => !isUploading && fileInputRef.current?.click()}
+                style={{ opacity: isUploading ? 0.5 : 1, cursor: isUploading ? 'not-allowed' : 'pointer' }}
+              >
+                {isUploading ? 'Mengunggah...' : 'Ganti Foto Profil'}
+              </span>
             </div>
             <div className="sg-form-col">
               <div className="sg-field">
@@ -243,7 +303,6 @@ export default function AdminSettingsPage() {
             </div>
 
             {[
-              { label: "Email pendaftaran baru", desc: "Terima alert saat ada peserta baru mendaftar.", val: notifEmail, set: setNotifEmail },
               { label: "Alert sistem", desc: "Notifikasi kegagalan pembayaran atau error teknis.", val: notifAlert, set: setNotifAlert },
             ].map((item) => (
               <div key={item.label} className="sg-notif-row">
