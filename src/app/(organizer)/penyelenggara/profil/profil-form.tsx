@@ -170,7 +170,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-slate-800 mb-1">Ubah Logo</h3>
-                <p className="text-xs text-slate-400">Maks. 2MB (JPG, PNG). Rekomendasi 512×512px.</p>
+                <p className="text-xs text-slate-400">Maks. 10MB (JPG, PNG). Rekomendasi 512×512px.</p>
               </div>
             </div>
 

@@ -4,8 +4,15 @@ import { db } from "@/db";
 import { users, profilPenyelenggara, otpCodes } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-
 import nodemailer from "nodemailer";
+import dns from "dns";
+
+// Paksa Node.js menggunakan Google DNS & Cloudflare DNS untuk memintas DNS ISP lokal yang bermasalah/timeout
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (e) {
+  console.warn("Gagal menyetel DNS resolver kustom:", e);
+}
 
 // Helper to generate OTP
 function generateOTP() {
@@ -24,6 +31,9 @@ async function sendOTPEmail(email: string, code: string) {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
+      pool: true,
+      maxConnections: 3,
+      maxMessages: 100,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -119,8 +129,8 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
       expiresAt: expiresAt,
     });
 
-    // 6. Send OTP
-    await sendOTPEmail(values.email, otp);
+    // 6. Send OTP (Background)
+    sendOTPEmail(values.email, otp);
 
     return { success: true };
   } catch (error) {
@@ -169,8 +179,8 @@ export async function resendOtpAction(email: string) {
     expiresAt: expiresAt,
   });
 
-  // Send OTP
-  await sendOTPEmail(email, otp);
+  // Send OTP (Background)
+  sendOTPEmail(email, otp);
 
   return { success: true };
 }
@@ -198,8 +208,8 @@ export async function requestPasswordReset(email: string) {
     expiresAt: expiresAt,
   });
 
-  // Send OTP
-  await sendOTPEmail(email, otp);
+  // Send OTP (Background)
+  sendOTPEmail(email, otp);
 
   return { success: true };
 }

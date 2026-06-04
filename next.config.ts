@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Tambahkan baris kode di bawah ini untuk menaikkan limit upload Server Actions
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb", // Menaikkan limit menjadi 10 Megabytes agar ada margin untuk multipart form data
+    },
+  },
 };
 
 export default nextConfig;

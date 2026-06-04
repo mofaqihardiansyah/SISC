@@ -2,6 +2,7 @@ import React from 'react';
 import { auth } from "@/auth";
 import AdminUserMenu from "./AdminUserMenu";
 import { db } from "@/db";
+import BuatEventButton from "@/components/penyelenggara/BuatEventButton";
 
 interface TopbarProps {
   title: string;
@@ -29,6 +30,7 @@ export async function Topbar({ title }: TopbarProps) {
       <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
       
       <div className="flex items-center gap-4">
+        <BuatEventButton />
         {user && <AdminUserMenu user={user} />}
       </div>
     </header>

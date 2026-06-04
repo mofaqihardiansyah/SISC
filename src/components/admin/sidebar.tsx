@@ -9,7 +9,9 @@ import {
   Users, 
   Calendar, 
   UserCog,
-  Settings
+  Settings,
+  Layers,
+  MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +21,8 @@ const menuItems = [
   { icon: Users, label: 'Penyelenggara', href: '/admin/penyelenggara' },
   { icon: Calendar, label: 'Events', href: '/admin/events' },
   { icon: UserCog, label: 'Manajemen User', href: '/admin/manajemen-user' },
+  { icon: Layers, label: 'Kategori & Tag', href: '/admin/categories' },
+  { icon: MapPin, label: 'Master Wilayah', href: '/admin/locations' },
   { icon: Settings, label: 'Pengaturan', href: '/admin/pengaturan' },
 ];
 

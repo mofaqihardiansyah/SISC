@@ -3,20 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { StatCard } from '@/components/admin/StatCard';
 import { FileCheck, CheckCircle, Users, X, Calendar, MapPin, Users as UsersIcon, Wallet, Building2, Phone, Mail, Globe, Clock, Tag, Monitor } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { approveEvent, rejectEvent, getPendingEvents } from '@/actions/persetujuan-event';
 import type { PendingEvent } from '@/actions/persetujuan-event';
 
 const getPlatformColor = (platform: string | null) => {
   switch (platform) {
     case 'Offline':
-      return 'bg-blue-100 text-blue-800';
+    case 'Luring':
+      return 'bg-indigo-50 text-indigo-700 border border-indigo-200/60';
     case 'Online':
-      return 'bg-purple-100 text-purple-800';
+    case 'Daring':
+      return 'bg-purple-50 text-purple-700 border border-purple-200/60';
     case 'Hybrid':
-      return 'bg-green-100 text-green-800';
+    case 'Hibrida':
+      return 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-slate-50 text-slate-700 border border-slate-200/60';
   }
 };
 
@@ -29,13 +31,13 @@ const statusLabel: Record<string, string> = {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'pending':
-      return 'bg-amber-100 text-amber-800';
+      return 'bg-amber-50 text-amber-700 border border-amber-200/60';
     case 'published':
-      return 'bg-green-100 text-green-800';
+      return 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
     case 'rejected':
-      return 'bg-red-100 text-red-800';
+      return 'bg-rose-50 text-rose-700 border border-rose-200/60';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-slate-50 text-slate-700 border border-slate-200/60';
   }
 };
 
@@ -263,7 +265,20 @@ export default function PersetujuanEventPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => {
+    let active = true;
+    const init = async () => {
+      const result = await getPendingEvents();
+      if (active) {
+        if (result.success) setEvents(result.data);
+        setLoading(false);
+      }
+    };
+    init();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const pendingCount = events.filter(e => e.status === 'pending').length;
   const approvedCount = events.filter(e => e.status === 'published').length;
@@ -299,52 +314,52 @@ export default function PersetujuanEventPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-slate-50 border-b border-slate-200/60">
                 <tr>
-                  <th className="text-xs font-bold text-gray-500 uppercase tracking-wider py-4 px-4 text-left">Nama Event</th>
-                  <th className="text-xs font-bold text-gray-500 uppercase tracking-wider py-4 px-4 text-left">Kategori</th>
-                  <th className="text-xs font-bold text-gray-500 uppercase tracking-wider py-4 px-4 text-left">Platform</th>
-                  <th className="text-xs font-bold text-gray-500 uppercase tracking-wider py-4 px-4 text-left">Harga</th>
-                  <th className="text-xs font-bold text-gray-500 uppercase tracking-wider py-4 px-4 text-left">Tanggal Masuk</th>
-                  <th className="text-xs font-bold text-gray-500 uppercase tracking-wider py-4 px-4 text-left">Status</th>
-                  <th className="text-xs font-bold text-gray-500 uppercase tracking-wider py-4 px-4 text-left">Aksi</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Nama Event</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Kategori</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Platform</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Harga</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Tanggal Masuk</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Status</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Aksi</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {events.map((event) => (
-                  <tr key={event.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-4">
+                  <tr key={event.id} className="hover:bg-slate-50/25 transition-colors">
+                    <td className="px-6 py-3.5">
                       <button
                         onClick={() => setSelectedEvent(event)}
                         className="text-left"
                       >
-                        <span className="font-medium text-gray-900 text-sm hover:text-blue-600 transition-colors">{event.judul}</span>
+                        <span className="font-semibold text-gray-900 text-[13px] hover:text-blue-600 transition-colors">{event.judul}</span>
                       </button>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm text-gray-600">{event.kategori || '-'}</span>
+                    <td className="px-6 py-3.5">
+                      <span className="text-xs text-gray-500">{event.kategori || '-'}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <Badge className={`text-xs font-bold ${getPlatformColor(event.platform)}`}>
-                        {event.platform || '-'}
-                      </Badge>
+                    <td className="px-6 py-3.5">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider whitespace-nowrap ${getPlatformColor(event.platform)}`}>
+                        {event.platform === 'Offline' ? 'Luring' : event.platform === 'Online' ? 'Daring' : event.platform === 'Hybrid' ? 'Hibrida' : (event.platform || '-')}
+                      </span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm font-medium text-gray-900">{event.harga}</span>
+                    <td className="px-6 py-3.5">
+                      <span className="text-xs font-semibold text-gray-800">{event.harga}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm text-gray-600">{event.tanggalMasuk}</span>
+                    <td className="px-6 py-3.5">
+                      <span className="text-xs text-gray-500">{event.tanggalMasuk}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <Badge className={`text-xs font-bold ${getStatusColor(event.status)}`}>
+                    <td className="px-6 py-3.5">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider whitespace-nowrap ${getStatusColor(event.status)}`}>
                         {statusLabel[event.status] || event.status}
-                      </Badge>
+                      </span>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="px-6 py-3.5">
                       {event.status === 'pending' && (
                         <button
                           onClick={() => setSelectedEvent(event)}
-                          className="bg-[#0E215D] hover:bg-[#1a3a8a] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+                          className="bg-[#0E215D] hover:bg-[#1a3a8a] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
                         >
                           Tinjau
                         </button>
