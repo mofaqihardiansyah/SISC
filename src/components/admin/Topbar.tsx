@@ -26,14 +26,14 @@ export async function Topbar({ title }: TopbarProps) {
   } : session?.user;
 
   const menuItems = [
-    { label: "Dashboard Admin", href: "/admin/dashboard", icon: LayoutDashboard },
-    { label: "Pengaturan", href: "/admin/settings", icon: Settings },
+    { label: "Dashboard Admin", href: "/admin/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
+    { label: "Pengaturan", href: "/admin/settings", icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (
     <SharedDashboardTopbar 
       title={title} 
-      user={user as any} 
+      user={user || null} 
       roleTitle="POLIVENTS" 
       menuItems={menuItems}
     >

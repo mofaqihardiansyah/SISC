@@ -13,10 +13,10 @@ import { Sidebar as SharedSidebar, MenuItem } from '@/components/layout/Sidebar'
 
 const menuItems: MenuItem[] = [
   { label: "Dashboard", href: "/profile/dashboard", icon: LayoutDashboard },
-  { label: "Eventku", href: "/profile/eventku", icon: CalendarCheck },
-  { label: "Event Favorit", href: "/profile/event-favorit", icon: Bookmark },
-  { label: "Submit Paper", href: "/profile/submit-paper", icon: LibraryBig},
-  { label: "Akun & Privasi", href: "/profile/settings", icon: Info },
+  { label: "Riwayat", href: "/profile/eventku", icon: CalendarCheck },
+  { label: "Favorit", href: "/profile/event-favorit", icon: Bookmark },
+  { label: "Publikasi", href: "/profile/submit-paper", icon: LibraryBig},
+  { label: "Pengaturan", href: "/profile/settings", icon: Info },
   { label: "Bantuan", href: "/profile/help", icon: HelpCircle },
 ];
 

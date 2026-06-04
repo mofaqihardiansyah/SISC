@@ -4,9 +4,8 @@ import { db } from "@/db";
 import { SharedDashboardTopbar } from '@/components/layout/SharedDashboardTopbar';
 import { LayoutDashboard, Settings } from 'lucide-react';
 
-export async function Header() {
+export async function Topbar() {
   const session = await auth();
-  
   let dbUser = null;
   if (session?.user?.id) {
     dbUser = await db.query.users.findFirst({
@@ -21,14 +20,14 @@ export async function Header() {
   } : session?.user;
 
   const menuItems = [
-    { label: "Dashboard", href: "/penyelenggara", icon: LayoutDashboard },
-    { label: "Pengaturan", href: "/penyelenggara/profile", icon: Settings },
+    { label: "Dashboard", href: "/penyelenggara", icon: <LayoutDashboard className="w-4 h-4" /> },
+    { label: "Pengaturan", href: "/penyelenggara/profile", icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (
     <SharedDashboardTopbar 
       title="Dashboard" 
-      user={user as any} 
+      user={user || null} 
       roleTitle="Penyelenggara" 
       menuItems={menuItems}
     >

@@ -28,14 +28,14 @@ export async function Topbar({ title = "User Profile" }: TopbarProps) {
   };
 
   const menuItems = [
-    { label: "Dashboard", href: "/profile/dashboard", icon: LayoutDashboard },
-    { label: "Pengaturan", href: "/profile/settings", icon: Settings },
+    { label: "Dashboard", href: "/profile/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
+    { label: "Pengaturan", href: "/profile/settings", icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (
     <SharedDashboardTopbar 
       title={title} 
-      user={user as any} 
+      user={user || null} 
       roleTitle={session?.user?.role || "Pengunjung"} 
       menuItems={menuItems}
     />

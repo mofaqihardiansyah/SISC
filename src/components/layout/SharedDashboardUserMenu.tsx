@@ -8,7 +8,7 @@ import { signOut } from "next-auth/react";
 export type UserMenuItem = {
   label: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ReactNode;
 };
 
 interface SharedDashboardUserMenuProps {
@@ -16,7 +16,7 @@ interface SharedDashboardUserMenuProps {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-  };
+  } | null;
   roleTitle: string;
   menuItems: UserMenuItem[];
 }
@@ -34,6 +34,8 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  if (!user) return null;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -77,7 +79,7 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                <item.icon className="w-4 h-4" />
+                {item.icon}
                 {item.label}
               </Link>
             ))}

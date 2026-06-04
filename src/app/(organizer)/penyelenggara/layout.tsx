@@ -1,5 +1,5 @@
 import { Sidebar } from "@/components/penyelenggara/Sidebar";
-import { Header } from "@/components/penyelenggara/Topbar";
+import { Topbar } from "@/components/penyelenggara/Topbar";
 
 export default function OrganizerLayout({
   children,
@@ -11,7 +11,7 @@ export default function OrganizerLayout({
       <Sidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Topbar />
 
         <main className="flex-1 overflow-y-auto h-0 px-4 md:px-6 lg:px-8">
   {children}

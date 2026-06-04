@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin } from "lucide-react";
-// Import getDaftarEvent dan updateEventDatabase dengan aman
+import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 
 interface EventData {
@@ -44,6 +43,10 @@ export default function KelolaEventClient() {
   const [tipeFilter, setTipeFilter] = useState("Semua Tipe");
   const [kategoriFilter, setKategoriFilter] = useState("Semua Kategori");
   const [hargaFilter, setHargaFilter] = useState("Semua Harga");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // State Kontrol Form di Dalam Modal
   const [formData, setFormData] = useState<EventFormData>({
@@ -94,8 +97,8 @@ export default function KelolaEventClient() {
             harga: ev.harga ? ev.harga.toLocaleString('id-ID') : "0",
             tanggal: tglString,
             rawTanggal: ev.tanggalMulai || "", 
-            img: ev.bannerUrl || "https://images.unsplash.com/photo-1540575861501-7ce0e2204919?q=80&w=400",
-            alasan: ev.alasanPenolakan || "Metadata gambar tidak sesuai panduan.",
+            img: ev.bannerUrl || "",
+            alasan: ev.alasanPenolakan || "Tidak ada alasan spesifik yang diberikan oleh Admin.",
             venue: ev.detailLokasi || "",
             deskripsi: ev.deskripsi || ""
           };
@@ -145,6 +148,15 @@ export default function KelolaEventClient() {
     return cocokJudul && cocokStatus && cocokTipe && cocokKategori && cocokHarga && cocokTanggal;
   });
 
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, tipeFilter, kategoriFilter, hargaFilter, dateFilter]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
+  const currentEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   // Membuka modal dan melakukan auto-fill state form
   const openEditModal = (event: EventData) => {
     setSelectedEvent(event);
@@ -169,28 +181,21 @@ export default function KelolaEventClient() {
     
     setIsSaving(true);
     try {
+      const hargaStr = String(formData.harga).replace(/\./g, '').replace(/,/g, '');
       const payload = {
         judul: formData.judul,
         jenisEvent: formData.tipeEvent.toLowerCase(),
         tipePlatform: formData.platform.toLowerCase(),
         detailLokasi: formData.venue,
-        harga: formData.tipeTiket === "Free" ? 0 : parseInt(formData.harga || "0"),
+        harga: formData.tipeTiket === "Free" ? 0 : parseInt(hargaStr || "0", 10),
         deskripsi: formData.deskripsi,
       };
 
       const res = await updateEventDatabase(selectedEvent.id, payload);
       
       if (!res?.success) {
-        // Fallback update state lokal jika server action tidak mengembalikan response object terstruktur
-        setDbEvents(prev => prev.map(ev => ev.id === selectedEvent.id ? {
-          ...ev,
-          judul: formData.judul,
-          kategori: formData.tipeEvent,
-          sub: formData.platform.toUpperCase(),
-          venue: formData.venue,
-          harga: formData.tipeTiket === "Free" ? "0" : parseInt(formData.harga).toLocaleString('id-ID'),
-          deskripsi: formData.deskripsi
-        } : ev));
+        alert("Gagal menyimpan perubahan: " + (res?.error || "Terjadi kesalahan"));
+        return; // Hentikan proses, jangan tutup modal
       }
       
       // Ambil data terbaru dan langsung tutup modal secara senyap (tanpa alert popup)
@@ -198,6 +203,7 @@ export default function KelolaEventClient() {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Gagal menyimpan ke database:", error);
+      alert("Gagal menyimpan perubahan ke server!");
     } finally {
       setIsSaving(false);
     }
@@ -306,8 +312,8 @@ export default function KelolaEventClient() {
       <div className="space-y-6">
         {isLoading ? (
           <div className="text-center py-12 text-slate-400 text-sm">Memuat data dari database...</div>
-        ) : filteredEvents.length > 0 ? (
-          filteredEvents.map((ev) => {
+        ) : currentEvents.length > 0 ? (
+          currentEvents.map((ev) => {
             const isDraft = ev.status === "DRAFT";
             const isRejected = ev.status === "DITOLAK";
 
@@ -316,11 +322,18 @@ export default function KelolaEventClient() {
                 
                 {/* ================= SISI KIRI: GAMBAR & DETAIL INFO ================= */}
                 <div className="flex gap-6 flex-1 min-w-0 pr-6">
-                  <div className="relative w-[240px] h-[135px] rounded-[20px] overflow-hidden bg-slate-900 shrink-0">
-                    <img src={ev.img} alt="" className={`w-full h-full object-cover ${isRejected ? 'opacity-40 grayscale' : 'opacity-80'}`} />
+                  <div className="relative w-[240px] h-[135px] rounded-[20px] overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                    {ev.img ? (
+                      <img src={ev.img} alt="" className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${isRejected ? 'opacity-40 grayscale' : 'opacity-100'}`} />
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50">
+                        <ImageIcon size={32} strokeWidth={1.5} className="mb-2 opacity-60" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">No Cover</span>
+                      </div>
+                    )}
                     {isRejected && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Ban size={32} className="text-white opacity-90" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30 backdrop-blur-[1px]">
+                        <Ban size={32} className="text-white opacity-90 drop-shadow-md" />
                       </div>
                     )}
                   </div>
@@ -400,13 +413,43 @@ export default function KelolaEventClient() {
       </div>
 
       {/* PAGINATION */}
-      <div className="flex justify-end items-center gap-2 mt-8 pb-10">
-        <button className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-white transition-colors"><ChevronLeft size={18}/></button>
-        <button className="w-9 h-9 flex items-center justify-center bg-[#1E293B] text-white rounded-lg font-bold text-sm">1</button>
-        <button className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-600 font-bold text-sm hover:bg-white">2</button>
-        <span className="px-1 text-slate-300">...</span>
-        <button className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-white"><ChevronRight size={18}/></button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-end items-center gap-2 mt-8 pb-10">
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft size={18}/>
+          </button>
+          
+          {Array.from({ length: totalPages }).map((_, idx) => {
+            const pageNum = idx + 1;
+            // Simplified pagination view for a few pages
+            return (
+              <button 
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm transition-colors ${
+                  currentPage === pageNum 
+                    ? 'bg-[#1E293B] text-white' 
+                    : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+
+          <button 
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronRight size={18}/>
+          </button>
+        </div>
+      )}
 
       {/* MODAL POP-UP EDIT */}
       {isModalOpen && (

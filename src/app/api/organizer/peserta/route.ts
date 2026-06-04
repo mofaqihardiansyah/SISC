@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { pendaftaran, peserta, event } from "@/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, ilike, or, desc, count } from "drizzle-orm";
 import { auth } from "@/auth";
 
 // ── GET: Ambil daftar peserta milik organizer yang login ──────
@@ -20,74 +20,74 @@ export async function GET(req: NextRequest) {
     const perPage  = parseInt(searchParams.get("perPage") ?? "10");
     const offset   = (page - 1) * perPage;
 
-    // Ambil semua event milik organizer ini
-    const eventOrganizer = await db
-      .select({ id: event.id, judul: event.judul })
-      .from(event)
-      .where(eq(event.organizerId, organizerId));
-
-    if (eventOrganizer.length === 0) {
-      return NextResponse.json({ data: [], total: 0 });
-    }
-
-    const eventIds = eventOrganizer.map((e) => e.id);
-    const eventMap = Object.fromEntries(eventOrganizer.map((e) => [e.id, e.judul]));
-
     // Build kondisi status
     const statusCondition =
       status === "semua"
         ? undefined
         : eq(pendaftaran.status, status as "terdaftar" | "hadir" | "dibatalkan");
 
-    // Build kondisi event (IN)
-    const eventCondition = sql`${pendaftaran.eventId} = ANY(ARRAY[${sql.join(
-      eventIds.map((id) => sql`${id}`),
-      sql`, `
-    )}]::int[])`;
+    // Build kondisi search
+    const searchCondition = search
+      ? or(
+          ilike(peserta.namaLengkap, `%${search}%`),
+          ilike(peserta.email, `%${search}%`),
+          ilike(peserta.nomorTelepon, `%${search}%`)
+        )
+      : undefined;
 
-    // Ambil data dengan join peserta
-    const allPendaftaran = await db.query.pendaftaran.findMany({
-      where: statusCondition
-        ? and(eventCondition, statusCondition)
-        : eventCondition,
-      with: {
-        peserta: true,
-      },
-      orderBy: (p, { desc }) => [desc(p.dibuatPada)],
-    });
+    // Build combined WHERE conditions
+    const whereCondition = and(
+      eq(event.organizerId, organizerId),
+      statusCondition,
+      searchCondition
+    );
 
-    // Filter search di sisi aplikasi (untuk fleksibilitas)
-    const filtered = search
-      ? allPendaftaran.filter((p) => {
-          const pesertaItem = p.peserta?.[0];
-          const q = search.toLowerCase();
-          return (
-            pesertaItem?.namaLengkap?.toLowerCase().includes(q) ||
-            pesertaItem?.email?.toLowerCase().includes(q) ||
-            pesertaItem?.nomorTelepon?.includes(q)
-          );
-        })
-      : allPendaftaran;
+    // Ambil data menggunakan Query Builder dengan limit & offset
+    const rawData = await db
+      .select({
+        pendaftaranId: pendaftaran.id,
+        kodePendaftaran: pendaftaran.kodePendaftaran,
+        status: pendaftaran.status,
+        dibuatPada: pendaftaran.dibuatPada,
+        buktiPembayaran: pendaftaran.buktiPembayaran,
+        namaEvent: event.judul,
+        peserta: {
+          id: peserta.id,
+          namaLengkap: peserta.namaLengkap,
+          email: peserta.email,
+          nomorTelepon: peserta.nomorTelepon,
+          jenisKelamin: peserta.jenisKelamin,
+        },
+        pendaftarAvatar: sql<string>`users.avatar_url`,
+      })
+      .from(pendaftaran)
+      .innerJoin(event, eq(pendaftaran.eventId, event.id))
+      .leftJoin(peserta, eq(pendaftaran.id, peserta.pendaftaranId))
+      .leftJoin(sql`users`, eq(pendaftaran.userId, sql`users.id`))
+      .where(whereCondition)
+      .orderBy(desc(pendaftaran.dibuatPada))
+      .limit(perPage)
+      .offset(offset);
 
-    const total = filtered.length;
-    const paginated = filtered.slice(offset, offset + perPage);
+    // Ambil total count secara paralel
+    const [countResult] = await db
+      .select({ value: count() })
+      .from(pendaftaran)
+      .innerJoin(event, eq(pendaftaran.eventId, event.id))
+      .leftJoin(peserta, eq(pendaftaran.id, peserta.pendaftaranId))
+      .where(whereCondition);
 
-    const data = paginated.map((p) => ({
-      pendaftaranId: p.id,
-      kodePendaftaran: p.kodePendaftaran,
-      status: p.status,
-      dibuatPada: p.dibuatPada,
-      buktiPembayaran: p.buktiPembayaran,
-      namaEvent: eventMap[p.eventId ?? 0] ?? "Event",
-      peserta: p.peserta?.[0]
-        ? {
-            id: p.peserta[0].id,
-            namaLengkap: p.peserta[0].namaLengkap,
-            email: p.peserta[0].email,
-            nomorTelepon: p.peserta[0].nomorTelepon,
-            jenisKelamin: p.peserta[0].jenisKelamin,
-          }
-        : null,
+    const total = countResult.value;
+
+    const data = rawData.map((row) => ({
+      pendaftaranId: row.pendaftaranId,
+      kodePendaftaran: row.kodePendaftaran,
+      status: row.status,
+      dibuatPada: row.dibuatPada,
+      buktiPembayaran: row.buktiPembayaran,
+      namaEvent: row.namaEvent,
+      avatarUrl: row.pendaftarAvatar === "/uploads/avatars/fotodummy.jpg" ? null : row.pendaftarAvatar,
+      peserta: row.peserta?.id ? row.peserta : null,
     }));
 
     return NextResponse.json({ data, total });
