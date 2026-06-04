@@ -62,12 +62,13 @@ export default function LoginPage() {
 
         toast.success('Berhasil masuk!');
         
+        router.refresh();
         if (role === 'admin') {
-          router.push('/admin/dashboard');
+          window.location.href = '/admin/dashboard';
         } else if (role === 'organizer') {
-          router.push('/penyelenggara');
+          window.location.href = '/penyelenggara';
         } else {
-          router.push('/');
+          window.location.href = '/';
         }
       }
     } catch (error) {
