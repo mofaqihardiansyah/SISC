@@ -15,7 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       async authorize(credentials) {
         const parsedCredentials = z
-          .object({ email: z.string().email(), password: z.string().min(6), role: z.string().optional() })
+          .object({ email: z.string().email(), password: z.string().min(8), role: z.string().optional() })
           .safeParse(credentials);
 
         if (parsedCredentials.success) {
@@ -26,6 +26,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!user || !user.password) {
             console.log(`[AUTH] Login ditolak: User tidak ditemukan (${email})`);
             return null;
+          }
+
+          // Cek jika akun ditangguhkan (Suspended)
+          if (user.isSuspended) {
+            console.log(`[AUTH] Login ditolak: Akun ditangguhkan (${email})`);
+            throw new Error("Akun Anda telah ditangguhkan. Silakan hubungi admin.");
           }
 
           // Pastikan email sudah terverifikasi

@@ -6,10 +6,11 @@ import HeroSlider from "@/components/shared/HeroSlider";
 import KategoriCarousel from "@/components/shared/KategoriCarousel";
 import EventSection from "@/components/shared/EventSection";
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function BerandaPage() {
   const [session, categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
-  auth(),
+    auth(),
     db.select().from(kategori),
 
     db
@@ -63,8 +64,17 @@ export default async function BerandaPage() {
       .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada), eq(event.status, 'published')))
       .limit(8),
   ]);
+
+  if (session?.user) {
+    const role = (session.user as { role?: string }).role;
+    if (role === 'admin') {
+      redirect('/admin/dashboard');
+    } else if (role === 'organizer') {
+      redirect('/penyelenggara');
+    }
+  }
   
-const isLoggedIn = !!session?.user;
+  const isLoggedIn = !!session?.user;
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       {/* HERO */}

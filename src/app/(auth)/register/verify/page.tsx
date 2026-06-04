@@ -33,33 +33,7 @@ function VerifyContent() {
       return;
     }
 
-    toast.success('Verifikasi berhasil! Akun anda telah aktif.');
-    
-    // Auto login
-    const tempPass = sessionStorage.getItem('temp_pass');
-    sessionStorage.removeItem('temp_pass');
-    if (tempPass) {
-      const signInResult = await signIn('credentials', {
-        email,
-        password: tempPass,
-        redirect: false
-      });
-      
-      if (signInResult?.ok) {
-        const session = await getSession();
-        const role = (session?.user as { role?: string })?.role;
-
-        if (role === 'admin') {
-          window.location.assign('/admin/dashboard');
-        } else if (role === 'organizer') {
-          window.location.assign('/penyelenggara');
-        } else {
-          window.location.assign('/');
-        }
-        return;
-      }
-    }
-    
+    toast.success('Verifikasi berhasil! Akun anda telah aktif. Silakan login.');
     setIsVerifying(false);
     router.push('/login');
   };
