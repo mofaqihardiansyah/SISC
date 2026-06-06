@@ -15,26 +15,44 @@ interface DataPoint {
 
 interface EventChartProps {
   initialData: DataPoint[];
+  selectedEventId?: string;
 }
 
-export function EventChart({ initialData }: EventChartProps) {
+export function EventChart({ initialData, selectedEventId }: EventChartProps) {
   const [filter, setFilter] = useState<FilterType>("bulan-ini");
   const [data, setData] = useState<DataPoint[]>(initialData);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (filter === "bulan-ini") {
-      return;
-    }
     const controller = new AbortController();
-    fetch(`/api/organizer/grafik?filter=${filter}`, { signal: controller.signal })
-      .then(r => { setLoading(true); return r.json(); })
-      .then(setData)
-      .finally(() => setLoading(false));
-    return () => controller.abort();
-  }, [filter]);
+    const url = new URL("/api/organizer/grafik", window.location.origin);
+    url.searchParams.set("filter", filter);
+    if (selectedEventId && selectedEventId !== "all") {
+      url.searchParams.set("eventId", selectedEventId);
+    }
 
-  const displayData = filter === "bulan-ini" ? initialData : data;
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(url.toString(), { signal: controller.signal });
+        if (!res.ok) throw new Error("Gagal mengambil data grafik peserta");
+        const json = await res.json();
+        setData(json);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error(error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => controller.abort();
+  }, [filter, selectedEventId]);
+
+  const displayData = data;
 
   return (
     <div>

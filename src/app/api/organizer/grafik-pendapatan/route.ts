@@ -11,6 +11,7 @@ export async function GET(req: Request) {
   const userId = parseInt(session.user.id, 10);
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get("filter") ?? "bulan-ini";
+  const eventId = searchParams.get("eventId");
 
   const today = new Date();
   let awal: Date, akhir: Date, formatSQL: string;
@@ -39,6 +40,16 @@ export async function GET(req: Request) {
     groupByLabel = (d) => d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
   }
 
+  const conditions = [
+    eq(event.organizerId, userId),
+    gte(pendaftaran.dibuatPada, awal),
+    lte(pendaftaran.dibuatPada, akhir),
+  ];
+
+  if (eventId && eventId !== "all") {
+    conditions.push(eq(event.id, parseInt(eventId, 10)));
+  }
+
   // Pendapatan = jumlah pendaftaran × harga event
   const rawData = await db
     .select({
@@ -47,11 +58,7 @@ export async function GET(req: Request) {
     })
     .from(pendaftaran)
     .innerJoin(event, eq(pendaftaran.eventId, event.id))
-    .where(and(
-      eq(event.organizerId, userId),
-      gte(pendaftaran.dibuatPada, awal),
-      lte(pendaftaran.dibuatPada, akhir),
-    ))
+    .where(and(...conditions))
     .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, '${sql.raw(formatSQL)}')`)
     .orderBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, '${sql.raw(formatSQL)}')`);
 
