@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { event, pendaftaran } from "@/db/schema";
+import { event, pendaftaran, peserta } from "@/db/schema";
 import { count, eq, and, gte, lte, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
@@ -11,6 +11,7 @@ export async function GET(req: Request) {
   const userId = parseInt(session.user.id, 10);
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get("filter") ?? "bulan-ini";
+  const eventId = searchParams.get("eventId");
 
   const today = new Date();
   let awal: Date;
@@ -50,18 +51,25 @@ export async function GET(req: Request) {
     groupByLabel = (d) => d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
   }
 
+  const conditions = [
+    eq(event.organizerId, userId),
+    gte(pendaftaran.dibuatPada, awal),
+    lte(pendaftaran.dibuatPada, akhir),
+  ];
+
+  if (eventId && eventId !== "all") {
+    conditions.push(eq(event.id, parseInt(eventId, 10)));
+  }
+
   const rawData = await db
     .select({
       tanggal: sql<string>`TO_CHAR(${pendaftaran.dibuatPada}, '${sql.raw(formatSQL)}')`,
-      jumlah: count(),
+      jumlah: count(peserta.id),
     })
-    .from(pendaftaran)
+    .from(peserta)
+    .innerJoin(pendaftaran, eq(peserta.pendaftaranId, pendaftaran.id))
     .innerJoin(event, eq(pendaftaran.eventId, event.id))
-    .where(and(
-      eq(event.organizerId, userId),
-      gte(pendaftaran.dibuatPada, awal),
-      lte(pendaftaran.dibuatPada, akhir),
-    ))
+    .where(and(...conditions))
     .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, '${sql.raw(formatSQL)}')`)
     .orderBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, '${sql.raw(formatSQL)}')`);
 
