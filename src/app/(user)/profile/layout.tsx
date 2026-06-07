@@ -23,7 +23,9 @@ export default async function ProfileLayout({ children }: { children: React.Reac
 
         {/* PAGE CONTENT */}
         <main className="flex-1 p-8">
-          {children}
+          <div className="max-w-7xl mx-auto w-full animate-page-fade-in">
+            {children}
+          </div>
         </main>
       </div>
     </div>

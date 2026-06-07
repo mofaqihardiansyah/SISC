@@ -51,12 +51,12 @@ export default async function Navbar() {
             <div className="flex items-center gap-4">
               <Link 
                 href="/register"
-                className="px-4 py-2 rounded-md transition-all duration-300 hover:bg-white/10 active:scale-95"
+                className="px-4 py-2 rounded-xl transition-all duration-200 hover:bg-white/10 active:scale-[0.98]"
               >
                 Daftar
               </Link>
               <Link href="/login">
-                <button className="bg-white text-black px-5 py-2 rounded-md font-bold transition-all duration-300 hover:bg-gray-100 hover:scale-105 active:scale-95 cursor-pointer">
+                <button className="bg-white text-slate-900 px-5 py-2 rounded-xl font-bold transition-all duration-200 hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md cursor-pointer">
                   Masuk
                 </button>
               </Link>

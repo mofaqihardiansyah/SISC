@@ -8,12 +8,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-[#F9FAFB]">
+    <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <Topbar title="Dashboard" />
-        <main className="flex-1 overflow-y-auto p-8 bg-[#F3F4F6]/50">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto p-8 bg-slate-100/30">
+          <div className="max-w-7xl mx-auto animate-page-fade-in">
             {children}
           </div>
         </main>

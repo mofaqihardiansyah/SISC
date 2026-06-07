@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function SettingsPage() {
   const [passKonfirm, setPassKonfirm] = useState('');
   const [loadingPass, setLoadingPass] = useState(false);
   const [errorPass, setErrorPass] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // FETCH DATA USER
   useEffect(() => {
@@ -193,7 +195,7 @@ export default function SettingsPage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
               >
                 {isUploading ? 'Mengupload...' : 'Ubah Foto Profil'}
               </button>
@@ -255,7 +257,7 @@ export default function SettingsPage() {
 
           <button
             onClick={handleSave}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold"
+            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
           >
             Simpan Perubahan
           </button>
@@ -266,42 +268,57 @@ export default function SettingsPage() {
       <section className="bg-white rounded-xl border border-slate-200 p-8 shadow-xs">
         <h2 className="text-2xl font-bold mb-6">Keamanan & Privasi</h2>
 
-        <div className="space-y-4 max-w-md">
+        <div className="space-y-4 max-w-md relative">
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Saat Ini</label>
-            <input
-              type="password"
-              value={passLama}
-              onChange={(e) => setPassLama(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg"
-              placeholder="Masukkan kata sandi lama"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={passLama}
+                onChange={(e) => setPassLama(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg pr-12"
+                placeholder="Masukkan kata sandi lama"
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Baru</label>
-            <input
-              type="password"
-              value={passBaru}
-              onChange={(e) => setPassBaru(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg"
-              placeholder="Masukkan kata sandi baru"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={passBaru}
+                onChange={(e) => setPassBaru(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg pr-12"
+                placeholder="Masukkan kata sandi baru"
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Konfirmasi Kata Sandi Baru</label>
-            <input
-              type="password"
-              value={passKonfirm}
-              onChange={(e) => setPassKonfirm(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg"
-              placeholder="Ketik ulang kata sandi baru"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={passKonfirm}
+                onChange={(e) => setPassKonfirm(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg pr-12"
+                placeholder="Ketik ulang kata sandi baru"
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           {errorPass && <p className="text-sm text-red-600">{errorPass}</p>}
           <button
             onClick={handleUpdatePassword}
             disabled={loadingPass}
-            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold disabled:opacity-50"
+            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
           >
             {loadingPass ? 'Menyimpan...' : 'Perbarui Kata Sandi'}
           </button>
@@ -316,7 +333,7 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setShowDeleteModal(true)}
-          className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg"
+          className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
         >
           Hapus Akun
         </button>
@@ -337,14 +354,14 @@ export default function SettingsPage() {
             <div className="flex gap-4">
               <button
                 onClick={handleDelete}
-                className="flex-1 bg-red-600 text-white py-2 rounded"
+                className="flex-1 bg-red-600 text-white py-2 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
               >
                 Iya
               </button>
 
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 bg-gray-300 py-2 rounded"
+                className="flex-1 bg-slate-200 text-slate-700 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
               >
                 Tidak
               </button>

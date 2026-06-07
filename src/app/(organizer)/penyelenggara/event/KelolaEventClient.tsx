@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon } from "lucide-react";
+import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 
 interface EventData {
@@ -226,7 +226,7 @@ export default function KelolaEventClient() {
             <input 
               type="text" 
               placeholder="Cari nama event..." 
-              className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-400"
+              className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl outline-none text-sm focus:border-slate-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -318,7 +318,7 @@ export default function KelolaEventClient() {
             const isRejected = ev.status === "DITOLAK";
 
             return (
-              <div key={ev.id} className="bg-white p-6 rounded-[24px] border border-slate-100 flex items-center justify-between shadow-sm hover:border-blue-200 transition-all">
+              <div key={ev.id} className="bg-white p-6 rounded-[24px] border border-slate-100 flex items-center justify-between shadow-sm hover:border-slate-300 transition-all">
                 
                 {/* ================= SISI KIRI: GAMBAR & DETAIL INFO ================= */}
                 <div className="flex gap-6 flex-1 min-w-0 pr-6">
@@ -350,9 +350,9 @@ export default function KelolaEventClient() {
                       <span className="text-slate-300">• {ev.sub}</span>
                     </div>
                     <h3 className="font-bold text-[#1E293B] text-xl leading-tight mb-1 truncate">{ev.judul}</h3>
-                    <p className="text-[12px] text-slate-400 flex items-center gap-1.5">
-                      {isDraft ? "✎" : "🗓️"} {ev.tanggal}
-                    </p>
+                    <div className="text-[12px] text-slate-400 flex items-center gap-1.5">
+                      {isDraft ? <Edit3 size={12} className="shrink-0" /> : <Calendar size={12} className="shrink-0" />} <span>{ev.tanggal}</span>
+                    </div>
                     {isRejected && (
                       <div className="flex items-center gap-1.5 mt-2.5 text-red-400">
                         <Info size={14} />
@@ -385,8 +385,8 @@ export default function KelolaEventClient() {
                 <div className="shrink-0 pl-4">
                   <button 
                     onClick={() => !isRejected && openEditModal(ev)}
-                    className={`min-w-[150px] py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
-                      isRejected ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-[#00478F] text-white hover:bg-[#00356B]'
+                    className={`min-w-[150px] py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                      isRejected ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md'
                     }`}
                   >
                     {isDraft ? "Lanjutkan" : "Kelola Event"}
@@ -418,7 +418,7 @@ export default function KelolaEventClient() {
           <button 
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-xl text-slate-400 hover:bg-slate-50 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft size={18}/>
           </button>
@@ -430,9 +430,9 @@ export default function KelolaEventClient() {
               <button 
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
-                className={`w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm transition-colors ${
+                className={`w-9 h-9 flex items-center justify-center rounded-xl font-bold text-sm transition-all duration-200 hover:scale-105 active:scale-95 ${
                   currentPage === pageNum 
-                    ? 'bg-[#1E293B] text-white' 
+                    ? 'bg-slate-900 text-white' 
                     : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
@@ -444,7 +444,7 @@ export default function KelolaEventClient() {
           <button 
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
-            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-xl text-slate-400 hover:bg-slate-50 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronRight size={18}/>
           </button>
@@ -460,7 +460,7 @@ export default function KelolaEventClient() {
               <h2 className="text-xl font-bold text-[#1E293B]">
                 {selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-full text-slate-400 transition-colors" disabled={isSaving}>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-full text-slate-400 transition-all duration-200 hover:scale-110 active:scale-90" disabled={isSaving}>
                 <X size={24}/>
               </button>
             </div>
@@ -589,7 +589,7 @@ export default function KelolaEventClient() {
             <div className="p-6 border-t border-slate-100 flex gap-4 bg-slate-50/50">
               <button 
                 onClick={() => setIsModalOpen(false)} 
-                className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-slate-500 hover:bg-white transition-all text-sm"
+                className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-slate-500 hover:bg-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md text-sm"
                 disabled={isSaving}
               >
                 Batal
@@ -597,7 +597,7 @@ export default function KelolaEventClient() {
               <button 
                 onClick={handleSimpanPerubahan}
                 disabled={isSaving}
-                className="flex-1 py-3 bg-[#00478F] text-white rounded-xl font-bold hover:bg-[#00356B] transition-all shadow-lg shadow-blue-900/10 text-sm flex items-center justify-center"
+                className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl text-sm flex items-center justify-center"
               >
                 {isSaving ? "Menyimpan..." : (selectedEvent?.status === "DRAFT" ? "Simpan Draft" : "Simpan Perubahan")}
               </button>

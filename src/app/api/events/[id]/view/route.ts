@@ -5,9 +5,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const eventId = Number(params.id);
+  const resolvedParams = await params;
+  const eventId = Number(resolvedParams.id);
 
   if (isNaN(eventId)) {
     return NextResponse.json(

@@ -260,11 +260,17 @@ export default function ManajemenUserPage() {
 
   // ── Filter ──────────────────────────────────────────────────────────────────
 
-  const applyFilter = () => {
-    setSearch(searchInput);
-    setTipe(tipeInput);
-    setCurrentPage(1);
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (search !== searchInput || tipe !== tipeInput) {
+        setSearch(searchInput);
+        setTipe(tipeInput);
+        setCurrentPage(1);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput, tipeInput, search, tipe]);
+
 
   // ── Selection ───────────────────────────────────────────────────────────────
 
@@ -347,7 +353,7 @@ export default function ManajemenUserPage() {
               </span>
               <button
                 onClick={() => setBulkDeleteModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
               >
                 <Trash2 className="w-3 h-3" />
                 Hapus Massal
@@ -371,24 +377,19 @@ export default function ManajemenUserPage() {
               <input type="text" placeholder="Nama atau email..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && applyFilter()}
-                className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700"
+                className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:outline-none focus:ring-2 focus:ring-slate-100 text-gray-700"
               />
             </div>
           </div>
           <div className="min-w-[140px]">
             <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Peran</label>
             <select value={tipeInput} onChange={(e) => setTipeInput(e.target.value)}
-              className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none text-gray-700">
+              className="w-full px-3 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:outline-none text-gray-700">
               <option>Semua Tipe</option>
               <option value="organizer">Organizer</option>
               <option value="visitor">Visitor</option>
             </select>
           </div>
-          <button onClick={applyFilter}
-            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
-            Terapkan Filter
-          </button>
         </div>
 
         {/* Table */}
@@ -398,7 +399,7 @@ export default function ManajemenUserPage() {
               <tr>
                 <th className="px-6 py-3 w-10 text-center">
                   <input type="checkbox" checked={allPageSelected} onChange={toggleAll}
-                    className="accent-blue-600 cursor-pointer w-3.5 h-3.5" />
+                    className="accent-slate-900 cursor-pointer w-3.5 h-3.5" />
                 </th>
                 {/* Sortable columns */}
                 {(["namaLengkap", "role", "dibuatPada"] as SortField[]).map((field) => {
@@ -434,14 +435,14 @@ export default function ManajemenUserPage() {
                     className={`hover:bg-slate-50/25 transition-colors ${selectedRows.includes(user.id) ? "bg-blue-50/30" : ""}`}>
                     <td className="px-6 py-3.5 text-center">
                       <input type="checkbox" checked={selectedRows.includes(user.id)} onChange={() => toggleRow(user.id)}
-                        className="accent-blue-600 cursor-pointer w-3.5 h-3.5" />
+                        className="accent-slate-900 cursor-pointer w-3.5 h-3.5" />
                     </td>
                     <td className="px-6 py-3.5">
                       <button className="flex items-center gap-2.5 text-left hover:opacity-80 transition-opacity"
                         onClick={() => setDetailUserId(user.id)}>
                         <Avatar user={user} />
                         <div>
-                          <div className="font-semibold text-gray-800 text-[13px] hover:text-blue-600 transition-colors">{user.namaLengkap}</div>
+                          <div className="font-semibold text-gray-800 text-[13px] hover:text-slate-700 transition-colors">{user.namaLengkap}</div>
                           <div className="text-[10px] text-gray-400">{user.email}</div>
                         </div>
                       </button>
@@ -457,11 +458,11 @@ export default function ManajemenUserPage() {
                     <td className="px-6 py-3.5">
                       <div className="flex gap-1.5">
                         <button onClick={() => setDetailUserId(user.id)}
-                          className="w-6 h-6 rounded-md bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-500 transition-colors" title="Lihat Detail">
+                          className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-all duration-200 hover:scale-110 active:scale-90 shadow-sm" title="Lihat Detail">
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => setDeleteModal(user.id)}
-                          className="w-6 h-6 rounded-md bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors">
+                          className="w-6 h-6 rounded-lg bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 transition-all duration-200 hover:scale-110 active:scale-90 shadow-sm">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -481,7 +482,7 @@ export default function ManajemenUserPage() {
           </span>
           <div className="flex gap-1 items-center">
             <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}
-              className="w-7 h-7 rounded-lg border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-colors">
+              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95">
               <ChevronLeft className="w-3.5 h-3.5 text-gray-500" />
             </button>
             {getPageButtons().map((p, i) =>
@@ -489,13 +490,13 @@ export default function ManajemenUserPage() {
                 <span key={`d${i}`} className="text-gray-400 px-1 text-xs">...</span>
               ) : (
                 <button key={p} onClick={() => setCurrentPage(p as number)}
-                  className={`w-7 h-7 rounded-lg text-xs font-medium transition-colors ${currentPage === p ? "bg-blue-600 text-white" : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}>
+                  className={`w-7 h-7 rounded-xl text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${currentPage === p ? "bg-slate-900 text-white shadow-sm" : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"}`}>
                   {p}
                 </button>
               )
             )}
             <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-              className="w-7 h-7 rounded-lg border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-colors">
+              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95">
               <ChevronRight className="w-3.5 h-3.5 text-gray-500" />
             </button>
           </div>
@@ -515,11 +516,11 @@ export default function ManajemenUserPage() {
             <p className="text-xs text-gray-500 mb-5">Apakah kamu yakin ingin menghapus pengguna ini? Tindakan ini tidak bisa dibatalkan.</p>
             <div className="flex gap-2 justify-end">
               <button onClick={() => setDeleteModal(null)} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
+                className="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm disabled:opacity-50">
                 Batal
               </button>
               <button onClick={() => handleDelete(deleteModal)} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm flex items-center gap-1.5 disabled:opacity-50">
                 {deleteLoading && <Loader2 className="w-3 h-3 animate-spin" />}Hapus
               </button>
             </div>
@@ -537,11 +538,11 @@ export default function ManajemenUserPage() {
             </p>
             <div className="flex gap-2 justify-end">
               <button onClick={() => setBulkDeleteModal(false)} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
+                className="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm disabled:opacity-50">
                 Batal
               </button>
               <button onClick={handleBulkDelete} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm flex items-center gap-1.5 disabled:opacity-50">
                 {deleteLoading && <Loader2 className="w-3 h-3 animate-spin" />}Hapus {selectedRows.length} User
               </button>
             </div>

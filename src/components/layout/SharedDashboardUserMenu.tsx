@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Home } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
@@ -72,6 +72,16 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
           </div>
           
           <div className="py-1">
+            {(roleTitle === "visitor" || roleTitle === "Pengunjung") && (
+              <Link 
+                href="/"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-100 pb-2 mb-1"
+                onClick={() => setIsOpen(false)}
+              >
+                <Home className="w-4 h-4 text-gray-500" />
+                <span>Beranda</span>
+              </Link>
+            )}
             {menuItems.map((item, idx) => (
               <Link 
                 key={idx}

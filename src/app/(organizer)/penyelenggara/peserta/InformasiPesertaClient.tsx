@@ -20,6 +20,7 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 
 // ============================================================
 // TIPE DATA
@@ -255,13 +256,15 @@ function LampiranPopup({
             />
           ) : (
             <div className="text-center py-10">
-              <div className="text-5xl mb-3">📎</div>
-              <p className="text-sm text-gray-500 mb-3">Berkas tidak dapat dipreview</p>
+              <div className="flex justify-center mb-3 text-slate-300">
+                <Paperclip size={48} />
+              </div>
+              <p className="text-sm text-slate-500 mb-3">Berkas tidak dapat dipreview</p>
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-blue-600 hover:underline font-bold"
+                className="text-sm text-slate-900 hover:text-slate-700 hover:underline font-bold"
               >
                 Unduh Berkas
               </a>
@@ -336,8 +339,8 @@ export default function InformasiPesertaClient() {
     }
   };
 
-  // ── Export CSV ───────────────────────────────────────────────
-  const exportCSV = async () => {
+  // ── Export Excel ───────────────────────────────────────────────
+  const exportExcel = async () => {
     setExporting(true);
     try {
       const params = new URLSearchParams({
@@ -350,34 +353,21 @@ export default function InformasiPesertaClient() {
       const json = await res.json();
       const allData: PesertaData[] = json.data ?? [];
 
-      const header = [
-        "Nama",
-        "Email",
-        "No. HP",
-        "Event",
-        "Status",
-        "Kode Pendaftaran",
-        "Tanggal Daftar",
-      ];
-      const rows = allData.map((p) => [
-        `"${p.peserta?.namaLengkap ?? "-"}"`,
-        `"${p.peserta?.email ?? "-"}"`,
-        `"${p.peserta?.nomorTelepon ?? "-"}"`,
-        `"${p.namaEvent}"`,
-        `"${p.status === "hadir" ? "DISETUJUI" : p.status === "terdaftar" ? "MENUNGGU" : "DITOLAK"}"`,
-        `"${p.kodePendaftaran}"`,
-        `"${new Date(p.dibuatPada).toLocaleDateString("id-ID")}"`,
-      ]);
-      const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `peserta_${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const excelData = allData.map((p, i) => ({
+        "No.": i + 1,
+        "Peserta": p.peserta?.namaLengkap ?? "-",
+        "Event": p.namaEvent,
+        "Email": p.peserta?.email ?? "-",
+        "Nomor HP": p.peserta?.nomorTelepon ?? "-",
+        "Status": p.status === "hadir" ? "DISETUJUI" : p.status === "terdaftar" ? "MENUNGGU" : "DITOLAK",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Peserta");
+      XLSX.writeFile(workbook, `Peserta_${new Date().toISOString().slice(0, 10)}.xlsx`);
     } catch (err) {
-      console.error("Export CSV gagal:", err);
+      console.error("Export Excel gagal:", err);
     } finally {
       setExporting(false);
     }
@@ -425,13 +415,13 @@ export default function InformasiPesertaClient() {
             placeholder="Cari nama peserta, email, atau nomor telepon..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] bg-white text-slate-700 font-medium"
+            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-slate-700 font-medium"
           />
         </div>
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] min-w-[160px] text-slate-600 font-semibold cursor-pointer"
+          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-[160px] text-slate-600 font-semibold cursor-pointer"
         >
           <option value="semua">Semua Status</option>
           <option value="hadir">Terverifikasi</option>
@@ -449,7 +439,7 @@ export default function InformasiPesertaClient() {
             <span className="text-gray-400 font-normal">({totalData} Total)</span>
           </p>
           <button
-            onClick={exportCSV}
+            onClick={exportExcel}
             disabled={exporting}
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -458,7 +448,7 @@ export default function InformasiPesertaClient() {
             ) : (
               <Download size={13} />
             )}
-            {exporting ? "Mengekspor..." : "Export CSV"}
+            {exporting ? "Mengekspor..." : "Export Excel"}
           </button>
         </div>
 
@@ -611,7 +601,7 @@ export default function InformasiPesertaClient() {
                     onClick={() => setPage(pg as number)}
                     className={`w-7 h-7 flex items-center justify-center rounded text-xs font-semibold border transition-colors cursor-pointer ${
                       page === pg
-                        ? "bg-[#1E3A8A] text-white border-[#1E3A8A]"
+                        ? "bg-primary text-white border-primary"
                         : "border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                   >
