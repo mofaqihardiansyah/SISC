@@ -11,7 +11,16 @@ import {
   Paperclip,
   X,
   ExternalLink,
+  CheckCircle,
+  Clock,
+  UserX,
+  Check,
+  XCircle,
+  Info,
+  RotateCcw,
+  Trash2,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 
 // ============================================================
 // TIPE DATA
@@ -25,6 +34,7 @@ interface PesertaData {
   dibuatPada: string;
   buktiPembayaran: string | null;
   namaEvent: string;
+  avatarUrl?: string | null;
   peserta: {
     id: number;
     namaLengkap: string;
@@ -66,10 +76,7 @@ function StatusBadge({ status }: { status: StatusPendaftaran }) {
   if (status === "hadir") {
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-green-300 bg-green-50 text-green-600">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
+        <CheckCircle size={13} strokeWidth={2.5} />
         DISETUJUI
       </span>
     );
@@ -77,10 +84,7 @@ function StatusBadge({ status }: { status: StatusPendaftaran }) {
   if (status === "terdaftar") {
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-yellow-300 bg-yellow-50 text-yellow-600">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
+        <Clock size={13} strokeWidth={2.5} />
         MENUNGGU
       </span>
     );
@@ -88,12 +92,7 @@ function StatusBadge({ status }: { status: StatusPendaftaran }) {
   // dibatalkan
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-red-300 bg-red-50 text-red-500">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <line x1="17" y1="8" x2="23" y2="14"/>
-        <line x1="23" y1="8" x2="17" y2="14"/>
-      </svg>
+      <UserX size={13} strokeWidth={2.5} />
       DITOLAK
     </span>
   );
@@ -128,10 +127,7 @@ function ActionButtons({
           title="Verifikasi"
           className="w-7 h-7 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
+          <Check size={14} strokeWidth={2.5} />
         </button>
         <button
           onClick={onTolak}
@@ -139,11 +135,7 @@ function ActionButtons({
           title="Tolak"
           className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" y1="9" x2="9" y2="15"/>
-            <line x1="9" y1="9" x2="15" y2="15"/>
-          </svg>
+          <X size={14} strokeWidth={2.5} />
         </button>
       </div>
     );
@@ -157,11 +149,7 @@ function ActionButtons({
           title="Detail"
           className="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="16" x2="12" y2="12"/>
-            <line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
+          <Info size={14} strokeWidth={2.5} />
         </button>
         <button
           onClick={onEdit}
@@ -169,10 +157,7 @@ function ActionButtons({
           title="Pulihkan"
           className="w-7 h-7 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/>
-          </svg>
+          <RotateCcw size={14} strokeWidth={2.5} />
         </button>
       </div>
     );
@@ -186,10 +171,7 @@ function ActionButtons({
         title="Ubah ke Menunggu"
         className="text-gray-400 hover:text-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/>
-        </svg>
+        <RotateCcw size={15} strokeWidth={2} />
       </button>
       <button
         onClick={onDelete}
@@ -197,10 +179,7 @@ function ActionButtons({
         title="Hapus/Tolak"
         className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
+        <Trash2 size={15} strokeWidth={2} />
       </button>
     </div>
   );
@@ -277,13 +256,15 @@ function LampiranPopup({
             />
           ) : (
             <div className="text-center py-10">
-              <div className="text-5xl mb-3">📎</div>
-              <p className="text-sm text-gray-500 mb-3">Berkas tidak dapat dipreview</p>
+              <div className="flex justify-center mb-3 text-slate-300">
+                <Paperclip size={48} />
+              </div>
+              <p className="text-sm text-slate-500 mb-3">Berkas tidak dapat dipreview</p>
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-blue-600 hover:underline font-bold"
+                className="text-sm text-slate-900 hover:text-slate-700 hover:underline font-bold"
               >
                 Unduh Berkas
               </a>
@@ -358,8 +339,8 @@ export default function InformasiPesertaClient() {
     }
   };
 
-  // ── Export CSV ───────────────────────────────────────────────
-  const exportCSV = async () => {
+  // ── Export Excel ───────────────────────────────────────────────
+  const exportExcel = async () => {
     setExporting(true);
     try {
       const params = new URLSearchParams({
@@ -372,34 +353,21 @@ export default function InformasiPesertaClient() {
       const json = await res.json();
       const allData: PesertaData[] = json.data ?? [];
 
-      const header = [
-        "Nama",
-        "Email",
-        "No. HP",
-        "Event",
-        "Status",
-        "Kode Pendaftaran",
-        "Tanggal Daftar",
-      ];
-      const rows = allData.map((p) => [
-        `"${p.peserta?.namaLengkap ?? "-"}"`,
-        `"${p.peserta?.email ?? "-"}"`,
-        `"${p.peserta?.nomorTelepon ?? "-"}"`,
-        `"${p.namaEvent}"`,
-        `"${p.status === "hadir" ? "DISETUJUI" : p.status === "terdaftar" ? "MENUNGGU" : "DITOLAK"}"`,
-        `"${p.kodePendaftaran}"`,
-        `"${new Date(p.dibuatPada).toLocaleDateString("id-ID")}"`,
-      ]);
-      const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `peserta_${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const excelData = allData.map((p, i) => ({
+        "No.": i + 1,
+        "Peserta": p.peserta?.namaLengkap ?? "-",
+        "Event": p.namaEvent,
+        "Email": p.peserta?.email ?? "-",
+        "Nomor HP": p.peserta?.nomorTelepon ?? "-",
+        "Status": p.status === "hadir" ? "DISETUJUI" : p.status === "terdaftar" ? "MENUNGGU" : "DITOLAK",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Peserta");
+      XLSX.writeFile(workbook, `Peserta_${new Date().toISOString().slice(0, 10)}.xlsx`);
     } catch (err) {
-      console.error("Export CSV gagal:", err);
+      console.error("Export Excel gagal:", err);
     } finally {
       setExporting(false);
     }
@@ -447,13 +415,13 @@ export default function InformasiPesertaClient() {
             placeholder="Cari nama peserta, email, atau nomor telepon..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] bg-white text-slate-700 font-medium"
+            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-slate-700 font-medium"
           />
         </div>
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] min-w-[160px] text-slate-600 font-semibold cursor-pointer"
+          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-[160px] text-slate-600 font-semibold cursor-pointer"
         >
           <option value="semua">Semua Status</option>
           <option value="hadir">Terverifikasi</option>
@@ -471,7 +439,7 @@ export default function InformasiPesertaClient() {
             <span className="text-gray-400 font-normal">({totalData} Total)</span>
           </p>
           <button
-            onClick={exportCSV}
+            onClick={exportExcel}
             disabled={exporting}
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -480,7 +448,7 @@ export default function InformasiPesertaClient() {
             ) : (
               <Download size={13} />
             )}
-            {exporting ? "Mengekspor..." : "Export CSV"}
+            {exporting ? "Mengekspor..." : "Export Excel"}
           </button>
         </div>
 
@@ -536,11 +504,19 @@ export default function InformasiPesertaClient() {
                       {/* Peserta & Event */}
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div
-                            className={`w-9 h-9 rounded-full ${warnaBg} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}
-                          >
-                            {inisial}
-                          </div>
+                          {item.avatarUrl ? (
+                            <img
+                              src={item.avatarUrl}
+                              alt={nama}
+                              className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div
+                              className={`w-9 h-9 rounded-full ${warnaBg} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}
+                            >
+                              {inisial}
+                            </div>
+                          )}
                           <div>
                             <p className="font-semibold text-gray-800 text-sm">{nama}</p>
                             <p className="text-xs text-gray-400">{event}</p>
@@ -625,7 +601,7 @@ export default function InformasiPesertaClient() {
                     onClick={() => setPage(pg as number)}
                     className={`w-7 h-7 flex items-center justify-center rounded text-xs font-semibold border transition-colors cursor-pointer ${
                       page === pg
-                        ? "bg-[#1E3A8A] text-white border-[#1E3A8A]"
+                        ? "bg-primary text-white border-primary"
                         : "border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                   >

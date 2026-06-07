@@ -5,26 +5,13 @@ import { useSearchParams } from 'next/navigation';
 import { SubmissionForm } from './SubmissionForm';
 import { EventList } from './EventList';
 import { SubmissionDetail } from './SubmissionDetail';
+import { SubmittedPaper } from '@/actions/paper';
 
 type RegisteredEvent = {
   id: number;
   judul: string;
   penyelenggara: string | null;
   tanggalMulai: Date;
-};
-
-type SubmittedPaper = {
-  id: number;
-  judul: string;
-  kataKunci?: string | null;
-  track?: string | null;
-  penulis: { nama: string; email: string; afiliasi: string; isCorresponding: boolean }[];
-  fileUrl: string;
-  status: 'review' | 'accepted' | 'rejected' | null;
-  komentarPenolakan: string | null;
-  dibuatPada: Date | null;
-  eventId: number;
-  eventJudul: string;
 };
 
 type ClientPageProps = {

@@ -19,6 +19,11 @@ export default async function RegistrasiEventPage({
     redirect("/login"); 
   }
 
+  const role = (session.user as { role?: string }).role;
+  if (role !== 'visitor') {
+    redirect("/"); 
+  }
+
   // 2. Await params untuk mengambil eventID dari URL
   const { eventID } = await params;
 
@@ -59,9 +64,7 @@ export default async function RegistrasiEventPage({
     .limit(1);
 
   if (existingPendaftaran.length > 0) {
-    const kategori = dataEvent.kategori?.nama?.toLowerCase() || "";
-    const judul = dataEvent.judul?.toLowerCase() || "";
-    const isConference = kategori === "conference" || kategori === "konferensi" || judul.includes("conference") || judul.includes("konferensi");
+    const isConference = dataEvent.jenisEvent === "conference";
 
     if (isConference) {
       redirect(`/profile/submit-paper?eventId=${eventID}`);
@@ -80,6 +83,8 @@ export default async function RegistrasiEventPage({
             linkEksternal: dataEvent.linkEksternal,
             kategori: dataEvent.kategori?.nama,
             harga: dataEvent.harga,
+            tipeHarga: dataEvent.tipeHarga,
+            jenisEvent: dataEvent.jenisEvent,
             namaBank: dataEvent.namaBank,
             nomorRekening: dataEvent.nomorRekening,
             pemilikRekening: dataEvent.pemilikRekening,

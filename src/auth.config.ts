@@ -3,6 +3,7 @@ import type { JWT } from "next-auth/jwt";
 
 export const authConfig = {
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // Sesi expired dalam 24 jam

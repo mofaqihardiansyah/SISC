@@ -17,7 +17,7 @@
   /* Core Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: #03428B;
+  --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -54,7 +54,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* Custom Brand Colors */
-  --color-brand-dark: #1e293b;
+  --color-brand-dark: #0F172B;
 
   /* Border Radius */
   --radius-sm: calc(var(--radius) * 0.6);
@@ -69,23 +69,23 @@
 :root {
   /* Base Colors */
   --background: #FFFFFF;
-  --foreground: #212121;
+  --foreground: #0F172B;
   --card: #FFFFFF;
-  --card-foreground: #212121;
+  --card-foreground: #0F172B;
   --popover: #FFFFFF;
-  --popover-foreground: #212121;
-  --primary: #03428B;
+  --popover-foreground: #0F172B;
+  --primary: #0F172B;
   --primary-foreground: #FFFFFF;
-  --secondary: #FFC107;
-  --secondary-foreground: #212121;
-  --muted: #EEEEEE;
-  --muted-foreground: #B0BCC2;
-  --accent: #EEEEEE;
-  --accent-foreground: #212121;
+  --secondary: #E2E8F0;
+  --secondary-foreground: #0F172B;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172B;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #B0BCC2;
-  --input: #EEEEEE;
-  --ring: #03428B;
+  --border: #E2E8F0;
+  --input: #F1F5F9;
+  --ring: #0F172B;
 
   /* Charts */
   --chart-1: oklch(0.87 0 0);
@@ -96,23 +96,23 @@
 
   /* Sidebar */
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #212121;
-  --sidebar-primary: #03428B;
+  --sidebar-foreground: #0F172B;
+  --sidebar-primary: #0F172B;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #EEEEEE;
-  --sidebar-accent-foreground: #212121;
-  --sidebar-border: #B0BCC2;
-  --sidebar-ring: #03428B;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #0F172B;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #0F172B;
 
   /* SISC Brand Tokens */
-  --radius: 0.625rem;
-  --brand-dark: #1e293b;
-  --sisc-blue: #03428B;
-  --sisc-yellow: #FFC107;
-  --sisc-silver: #EEEEEE;
-  --sisc-silver-2: #B0BCC2;
+  --radius: 0.75rem;
+  --brand-dark: #0F172B;
+  --sisc-blue: #0F172B;
+  --sisc-yellow: #E2E8F0;
+  --sisc-silver: #F1F5F9;
+  --sisc-silver-2: #64748B;
   --sisc-white: #FFFFFF;
-  --sisc-black: #212121;
+  --sisc-black: #0F172B;
 }
 
 .dark {
@@ -155,4 +155,19 @@
   html {
     @apply font-sans;
   }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-fade-in {
+  animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

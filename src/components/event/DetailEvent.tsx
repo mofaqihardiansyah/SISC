@@ -2,11 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import EventCard from "@/components/shared/EventCard";
-import { Globe, Shuffle, MapPin, Calendar, Tag, Tent, ClipboardList, Ticket, ScrollText, User } from "lucide-react";
+import {
+  Globe,
+  Shuffle,
+  MapPin,
+  Calendar,
+  Tag,
+  Tent,
+  ClipboardList,
+  Ticket,
+  ScrollText,
+  User,
+} from "lucide-react";
+import EventViewTracker from "./EventViewTracker";
 
-// ============================================================
-// TIPE DATA
-// ============================================================
 type SectionId = "deskripsi" | "pendaftaran" | "syarat";
 
 interface LoketTiket {
@@ -53,11 +62,9 @@ interface DetailEventProps {
   isLoggedIn: boolean;
 }
 
-// ============================================================
-// HELPER FUNCTIONS
-// ============================================================
 const formatRupiah = (angka: number | null) => {
   if (!angka || angka === 0) return "Gratis";
+
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -67,10 +74,15 @@ const formatRupiah = (angka: number | null) => {
 
 const formatTanggal = (dateStr: Date | null) => {
   if (!dateStr) return "TANGGAL BELUM DITENTUKAN";
+
   const date = new Date(dateStr);
-  const hari = new Intl.DateTimeFormat("id-ID", { weekday: "long" })
+
+  const hari = new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+  })
     .format(date)
     .toUpperCase();
+
   const tglBulan = new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "long",
@@ -78,14 +90,22 @@ const formatTanggal = (dateStr: Date | null) => {
   })
     .format(date)
     .toUpperCase();
+
   return `${hari}, ${tglBulan}`;
 };
 
 function parseDeskripsi(deskripsi: string | null) {
-  if (!deskripsi) return { teks: "Tidak ada deskripsi.", materi: [] };
+  if (!deskripsi) {
+    return {
+      teks: "Tidak ada deskripsi.",
+      materi: [],
+    };
+  }
+
   const parts = deskripsi.split("Materi yang Dipelajari:");
   const teks = parts[0].trim();
   const materi: string[] = [];
+
   if (parts[1]) {
     parts[1]
       .split("\n")
@@ -93,16 +113,16 @@ function parseDeskripsi(deskripsi: string | null) {
       .filter((l) => l.match(/^\d+\./))
       .forEach((l) => materi.push(l.replace(/^\d+\.\s*/, "")));
   }
-  return { teks, materi };
+
+  return {
+    teks,
+    materi,
+  };
 }
 
-// ============================================================
-// KOMPONEN UTAMA
-// ============================================================
 export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
   const [activeSection, setActiveSection] = useState<SectionId>("deskripsi");
 
-  // Refs untuk setiap section
   const sectionRefs = useRef<Record<SectionId, HTMLElement | null>>({
     deskripsi: null,
     pendaftaran: null,
@@ -111,7 +131,6 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
 
   const navRef = useRef<HTMLElement | null>(null);
 
-  // ── Intersection Observer untuk ScrollSpy ──────────────────
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
     const navHeight = navRef.current?.offsetHeight ?? 80;
@@ -129,8 +148,6 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
           }
         },
         {
-          // rootMargin: area deteksi — mulai aktif saat section
-          // memasuki 20% dari atas viewport
           rootMargin: `-${navHeight + 16}px 0px -60% 0px`,
           threshold: 0,
         }
@@ -143,30 +160,31 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
     return () => observers.forEach((obs) => obs.disconnect());
   }, []);
 
-  // ── Smooth scroll ke section ───────────────────────────────
   const scrollToSection = (id: SectionId) => {
     const el = sectionRefs.current[id];
     if (!el) return;
+
     const navHeight = navRef.current?.offsetHeight ?? 80;
-    const top = el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
-    window.scrollTo({ top, behavior: "smooth" });
+    const top =
+      el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+
+    window.scrollTo({
+      top,
+      behavior: "smooth",
+    });
   };
 
   const { teks, materi } = parseDeskripsi(event.deskripsi);
 
-  // ── Menentukan URL dan label pendaftaran berdasarkan jenis event ──
   let urlPendaftaran = `/registrasi-event/${event.id}`;
   let isExternalUrl = false;
 
   if (event.isEventPolines) {
-    // Event Polines selalu menggunakan registrasi sistem
     urlPendaftaran = `/registrasi-event/${event.id}`;
   } else if (event.hasilScraping) {
-    // Event hasil scraping diarahkan ke website sumber atau link eksternal
     urlPendaftaran = event.websiteSumber || event.linkEksternal || "#";
     isExternalUrl = true;
   } else if (event.linkEksternal) {
-    // Event umum yang tidak butuh registrasi sistem diarahkan ke link eksternalnya
     urlPendaftaran = event.linkEksternal;
     isExternalUrl = true;
   }
@@ -174,19 +192,22 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
   const renderTombolDaftar = () => {
     if (isExternalUrl) {
       return (
-        <a 
-          href={urlPendaftaran} 
+        <a
+          href={urlPendaftaran}
           className="block w-full p-3 bg-[#1a2744] hover:bg-[#243560] text-white rounded-lg text-[15px] font-bold text-center transition-colors mb-4"
-          target="_blank" 
+          target="_blank"
           rel="noopener noreferrer"
         >
           Kunjungi Website
         </a>
       );
     }
-    
+
     return (
-      <a href={urlPendaftaran} className="block w-full p-3 bg-[#1a2744] hover:bg-[#243560] text-white rounded-lg text-[15px] font-bold text-center transition-colors mb-4">
+      <a
+        href={urlPendaftaran}
+        className="block w-full p-3 bg-[#1a2744] hover:bg-[#243560] text-white rounded-lg text-[15px] font-bold text-center transition-colors mb-4"
+      >
         {isLoggedIn ? "Daftar" : "Login untuk Daftar"}
       </a>
     );
@@ -200,19 +221,28 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
 
   return (
     <>
-      {/* ── HERO ─────────────────────────────────────────────── */}
+      <EventViewTracker eventId={event.id} />
+
       <section className="bg-[#1a2744] text-white py-12 px-0 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-[#1a2744] before:from-60% before:to-[#243560]">
         <div className="max-w-[1100px] mx-auto px-6 relative flex flex-col md:flex-row gap-10 items-start">
           <div className="flex-1">
-            <span className="inline-block bg-white/15 text-[#a8c4f0] text-xs font-semibold tracking-[1px] uppercase px-3 py-1 rounded mb-4">{event.kategori}</span>
-            <h1 className="text-3xl md:text-[28px] font-extrabold leading-tight mb-4 tracking-[-0.5px]">{event.nama}</h1>
+            <span className="inline-block bg-white/15 text-[#a8c4f0] text-xs font-semibold tracking-[1px] uppercase px-3 py-1 rounded mb-4">
+              {event.kategori}
+            </span>
+
+            <h1 className="text-3xl md:text-[28px] font-extrabold leading-tight mb-4 tracking-[-0.5px]">
+              {event.nama}
+            </h1>
+
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-[#a8c4f0] flex items-center gap-2">
-                {event.tipePlatform === "online"
-                  ? <Globe size={18} />
-                  : event.tipePlatform === "hybrid"
-                  ? <Shuffle size={18} />
-                  : <MapPin size={18} />}{" "}
+                {event.tipePlatform === "online" ? (
+                  <Globe size={18} />
+                ) : event.tipePlatform === "hybrid" ? (
+                  <Shuffle size={18} />
+                ) : (
+                  <MapPin size={18} />
+                )}{" "}
                 <strong className="text-white font-bold">
                   {event.tipePlatform === "online"
                     ? "Online"
@@ -222,31 +252,44 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
                   ({event.penyelenggara})
                 </strong>
               </span>
+
               <span className="text-sm text-[#a8c4f0] flex items-center gap-2">
                 <Calendar size={18} /> {formatTanggal(event.tanggal)}
               </span>
-              <span className="text-sm text-[#a8c4f0] flex items-center gap-2"><Tag size={18} /> {event.kategori}</span>
+
+              <span className="text-sm text-[#a8c4f0] flex items-center gap-2">
+                <Tag size={18} /> {event.kategori}
+              </span>
             </div>
           </div>
+
           <div className="w-full md:w-[220px] shrink-0">
             {event.gambar ? (
-              <img src={event.gambar} alt={event.nama} className="w-full h-[160px] rounded-[10px] object-cover border-2 border-white/15" />
+              <img
+                src={event.gambar}
+                alt={event.nama}
+                className="w-full h-[160px] rounded-[10px] object-cover border-2 border-white/15"
+              />
             ) : (
-              <div className="w-full h-[160px] rounded-[10px] bg-white/5 flex items-center justify-center text-5xl"><Tent size={48} className="text-slate-400" /></div>
+              <div className="w-full h-[160px] rounded-[10px] bg-white/5 flex items-center justify-center text-5xl">
+                <Tent size={48} className="text-slate-400" />
+              </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* ── STICKY NAV ───────────────────────────────────────── */}
-      <nav className="sticky top-[64px] z-40 bg-white border-b border-gray-200" ref={navRef}>
+      <nav
+        className="sticky top-[64px] z-40 bg-white border-b border-gray-200"
+        ref={navRef}
+      >
         <div className="max-w-[1100px] mx-auto px-6 flex">
           {navItems.map((item) => (
             <button
               key={item.id}
               className={`px-3 md:px-5 py-3.5 text-[13px] md:text-sm font-medium bg-transparent border-b-2 cursor-pointer whitespace-nowrap transition-colors hover:text-gray-900 ${
-                activeSection === item.id 
-                  ? "text-gray-900 font-bold border-gray-900" 
+                activeSection === item.id
+                  ? "text-gray-900 font-bold border-gray-900"
                   : "text-gray-500 border-transparent"
               }`}
               onClick={() => scrollToSection(item.id)}
@@ -257,39 +300,53 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
         </div>
       </nav>
 
-      {/* ── LAYOUT UTAMA ─────────────────────────────────────── */}
       <div className="max-w-[1100px] mx-auto px-6 py-8 flex flex-col md:flex-row gap-8 items-start">
-        {/* KOLOM KIRI */}
         <div className="flex-1 min-w-0 flex flex-col">
-
-          {/* ── SECTION: DESKRIPSI ─────────────────────────── */}
           <section
             id="deskripsi"
             className="pb-12 border-b border-gray-100 mb-12 last:border-b-0 last:mb-0"
-            ref={(el) => { sectionRefs.current.deskripsi = el; }}
+            ref={(el) => {
+              sectionRefs.current.deskripsi = el;
+            }}
           >
-            <h2 className="text-lg font-bold text-gray-900 mb-5">Deskripsi</h2>
-            <p className="text-sm text-gray-700 leading-relaxed mb-5">{teks}</p>
+            <h2 className="text-lg font-bold text-gray-900 mb-5">
+              Deskripsi
+            </h2>
+
+            <p className="text-sm text-gray-700 leading-relaxed mb-5">
+              {teks}
+            </p>
 
             {event.pembicara && (
               <div className="mb-4">
-                <p className="text-[13px] font-bold text-gray-900 mb-1">Special Speaker:</p>
+                <p className="text-[13px] font-bold text-gray-900 mb-1">
+                  Special Speaker:
+                </p>
                 <p className="text-sm text-gray-700">{event.pembicara}</p>
               </div>
             )}
 
             <div className="mb-4">
-              <p className="text-[13px] font-bold text-gray-900 mb-1">Pelaksanaan:</p>
-              <p className="text-sm text-gray-700">{formatTanggal(event.tanggal)}</p>
+              <p className="text-[13px] font-bold text-gray-900 mb-1">
+                Pelaksanaan:
+              </p>
+              <p className="text-sm text-gray-700">
+                {formatTanggal(event.tanggal)}
+              </p>
               <p className="text-[13px] text-gray-500">{event.lokasi}</p>
             </div>
 
             {materi.length > 0 && (
               <div className="mb-4">
-                <p className="text-[13px] font-bold text-gray-900 mb-1">Materi yang Dipelajari:</p>
+                <p className="text-[13px] font-bold text-gray-900 mb-1">
+                  Materi yang Dipelajari:
+                </p>
                 <ol className="list-none p-0 mt-2 flex flex-col gap-1.5">
                   {materi.map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 leading-relaxed">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-700 leading-relaxed"
+                    >
                       {i + 1}. {item}
                     </li>
                   ))}
@@ -298,23 +355,34 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             )}
           </section>
 
-          {/* ── SECTION: PENDAFTARAN ───────────────────────── */}
           <section
             id="pendaftaran"
             className="pb-12 border-b border-gray-100 mb-12 last:border-b-0 last:mb-0"
-            ref={(el) => { sectionRefs.current.pendaftaran = el; }}
+            ref={(el) => {
+              sectionRefs.current.pendaftaran = el;
+            }}
           >
-            <h2 className="text-lg font-bold text-gray-900 mb-5">Pendaftaran</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-5">
+              Pendaftaran
+            </h2>
 
             <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-5 md:px-6 mb-4 last:mb-0">
               <div className="flex items-center gap-2.5 mb-4">
-                <span className="text-[18px]"><ClipboardList size={22} /></span>
-                <h3 className="text-base font-bold text-[#1a2744]">Langkah Pendaftaran</h3>
+                <ClipboardList size={22} />
+                <h3 className="text-base font-bold text-[#1a2744]">
+                  Langkah Pendaftaran
+                </h3>
               </div>
+
               <ol className="list-none p-0 flex flex-col gap-2.5">
                 {event.langkahPendaftaran.map((langkah, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed">
-                    <span className="w-6 h-6 bg-[#1a2744] text-white rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-[1px]">{i + 1}</span>
+                  <li
+                    key={i}
+                    className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed"
+                  >
+                    <span className="w-6 h-6 bg-[#1a2744] text-white rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-[1px]">
+                      {i + 1}
+                    </span>
                     <span dangerouslySetInnerHTML={{ __html: langkah }} />
                   </li>
                 ))}
@@ -324,22 +392,34 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             {event.loket.length > 0 && (
               <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-5 md:px-6 mb-4 last:mb-0">
                 <div className="flex items-center gap-2.5 mb-4">
-                  <span className="text-[18px]"><Ticket size={22} /></span>
-                  <h3 className="text-base font-bold text-[#1a2744]">Loket Platform</h3>
+                  <Ticket size={22} />
+                  <h3 className="text-base font-bold text-[#1a2744]">
+                    Loket Platform
+                  </h3>
                 </div>
+
                 <p className="text-[13px] text-gray-500 mb-4">
-                  {event.loket.length} kategori pendaftaran – harga mulai dari{" "}
-                  {formatRupiah(event.harga)}
+                  {event.loket.length} kategori pendaftaran – harga mulai
+                  dari {formatRupiah(event.harga)}
                 </p>
+
                 <div className="flex flex-col border border-gray-200 rounded-lg overflow-hidden">
                   {event.loket.map((tiket, i) => (
-                    <div key={i} className="flex items-center gap-4 py-3.5 px-4 border-b border-gray-200 bg-white last:border-b-0">
+                    <div
+                      key={i}
+                      className="flex items-center gap-4 py-3.5 px-4 border-b border-gray-200 bg-white last:border-b-0"
+                    >
                       <div className="text-[15px] font-bold text-[#1a2744] min-w-[90px]">
                         {formatRupiah(tiket.harga)}
                       </div>
+
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{tiket.nama}</p>
-                        <p className="text-xs text-gray-400">{tiket.keterangan}</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {tiket.nama}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {tiket.keterangan}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -348,51 +428,75 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             )}
           </section>
 
-          {/* ── SECTION: SYARAT & KETENTUAN ────────────────── */}
           <section
             id="syarat"
             className="pb-12 border-b border-gray-100 mb-12 last:border-b-0 last:mb-0"
-            ref={(el) => { sectionRefs.current.syarat = el; }}
+            ref={(el) => {
+              sectionRefs.current.syarat = el;
+            }}
           >
-            <h2 className="text-lg font-bold text-gray-900 mb-5">Syarat dan Ketentuan</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-5">
+              Syarat dan Ketentuan
+            </h2>
+
             <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-5 md:px-6 mb-4 last:mb-0">
               <div className="flex items-center gap-2.5 mb-4">
-                <span className="text-[18px]"><ScrollText size={22} /></span>
-                <h3 className="text-base font-bold text-[#1a2744]">Ketentuan Peserta</h3>
+                <ScrollText size={22} />
+                <h3 className="text-base font-bold text-[#1a2744]">
+                  Ketentuan Peserta
+                </h3>
               </div>
+
               <ol className="list-none p-0 flex flex-col gap-3">
                 {event.syaratKetentuan.map((syarat, i) => (
-                  <li key={i} className="text-sm text-gray-700 leading-relaxed pl-1">
+                  <li
+                    key={i}
+                    className="text-sm text-gray-700 leading-relaxed pl-1"
+                  >
                     {i + 1}. {syarat}
                   </li>
                 ))}
               </ol>
             </div>
           </section>
-        </div> {/* flex-1 (detail-main) */}
+        </div>
 
-        {/* KOLOM KANAN — STICKY SIDEBAR */}
         <aside className="w-full md:w-[280px] shrink-0 static md:sticky md:top-[128px] self-start">
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <p className="text-xs text-gray-400 mb-1">Harga mulai dari</p>
-            <p className="text-[22px] font-extrabold text-[#1a2744] mb-4">{formatRupiah(event.harga)}</p>
+
+            <p className="text-[22px] font-extrabold text-[#1a2744] mb-4">
+              {formatRupiah(event.harga)}
+            </p>
+
             {renderTombolDaftar()}
+
             <hr className="border-0 border-t border-gray-100 my-4" />
+
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-lg shrink-0"><User size={20} className="text-slate-500" /></div>
+              <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-lg shrink-0">
+                <User size={20} className="text-slate-500" />
+              </div>
+
               <div>
-                <p className="text-[11px] text-gray-400">Diselenggarakan oleh</p>
-                <p className="text-[13px] font-bold text-gray-900">{event.penyelenggara}</p>
+                <p className="text-[11px] text-gray-400">
+                  Diselenggarakan oleh
+                </p>
+                <p className="text-[13px] font-bold text-gray-900">
+                  {event.penyelenggara}
+                </p>
               </div>
             </div>
           </div>
         </aside>
-      </div> {/* max-w (detail-layout) */}
+      </div>
 
-      {/* ── EVENT TERKAIT (DI LUAR SPLIT LAYOUT UNTUK LEBAR PENUH) ── */}
       {event.eventTerkait.length > 0 && (
         <div className="max-w-[1100px] mx-auto px-6 pb-24 mt-16 border-t border-slate-100 pt-16">
-          <h2 className="text-3xl font-extrabold text-slate-900 mb-10 text-center">Event Untuk Kamu</h2>
+          <h2 className="text-3xl font-extrabold text-slate-900 mb-10 text-center">
+            Event Untuk Kamu
+          </h2>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {event.eventTerkait.map((ev) => (
               <EventCard key={ev.id} {...ev} isLoggedIn={isLoggedIn} />

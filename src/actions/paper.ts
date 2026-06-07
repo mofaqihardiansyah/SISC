@@ -7,6 +7,25 @@ import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+export interface SubmittedPaper {
+  id: number;
+  judul: string;
+  kataKunci: string | null;
+  track: string | null;
+  penulis: {
+    nama: string;
+    email: string;
+    afiliasi: string;
+    isCorresponding: boolean;
+  }[];
+  fileUrl: string;
+  status: 'review' | 'accepted' | 'rejected' | null;
+  komentarPenolakan: string | null;
+  dibuatPada: Date | null;
+  eventId: number;
+  eventJudul: string;
+}
+
 const paperSchema = z.object({
   eventId: z.number(),
   judul: z.string().min(5),
@@ -14,7 +33,7 @@ const paperSchema = z.object({
   track: z.string().optional(),
   penulis: z.array(z.object({
     nama: z.string().min(3, "Nama penulis harus diisi"),
-    email: z.string().email("Email penulis tidak valid"),
+    email: z.string().email("Email penulis tidak valid").or(z.literal("")),
     afiliasi: z.string().min(3, "Afiliasi penulis harus diisi"),
     isCorresponding: z.boolean()
   })).min(1, "Minimal harus ada 1 penulis"),
@@ -61,15 +80,14 @@ export async function getSubmissionData() {
       .where(eq(paperSubmission.userId, userId))
       .orderBy(desc(paperSubmission.dibuatPada));
 
-    return { success: true, registeredEvents, submittedPapers };
+  return { 
+    success: true, 
+    registeredEvents, 
+    submittedPapers: submittedPapers as unknown as SubmittedPaper[] 
+  };
   } catch (error) {
-    console.error("Error fetching submission data:", error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to fetch submission data",
-      registeredEvents: [],
-      submittedPapers: []
-    };
+    console.error("Error getting submission data:", error);
+    return { success: false, error: String(error) };
   }
 }
 

@@ -35,10 +35,10 @@ export default async function MasterLocationsPage() {
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm h-fit overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/40">
             <div className="flex items-center gap-1.5 font-semibold text-slate-700 text-xs">
-              <MapPin size={16} className="text-blue-600" />
+              <MapPin size={16} className="text-slate-900" />
               <h2>Provinsi ({dataProvinsi.length})</h2>
             </div>
-            <button className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-all">
+            <button className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md">
               <Plus size={12} /> Tambah
             </button>
           </div>
@@ -56,8 +56,9 @@ export default async function MasterLocationsPage() {
                   <td className="px-4 py-3 font-medium text-slate-800">{p.nama}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1.5">
-                      <button className="p-1 text-slate-400 hover:text-amber-600 transition-colors" title="Edit">
-                        <Edit2 size={14} />
+                      {/* Tombol Edit - Bingkai Kotak Tumpul Biru */}
+                      <button className="p-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 hover:text-slate-900 transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm" title="Edit">
+                        <Edit2 size={13} />
                       </button>
                     </div>
                   </td>
@@ -71,10 +72,10 @@ export default async function MasterLocationsPage() {
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden lg:col-span-2">
           <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/40">
             <div className="flex items-center gap-1.5 font-semibold text-slate-700 text-xs">
-              <Navigation size={16} className="text-violet-600" />
+              <Navigation size={16} className="text-slate-900" />
               <h2>Kota / Kabupaten ({dataKota.length})</h2>
             </div>
-            <button className="flex items-center gap-1 px-3 py-1.5 bg-violet-600 text-white rounded-lg text-xs font-semibold hover:bg-violet-700 transition-all">
+            <button className="flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md">
               <Plus size={14} /> Tambah Kota
             </button>
           </div>
@@ -97,8 +98,9 @@ export default async function MasterLocationsPage() {
                   </td>
                   <td className="px-6 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
-                      <button className="p-1 text-slate-400 hover:text-amber-600 transition-colors" title="Edit">
-                        <Edit2 size={14} />
+                      {/* Tombol Edit - Bingkai Kotak Tumpul Biru */}
+                      <button className="p-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 hover:text-slate-900 transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm" title="Edit">
+                        <Edit2 size={13} />
                       </button>
                     </div>
                   </td>

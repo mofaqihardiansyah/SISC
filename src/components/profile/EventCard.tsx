@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, MapPin, User, Bookmark, ImageOff } from 'lucide-react';
+import { Calendar, MapPin, User, Bookmark, ImageOff, Palette } from 'lucide-react';
 
 interface EventCardProps {
   id: string | number;
@@ -59,7 +59,7 @@ export default function EventCard({
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-400">
-              <span className="text-4xl">🎨</span>
+              <Palette className="w-10 h-10 text-slate-300" />
             </div>
           )}
           <div className="absolute top-3 right-3">
@@ -67,8 +67,8 @@ export default function EventCard({
               onClick={handleBookmarkToggle}
               className={`p-2 rounded-full backdrop-blur-md transition-all ${
                 bookmarked
-                  ? 'bg-[#0E215D] text-white shadow-lg shadow-blue-200'
-                  : 'bg-white/70 text-slate-400 hover:bg-white hover:text-[#0E215D]'
+                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-200'
+                  : 'bg-white/70 text-slate-400 hover:bg-white hover:text-slate-900'
               }`}
             >
               <Bookmark className={`w-4 h-4 ${bookmarked ? 'fill-current' : ''}`} />
@@ -111,22 +111,22 @@ export default function EventCard({
                       : 'Favorit'}
               </span>
             )}
-            <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 line-clamp-2 transition-colors">
+            <h3 className="text-lg font-bold text-slate-900 group-hover:text-slate-700 line-clamp-2 transition-colors">
               {title}
             </h3>
           </div>
 
           <div className="space-y-2 text-sm text-slate-500 font-medium">
             <p className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-blue-500" />
+              <Calendar className="w-4 h-4 text-slate-400" />
               {date}
             </p>
             <p className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-500" />
+              <MapPin className="w-4 h-4 text-slate-400" />
               <span className="truncate">{location}</span>
             </p>
             <p className="flex items-center gap-2">
-              <User className="w-4 h-4 text-blue-500" />
+              <User className="w-4 h-4 text-slate-400" />
               {organizer}
             </p>
           </div>
@@ -134,7 +134,7 @@ export default function EventCard({
           <div className="flex gap-2 pt-2">
             <Link
               href={`/event/${id}`}
-              className="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-slate-200 text-center"
+              className="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md text-center"
             >
               Lihat Detail
             </Link>
@@ -146,7 +146,7 @@ export default function EventCard({
 
   // List variant (default)
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 group relative overflow-hidden">
+    <div className="flex flex-col md:flex-row gap-6 p-6 bg-white border border-slate-100 rounded-3xl hover:border-slate-300 hover:shadow-xl hover:shadow-slate-500/5 transition-all duration-300 group relative overflow-hidden">
       {/* Event Image */}
       <div className="relative w-full md:w-48 h-36 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner">
         {image ? (
@@ -202,21 +202,21 @@ export default function EventCard({
               </span>
             )}
           </div>
-          <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors mb-4">
+          <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-slate-700 transition-colors mb-4">
             {title}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-slate-500 font-medium">
             <p className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-blue-500" />
+              <Calendar className="w-4 h-4 text-slate-400" />
               {date}
             </p>
             <p className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-500" />
+              <MapPin className="w-4 h-4 text-slate-400" />
               {location}
             </p>
             <p className="flex items-center gap-2">
-              <User className="w-4 h-4 text-blue-500" />
+              <User className="w-4 h-4 text-slate-400" />
               {organizer}
             </p>
           </div>
@@ -228,10 +228,10 @@ export default function EventCard({
         <div className="flex items-start justify-end gap-2">
           <button
             onClick={handleBookmarkToggle}
-            className={`p-3 rounded-2xl transition-all ${
+            className={`p-3 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 ${
               bookmarked
-                ? 'bg-[#0E215D] text-white border border-[#0E215D] shadow-sm'
-                : 'bg-slate-50 text-slate-300 hover:text-[#0E215D] border border-slate-100 hover:border-[#0E215D]'
+                ? 'bg-slate-900 text-white border border-slate-900 shadow-sm'
+                : 'bg-slate-50 text-slate-300 hover:text-slate-900 border border-slate-100 hover:border-slate-900'
             }`}
           >
             <Bookmark className={`w-5 h-5 ${bookmarked ? 'fill-current' : ''}`} />
@@ -249,7 +249,7 @@ export default function EventCard({
           )}
           <Link
             href={`/event/${id}`}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-blue-200 text-center hover:scale-105 active:scale-95"
+            className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md text-center"
           >
             Lihat Detail
           </Link>

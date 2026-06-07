@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Camera, Globe, Mail, Phone, FileText, Eye, Loader2 } from 'lucide-react';
+import { Camera, Globe, Mail, Phone, FileText, Eye, Loader2, KeyRound } from 'lucide-react';
 import { updateProfilPenyelenggara } from './actions';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -21,6 +21,12 @@ interface ProfilFormProps {
 
 export default function ProfilForm({ initialData }: ProfilFormProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [passLama, setPassLama] = useState('');
+  const [passBaru, setPassBaru] = useState('');
+  const [passKonfirm, setPassKonfirm] = useState('');
+  const [loadingPass, setLoadingPass] = useState(false);
+  const [errorPass, setErrorPass] = useState('');
+
   const [formData, setFormData] = useState({
     avatarUrl: initialData.avatarUrl || '/uploads/avatars/fotodummy.jpg',
     namaInstansi: initialData.namaInstansi || '',
@@ -116,221 +122,278 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
     }
   };
 
+  const handleUpdatePassword = async () => {
+    setErrorPass('');
+    if (!passLama || !passBaru || !passKonfirm) {
+      setErrorPass('Semua kolom wajib diisi');
+      return;
+    }
+    if (passBaru !== passKonfirm) {
+      setErrorPass('Konfirmasi password tidak cocok');
+      return;
+    }
+    if (passBaru.length < 8) {
+      setErrorPass('Kata sandi baru minimal 8 karakter');
+      return;
+    }
+    setLoadingPass(true);
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passLama, passBaru }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal mengubah kata sandi');
+      }
+      toast.success('Kata sandi berhasil diperbarui');
+      setPassLama('');
+      setPassBaru('');
+      setPassKonfirm('');
+    } catch (error: unknown) {
+      setErrorPass(error instanceof Error ? error.message : 'Terjadi kesalahan jaringan');
+    } finally {
+      setLoadingPass(false);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="p-6 ml-0 md:ml-4">
+    <div className="space-y-8 max-w-4xl animate-in fade-in duration-500 p-6 md:p-8">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Profil Penyelenggara</h1>
-        {initialData.isApproved && (
-          <span className="bg-emerald-100 text-emerald-600 w-fit text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-            Akun Terverifikasi
-          </span>
-        )}
+      <div>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-slate-900">Profil Penyelenggara</h1>
+          {initialData.isApproved && (
+            <span className="bg-emerald-100 text-emerald-600 text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+              Akun Terverifikasi
+            </span>
+          )}
+        </div>
+        <p className="text-slate-500 mt-2">Kelola identitas publik dan pengaturan keamanan Anda</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Informasi Organisasi */}
+      <section className="bg-white rounded-xl border border-slate-200 p-8 shadow-xs">
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">Informasi Organisasi</h2>
         
-        {/* Kolom Kiri: Informasi Organisasi (Lebar 2 Kolom) */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-800 mb-1">Informasi Organisasi</h2>
-            <p className="text-sm text-slate-500 mb-8">Kelola identitas publik dan deskripsi lembaga Anda.</p>
-
-            {/* Bagian Ubah Logo */}
-            <div className="flex items-center gap-6 mb-8">
-              <div className="relative group">
-                <div className="w-24 h-24 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center overflow-hidden relative">
-                  <Image 
-                    src={avatarPreview} 
-                    alt="Logo Organisasi" 
-                    fill
-                    className="object-cover"
-                  />
-                  {isUploadingLogo && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <Loader2 className="w-6 h-6 text-white animate-spin" />
-                    </div>
-                  )}
+        <div className="space-y-6">
+          {/* Logo Upload */}
+          <div className="flex items-center gap-6">
+            <div className="w-24 h-24 rounded-full border-2 border-slate-100 flex-shrink-0 relative overflow-hidden bg-slate-100">
+              <Image 
+                src={avatarPreview} 
+                alt="Logo Organisasi" 
+                fill
+                className="object-cover"
+              />
+              {isUploadingLogo && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
                 </div>
-                <button 
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 p-1.5 bg-slate-800 text-white rounded-full border-2 border-white hover:bg-slate-700 transition-colors z-10"
-                >
-                  <Camera size={16} />
-                </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleAvatarUpload}
-                  accept="image/jpeg, image/png, image/webp" 
-                  className="hidden" 
-                />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-slate-800 mb-1">Ubah Logo</h3>
-                <p className="text-xs text-slate-400">Maks. 10MB (JPG, PNG). Rekomendasi 512×512px.</p>
-              </div>
+              )}
+            </div>
+            <div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleAvatarUpload}
+                accept="image/jpeg, image/png, image/webp" 
+                className="hidden" 
+              />
+              <button 
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingLogo}
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl disabled:opacity-50 font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+              >
+                {isUploadingLogo ? 'Mengupload...' : 'Ubah Logo'}
+              </button>
+              <p className="text-xs text-slate-500 mt-2">Format: JPG, PNG, WEBP. Maks: 10MB</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold mb-2 block">Nama Organisasi</label>
+              <input 
+                type="text" 
+                value={formData.namaInstansi}
+                onChange={(e) => setFormData(prev => ({ ...prev, namaInstansi: e.target.value }))}
+                placeholder="Nama Organisasi Anda"
+                className="w-full px-4 py-3 border rounded-lg"
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold mb-2 block">Deskripsi</label>
+              <textarea 
+                rows={4}
+                value={formData.deskripsiInstansi}
+                onChange={(e) => setFormData(prev => ({ ...prev, deskripsiInstansi: e.target.value }))}
+                placeholder="Deskripsikan organisasi Anda..."
+                className="w-full px-4 py-3 border rounded-lg resize-none"
+              />
             </div>
 
-            {/* Form Inputs */}
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Nama Organisasi</label>
-                <input 
-                  type="text" 
-                  value={formData.namaInstansi}
-                  onChange={(e) => setFormData(prev => ({ ...prev, namaInstansi: e.target.value }))}
-                  placeholder="Nama Organisasi Anda"
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Deskripsi</label>
-                <textarea 
-                  rows={4}
-                  value={formData.deskripsiInstansi}
-                  onChange={(e) => setFormData(prev => ({ ...prev, deskripsiInstansi: e.target.value }))}
-                  placeholder="Deskripsikan organisasi Anda..."
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Website</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <Globe size={18} />
-                  </div>
-                  <input 
-                    type="url" 
-                    value={formData.websiteUrl}
-                    onChange={(e) => setFormData(prev => ({ ...prev, websiteUrl: e.target.value }))}
-                    placeholder="https://..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
-                  />
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold mb-2 block">Website</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                  <Globe size={18} />
                 </div>
+                <input 
+                  type="url" 
+                  value={formData.websiteUrl}
+                  onChange={(e) => setFormData(prev => ({ ...prev, websiteUrl: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full pl-12 pr-4 py-3 border rounded-lg"
+                />
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Kolom Kanan: Kontak & Legalitas */}
-        <div className="space-y-6">
-          {/* Card Kontak */}
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-800 mb-6">Informasi Kontak</h2>
-            
-            <div className="space-y-5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Email</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <Mail size={16} />
-                  </div>
-                  <input 
-                    type="email" 
-                    value={initialData.email || ''}
-                    readOnly
-                    title="Email tidak dapat diubah"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border border-slate-200 rounded-lg focus:outline-none text-slate-500 cursor-not-allowed"
-                  />
-                </div>
+      {/* Kontak & Legalitas */}
+      <section className="bg-white rounded-xl border border-slate-200 p-8 shadow-xs">
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">Kontak & Legalitas</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Email Pendaftaran</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <Mail size={18} />
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Nomor HP/WA</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <Phone size={16} />
-                  </div>
-                  <input 
-                    type="text" 
-                    value={formData.nomorTelepon}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nomorTelepon: e.target.value }))}
-                    placeholder="+62 8..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-600"
-                  />
-                </div>
-              </div>
+              <input 
+                type="email" 
+                value={initialData.email || ''}
+                readOnly
+                className="w-full pl-12 pr-4 py-3 border border-slate-200 bg-slate-100 rounded-lg text-slate-500 cursor-not-allowed"
+              />
             </div>
+            <p className="text-xs text-slate-400 mt-1">Email tidak dapat diubah</p>
           </div>
 
-          {/* Card Legalitas */}
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-slate-800">Dokumen Legalitas</h2>
-            </div>
-            
-            {formData.dokumenLegalitasUrl ? (
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-start gap-3 mb-4">
-                <div className="p-2 bg-red-50 text-red-500 rounded-lg flex-shrink-0">
-                  <FileText size={24} />
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <p className="text-sm font-semibold text-slate-700 truncate mb-1" title={formData.dokumenLegalitasUrl.split('/').pop()}>
-                    {formData.dokumenLegalitasUrl.split('/').pop()}
-                  </p>
-                  <span className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold uppercase">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                    Tersimpan
-                  </span>
-                </div>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Nomor HP/WA</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <Phone size={18} />
               </div>
-            ) : (
-              <div className="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-4 flex flex-col items-center justify-center gap-2 mb-4 text-slate-500 text-sm">
-                <FileText size={24} className="text-slate-400" />
-                <p>Belum ada dokumen</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              {formData.dokumenLegalitasUrl && (
-                <a 
-                  href={formData.dokumenLegalitasUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-                >
-                  <Eye size={16} />
-                  Lihat Dokumen
-                </a>
-              )}
-              
-              <button 
-                type="button"
-                onClick={() => docInputRef.current?.click()}
-                disabled={isUploadingDokumen}
-                className="w-full flex items-center justify-center gap-2 py-2.5 border border-dashed border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                {isUploadingDokumen ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText size={16} />}
-                {formData.dokumenLegalitasUrl ? 'Ubah Dokumen' : 'Upload Dokumen (PDF)'}
-              </button>
               <input 
-                type="file" 
-                ref={docInputRef} 
-                onChange={handleDocumentUpload}
-                accept="application/pdf" 
-                className="hidden" 
+                type="text" 
+                value={formData.nomorTelepon}
+                onChange={(e) => setFormData(prev => ({ ...prev, nomorTelepon: e.target.value }))}
+                placeholder="+62 8..."
+                className="w-full pl-12 pr-4 py-3 border rounded-lg"
               />
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Action Button Section */}
-      <div className="mt-8 flex justify-end">
-        <button 
-          type="submit"
-          disabled={isSaving}
-          className="px-8 py-3 bg-[#7C87A6] text-white rounded-lg font-semibold hover:bg-[#6A7591] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 flex items-center gap-2"
-        >
-          {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
-          {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
-        </button>
-      </div>
-    </form>
+        <div>
+          <label className="text-sm font-semibold mb-2 block">Dokumen Legalitas (Opsional)</label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <input 
+              type="file" 
+              ref={docInputRef} 
+              onChange={handleDocumentUpload}
+              accept="application/pdf" 
+              className="hidden" 
+            />
+            <button 
+              type="button"
+              onClick={() => docInputRef.current?.click()}
+              disabled={isUploadingDokumen}
+              className="px-4 py-2 border border-slate-300 hover:bg-slate-50 rounded-xl disabled:opacity-50 font-semibold flex items-center gap-2 text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+            >
+              {isUploadingDokumen ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText size={16} />}
+              {formData.dokumenLegalitasUrl ? 'Ubah Dokumen' : 'Upload Dokumen (PDF)'}
+            </button>
+            
+            {formData.dokumenLegalitasUrl && (
+              <a 
+                href={formData.dokumenLegalitasUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-600 hover:underline text-sm font-semibold"
+              >
+                <Eye size={16} /> Lihat Dokumen Tersimpan
+              </a>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <button 
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSaving}
+            className="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+          >
+            {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
+            {isSaving ? 'Menyimpan...' : 'Simpan Profil Organisasi'}
+          </button>
+        </div>
+      </section>
+
+      {/* Keamanan */}
+      <section className="bg-white rounded-xl border border-slate-200 p-8 shadow-xs">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-slate-100 text-slate-700 rounded-lg">
+            <KeyRound size={20} />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Keamanan Akun</h2>
+        </div>
+        
+        <div className="space-y-4 max-w-md">
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Kata Sandi Saat Ini</label>
+            <input
+              type="password"
+              value={passLama}
+              onChange={(e) => setPassLama(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg"
+              placeholder="Masukkan kata sandi lama"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Kata Sandi Baru</label>
+            <input
+              type="password"
+              value={passBaru}
+              onChange={(e) => setPassBaru(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg"
+              placeholder="Minimal 8 karakter"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Konfirmasi Kata Sandi Baru</label>
+            <input
+              type="password"
+              value={passKonfirm}
+              onChange={(e) => setPassKonfirm(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg"
+              placeholder="Ketik ulang kata sandi baru"
+            />
+          </div>
+          
+          {errorPass && <p className="text-sm text-red-600">{errorPass}</p>}
+          
+          <button
+            type="button"
+            onClick={handleUpdatePassword}
+            disabled={loadingPass}
+            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold disabled:opacity-50 flex items-center justify-center gap-2 mt-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+          >
+            {loadingPass && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loadingPass ? 'Memperbarui...' : 'Perbarui Kata Sandi'}
+          </button>
+        </div>
+      </section>
+    </div>
   );
 }

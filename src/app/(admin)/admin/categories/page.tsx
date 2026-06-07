@@ -56,11 +56,13 @@ export default async function MasterCategoriesPage() {
                   </td>
                   <td className="px-6 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
-                      <button className="p-1 text-slate-400 hover:text-amber-600 transition-colors" title="Edit">
-                        <Edit2 size={14} />
+                      {/* Tombol Edit - Bingkai Kotak Tumpul Biru */}
+                      <button className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:text-blue-700 transition-colors" title="Edit">
+                        <Edit2 size={13} />
                       </button>
-                      <button className="p-1 text-slate-400 hover:text-rose-600 transition-colors" title="Hapus">
-                        <Trash2 size={14} />
+                      {/* Tombol Hapus - Bingkai Kotak Tumpul Merah */}
+                      <button className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 hover:text-red-700 transition-colors" title="Hapus">
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </td>
@@ -91,23 +93,22 @@ export default async function MasterCategoriesPage() {
             <thead>
               <tr className="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase bg-slate-50/80">
                 <th className="px-6 py-3">Nama Tag</th>
-                {/* Kolom Slug Tag di sini sudah dihapus */}
                 <th className="px-6 py-3 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs text-slate-600">
               {dataTag.map((tg) => (
                 <tr key={tg.id} className="hover:bg-slate-50/50 transition-colors">
-                  {/* Tanda pagar manual dihapus karena data dari DB sudah membawa pagar */}
                   <td className="px-6 py-3.5 font-medium text-slate-800">{tg.nama}</td>
-                  {/* TD untuk Slug Tag sudah dihapus */}
                   <td className="px-6 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
-                      <button className="p-1 text-slate-400 hover:text-amber-600 transition-colors" title="Edit">
-                        <Edit2 size={14} />
+                      {/* Tombol Edit - Bingkai Kotak Tumpul Biru */}
+                      <button className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:text-blue-700 transition-colors" title="Edit">
+                        <Edit2 size={13} />
                       </button>
-                      <button className="p-1 text-slate-400 hover:text-rose-600 transition-colors" title="Hapus">
-                        <Trash2 size={14} />
+                      {/* Tombol Hapus - Bingkai Kotak Tumpul Merah */}
+                      <button className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 hover:text-red-700 transition-colors" title="Hapus">
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </td>
