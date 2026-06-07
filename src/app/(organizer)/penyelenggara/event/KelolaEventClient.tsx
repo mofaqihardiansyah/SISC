@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon } from "lucide-react";
+import { Search, ChevronRight, ChevronLeft, Ban, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 
 interface EventData {
@@ -31,11 +31,14 @@ interface EventFormData {
   deskripsi: string;
 }
 
-export default function KelolaEventClient() {
+interface KelolaEventClientProps {
+  initialEvents: any[];
+}
+
+export default function KelolaEventClient({ initialEvents }: KelolaEventClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
-  const [dbEvents, setDbEvents] = useState<EventData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState("");
@@ -48,7 +51,6 @@ export default function KelolaEventClient() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // State Kontrol Form di Dalam Modal
   const [formData, setFormData] = useState<EventFormData>({
     tipeEvent: "Seminar",
     platform: "ONLINE",
@@ -60,83 +62,71 @@ export default function KelolaEventClient() {
     deskripsi: ""
   });
 
-  // Fungsi fetch data utama langsung dari database
+  const formatDbData = (rawData: any[]) => {
+    if (!rawData || rawData.length === 0) return [];
+    
+    return rawData.map((ev) => {
+      let uiStatus = "DRAFT";
+      if (ev.status === "published" || ev.status === "DIPUBLIKASI") uiStatus = "DIPUBLIKASI";
+      if (ev.status === "rejected" || ev.status === "DITOLAK") uiStatus = "DITOLAK";
+
+      const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+      const tglString = ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', options) : "Belum diatur";
+
+      return {
+        id: ev.id,
+        judul: ev.judul || "Untitled Event",
+        status: uiStatus,
+        kategori: ev.jenisEvent === "seminar" ? "Seminar" : "Conference",
+        sub: ev.tipePlatform ? ev.tipePlatform.toUpperCase() : "ONLINE",
+        peserta: ev.kuota ? ev.kuota.toLocaleString('id-ID') : "0",
+        harga: ev.harga ? ev.harga.toLocaleString('id-ID') : "0",
+        tanggal: tglString,
+        rawTanggal: ev.tanggalMulai || "", 
+        img: ev.bannerUrl || "",
+        alasan: ev.alasanPenolakan || "Tidak ada alasan spesifik.",
+        venue: ev.detailLokasi || "",
+        deskripsi: ev.deskripsi || ""
+      };
+    });
+  };
+
+  const [dbEvents, setDbEvents] = useState<EventData[]>(() => 
+    formatDbData(initialEvents).sort((a, b) => b.id - a.id)
+  );
+
   async function loadEvents() {
     setIsLoading(true);
     try {
       const result = await getDaftarEvent();
       if (result.success && result.data) {
-        const mapped: EventData[] = result.data.map((ev: {
-          id: number;
-          status: string | null;
-          judul: string | null;
-          tanggalMulai: string | Date | null;
-          jenisEvent: string | null;
-          tipePlatform: string | null;
-          kuota: number | null;
-          harga: number | null;
-          bannerUrl: string | null;
-          alasanPenolakan: string | null;
-          detailLokasi: string | null;
-          deskripsi: string | null;
-        }) => {
-          let uiStatus = "DRAFT";
-          if (ev.status === "published") uiStatus = "DIPUBLIKASI";
-          if (ev.status === "rejected") uiStatus = "DITOLAK";
-
-          const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
-          const tglString = ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', options) : "Belum diatur";
-
-          return {
-            id: ev.id, // ID dari database
-            judul: ev.judul || "Untitled Event",
-            status: uiStatus,
-            kategori: ev.jenisEvent === "seminar" ? "Seminar" : "Conference",
-            sub: ev.tipePlatform ? ev.tipePlatform.toUpperCase() : "ONLINE",
-            peserta: ev.kuota ? ev.kuota.toLocaleString('id-ID') : "0",
-            harga: ev.harga ? ev.harga.toLocaleString('id-ID') : "0",
-            tanggal: tglString,
-            rawTanggal: ev.tanggalMulai || "", 
-            img: ev.bannerUrl || "",
-            alasan: ev.alasanPenolakan || "Tidak ada alasan spesifik yang diberikan oleh Admin.",
-            venue: ev.detailLokasi || "",
-            deskripsi: ev.deskripsi || ""
-          };
-        });
-
-        // LOCK POSISI CARD: Di-sorting berdasarkan ID Ascending agar posisi card tetap konsisten di tempatnya
-        const sortedMapped = mapped.sort((a, b) => a.id - b.id);
-        
-        setDbEvents(sortedMapped);
+        setDbEvents(formatDbData(result.data).sort((a, b) => b.id - a.id));
       }
     } catch (err) {
-      console.error("Gagal mengambil data dari database:", err);
+      console.error("Gagal mengambil data:", err);
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    loadEvents();
-  }, []);
+    setDbEvents(formatDbData(initialEvents).sort((a, b) => b.id - a.id));
+  }, [initialEvents]);
 
-  // ==========================================
-  // LOGIKA MULTI-FILTER DINAMIS DATABASE
-  // ==========================================
+  // Hitung data statistik riil
+  const totalEventsCount = dbEvents.length;
+  const aktifEventsCount = dbEvents.filter(ev => ev.status === "DIPUBLIKASI").length;
+  const pendingEventsCount = dbEvents.filter(ev => ev.status === "DRAFT").length;
+
   const filteredEvents = dbEvents.filter((ev) => {
     const cocokJudul = ev.judul.toLowerCase().includes(searchQuery.toLowerCase());
     const cocokStatus = statusFilter === "Semua Status" || ev.status === statusFilter;
     const cocokTipe = tipeFilter === "Semua Tipe" || ev.kategori === tipeFilter;
-    
-    const cocokKategori = kategoriFilter === "Semua Kategori" || 
-                          ev.kategori.toLowerCase() === kategoriFilter.toLowerCase();
+    const cocokKategori = kategoriFilter === "Semua Kategori" || ev.kategori.toLowerCase() === kategoriFilter.toLowerCase();
 
     let cocokHarga = true;
-    if (hargaFilter === "Gratis") {
-      cocokHarga = ev.harga === "0";
-    } else if (hargaFilter === "Berbayar") {
-      cocokHarga = ev.harga !== "0";
-    }
+    if (hargaFilter === "Gratis") cocokHarga = ev.harga === "0";
+    else if (hargaFilter === "Berbayar") cocokHarga = ev.harga !== "0";
 
     let cocokTanggal = true;
     if (dateFilter && ev.rawTanggal) {
@@ -148,16 +138,13 @@ export default function KelolaEventClient() {
     return cocokJudul && cocokStatus && cocokTipe && cocokKategori && cocokHarga && cocokTanggal;
   });
 
-  // Reset page to 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, statusFilter, tipeFilter, kategoriFilter, hargaFilter, dateFilter]);
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
   const currentEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Membuka modal dan melakukan auto-fill state form
   const openEditModal = (event: EventData) => {
     setSelectedEvent(event);
     setFormData({
@@ -173,12 +160,8 @@ export default function KelolaEventClient() {
     setIsModalOpen(true);
   };
 
-  // ==========================================
-  // FUNGSI SIMPAN PERUBAHAN KE DATABASE RESMI
-  // ==========================================
   const handleSimpanPerubahan = async () => {
     if (!selectedEvent?.id) return;
-    
     setIsSaving(true);
     try {
       const hargaStr = String(formData.harga).replace(/\./g, '').replace(/,/g, '');
@@ -192,18 +175,14 @@ export default function KelolaEventClient() {
       };
 
       const res = await updateEventDatabase(selectedEvent.id, payload);
-      
       if (!res?.success) {
         alert("Gagal menyimpan perubahan: " + (res?.error || "Terjadi kesalahan"));
-        return; // Hentikan proses, jangan tutup modal
+        return;
       }
-      
-      // Ambil data terbaru dan langsung tutup modal secara senyap (tanpa alert popup)
       await loadEvents(); 
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Gagal menyimpan ke database:", error);
-      alert("Gagal menyimpan perubahan ke server!");
+      console.error("Gagal menyimpan:", error);
     } finally {
       setIsSaving(false);
     }
@@ -211,46 +190,81 @@ export default function KelolaEventClient() {
 
   return (
     <div className="space-y-6">
-      {/* JUDUL HALAMAN */}
+      {/* HEADER HALAMAN */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[#1E293B]">Kelola Event</h1>
-        <p className="text-slate-500 text-sm mt-1">Manajemen dan pantau event Anda di sini</p>
+        <h1 className="text-[28px] font-bold text-[#1E293B]">Kelola Event</h1>
+        <p className="text-slate-400 text-sm">Manajemen dan pantau event Anda di sini</p>
       </div>
 
-      {/* FILTER SECTION */}
-      <div className="bg-white p-8 rounded-[24px] shadow-sm border border-slate-100 mb-8">
-        {/* BARIS ATAS: Search Bar */}
-        <div className="flex gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-            <input 
-              type="text" 
-              placeholder="Cari nama event..." 
-              className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-400"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      {/* STATS AREA - UKURAN & PADDING TETAP P-8, WARNA DISESUAIKAN */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {/* CARD TOTAL EVENT */}
+        <div className="bg-white p-8 rounded-[24px] border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+          {/* Icon Abu-Abu */}
+          <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
           </div>
+          {/* Judul Hitam Pekat */}
+          <p className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider mb-1">Total Event</p>
+          {/* Angka Abu-Abu */}
+          <h3 className="text-[26px] font-semibold text-slate-400 leading-none">{isLoading ? "..." : totalEventsCount}</h3>
+        </div>
+
+        {/* CARD EVENT AKTIF */}
+        <div className="bg-white p-8 rounded-[24px] border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+          {/* Icon Abu-Abu */}
+          <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-check"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>
+          </div>
+          {/* Judul Hitam Pekat */}
+          <p className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider mb-1">Event Aktif</p>
+          {/* Angka Abu-Abu */}
+          <h3 className="text-[26px] font-semibold text-slate-400 Perkalian leading-none">{isLoading ? "..." : aktifEventsCount}</h3>
+        </div>
+
+        {/* CARD EVENT PENDING */}
+        <div className="bg-white p-8 rounded-[24px] border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+          {/* Icon Abu-Abu */}
+          <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-clock"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7.5"/><path d="M16 2v2"/><path d="M8 2v2"/><path d="M3 10h18"/><path d="M18 22a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-5h-1.5V15"/></svg>
+          </div>
+          {/* Judul Hitam Pekat */}
+          <p className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider mb-1">Event Pending</p>
+          {/* Angka Abu-Abu */}
+          <h3 className="text-[26px] font-semibold text-slate-400 leading-none">{isLoading ? "..." : pendingEventsCount}</h3>
+        </div>
+      </div>
+
+      {/* FILTER PANEL */}
+      <div className="bg-white p-8 rounded-[24px] shadow-sm border border-slate-100 mb-8">
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+          <input 
+            type="text" 
+            placeholder="Cari nama event..." 
+            className="w-full pl-11 pr-4 py-3 border border-slate-100 rounded-xl outline-none text-sm focus:border-slate-300 transition-all bg-slate-50/30"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         
-        {/* BARIS INPUT FILTER BAWAH */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-700">Tanggal</label>
+            <label className="text-[13px] font-bold text-slate-500">Tanggal</label>
             <input 
               type="date" 
-              className="border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-600 bg-white outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-700">Status</label>
+            <label className="text-[13px] font-bold text-slate-500">Status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-600 bg-white outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Status">Semua Status</option>
               <option value="DIPUBLIKASI">Dipublikasi</option>
@@ -260,11 +274,11 @@ export default function KelolaEventClient() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-700">Tipe</label>
+            <label className="text-[13px] font-bold text-slate-500">Tipe</label>
             <select
               value={tipeFilter}
               onChange={(e) => setTipeFilter(e.target.value)}
-              className="border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-600 bg-white outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Tipe">Semua Tipe</option>
               <option value="Seminar">Seminar</option>
@@ -273,11 +287,11 @@ export default function KelolaEventClient() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-700">Kategori</label>
+            <label className="text-[13px] font-bold text-slate-500">Kategori</label>
             <select
               value={kategoriFilter}
               onChange={(e) => setKategoriFilter(e.target.value)}
-              className="border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-600 bg-white outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Kategori">Semua Kategori</option>
               <option>Teknologi & Informasi</option>
@@ -294,11 +308,11 @@ export default function KelolaEventClient() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-700">Harga</label>
+            <label className="text-[13px] font-bold text-slate-500">Harga</label>
             <select
               value={hargaFilter}
               onChange={(e) => setHargaFilter(e.target.value)}
-              className="border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-600 bg-white outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Harga">Semua Harga</option>
               <option value="Gratis">Free (Gratis)</option>
@@ -308,39 +322,37 @@ export default function KelolaEventClient() {
         </div>
       </div>
 
-      {/* EVENT LIST SECTION */}
+      {/* EVENTS CONTAINER */}
       <div className="space-y-6">
         {isLoading ? (
-          <div className="text-center py-12 text-slate-400 text-sm">Memuat data dari database...</div>
+          <div className="text-center py-12 text-slate-400 text-sm">Memuat data...</div>
         ) : currentEvents.length > 0 ? (
           currentEvents.map((ev) => {
             const isDraft = ev.status === "DRAFT";
             const isRejected = ev.status === "DITOLAK";
 
             return (
-              <div key={ev.id} className="bg-white p-6 rounded-[24px] border border-slate-100 flex items-center justify-between shadow-sm hover:border-blue-200 transition-all">
-                
-                {/* ================= SISI KIRI: GAMBAR & DETAIL INFO ================= */}
+              <div key={ev.id} className="bg-white p-6 rounded-[24px] border border-slate-100 flex items-center justify-between shadow-sm">
                 <div className="flex gap-6 flex-1 min-w-0 pr-6">
-                  <div className="relative w-[240px] h-[135px] rounded-[20px] overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                  <div className="relative w-[240px] h-[135px] rounded-[20px] overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
                     {ev.img ? (
-                      <img src={ev.img} alt="" className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${isRejected ? 'opacity-40 grayscale' : 'opacity-100'}`} />
+                      <img src={ev.img} alt="" className={`w-full h-full object-cover ${isRejected ? 'opacity-40 grayscale' : ''}`} />
                     ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50">
-                        <ImageIcon size={32} strokeWidth={1.5} className="mb-2 opacity-60" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">No Cover</span>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
+                        <ImageIcon size={28} className="mb-1" />
+                        <span className="text-[9px] font-bold uppercase tracking-wider">No Banner</span>
                       </div>
                     )}
                     {isRejected && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30 backdrop-blur-[1px]">
-                        <Ban size={32} className="text-white opacity-90 drop-shadow-md" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-slate-900/10">
+                        <Ban size={28} className="text-red-500 opacity-80" />
                       </div>
                     )}
                   </div>
                   
                   <div className="flex flex-col justify-center min-w-0">
-                    <div className="flex items-center gap-2 mb-2 text-[10px] font-bold uppercase">
-                      <span className={`px-2.5 py-1 rounded-md border ${
+                    <div className="flex items-center gap-2 mb-2 text-[10px] font-bold uppercase tracking-wider">
+                      <span className={`px-2 py-0.5 rounded-md border ${
                         isDraft ? 'bg-yellow-50 text-yellow-500 border-yellow-100' : 
                         isRejected ? 'bg-red-50 text-red-400 border-red-100' : 
                         'bg-green-50 text-green-500 border-green-100'
@@ -349,31 +361,29 @@ export default function KelolaEventClient() {
                       </span>
                       <span className="text-slate-300">• {ev.sub}</span>
                     </div>
-                    <h3 className="font-bold text-[#1E293B] text-xl leading-tight mb-1 truncate">{ev.judul}</h3>
-                    <p className="text-[12px] text-slate-400 flex items-center gap-1.5">
-                      {isDraft ? "✎" : "🗓️"} {ev.tanggal}
-                    </p>
+                    <h3 className="font-bold text-[#1E293B] text-xl mb-1 truncate">{ev.judul}</h3>
+                    <div className="text-[12px] text-slate-400 flex items-center gap-1">
+                      {isDraft ? <Edit3 size={12} /> : <Calendar size={12} />} <span>{ev.tanggal}</span>
+                    </div>
                     {isRejected && (
-                      <div className="flex items-center gap-1.5 mt-2.5 text-red-400">
-                        <Info size={14} />
+                      <div className="flex items-center gap-1 mt-2 text-red-400">
+                        <Info size={12} />
                         <p className="text-[11px] font-medium italic text-slate-400">Alasan: {ev.alasan}</p>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* ================= SISI TENGAH: PESERTA & HARGA ================= */}
                 <div className="flex items-center gap-16 shrink-0 px-8 border-l border-slate-50">
-                  <div className="w-[80px] text-left">
+                  <div className="w-[80px]">
                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Peserta</p>
                     <p className="font-bold text-slate-700 text-base">{ev.peserta}</p>
                   </div>
-                  
-                  <div className="w-[120px] text-left">
+                  <div className="w-[120px]">
                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Harga</p>
                     <p className="font-bold text-slate-700 text-base">
                       {ev.harga === "0" ? (
-                        <span className="inline-block text-green-600 font-semibold bg-green-50 px-2.5 py-0.5 rounded-md text-xs border border-green-100">Gratis</span>
+                        <span className="inline-block text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-md text-xs border border-green-100">Gratis</span>
                       ) : (
                         `Rp ${ev.harga}`
                       )}
@@ -381,59 +391,54 @@ export default function KelolaEventClient() {
                   </div>
                 </div>
 
-                {/* ================= SISI KANAN: TOMBOL AKSI ================= */}
                 <div className="shrink-0 pl-4">
                   <button 
                     onClick={() => !isRejected && openEditModal(ev)}
-                    className={`min-w-[150px] py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
-                      isRejected ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-[#00478F] text-white hover:bg-[#00356B]'
+                    className={`min-w-[150px] py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 transition-all ${
+                      isRejected ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm'
                     }`}
                   >
                     {isDraft ? "Lanjutkan" : "Kelola Event"}
-                    {!isRejected && <ChevronRight size={18} />}
+                    {!isRejected && <ChevronRight size={16} />}
                   </button>
                 </div>
-
               </div>
             );
           })
         ) : (
-          <div className="bg-white rounded-[24px] border border-slate-100 p-12 text-center shadow-sm flex flex-col items-center justify-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
-              <Search size={22} />
+          <div className="bg-white rounded-[24px] border border-slate-100 p-12 text-center shadow-sm flex flex-col items-center justify-center space-y-2">
+            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+              <Search size={18} />
             </div>
-            <div className="space-y-1">
+            <div>
               <h4 className="font-bold text-[#1E293B] text-base">Data Event Tidak Ditemukan</h4>
-              <p className="text-slate-400 text-sm max-w-md mx-auto">
-                Coba periksa kembali kata kunci pencarian atau sesuaikan kombinasi parameter filter yang kamu pilih.
+              <p className="text-slate-400 text-sm max-w-sm mx-auto mt-0.5">
+                Coba periksa kembali kata kunci pencarian atau gunakan parameter filter lainnya.
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* PAGINATION */}
+      {/* PAGINATION SECTION */}
       {totalPages > 1 && (
-        <div className="flex justify-end items-center gap-2 mt-8 pb-10">
+        <div className="flex justify-end items-center gap-1.5 mt-6">
           <button 
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-xl text-slate-400 hover:bg-slate-50 disabled:opacity-40"
           >
-            <ChevronLeft size={18}/>
+            <ChevronLeft size={16}/>
           </button>
           
           {Array.from({ length: totalPages }).map((_, idx) => {
             const pageNum = idx + 1;
-            // Simplified pagination view for a few pages
             return (
               <button 
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
-                className={`w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm transition-colors ${
-                  currentPage === pageNum 
-                    ? 'bg-[#1E293B] text-white' 
-                    : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                className={`w-9 h-9 flex items-center justify-center rounded-xl font-bold text-sm ${
+                  currentPage === pageNum ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 {pageNum}
@@ -444,48 +449,38 @@ export default function KelolaEventClient() {
           <button 
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
-            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-xl text-slate-400 hover:bg-slate-50 disabled:opacity-40"
           >
-            <ChevronRight size={18}/>
+            <ChevronRight size={16}/>
           </button>
         </div>
       )}
 
-      {/* MODAL POP-UP EDIT */}
+      {/* MODAL EDIT FORM */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-end bg-black/40 backdrop-blur-sm transition-opacity">
-          <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            {/* Header Modal */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-100">
-              <h2 className="text-xl font-bold text-[#1E293B]">
+        <div className="fixed inset-0 z-[999] flex items-center justify-end bg-black/30 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-xl h-full flex flex-col shadow-xl">
+            <div className="flex items-center justify-between p-6 border-b border-slate-50">
+              <h2 className="text-lg font-bold text-[#1E293B]">
                 {selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-full text-slate-400 transition-colors" disabled={isSaving}>
-                <X size={24}/>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-50 p-1.5 rounded-full" disabled={isSaving}>
+                <span className="text-xl">×</span>
               </button>
             </div>
             
-            {/* Body Modal */}
-            <div className="flex-1 overflow-y-auto p-8 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Tipe Event</label>
-                  <select 
-                    value={formData.tipeEvent}
-                    onChange={(e) => setFormData({...formData, tipeEvent: e.target.value})}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none bg-white focus:border-blue-400 text-sm"
-                  >
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Tipe Event</label>
+                  <select value={formData.tipeEvent} onChange={(e) => setFormData({...formData, tipeEvent: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
                     <option value="Seminar">Seminar</option>
                     <option value="Conference">Conference</option>
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Platform</label>
-                  <select 
-                    value={formData.platform}
-                    onChange={(e) => setFormData({...formData, platform: e.target.value})}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none bg-white focus:border-blue-400 text-sm"
-                  >
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Platform</label>
+                  <select value={formData.platform} onChange={(e) => setFormData({...formData, platform: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
                     <option value="ONLINE">Online</option>
                     <option value="OFFLINE">Offline</option>
                     <option value="HYBRID">Hybrid</option>
@@ -493,112 +488,57 @@ export default function KelolaEventClient() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Judul Event</label>
-                <input 
-                  type="text" 
-                  value={formData.judul}
-                  onChange={(e) => setFormData({...formData, judul: e.target.value})}
-                  placeholder="Masukkan judul event"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-400 text-sm" 
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Judul Event</label>
+                <input type="text" value={formData.judul} onChange={(e) => setFormData({...formData, judul: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Kategori</label>
-                <select 
-                  value={formData.kategori}
-                  onChange={(e) => setFormData({...formData, kategori: e.target.value})}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none bg-white focus:border-blue-400 text-sm"
-                >
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Kategori</label>
+                <select value={formData.kategori} onChange={(e) => setFormData({...formData, kategori: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
                   <option>Teknologi & Informasi</option>
                   <option>Bisnis & Ekonomi</option>
                   <option>Kreatif & Desain</option>
                   <option>Sains & Akademik</option>
                   <option>Kesehatan & Medis</option>
-                  <option>Sosial & Humaniora</option>
-                  <option>Seni, Musik & Budaya</option>
-                  <option>Hiburan & Gaya Hidup</option>
-                  <option>Olahraga & Kebugaran</option>
                   <option>Umum</option>
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Lokasi / Venue</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Lokasi / Venue</label>
                 <div className="relative">
-                  <input 
-                    type="text" 
-                    value={formData.venue}
-                    onChange={(e) => setFormData({...formData, venue: e.target.value})}
-                    placeholder="Masukkan lokasi venue" 
-                    className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 outline-none focus:border-blue-400 text-sm" 
-                  />
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input type="text" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm outline-none" />
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Tipe Tiket</label>
-                  <select 
-                    value={formData.tipeTiket}
-                    onChange={(e) => setFormData({...formData, tipeTiket: e.target.value})}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none bg-white focus:border-blue-400 text-sm"
-                  >
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Tipe Tiket</label>
+                  <select value={formData.tipeTiket} onChange={(e) => setFormData({...formData, tipeTiket: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
                     <option value="Paid">Paid (Berbayar)</option>
                     <option value="Free">Free (Gratis)</option>
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Biaya (Rp)</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Biaya (Rp)</label>
                   <div className="relative">
-                    <input 
-                      type="text" 
-                      value={formData.tipeTiket === "Free" ? "0" : formData.harga}
-                      onChange={(e) => setFormData({...formData, harga: e.target.value})}
-                      disabled={formData.tipeTiket === "Free"}
-                      placeholder="0" 
-                      className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 outline-none focus:border-blue-400 text-sm disabled:bg-slate-50 disabled:text-slate-400" 
-                    />
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                    <input type="text" value={formData.tipeTiket === "Free" ? "0" : formData.harga} onChange={(e) => setFormData({...formData, harga: e.target.value})} disabled={formData.tipeTiket === "Free"} className="w-full border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm outline-none disabled:bg-slate-50" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Rp</span>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Deskripsi Event</label>
-                <div className="border border-slate-200 rounded-xl overflow-hidden focus-within:border-blue-400">
-                  <div className="bg-slate-50 p-2 border-b border-slate-100 flex gap-2">
-                    <button className="px-2 py-1 font-bold text-slate-500 hover:bg-slate-200 rounded text-xs">B</button>
-                    <button className="px-2 py-1 italic text-slate-500 hover:bg-slate-200 rounded text-xs">I</button>
-                    <button className="px-2 py-1 underline text-slate-500 hover:bg-slate-200 rounded text-xs">U</button>
-                  </div>
-                  <textarea 
-                    rows={4} 
-                    value={formData.deskripsi}
-                    onChange={(e) => setFormData({...formData, deskripsi: e.target.value})}
-                    className="w-full p-4 outline-none resize-none text-sm" 
-                    placeholder="Jelaskan detail event kamu..."
-                  ></textarea>
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Deskripsi Event</label>
+                <textarea rows={4} value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none resize-none"></textarea>
               </div>
             </div>
 
-            {/* Footer Modal */}
-            <div className="p-6 border-t border-slate-100 flex gap-4 bg-slate-50/50">
-              <button 
-                onClick={() => setIsModalOpen(false)} 
-                className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-slate-500 hover:bg-white transition-all text-sm"
-                disabled={isSaving}
-              >
-                Batal
-              </button>
-              <button 
-                onClick={handleSimpanPerubahan}
-                disabled={isSaving}
-                className="flex-1 py-3 bg-[#00478F] text-white rounded-xl font-bold hover:bg-[#00356B] transition-all shadow-lg shadow-blue-900/10 text-sm flex items-center justify-center"
-              >
+            <div className="p-4 border-t border-slate-50 flex gap-3 bg-slate-50/50">
+              <button onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 border border-slate-200 rounded-xl font-bold text-slate-500 bg-white text-xs" disabled={isSaving}>Batal</button>
+              <button onClick={handleSimpanPerubahan} disabled={isSaving} className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs">
                 {isSaving ? "Menyimpan..." : (selectedEvent?.status === "DRAFT" ? "Simpan Draft" : "Simpan Perubahan")}
               </button>
             </div>

@@ -44,14 +44,14 @@ function ConfirmDraftModal({
           <button
             onClick={onNo}
             disabled={isPending}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md disabled:opacity-50"
           >
             Tidak, Buang
           </button>
           <button
             onClick={onYes}
             disabled={isPending}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md disabled:opacity-50"
           >
             {isPending ? "Menyimpan..." : "Ya, Simpan Draft"}
           </button>
@@ -246,7 +246,7 @@ export default function BuatEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-50">
       {/* Popup Draft Modal */}
       {showDraftModal && (
         <ConfirmDraftModal
@@ -312,7 +312,7 @@ export default function BuatEventPage() {
               value={eventTitle}
               onChange={(e) => setEventTitle(e.target.value)}
               placeholder="Masukkan judul event yang menarik..."
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400"
             />
           </div>
 
@@ -350,7 +350,7 @@ export default function BuatEventPage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Contoh: Jakarta, Bandung, Online Only"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400"
               />
             </div>
             <div>
@@ -360,7 +360,7 @@ export default function BuatEventPage() {
                 value={speaker}
                 onChange={(e) => setSpeaker(e.target.value)}
                 placeholder="Contoh: Pak Nakala"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400"
               />
             </div>
           </div>
@@ -387,7 +387,7 @@ export default function BuatEventPage() {
                   onChange={(e) => setFee(e.target.value)}
                   placeholder="Contoh: 25000"
                   min={0}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400"
                 />
               </div>
             )}
@@ -506,7 +506,7 @@ export default function BuatEventPage() {
             type="button"
             onClick={() => handleSubmit(true)}
             disabled={isPending}
-            className="px-6 py-2.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md disabled:opacity-50"
           >
             {isPending ? "Menyimpan..." : "Simpan Draft"}
           </button>
@@ -514,7 +514,7 @@ export default function BuatEventPage() {
             type="button"
             onClick={() => handleSubmit(false)}
             disabled={isPending}
-            className="px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl disabled:opacity-50"
           >
             {isPending ? "Mengajukan..." : "Ajukan Publikasi ke Admin"}
           </button>
@@ -535,7 +535,7 @@ function SelectField({ label, value, onChange, options }: {
       {label && <label className="block text-sm text-gray-600 mb-1.5">{label}</label>}
       <div className="relative">
         <select value={value} onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          className="w-full appearance-none border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500">
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
         <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -552,8 +552,8 @@ function RichTextarea({ value, onChange, placeholder }: {
   value: string; onChange: (v: string) => void; placeholder?: string;
 }) {
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-      <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-200 bg-white">
+    <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+      <div className="flex items-center gap-1 px-3 py-2 border-b border-slate-200 bg-white">
         {[
           { title: "Bold", label: <span className="font-bold">B</span> },
           { title: "Italic", label: <span className="italic">I</span> },
@@ -563,13 +563,13 @@ function RichTextarea({ value, onChange, placeholder }: {
           { title: "Link", label: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>) },
         ].map((btn) => (
           <button key={btn.title} type="button" title={btn.title}
-            className="p-1.5 rounded hover:bg-gray-100 text-gray-600 text-sm">
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 text-sm transition-all duration-200">
             {btn.label}
           </button>
         ))}
       </div>
       <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={5}
-        className="w-full px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none resize-none placeholder-gray-400" />
+        className="w-full px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none resize-none placeholder-slate-400" />
     </div>
   );
 }

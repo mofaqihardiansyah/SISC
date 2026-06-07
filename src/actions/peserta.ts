@@ -21,7 +21,7 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
     // Validasi Zod
     const parsedData = registrationSchema.safeParse(formData);
     if (!parsedData.success) {
-      return { success: false, error: parsedData.error.errors[0].message };
+      return { success: false, error: parsedData.error.issues[0].message };
     }
 
     const validData = parsedData.data;

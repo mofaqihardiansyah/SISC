@@ -82,15 +82,15 @@ export function EventChart({ initialData, selectedEventId }: EventChartProps) {
           <AreaChart data={displayData}>
             <defs>
               <linearGradient id="colorPeserta" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0} />
+                <stop offset="5%" stopColor="#0F172B" stopOpacity={0.15} />
+                <stop offset="95%" stopColor="#0F172B" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={50} />
             <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
             <Tooltip formatter={(val) => [val, 'Pendaftar']} />
-            <Area type="monotone" dataKey="jumlah" stroke="#1E3A8A" fill="url(#colorPeserta)" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+            <Area type="monotone" dataKey="jumlah" stroke="#0F172B" fill="url(#colorPeserta)" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

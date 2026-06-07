@@ -5,21 +5,7 @@ import { ChevronLeft, FileText, Download, Info, CheckCircle2, AlertTriangle, XCi
 import { StatusBadge } from '@/components/ui/status-badge';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-
-type SubmittedPaper = {
-  id: number;
-  judul: string;
-  abstrak: string | null;
-  kataKunci: string | null;
-  track: string | null;
-  penulis: { nama: string; email: string; afiliasi: string; isCorresponding: boolean }[];
-  fileUrl: string;
-  status: 'review' | 'accepted' | 'rejected' | null;
-  komentarPenolakan: string | null;
-  dibuatPada: Date | null;
-  eventId: number;
-  eventJudul: string;
-};
+import { SubmittedPaper } from '@/actions/paper';
 
 type SubmissionDetailProps = {
   paper: SubmittedPaper | undefined;
@@ -31,7 +17,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
     return (
       <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm">
         <p className="text-slate-500">Data paper tidak ditemukan.</p>
-        <button onClick={onBack} className="mt-4 text-sm text-primary font-bold hover:underline flex items-center gap-1 mx-auto">
+        <button onClick={onBack} className="mt-4 text-sm text-slate-900 font-bold hover:underline flex items-center gap-1 mx-auto transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
           <ChevronLeft size={16} /> Kembali
         </button>
       </div>
@@ -46,7 +32,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
       <div className="mb-4">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-900 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           <ChevronLeft size={14} /> Kembali ke Daftar Paper
         </button>

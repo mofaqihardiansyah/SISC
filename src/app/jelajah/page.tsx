@@ -387,7 +387,7 @@ function JelajahContent() {
       </div>
 
       {/* FOOTER */}
-      <footer className="bg-[#0f172a] text-white py-12 px-12 mt-16">
+      <footer className="bg-brand-dark text-white py-12 px-12 mt-16">
         <div className="max-w-[1300px] mx-auto grid grid-cols-4 gap-10">
           <div>
             <h2 className="font-bold mb-4">POLIVENTS</h2>

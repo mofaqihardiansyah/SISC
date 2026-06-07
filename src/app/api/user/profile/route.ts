@@ -74,7 +74,7 @@ export async function PUT(req: Request) {
         return NextResponse.json({ error: 'User tidak ditemukan' }, { status: 404 });
       }
 
-      const valid = await bcrypt.compare(body.passLama, user.passwordHash);
+      const valid = await bcrypt.compare(body.passLama, user.password || '');
       if (!valid) {
         return NextResponse.json({ error: 'Kata sandi lama salah' }, { status: 400 });
       }
@@ -83,7 +83,7 @@ export async function PUT(req: Request) {
       await db
         .update(users)
         .set({
-          passwordHash: hashed,
+          password: hashed,
           diperbaruiPada: new Date(),
         })
         .where(eq(users.id, userId));

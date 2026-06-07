@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { Info, Image as ImageIcon, ClipboardList, Calendar, Link2 } from "lucide-react";
 
 type EventType = {
   id: number;
@@ -43,10 +44,10 @@ function ReadonlyField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-500">{label}</label>
-      <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 min-h-[36px]">
+      <label className="text-xs font-medium text-gray-505">{label}</label>
+      <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 min-h-[36px] flex items-center">
         {value || (
-          <span className="text-gray-400 text-sm">{placeholder ?? "—"}</span>
+          <span className="text-slate-400 text-sm">{placeholder ?? "—"}</span>
         )}
       </div>
     </div>
@@ -60,15 +61,15 @@ function SectionCard({
   children,
 }: {
   sectionId: string;
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <div id={sectionId} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-      <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100 bg-gray-50/60">
-        <span className="text-sm">{icon}</span>
-        <h2 className="text-sm font-semibold text-gray-700">{title}</h2>
+    <div id={sectionId} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50/60">
+        <span className="text-slate-500 shrink-0">{icon}</span>
+        <h2 className="text-sm font-semibold text-slate-700">{title}</h2>
       </div>
       <div className="px-5 py-4">{children}</div>
     </div>
@@ -114,10 +115,10 @@ export default function Content({ event }: Props) {
     : "";
 
   return (
-    <div className="space-y-4 pb-8">
+    <div className="space-y-4 pb-8 animate-page-fade-in">
 
       {/* ── 1. TIPE EVENT ─────────────────────────────────────────── */}
-      <SectionCard sectionId="tipe-event" icon="ℹ️" title="Tipe Event">
+      <SectionCard sectionId="tipe-event" icon={<Info size={16} />} title="Tipe Event">
         <div className="grid grid-cols-2 gap-3">
           <ReadonlyField
             label="Pilih Tipe Event (Seminar/Conference)"
@@ -131,7 +132,7 @@ export default function Content({ event }: Props) {
       </SectionCard>
 
       {/* ── 2. DETAIL UMUM ────────────────────────────────────────── */}
-      <SectionCard sectionId="detail-umum" icon="ℹ️" title="Detail Umum">
+      <SectionCard sectionId="detail-umum" icon={<Info size={16} />} title="Detail Umum">
         <div className="space-y-3">
 
           <ReadonlyField label="Judul Event" value={event.judul} />
@@ -174,22 +175,22 @@ export default function Content({ event }: Props) {
       </SectionCard>
 
       {/* ── 3. DESKRIPSI & POSTER ─────────────────────────────────── */}
-      <SectionCard sectionId="deskripsi-poster" icon="🖼️" title="Deskripsi & Poster">
+      <SectionCard sectionId="deskripsi-poster" icon={<ImageIcon size={16} />} title="Deskripsi & Poster">
         <div className="space-y-3">
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-500">Deskripsi Event</label>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 min-h-[80px] whitespace-pre-line leading-relaxed">
+            <label className="text-xs font-medium text-slate-500">Deskripsi Event</label>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 min-h-[80px] whitespace-pre-line leading-relaxed">
               {deskripsiPlain || (
-                <span className="text-gray-400">Tidak ada deskripsi.</span>
+                <span className="text-slate-400">Tidak ada deskripsi.</span>
               )}
             </div>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-500">Banner Event</label>
+            <label className="text-xs font-medium text-slate-505">Banner Event</label>
             {event.bannerUrl ? (
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
                 <img
                   src={event.bannerUrl}
                   alt={event.judul ?? "Banner"}
@@ -197,8 +198,8 @@ export default function Content({ event }: Props) {
                 />
               </div>
             ) : (
-              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg h-[100px] flex flex-col items-center justify-center gap-1 text-gray-400">
-                <span className="text-2xl">🖼️</span>
+              <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl h-[100px] flex flex-col items-center justify-center gap-1 text-slate-400">
+                <ImageIcon size={28} className="text-slate-300" />
                 <p className="text-xs">Belum ada banner</p>
               </div>
             )}
@@ -208,21 +209,21 @@ export default function Content({ event }: Props) {
       </SectionCard>
 
       {/* ── 4. SYARAT DAN KETENTUAN ───────────────────────────────── */}
-      <SectionCard sectionId="syarat" icon="📋" title="Syarat dan Ketentuan">
+      <SectionCard sectionId="syarat" icon={<ClipboardList size={16} />} title="Syarat dan Ketentuan">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-500">
+          <label className="text-xs font-medium text-slate-505">
             Detail Syarat &amp; Ketentuan Event
           </label>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 min-h-[80px] whitespace-pre-line leading-relaxed">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 min-h-[80px] whitespace-pre-line leading-relaxed">
             {syaratPlain || (
-              <span className="text-gray-400">Belum ada syarat dan ketentuan.</span>
+              <span className="text-slate-400">Belum ada syarat dan ketentuan.</span>
             )}
           </div>
         </div>
       </SectionCard>
 
       {/* ── 5. JADWAL & KUOTA ─────────────────────────────────────── */}
-      <SectionCard sectionId="jadwal-kuota" icon="📅" title="Jadwal & Kuota">
+      <SectionCard sectionId="jadwal-kuota" icon={<Calendar size={16} />} title="Jadwal & Kuota">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <ReadonlyField
@@ -245,7 +246,7 @@ export default function Content({ event }: Props) {
       </SectionCard>
 
       {/* ── 6. LINK FORM PENDAFTARAN ──────────────────────────────── */}
-      <SectionCard sectionId="link-pendaftaran" icon="🔗" title="Link Form Pendaftaran">
+      <SectionCard sectionId="link-pendaftaran" icon={<Link2 size={16} />} title="Link Form Pendaftaran">
         <ReadonlyField
           label="Link Form Pendaftaran untuk Peserta Event"
           value={event.linkEksternal}

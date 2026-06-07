@@ -22,7 +22,7 @@ export default function BuatEventButton() {
   return (
     <button
       onClick={handleClick}
-      className="hidden md:flex items-center gap-2 bg-[#1E3A8A] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
+      className="hidden md:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
     >
       <Plus className="w-4 h-4" />
       Buat Event Baru
