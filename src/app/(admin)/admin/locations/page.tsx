@@ -56,8 +56,9 @@ export default async function MasterLocationsPage() {
                   <td className="px-4 py-3 font-medium text-slate-800">{p.nama}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1.5">
-                      <button className="p-1 text-slate-400 hover:text-amber-600 transition-colors" title="Edit">
-                        <Edit2 size={14} />
+                      {/* Tombol Edit - Bingkai Kotak Tumpul Biru */}
+                      <button className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:text-blue-700 transition-colors" title="Edit">
+                        <Edit2 size={13} />
                       </button>
                     </div>
                   </td>
@@ -97,8 +98,9 @@ export default async function MasterLocationsPage() {
                   </td>
                   <td className="px-6 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
-                      <button className="p-1 text-slate-400 hover:text-amber-600 transition-colors" title="Edit">
-                        <Edit2 size={14} />
+                      {/* Tombol Edit - Bingkai Kotak Tumpul Biru */}
+                      <button className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:text-blue-700 transition-colors" title="Edit">
+                        <Edit2 size={13} />
                       </button>
                     </div>
                   </td>
