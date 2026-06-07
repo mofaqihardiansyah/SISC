@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, pendaftaran } from "@/db/schema";
+import { event, pendaftaran, users, peserta } from "@/db/schema";
 import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -202,6 +202,33 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
     }
     
     return { success: false, error: errorMessage };
+  }
+}
+
+export async function getAdminParticipants() {
+  try {
+    const results = await db
+      .select({
+        id: pendaftaran.id,
+        kodePendaftaran: pendaftaran.kodePendaftaran,
+        status: pendaftaran.status,
+        dibuatPada: pendaftaran.dibuatPada,
+        eventTitle: event.judul,
+        participantName: peserta.namaLengkap,
+        participantEmail: peserta.email,
+        userName: users.namaLengkap,
+        userEmail: users.email,
+      })
+      .from(pendaftaran)
+      .innerJoin(event, eq(pendaftaran.eventId, event.id))
+      .innerJoin(peserta, eq(pendaftaran.id, peserta.pendaftaranId))
+      .innerJoin(users, eq(pendaftaran.userId, users.id))
+      .orderBy(desc(pendaftaran.dibuatPada));
+
+    return { success: true, data: results };
+  } catch (error) {
+    console.error("[getAdminParticipants] Error:", error);
+    return { success: false, error: "Gagal mengambil data peserta" };
   }
 }
 

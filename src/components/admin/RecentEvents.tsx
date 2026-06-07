@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { normalizeImagePath } from '@/lib/utils/image-utils';
 import { Image as ImageIcon } from 'lucide-react';
 
@@ -21,7 +22,12 @@ export function RecentEvents({ events }: RecentEventProps) {
     <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-50 w-full lg:w-[350px]">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-gray-900 tracking-tight">Event Terbaru</h3>
-        <button className="text-blue-600 text-[10px] font-black uppercase hover:underline">Lihat Semua</button>
+        <Link 
+          href="/admin/events" 
+          className="text-[10px] font-bold text-blue-600 hover:text-blue-700 px-2 py-1 bg-blue-50 rounded-md border border-blue-100 uppercase tracking-tight transition-colors"
+        >
+          Lihat Semua
+        </Link>
       </div>
 
       <div className="space-y-6">
