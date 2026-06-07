@@ -8,6 +8,14 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
+// ── Hapus qrisImageBase64, qrisImageExt, qrisPreview ──
+export type MetodePembayaranInput = {
+  jenis: "bank_transfer" | "e_wallet";   // <-- qris dihapus
+  namaPenyedia: string;
+  nomorAkun?: string;
+  atasNama?: string;
+};
+
 export async function createEvent(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -15,6 +23,7 @@ export async function createEvent(formData: FormData) {
   const userId = parseInt(session.user.id, 10);
   if (isNaN(userId)) redirect("/login");
 
+  // ── Field utama ─────────────────────────────────────────────────
   const judul = (formData.get("judul") as string)?.trim();
   const jenisEvent = formData.get("jenisEvent") as "seminar" | "conference";
   const isEventPolines = formData.get("isEventPolines") === "true";
@@ -33,35 +42,52 @@ export async function createEvent(formData: FormData) {
   const isDraft = formData.get("isDraft") === "true";
   const bannerFile = formData.get("banner") as File | null;
 
-  // Validasi wajib
+  // ── Parse metode pembayaran ──────────────────────────────────────
+  const metodePembayaranRaw = formData.get("metodePembayaran") as string;
+  let metodePembayaranList: MetodePembayaranInput[] = [];
+  try {
+    if (metodePembayaranRaw) metodePembayaranList = JSON.parse(metodePembayaranRaw);
+  } catch {
+    metodePembayaranList = [];
+  }
+
+  // ── Validasi ─────────────────────────────────────────────────────
   if (!judul) return { error: "Judul event wajib diisi." };
   if (!tanggalMulaiRaw) return { error: "Tanggal mulai wajib diisi." };
 
   const tanggalMulai = new Date(tanggalMulaiRaw);
   const tanggalSelesai = tanggalSelesaiRaw ? new Date(tanggalSelesaiRaw) : null;
-
   if (isNaN(tanggalMulai.getTime())) return { error: "Format tanggal mulai tidak valid." };
 
-  // Upload banner (opsional)
+  // ── Upload banner ─────────────────────────────────────────────────
   let bannerUrl: string | null = null;
   if (bannerFile && bannerFile.size > 0) {
-    if (bannerFile.size > 5 * 1024 * 1024) {
-      return { error: "Ukuran banner maksimal 5MB." };
-    }
-
+    if (bannerFile.size > 5 * 1024 * 1024) return { error: "Ukuran banner maksimal 5MB." };
     const bytes = await bannerFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
     const ext = bannerFile.name.split(".").pop() ?? "jpg";
     const fileName = `${crypto.randomUUID()}.${ext}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads", "banners");
-
     await mkdir(uploadDir, { recursive: true });
-    await writeFile(path.join(uploadDir, fileName), buffer);
-
+    await writeFile(path.join(uploadDir, fileName), Buffer.from(bytes));
     bannerUrl = `/uploads/banners/${fileName}`;
   }
 
-  // Generate slug
+  // ── Proses metode pembayaran ──────────────────────────────────────
+  const bankTransfers = metodePembayaranList.filter((m) => m.jenis === "bank_transfer");
+  const eWallets = metodePembayaranList.filter((m) => m.jenis === "e_wallet");
+
+  const namaBank = bankTransfers[0]?.namaPenyedia || null;
+  const nomorRekening = bankTransfers[0]?.nomorAkun || null;
+  const pemilikRekening = bankTransfers[0]?.atasNama || null;
+  const namaBankAlternatif = bankTransfers[1]?.namaPenyedia || null;
+  const nomorRekeningAlternatif = bankTransfers[1]?.nomorAkun || null;
+  const pemilikRekeningAlternatif = bankTransfers[1]?.atasNama || null;
+
+  const namaEwallet = eWallets[0]?.namaPenyedia || null;
+  const nomorEwallet = eWallets[0]?.nomorAkun || null;
+  const pemilikEwallet = eWallets[0]?.atasNama || null;
+
+  // ── Generate slug ─────────────────────────────────────────────────
   const baseSlug = judul
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, "")
@@ -69,7 +95,7 @@ export async function createEvent(formData: FormData) {
     .replace(/\s+/g, "-");
   const slug = `${baseSlug}-${Date.now()}`;
 
-  // Insert ke database
+  // ── Insert ke database ────────────────────────────────────────────
   try {
     await db.insert(event).values({
       organizerId: userId,
@@ -90,7 +116,17 @@ export async function createEvent(formData: FormData) {
       linkEksternal,
       kategoriId,
       bannerUrl,
-      status: isDraft ? "draft" : "pending", // ✅ sudah benar
+      status: isDraft ? "draft" : "pending",
+      namaBank,
+      nomorRekening,
+      pemilikRekening,
+      namaBankAlternatif,
+      nomorRekeningAlternatif,
+      pemilikRekeningAlternatif,
+      namaEwallet,
+      nomorEwallet,
+      pemilikEwallet,
+      // qrisImageUrl dihapus — tidak diisi
     });
 
     return { success: true };
