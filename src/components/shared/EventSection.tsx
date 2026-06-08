@@ -70,7 +70,7 @@ export default function EventSection({
               price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
               category={ev.jenisEvent ?? ""}
               type={type}
-              imageUrl={ev.bannerUrl || "/placeholder-banner.png"}
+              imageUrl={ev.bannerUrl || undefined}
               tipePlatform={ev.tipePlatform ?? undefined}
               kotaNama={ev.kotaNama ?? undefined}
               kategoriNama={ev.kategoriNama ?? undefined}

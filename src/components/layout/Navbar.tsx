@@ -1,11 +1,26 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import UserMenu from "./UserMenu";
-import SearchInput from "./search-input";
+import SearchInput from "./SearchInput";
 import { Suspense } from "react";
+import { db } from "@/db";
 
 export default async function Navbar() {
   const session = await auth();
+
+  let dbUser = null;
+  if (session?.user?.id) {
+    dbUser = await db.query.users.findFirst({
+      where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+    });
+  }
+
+  const user = dbUser ? {
+    name: dbUser.namaLengkap || session?.user?.name || "User",
+    email: dbUser.email || session?.user?.email,
+    image: dbUser.avatarUrl || session?.user?.image,
+    role: session?.user?.role,
+  } : session?.user;
 
   return (
     <nav className="sticky top-0 z-50 bg-[var(--brand-dark)] text-white shadow-md">
@@ -30,18 +45,18 @@ export default async function Navbar() {
           <Link href="/jelajah">Jelajah</Link>
           <Link href="/bantuan">Bantuan</Link>
 
-          {session?.user ? (
-            <UserMenu user={session.user} />
+          {user ? (
+            <UserMenu user={user} />
           ) : (
             <div className="flex items-center gap-4">
               <Link 
                 href="/register"
-                className="px-4 py-2 rounded-md transition-all duration-300 hover:bg-white/10 active:scale-95"
+                className="px-4 py-2 rounded-xl transition-all duration-200 hover:bg-white/10 active:scale-[0.98]"
               >
                 Daftar
               </Link>
               <Link href="/login">
-                <button className="bg-white text-black px-5 py-2 rounded-md font-bold transition-all duration-300 hover:bg-gray-100 hover:scale-105 active:scale-95 cursor-pointer">
+                <button className="bg-white text-slate-900 px-5 py-2 rounded-xl font-bold transition-all duration-200 hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md cursor-pointer">
                   Masuk
                 </button>
               </Link>

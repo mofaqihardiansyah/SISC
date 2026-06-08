@@ -5,18 +5,7 @@ import { ChevronLeft, FileText, Download, Info, CheckCircle2, AlertTriangle, XCi
 import { StatusBadge } from '@/components/ui/status-badge';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-
-type SubmittedPaper = {
-  id: number;
-  judul: string;
-  penulis: string;
-  fileUrl: string;
-  status: 'review' | 'accepted' | 'rejected' | null;
-  komentarPenolakan: string | null;
-  dibuatPada: Date | null;
-  eventId: number;
-  eventJudul: string;
-};
+import { SubmittedPaper } from '@/actions/paper';
 
 type SubmissionDetailProps = {
   paper: SubmittedPaper | undefined;
@@ -28,14 +17,13 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
     return (
       <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm">
         <p className="text-slate-500">Data paper tidak ditemukan.</p>
-        <button onClick={onBack} className="mt-4 text-sm text-primary font-bold hover:underline flex items-center gap-1 mx-auto">
+        <button onClick={onBack} className="mt-4 text-sm text-slate-900 font-bold hover:underline flex items-center gap-1 mx-auto transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
           <ChevronLeft size={16} /> Kembali
         </button>
       </div>
     );
   }
 
-  const authorsList = paper.penulis ? paper.penulis.split(',').map(a => a.trim()) : [];
   const status = paper.status || 'review';
 
   return (
@@ -44,7 +32,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
       <div className="mb-4">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-900 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           <ChevronLeft size={14} /> Kembali ke Daftar Paper
         </button>
@@ -67,9 +55,41 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
               </div>
             </div>
 
+            {/* Track & Keywords */}
+            {(paper.track || paper.kataKunci) && (
+              <div className="grid grid-cols-2 gap-4">
+                {paper.track && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      Track / Topik
+                    </h4>
+                    <p className="text-sm font-semibold text-slate-800 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                      {paper.track}
+                    </p>
+                  </div>
+                )}
+                {paper.kataKunci && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      Kata Kunci
+                    </h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {paper.kataKunci.split(',').map((k, i) => (
+                        <span key={i} className="bg-primary/10 text-primary px-2 py-1 rounded text-[11px] font-bold">
+                          {k.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Judul Section (Dominant & Clear) */}
             <div className="space-y-2">
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                 Judul Penelitian
               </h4>
@@ -78,18 +98,31 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
               </p>
             </div>
 
+
+
             {/* Penulis Section */}
             <div className="space-y-2">
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                 Daftar Penulis
               </h4>
-              <div className="flex flex-wrap gap-1.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                {authorsList.map((author, idx) => (
-                  <span key={idx} className="bg-slate-800 text-white px-2.5 py-1 rounded text-xs font-semibold">
-                    {author}
-                  </span>
-                ))}
+              <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                {paper.penulis && Array.isArray(paper.penulis) ? paper.penulis.map((author, idx) => (
+                  <div key={idx} className="flex flex-col bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-800">{author.nama}</span>
+                      {author.isCorresponding && (
+                        <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
+                          Penulis Utama
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col text-[11px] text-slate-500 mt-1">
+                      <span>{author.email}</span>
+                      <span>{author.afiliasi}</span>
+                    </div>
+                  </div>
+                )) : null}
               </div>
             </div>
 

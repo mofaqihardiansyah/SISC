@@ -4,6 +4,10 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
   Info,
   User,
@@ -17,7 +21,8 @@ import {
   AlertTriangle,
   XCircle,
   ArrowRight,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react';
 import { daftarEvent } from '@/actions/peserta';
 
@@ -26,6 +31,14 @@ interface DataEvent {
   linkEksternal?: string | null;
   kategori?: string | null;
   harga?: number | string | null;
+  tipeHarga?: string | null;
+  jenisEvent?: string | null;
+  namaBank?: string | null;
+  nomorRekening?: string | null;
+  pemilikRekening?: string | null;
+  namaBankAlternatif?: string | null;
+  nomorRekeningAlternatif?: string | null;
+  pemilikRekeningAlternatif?: string | null;
 }
 
 interface CurrentUser {
@@ -40,6 +53,15 @@ interface FormRegistrasiProps {
   dataEvent: DataEvent;
   currentUser: CurrentUser; 
 }
+
+const registrationSchema = z.object({
+  nama_lengkap: z.string().min(2, "Nama wajib diisi"),
+  email: z.string().email("Format email tidak valid"),
+  nomor_telepon: z.string().min(8, "Nomor telepon wajib diisi"),
+  jenis_kelamin: z.enum(["Laki-laki", "Perempuan"]),
+});
+
+type RegistrationValues = z.infer<typeof registrationSchema>;
 
 export default function FormRegistrasi({ eventId, dataEvent, currentUser }: FormRegistrasiProps) {
   const router = useRouter();
@@ -58,15 +80,6 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
     message: ''
   });
 
-  // Pengecekan cerdas: Apakah event ini gratis? (Harga bernilai 0, "0", atau kosong)
-  const isGratis = dataEvent.harga === 0 || dataEvent.harga === "0" || !dataEvent.harga;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setBuktiPembayaran(e.target.files[0]);
-    }
-  };
-
   const formatGenderEnum = (gender: string | null | undefined): "Laki-laki" | "Perempuan" => {
     if (!gender) return "Laki-laki";
     const lower = gender.toLowerCase();
@@ -75,16 +88,29 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
     return "Laki-laki";
   };
 
+  const form = useForm<RegistrationValues>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      nama_lengkap: currentUser.name || "",
+      email: currentUser.email || "",
+      nomor_telepon: currentUser.nomorTelepon && currentUser.nomorTelepon !== "-" ? currentUser.nomorTelepon : "",
+      jenis_kelamin: formatGenderEnum(currentUser.jenisKelamin),
+    }
+  });
+
+  const isGratis = dataEvent.tipeHarga === "free" || dataEvent.harga === 0 || dataEvent.harga === "0" || !dataEvent.harga;
+
   const checkIsConference = () => {
-    const kategori = dataEvent.kategori?.toLowerCase() || "";
-    const judul = dataEvent.judul?.toLowerCase() || "";
-    return kategori === "conference" || kategori === "konferensi" || judul.includes("conference") || judul.includes("konferensi");
+    return dataEvent.jenisEvent === "conference";
   };
 
-  const handleSimpanData = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // VALIDASI PEMBAYARAN: Hanya dijalankan kalau eventnya BERBAYAR (!isGratis)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setBuktiPembayaran(e.target.files[0]);
+    }
+  };
+
+  const onSubmit = async (data: RegistrationValues) => {
     if (!isGratis && !buktiPembayaran) {
       setModalStatus({
         isOpen: true,
@@ -97,15 +123,34 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
 
     setIsLoading(true);
 
-    const dataClean = {
-      nama_lengkap: currentUser?.name || "Pengunjung",
-      email: currentUser?.email || "visitor@gmail.com",
-      nomor_telepon: currentUser?.nomorTelepon && currentUser.nomorTelepon !== "-" ? currentUser.nomorTelepon : "08123456789",
-      jenis_kelamin: formatGenderEnum(currentUser?.jenisKelamin),
-    };
-
     try {
-      const res = await daftarEvent(dataClean, Number(eventId));
+      let fileUrl = "";
+
+      if (buktiPembayaran) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', buktiPembayaran);
+        formDataUpload.append('type', 'document'); 
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formDataUpload,
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok || !uploadData.success) {
+          throw new Error(uploadData.error || "Gagal mengunggah bukti pembayaran");
+        }
+
+        fileUrl = uploadData.url;
+      }
+
+      const payload = {
+        ...data,
+        bukti_pembayaran: fileUrl || undefined,
+      };
+
+      const res = await daftarEvent(payload, Number(eventId));
       setIsLoading(false);
       
       if (res && res.success) {
@@ -153,49 +198,79 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
 
   return (
     <>
-      <form onSubmit={handleSimpanData} className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
         
         {/* SEKSI 1: INFORMASI PESERTA (Selalu muncul) */}
         <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-blue-600">
-              <Info className="h-4 w-4 text-blue-600" />
+            <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-primary">
+              <Info className="h-4 w-4 text-primary" />
             </div>
             <h2 className="text-xl font-bold text-gray-800">Informasi Peserta - {dataEvent.judul}</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 bg-gray-50/80 p-6 rounded-xl border border-gray-100">
-            <div className="flex flex-col space-y-1.5 pl-1">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                <User className="h-4 w-4 text-gray-400" /> Nama Lengkap
-              </span>
-              <p className="text-[15px] font-semibold text-gray-900 tracking-wide ml-[24px]">
-                {currentUser?.name || "Nama Tidak Ditemukan"}
-              </p>
+            <div className="flex flex-col space-y-2">
+              <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                <User className="h-4 w-4" /> Nama Lengkap
+              </Label>
+              <Input 
+                {...form.register("nama_lengkap")} 
+                readOnly
+                disabled
+                className="bg-gray-100/70 border-gray-200 text-gray-700 cursor-not-allowed"
+              />
+              {form.formState.errors.nama_lengkap && (
+                <p className="text-red-500 text-xs font-medium mt-1">{form.formState.errors.nama_lengkap.message}</p>
+              )}
             </div>
-            <div className="flex flex-col space-y-1.5 pl-1">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                <Mail className="h-4 w-4 text-gray-400" /> Alamat Email
-              </span>
-              <p className="text-[15px] font-semibold text-gray-900 tracking-wide ml-[24px]">
-                {currentUser?.email || "Email Tidak Ditemukan"}
-              </p>
+
+            <div className="flex flex-col space-y-2">
+              <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                <Mail className="h-4 w-4" /> Alamat Email
+              </Label>
+              <Input 
+                {...form.register("email")} 
+                type="email"
+                readOnly
+                disabled
+                className="bg-gray-100/70 border-gray-200 text-gray-700 cursor-not-allowed"
+              />
+              {form.formState.errors.email && (
+                <p className="text-red-500 text-xs font-medium mt-1">{form.formState.errors.email.message}</p>
+              )}
             </div>
-            <div className="flex flex-col space-y-1.5 pl-1">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gray-400" /> No. Handphone
-              </span>
-              <p className="text-[15px] font-semibold text-gray-900 tracking-wide ml-[24px]">
-                {currentUser?.nomorTelepon || "-"}
-              </p>
+
+            <div className="flex flex-col space-y-2">
+              <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                <Phone className="h-4 w-4" /> No. Handphone
+              </Label>
+              <Input 
+                {...form.register("nomor_telepon")} 
+                readOnly
+                disabled
+                className="bg-gray-100/70 border-gray-200 text-gray-700 cursor-not-allowed"
+              />
+              {form.formState.errors.nomor_telepon && (
+                <p className="text-red-500 text-xs font-medium mt-1">{form.formState.errors.nomor_telepon.message}</p>
+              )}
             </div>
-            <div className="flex flex-col space-y-1.5 pl-1">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                <Coins className="h-4 w-4 text-gray-400" /> Jenis Kelamin
-              </span>
-              <p className="text-[15px] font-semibold text-gray-900 tracking-wide capitalize ml-[24px]">
-                {currentUser?.jenisKelamin || "Laki-laki"}
-              </p>
+
+            <div className="flex flex-col space-y-2">
+              <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                <Coins className="h-4 w-4" /> Jenis Kelamin
+              </Label>
+              <select 
+                {...form.register("jenis_kelamin")}
+                disabled
+                className="flex h-10 w-full rounded-md border border-gray-200 bg-gray-100/70 px-3 py-2 text-sm text-gray-700 cursor-not-allowed focus-visible:outline-none disabled:opacity-70"
+              >
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+              {form.formState.errors.jenis_kelamin && (
+                <p className="text-red-500 text-xs font-medium mt-1">{form.formState.errors.jenis_kelamin.message}</p>
+              )}
             </div>
           </div>
           {isGratis && (
@@ -211,27 +286,37 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
             {/* SEKSI 2: DESKRIPSI PEMBAYARAN */}
             <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6">
-                <CreditCard className="h-5 w-5 text-blue-600" />
-                <h2 className="text-xl font-bold text-gray-800">Informasi & Deskripsi Pembayaran</h2>
+                <CreditCard className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-bold text-gray-800">Pembayaran Tiket</h2>
               </div>
-              <div className="rounded-xl bg-blue-50/50 border border-blue-100 p-5 space-y-4 text-sm text-gray-700">
-                <p className="font-bold text-blue-900 text-base">Petunjuk Alur Pembayaran:</p>
+              
+              <div className="mb-6 bg-gradient-to-r from-primary to-primary/80 rounded-xl p-6 text-white shadow-md">
+                <p className="text-white/80 text-sm font-medium mb-1">Total Tagihan Pembayaran</p>
+                <h3 className="text-4xl font-black tracking-tight">
+                  {Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(dataEvent.harga || 0))}
+                </h3>
+              </div>
+
+              <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 space-y-4 text-sm text-gray-700">
+                <p className="font-bold text-primary text-base">Petunjuk Alur Pembayaran:</p>
                 <ul className="list-decimal pl-5 space-y-2 text-gray-600 leading-relaxed">
-                  <li>Transfer nominal biaya pendaftaran sesuai kategori tiket ke salah satu rekening di bawah.</li>
-                  <li>Simpan bukti transfer resmi berupa screenshot jernih.</li>
+                  <li>Transfer nominal tagihan secara tepat ke salah satu rekening di bawah.</li>
+                  <li>Simpan bukti transfer resmi berupa foto atau screenshot struk jernih.</li>
                 </ul>
-                <hr className="border-blue-100 my-2" />
+                <hr className="border-primary/20 my-2" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="p-3 bg-white rounded-lg border shadow-sm">
-                    <span className="text-xs text-gray-400 block">Bank Transfer (Bank Mandiri)</span>
-                    <strong className="text-base text-gray-800">132-000-1234-567</strong>
-                    <span className="text-xs text-gray-500 block mt-1">a.n. Panitia POLIVENTS</span>
+                  <div className="p-4 bg-white rounded-lg border shadow-sm hover:border-primary/50 transition-colors">
+                    <span className="text-xs font-bold text-gray-400 block uppercase tracking-wider">{dataEvent.namaBank || "Bank Transfer"}</span>
+                    <strong className="text-xl text-gray-800 font-mono tracking-wider block mt-1">{dataEvent.nomorRekening || "-"}</strong>
+                    <span className="text-sm text-gray-500 block mt-1">a.n. <span className="font-semibold text-gray-700">{dataEvent.pemilikRekening || "-"}</span></span>
                   </div>
-                  <div className="p-3 bg-white rounded-lg border shadow-sm">
-                    <span className="text-xs text-gray-400 block">E-Wallet (Dana / ShopeePay)</span>
-                    <strong className="text-base text-gray-800">0812-3456-7890</strong>
-                    <span className="text-xs text-gray-500 block mt-1">a.n. POLIVENTS Internal</span>
-                  </div>
+                  {(dataEvent.namaBankAlternatif || dataEvent.nomorRekeningAlternatif) && (
+                    <div className="p-4 bg-white rounded-lg border shadow-sm hover:border-primary/50 transition-colors">
+                      <span className="text-xs font-bold text-gray-400 block uppercase tracking-wider">{dataEvent.namaBankAlternatif || "Pembayaran Alternatif"}</span>
+                      <strong className="text-xl text-gray-800 font-mono tracking-wider block mt-1">{dataEvent.nomorRekeningAlternatif || "-"}</strong>
+                      <span className="text-sm text-gray-500 block mt-1">a.n. <span className="font-semibold text-gray-700">{dataEvent.pemilikRekeningAlternatif || "-"}</span></span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -239,25 +324,32 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
             {/* SEKSI 3: UPLOAD BUKTI PEMBAYARAN */}
             <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6">
-                <UploadCloud className="h-5 w-5 text-blue-600" />
+                <UploadCloud className="h-5 w-5 text-primary" />
                 <h2 className="text-xl font-bold text-gray-800">Bukti Pembayaran</h2>
               </div>
               <div className="space-y-4">
                 <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Upload Bukti Pembayaran (Maks. 5MB)
                 </Label>
-                <div className="relative group border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl bg-gray-50/50 transition-all duration-200">
-                  <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                  <div className="p-10 flex flex-col items-center justify-center text-center space-y-3">
-                    <UploadCloud className="h-6 w-6 text-blue-600" />
-                    <p className="text-sm font-semibold text-gray-700">Drag & Drop Bukti Pembayaran</p>
+                {!buktiPembayaran ? (
+                  <div className="relative group border-2 border-dashed border-gray-300 hover:border-primary rounded-xl bg-gray-50/50 transition-all duration-200">
+                    <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    <div className="p-10 flex flex-col items-center justify-center text-center space-y-3">
+                      <UploadCloud className="h-8 w-8 text-primary group-hover:scale-110 transition-transform" />
+                      <p className="text-sm font-semibold text-gray-700">Klik atau Drag & Drop Bukti Transfer</p>
+                      <p className="text-xs text-gray-400">Mendukung JPG, PNG, PDF</p>
+                    </div>
                   </div>
-                </div>
-                {buktiPembayaran && (
-                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <FileCheck className="h-5 w-5 text-green-600" />
-                    <p className="text-sm font-medium text-green-800 truncate flex-1">{buktiPembayaran.name}</p>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setBuktiPembayaran(null)} className="text-red-500 text-xs">Hapus</Button>
+                ) : (
+                  <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl shadow-sm">
+                    <FileCheck className="h-6 w-6 text-green-600 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-green-800 truncate">{buktiPembayaran.name}</p>
+                      <p className="text-xs text-green-600 mt-0.5">{(buktiPembayaran.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setBuktiPembayaran(null)} className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
+                      Hapus
+                    </Button>
                   </div>
                 )}
               </div>
@@ -270,11 +362,19 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
           <Button 
             type="submit" 
             disabled={isLoading}
-            className={`w-full h-14 text-lg font-bold rounded-xl shadow-md transition-transform active:scale-[0.99] ${
-              isGratis ? 'bg-green-600 hover:bg-green-700' : 'bg-[#0052cc] hover:bg-blue-700'
+            className={`w-full h-14 text-lg font-bold rounded-xl shadow-md transition-all active:scale-[0.99] ${
+              isGratis ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-primary/90 text-white'
             }`}
           >
-            {isLoading ? "Sedang Memproses..." : isGratis ? "Daftar Event Sekarang (Gratis)" : "Simpan dan Selesai Pendaftaran"}
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" /> Memproses Pendaftaran...
+              </span>
+            ) : isGratis ? (
+              "Daftar Event Sekarang (Gratis)"
+            ) : (
+              "Selesaikan Pendaftaran"
+            )}
           </Button>
         </div>
       </form>
@@ -294,7 +394,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
             <div className="w-full">
               {modalStatus.type === 'success' || modalStatus.title === 'Sudah Terdaftar' ? (
                 checkIsConference() ? (
-                  <Button onClick={handleModalAction} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 rounded-xl flex items-center justify-center gap-2">
+                  <Button onClick={handleModalAction} className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-11 rounded-xl flex items-center justify-center gap-2">
                     <FileText className="w-4 h-4" /> Lanjutkan ke Submit Paper <ArrowRight className="w-4 h-4" />
                   </Button>
                 ) : (

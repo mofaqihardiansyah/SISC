@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { X, Calendar, MapPin, Users, Wallet, Building2, Phone, Mail } from 'lucide-react';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import React from "react";
+import { X, Calendar, MapPin, Users, Wallet, Building2, Phone, Mail, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
 type DataEventProps = {
   isOpen: boolean;
@@ -13,7 +13,8 @@ type DataEventProps = {
     judul: string;
     penyelenggara: string | null;
     tanggalMulai: Date;
-    status: 'pending' | 'published' | 'rejected';
+    tanggalSelesai: Date | null;
+    status: "pending" | "published" | "rejected";
     bannerUrl: string | null;
     deskripsi: string | null;
     syaratDanKetentuan: string | null;
@@ -23,155 +24,168 @@ type DataEventProps = {
     harga: number | null;
     emailKontak: string | null;
     teleponKontak: string | null;
+    jenisEvent: "seminar" | "conference" | null;
+    tipePlatform: "online" | "offline" | "hybrid" | null;
     participantCount?: number;
   };
-  onUpdateStatus: (id: number, status: 'published' | 'rejected') => Promise<void>;
+  onUpdateStatus: (id: number, status: "published" | "rejected") => Promise<void>;
 };
+
+function StatusBadge({ status }: { status: "pending" | "published" | "rejected" }) {
+  if (status === "pending")
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-amber-50 text-amber-700 border-amber-200/60 whitespace-nowrap">
+        Menunggu
+      </span>
+    );
+  if (status === "published")
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200/60 whitespace-nowrap">
+        Aktif
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-rose-50 text-rose-700 border-rose-200/60 whitespace-nowrap">
+      Ditolak
+    </span>
+  );
+}
 
 export default function DataEvent({ isOpen, onClose, event, onUpdateStatus }: DataEventProps) {
   if (!isOpen) return null;
 
+  const rows = [
+    {
+      label: "Kategori",
+      value: event.jenisEvent === "conference" ? "Konferensi" : event.jenisEvent === "seminar" ? "Seminar" : "Event",
+    },
+    {
+      label: "Tanggal Mulai",
+      value: format(new Date(event.tanggalMulai), "dd MMMM yyyy, HH:mm", { locale: id }),
+    },
+    {
+      label: "Tanggal Selesai",
+      value: event.tanggalSelesai
+        ? format(new Date(event.tanggalSelesai), "dd MMMM yyyy, HH:mm", { locale: id })
+        : "-",
+    },
+    {
+      label: "Platform / Tipe",
+      value: event.tipePlatform
+        ? event.tipePlatform.toUpperCase()
+        : "-",
+    },
+    {
+      label: "Lokasi / Link",
+      value: event.detailLokasi || "-",
+    },
+    {
+      label: "Kuota Peserta",
+      value: event.kuota ? `${event.kuota} Orang` : "-",
+    },
+    {
+      label: "Jumlah Pendaftar",
+      value: event.participantCount !== undefined ? `${event.participantCount} Orang` : "-",
+    },
+    {
+      label: "Harga Tiket",
+      value: event.tipeHarga === "free" ? "Gratis" : event.harga ? `Rp ${event.harga.toLocaleString("id-ID")}` : "-",
+    },
+    {
+      label: "Email Kontak",
+      value: event.emailKontak || "-",
+    },
+    {
+      label: "Telepon Kontak",
+      value: event.teleponKontak || "-",
+    },
+  ];
+
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
-        onClick={onClose}
-      ></div>
-
-      {/* Modal Content */}
-      <div className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-8 duration-500">
-        
-        {/* Header with Banner */}
-        <div className="relative h-48 sm:h-64 bg-[#0E215D] overflow-hidden shrink-0">
-          {event.bannerUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover opacity-50" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center opacity-20">
-              <Building2 size={120} className="text-white" />
-            </div>
-          )}
-          <div className="absolute inset-0 bg-linear-to-t from-[#0E215D] to-transparent"></div>
-          
-          <button 
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <h3 className="text-sm font-bold text-gray-800">Detail Event</h3>
+          <button
             onClick={onClose}
-            className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md border border-white/10 transition-all z-20"
+            className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 transition-colors"
           >
-            <X size={20} strokeWidth={3} />
+            <X className="w-4 h-4" />
           </button>
-
-          <div className="absolute bottom-8 left-8 right-8 z-10">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-blue-400/20 text-blue-100 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg border border-white/10 backdrop-blur-md">
-                Event Detail
-              </span>
-              <span className={`
-                ${event.status === 'published' ? 'bg-emerald-400/20 text-emerald-100 border-emerald-100/20' : ''}
-                ${event.status === 'pending' ? 'bg-amber-400/20 text-amber-100 border-amber-100/20' : ''}
-                ${event.status === 'rejected' ? 'bg-rose-400/20 text-rose-100 border-rose-100/20' : ''}
-                text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg border backdrop-blur-md
-              `}>
-                {event.status}
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight">{event.judul}</h2>
-          </div>
         </div>
 
-        {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-8 sm:p-10 custom-scrollbar">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            
-            {/* Main Info */}
-            <div className="lg:col-span-2 space-y-10">
-              {/* Description */}
-              <section className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-6 bg-[#0E215D] rounded-full"></div>
-                  <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Deskripsi Event</h3>
-                </div>
-                <div className="text-slate-500 font-medium leading-relaxed bg-slate-50/50 p-6 rounded-3xl border border-slate-100 whitespace-pre-wrap text-sm">
-                  {event.deskripsi || 'Tidak ada deskripsi tersedia.'}
-                </div>
-              </section>
-
-              {/* Syarat & Ketentuan */}
-              {event.syaratDanKetentuan && (
-                <section className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1 h-6 bg-[#0E215D] rounded-full"></div>
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Syarat & Ketentuan</h3>
-                  </div>
-                  <div className="text-slate-500 font-medium leading-relaxed bg-slate-50/50 p-6 rounded-3xl border border-slate-100 whitespace-pre-wrap text-sm">
-                    {event.syaratDanKetentuan}
-                  </div>
-                </section>
+        <div className="p-5">
+          {/* Poster + Judul + Status */}
+          <div className="flex items-start gap-4 mb-5">
+            <div className="w-16 h-20 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+              {event.bannerUrl ? (
+                <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover" />
+              ) : (
+                <Building2 className="w-8 h-8 text-gray-300" />
               )}
             </div>
-
-            {/* Sidebar Details */}
-            <div className="space-y-6">
-              <div className="bg-slate-50 rounded-[2.5rem] p-6 border border-slate-100 space-y-6">
-                <h4 className="text-[10px] font-black text-[#0E215D] uppercase tracking-[0.2em] mb-4 text-center">Informasi Lengkap</h4>
-                
-                <DetailItem 
-                  icon={<Calendar size={18} className="text-[#0E215D]" />} 
-                  label="Tanggal Mulai" 
-                  value={format(new Date(event.tanggalMulai), 'dd MMMM yyyy', { locale: id })} 
-                />
-                
-                <DetailItem 
-                  icon={<MapPin size={18} className="text-[#0E215D]" />} 
-                  label="Lokasi" 
-                  value={event.detailLokasi || 'Online / Hybrid'} 
-                />
-                
-                <DetailItem 
-                  icon={<Users size={18} className="text-[#0E215D]" />} 
-                  label="Kuota Peserta" 
-                  value={`${event.kuota || 0} Orang`} 
-                />
-                
-                <DetailItem 
-                  icon={<Users size={18} className="text-[#0E215D]" />} 
-                  label="Pendaftar" 
-                  value={`${event.participantCount || 0} Orang`} 
-                />
-                
-                <DetailItem 
-                  icon={<Wallet size={18} className="text-[#0E215D]" />} 
-                  label="Harga Tiket" 
-                  value={event.tipeHarga === 'free' ? 'Gratis' : `Rp ${event.harga?.toLocaleString('id-ID')}`} 
-                />
-
-                <div className="pt-4 border-t border-slate-200">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kontak Penyelenggara</p>
-                  <div className="space-y-3">
-                    <DetailItem icon={<Building2 size={14} />} label="" value={event.penyelenggara || '-'} compact />
-                    <DetailItem icon={<Mail size={14} />} label="" value={event.emailKontak || '-'} compact />
-                    <DetailItem icon={<Phone size={14} />} label="" value={event.teleponKontak || '-'} compact />
-                  </div>
-                </div>
-              </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-gray-800 text-sm break-words leading-tight mb-1">{event.judul}</div>
+              <div className="text-xs text-gray-400 mb-2 truncate">{event.penyelenggara || "Institusi Polines"}</div>
+              <StatusBadge status={event.status} />
             </div>
           </div>
+
+          {/* Details Table */}
+          <div className="space-y-3">
+            {rows.map(({ label, value }) => (
+              <div key={label} className="flex justify-between items-start gap-4">
+                <span className="text-[11px] text-gray-400 font-medium shrink-0 w-32">{label}</span>
+                <span className="text-[11px] text-gray-700 text-right font-medium break-all">{value}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Description Section */}
+          {event.deskripsi && (
+            <div className="mt-5 pt-4 border-t border-gray-100">
+              <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-1.5 block">
+                Deskripsi Event
+              </span>
+              <div className="text-[11px] text-gray-600 bg-gray-50/50 p-3 rounded-xl border border-gray-100/80 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto custom-scrollbar">
+                {event.deskripsi}
+              </div>
+            </div>
+          )}
+
+          {/* Terms Section */}
+          {event.syaratDanKetentuan && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-1.5 block">
+                Syarat & Ketentuan
+              </span>
+              <div className="text-[11px] text-gray-600 bg-gray-50/50 p-3 rounded-xl border border-gray-100/80 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto custom-scrollbar">
+                {event.syaratDanKetentuan}
+              </div>
+            </div>
+          )}
+
+          {/* Moderation Buttons (only shown for pending status) */}
+          {event.status === "pending" && (
+            <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">
+              <button
+                onClick={() => onUpdateStatus(event.id, "rejected")}
+                className="flex-1 py-2 bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-600 rounded-xl text-xs font-semibold transition-all text-center"
+              >
+                Tolak Event
+              </button>
+              <button
+                onClick={() => onUpdateStatus(event.id, "published")}
+                className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all text-center"
+              >
+                Setujui Event
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function DetailItem({ icon, label, value, compact = false }: { icon: React.ReactNode, label: string, value: string, compact?: boolean }) {
-  return (
-    <div className={`flex items-start gap-4 ${compact ? 'items-center' : ''}`}>
-      <div className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 shrink-0`}>
-        {icon}
-      </div>
-      <div className="flex-1 overflow-hidden">
-        {!compact && <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>}
-        <p className={`${compact ? 'text-xs' : 'text-sm'} font-black text-slate-700 truncate`}>{value}</p>
-      </div>
-    </div>
-  );
-}

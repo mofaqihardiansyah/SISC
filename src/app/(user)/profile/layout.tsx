@@ -22,8 +22,10 @@ export default async function ProfileLayout({ children }: { children: React.Reac
         <Topbar />
 
         {/* PAGE CONTENT */}
-        <main className="flex-1 p-8">
-          {children}
+        <main className="flex-1 overflow-y-auto bg-slate-50/50 p-4 lg:p-8">
+          <div className="max-w-7xl mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

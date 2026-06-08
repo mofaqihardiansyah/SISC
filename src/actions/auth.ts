@@ -4,12 +4,21 @@ import { db } from "@/db";
 import { users, profilPenyelenggara, otpCodes } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-
 import nodemailer from "nodemailer";
+import dns from "dns";
+
+// Paksa Node.js menggunakan Google DNS & Cloudflare DNS untuk memintas DNS ISP lokal yang bermasalah/timeout
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (e) {
+  console.warn("Gagal menyetel DNS resolver kustom:", e);
+}
+
+import crypto from "crypto";
 
 // Helper to generate OTP
 function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return crypto.randomInt(100000, 999999).toString();
 }
 
 // Helper to send email using Nodemailer
@@ -24,6 +33,9 @@ async function sendOTPEmail(email: string, code: string) {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
+      pool: true,
+      maxConnections: 3,
+      maxMessages: 100,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -119,8 +131,8 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
       expiresAt: expiresAt,
     });
 
-    // 6. Send OTP
-    await sendOTPEmail(values.email, otp);
+    // 6. Send OTP (Background)
+    sendOTPEmail(values.email, otp);
 
     return { success: true };
   } catch (error) {
@@ -129,7 +141,15 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
   }
 }
 
+const otpRateLimit = new Map<string, { attempts: number; lockUntil: number }>();
+
 export async function verifyOtpAction(email: string, code: string) {
+  const rateLimit = otpRateLimit.get(email) || { attempts: 0, lockUntil: 0 };
+  
+  if (Date.now() < rateLimit.lockUntil) {
+    return { error: "Terlalu banyak percobaan gagal. Silakan coba lagi nanti." };
+  }
+
   const otpRecords = await db.select().from(otpCodes).where(and(
     eq(otpCodes.email, email),
     eq(otpCodes.code, code)
@@ -137,6 +157,18 @@ export async function verifyOtpAction(email: string, code: string) {
   const otpRecord = otpRecords[0];
 
   if (!otpRecord) {
+    rateLimit.attempts += 1;
+    if (rateLimit.attempts >= 3) {
+      rateLimit.lockUntil = Date.now() + 10 * 60 * 1000; // Lock for 10 minutes
+    }
+    otpRateLimit.set(email, rateLimit);
+    return { error: "Kode OTP salah." };
+  }
+
+  // Jika berhasil, reset rate limit
+  otpRateLimit.delete(email);
+
+  if (otpRecord.expiresAt < new Date()) {
     return { error: "Kode OTP salah." };
   }
 
@@ -169,8 +201,8 @@ export async function resendOtpAction(email: string) {
     expiresAt: expiresAt,
   });
 
-  // Send OTP
-  await sendOTPEmail(email, otp);
+  // Send OTP (Background)
+  sendOTPEmail(email, otp);
 
   return { success: true };
 }
@@ -198,13 +230,19 @@ export async function requestPasswordReset(email: string) {
     expiresAt: expiresAt,
   });
 
-  // Send OTP
-  await sendOTPEmail(email, otp);
+  // Send OTP (Background)
+  sendOTPEmail(email, otp);
 
   return { success: true };
 }
 
 export async function verifyResetOtpAction(email: string, code: string) {
+  const rateLimit = otpRateLimit.get(email) || { attempts: 0, lockUntil: 0 };
+  
+  if (Date.now() < rateLimit.lockUntil) {
+    return { error: "Terlalu banyak percobaan gagal. Silakan coba lagi nanti." };
+  }
+
   const otpRecord = await db.query.otpCodes.findFirst({
     where: and(
       eq(otpCodes.email, email),
@@ -213,9 +251,15 @@ export async function verifyResetOtpAction(email: string, code: string) {
   });
 
   if (!otpRecord) {
+    rateLimit.attempts += 1;
+    if (rateLimit.attempts >= 3) {
+      rateLimit.lockUntil = Date.now() + 10 * 60 * 1000;
+    }
+    otpRateLimit.set(email, rateLimit);
     return { error: "Kode OTP salah." };
   }
 
+  // Jangan reset rate limit di sini karena kita masih butuh otp valid untuk final step
   if (otpRecord.expiresAt < new Date()) {
     return { error: "Kode OTP sudah kedaluwarsa." };
   }
@@ -225,6 +269,12 @@ export async function verifyResetOtpAction(email: string, code: string) {
 }
 
 export async function resetPassword(email: string, code: string, newPassword: string) {
+  const rateLimit = otpRateLimit.get(email) || { attempts: 0, lockUntil: 0 };
+  
+  if (Date.now() < rateLimit.lockUntil) {
+    return { error: "Terlalu banyak percobaan gagal. Silakan coba lagi nanti." };
+  }
+
   const otpRecord = await db.query.otpCodes.findFirst({
     where: and(
       eq(otpCodes.email, email),
@@ -233,8 +283,16 @@ export async function resetPassword(email: string, code: string, newPassword: st
   });
 
   if (!otpRecord) {
+    rateLimit.attempts += 1;
+    if (rateLimit.attempts >= 3) {
+      rateLimit.lockUntil = Date.now() + 10 * 60 * 1000;
+    }
+    otpRateLimit.set(email, rateLimit);
     return { error: "Kode OTP salah." };
   }
+
+  // Jika berhasil, reset rate limit
+  otpRateLimit.delete(email);
 
   if (otpRecord.expiresAt < new Date()) {
     return { error: "Kode OTP sudah kedaluwarsa." };

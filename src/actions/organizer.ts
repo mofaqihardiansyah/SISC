@@ -14,16 +14,14 @@ export async function updateProfilAction(formData: FormData) {
   try {
     await db.update(profilPenyelenggara)
       .set({
-        nama_instansi: nama,
-        deskripsi_instansi: deskripsi,
-        website_url: website,
+        namaInstansi: nama,
+        deskripsiInstansi: deskripsi,
+        websiteUrl: website,
       })
       .where(eq(profilPenyelenggara.id, parseInt(id)));
 
     revalidatePath("/penyelenggara/profil");
-    return { success: true };
   } catch (error) {
     console.error("Error pada server action:", error);
-    return { success: false };
   }
 }

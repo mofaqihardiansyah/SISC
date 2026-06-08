@@ -10,26 +10,44 @@ type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
 interface PendapatanChartProps {
   initialData: { tanggal: string; jumlah: number }[];
+  selectedEventId?: string;
 }
 
-export function PendapatanChart({ initialData }: PendapatanChartProps) {
+export function PendapatanChart({ initialData, selectedEventId }: PendapatanChartProps) {
   const [filter, setFilter] = useState<FilterType>("bulan-ini");
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (filter === "bulan-ini") {
-      return;
-    }
     const controller = new AbortController();
-    fetch(`/api/organizer/grafik-pendapatan?filter=${filter}`, { signal: controller.signal })
-      .then(r => { setLoading(true); return r.json(); })
-      .then(setData)
-      .finally(() => setLoading(false));
-    return () => controller.abort();
-  }, [filter]);
+    const url = new URL("/api/organizer/grafik-pendapatan", window.location.origin);
+    url.searchParams.set("filter", filter);
+    if (selectedEventId && selectedEventId !== "all") {
+      url.searchParams.set("eventId", selectedEventId);
+    }
 
-  const displayData = filter === "bulan-ini" ? initialData : data;
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(url.toString(), { signal: controller.signal });
+        if (!res.ok) throw new Error("Gagal mengambil data grafik pendapatan");
+        const json = await res.json();
+        setData(json);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error(error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => controller.abort();
+  }, [filter, selectedEventId]);
+
+  const displayData = data;
 
   return (
     <div>
@@ -56,7 +74,7 @@ export function PendapatanChart({ initialData }: PendapatanChartProps) {
           </div>
         )}
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={displayData} margin={{ left: 20, right: 20 }}>
+          <BarChart data={displayData} margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={50} />
             <YAxis

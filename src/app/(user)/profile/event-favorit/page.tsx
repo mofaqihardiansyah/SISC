@@ -52,11 +52,16 @@ export default function EventFavoritPage() {
   });
 
   return (
-    <div className="w-full px-2">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8 font-heading">Event Favorit</h1>
+    <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
+      
+      {/* PAGE HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Event Favorit</h1>
+        <p className="text-slate-500 mt-2">Pantau event yang telah Anda tandai sebagai favorit</p>
+      </div>
 
       {/* SEARCH & FILTER */}
-      <div className="relative mb-10">
+      <div className="relative">
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-slate-100"></div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative">
           <div className="pb-2 w-full md:w-80 z-10">

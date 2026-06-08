@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { RotateCcw, ChevronDown, Loader2 } from 'lucide-react';
+import { RotateCcw, ChevronDown, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import EventCard from '@/components/shared/EventCard';
 
@@ -136,6 +136,16 @@ function JelajahContent() {
   ];
 
   const totalPages = Math.ceil(totalEvents / eventsPerPage);
+
+  const getPageButtons = (): (number | string)[] => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | string)[] = [1, 2, 3];
+    if (currentPage > 4) pages.push("...");
+    if (currentPage > 3 && currentPage < totalPages - 1) pages.push(currentPage);
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
 
   const resetFilter = () => {
     setFilters({ polines: false, price: "", location: "", type: "", category: "", time: "" });
@@ -369,16 +379,47 @@ function JelajahContent() {
               )}
 
               {totalPages > 1 && (
-                <div className="flex justify-end mt-8 gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => (
+                <div className="flex justify-between items-center mt-8 flex-wrap gap-3">
+                  <span className="text-xs text-slate-400 font-semibold">
+                    Menampilkan <span className="text-slate-700">{totalEvents > 0 ? (currentPage - 1) * eventsPerPage + 1 : 0}</span> –{" "}
+                    <span className="text-slate-700">{Math.min(currentPage * eventsPerPage, totalEvents)}</span> dari{" "}
+                    <span className="text-slate-700 font-bold">{totalEvents}</span> event
+                  </span>
+                  <div className="flex gap-1 items-center">
                     <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-4 py-2 rounded-md text-sm ${currentPage === i + 1 ? "bg-blue-600 text-white" : "bg-white border text-gray-600 hover:bg-gray-50"}`}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
                     >
-                      {i + 1}
+                      <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                  ))}
+                    {getPageButtons().map((p, i) =>
+                      p === "..." ? (
+                        <span key={`dots-${i}`} className="text-gray-400 px-1 text-xs font-semibold">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => setCurrentPage(p as number)}
+                          className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
+                            currentPage === p
+                              ? "bg-slate-900 text-white shadow-sm"
+                              : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               )}
             </>
@@ -387,7 +428,7 @@ function JelajahContent() {
       </div>
 
       {/* FOOTER */}
-      <footer className="bg-[#0f172a] text-white py-12 px-12 mt-16">
+      <footer className="bg-brand-dark text-white py-12 px-12 mt-16">
         <div className="max-w-[1300px] mx-auto grid grid-cols-4 gap-10">
           <div>
             <h2 className="font-bold mb-4">POLIVENTS</h2>

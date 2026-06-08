@@ -15,6 +15,13 @@
       "when": 1779501352784,
       "tag": "0001_ambitious_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779614260443,
+      "tag": "0002_parched_miss_america",
+      "breakpoints": true
     }
   ]
 }

@@ -69,10 +69,12 @@ export default async function UserDashboard() {
   ];
 
   return (
-    <div className="space-y-8 p-6 md:p-8 bg-slate-50">
+    <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
+      
+      {/* PAGE HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pusat Aktivitas Anda</h1>
-        <p className="text-slate-500 mt-2">Pantau event favorit dan riwayat kegiatan Anda di sini.</p>
+        <h1 className="text-3xl font-bold text-slate-900">Pusat Aktivitas Anda</h1>
+        <p className="text-slate-500 mt-2">Pantau event favorit dan riwayat kegiatan Anda di sini</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

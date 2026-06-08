@@ -4,18 +4,28 @@ import { db } from "@/db";
 import { peserta, pendaftaran, event } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/auth";
+import * as z from "zod";
 
-// Tambahkan field bukti_pembayaran di interface agar lolos validasi tipe data
-interface RegistrationData {
-  nama_lengkap: string;
-  email: string;
-  nomor_telepon: string;
-  jenis_kelamin: string;
-  bukti_pembayaran?: string; // Tipe string untuk menampung nama file
-}
+const registrationSchema = z.object({
+  nama_lengkap: z.string().min(2, "Nama terlalu pendek"),
+  email: z.string().email("Format email tidak valid"),
+  nomor_telepon: z.string().min(8, "Nomor telepon tidak valid"),
+  jenis_kelamin: z.enum(["Laki-laki", "Perempuan"]),
+  bukti_pembayaran: z.string().optional(),
+});
+
+type RegistrationData = z.infer<typeof registrationSchema>;
 
 export async function daftarEvent(formData: RegistrationData, eventId: number) {
   try {
+    // Validasi Zod
+    const parsedData = registrationSchema.safeParse(formData);
+    if (!parsedData.success) {
+      return { success: false, error: parsedData.error.issues[0].message };
+    }
+
+    const validData = parsedData.data;
+
     const session = await auth();
     
     if (!session?.user?.id) {
@@ -53,27 +63,20 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
         userId: idUser,
         kodePendaftaran: kodePendaftaran,
         status: 'terdaftar',
+        buktiPembayaran: validData.bukti_pembayaran,
         dibuatPada: new Date(),
-        // Jika di tabel pendaftaran kelompokmu ada kolom untuk bukti bayar, buka komen di bawah ini:
-        // buktiPembayaran: formData.bukti_pembayaran 
       }).returning({ id: pendaftaran.id });
 
       if (!newPendaftaran) {
         throw new Error("Gagal membuat data pendaftaran");
       }
 
-      // Mapping Jenis Kelamin dari form ke Enum Database
-      const jenisKelaminMap: Record<string, "Laki-laki" | "Perempuan"> = {
-        pria: "Laki-laki",
-        wanita: "Perempuan",
-      };
-
       // 2. Gunakan ID pendaftaran yang baru dibuat untuk mendaftarkan peserta
       await tx.insert(peserta).values({
-        namaLengkap: formData.nama_lengkap, 
-        email: formData.email,
-        nomorTelepon: formData.nomor_telepon,
-        jenisKelamin: jenisKelaminMap[formData.jenis_kelamin] || "Laki-laki", 
+        namaLengkap: validData.nama_lengkap, 
+        email: validData.email,
+        nomorTelepon: validData.nomor_telepon,
+        jenisKelamin: validData.jenis_kelamin, 
         pendaftaranId: newPendaftaran.id, 
         kodePeserta: `PES-${idEvent}-${idUser}-${Math.floor(Math.random() * 1000)}`,
       });

@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { StatCard } from '@/components/admin/StatCard';
-import { FileCheck, CheckCircle, Users, X, Calendar, MapPin, Users as UsersIcon, Wallet, Building2, Phone, Mail, Globe, Clock, Tag, Monitor } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { FileCheck, CheckCircle, Users, X, Calendar, MapPin, Users as UsersIcon, Wallet, Building2, Phone, Mail, Globe, Clock, Tag, Monitor, ClipboardList } from 'lucide-react';
 import { approveEvent, rejectEvent, getPendingEvents } from '@/actions/persetujuan-event';
 import type { PendingEvent } from '@/actions/persetujuan-event';
+import Portal from '@/components/ui/Portal';
 
 const getPlatformColor = (platform: string | null) => {
   switch (platform) {
@@ -63,11 +63,9 @@ function ReviewModal({
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [actionLoading, setActionLoading] = useState<'approve' | 'reject' | null>(null);
 
-  if (!isOpen || !event) return null;
-
   const handleApproveAction = async () => {
     setActionLoading('approve');
-    await approveEvent(event.id);
+    await approveEvent(event!.id);
     setActionLoading(null);
     onRefresh();
     onClose();
@@ -75,28 +73,31 @@ function ReviewModal({
 
   const handleRejectAction = async () => {
     setActionLoading('reject');
-    await rejectEvent(event.id, rejectReason);
+    await rejectEvent(event!.id, rejectReason);
     setActionLoading(null);
     onRefresh();
     onClose();
   };
 
+  if (!isOpen || !event) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <Portal>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
 
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        <div className="bg-[#0E215D] px-6 py-5 flex items-start justify-between">
+        <div className="bg-slate-900 px-6 py-5 flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               {event.jenisEvent && (
                 <>
-                  <span className="text-[10px] font-bold text-blue-200 uppercase tracking-wider">{event.jenisEvent}</span>
-                  <span className="text-[10px] font-bold text-blue-200">•</span>
+                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">{event.jenisEvent}</span>
+                  <span className="text-[10px] font-bold text-slate-300">•</span>
                 </>
               )}
-              <span className="text-[10px] font-bold text-blue-200 uppercase tracking-wider">{event.platform || '-'}</span>
-              <span className="text-[10px] font-bold text-blue-200">•</span>
+              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">{event.platform || '-'}</span>
+              <span className="text-[10px] font-bold text-slate-300">•</span>
               <span className={`text-[10px] font-bold uppercase tracking-wider ${
                 event.status === 'pending' ? 'text-amber-300' :
                 event.status === 'published' ? 'text-emerald-300' : 'text-rose-300'
@@ -105,9 +106,9 @@ function ReviewModal({
               </span>
             </div>
             <h2 className="text-lg font-bold text-white truncate">{event.judul}</h2>
-            <p className="text-sm text-blue-200">oleh {event.penyelenggara || '-'}</p>
+            <p className="text-sm text-slate-300">oleh {event.penyelenggara || '-'}</p>
           </div>
-          <button onClick={onClose} className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0 ml-4">
+          <button onClick={onClose} className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 ml-4">
             <X size={18} />
           </button>
         </div>
@@ -166,7 +167,7 @@ function ReviewModal({
             <div className="mb-5">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pembicara</h3>
               <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <div className="w-10 h-10 bg-[#0E215D] rounded-xl flex items-center justify-center text-white text-sm font-bold shrink-0">
+                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white text-sm font-bold shrink-0">
                   {event.pembicara.charAt(0)}
                 </div>
                 <div>
@@ -191,7 +192,7 @@ function ReviewModal({
               <button
                 onClick={handleApproveAction}
                 disabled={actionLoading !== null}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
               >
                 {actionLoading === 'approve' ? (
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -200,7 +201,7 @@ function ReviewModal({
               <button
                 onClick={() => setShowRejectForm(true)}
                 disabled={actionLoading !== null}
-                className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
+                className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
               >
                 ✗ Tolak
               </button>
@@ -220,7 +221,7 @@ function ReviewModal({
                 <button
                   onClick={handleRejectAction}
                   disabled={actionLoading !== null}
-                  className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
+                  className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
                 >
                   {actionLoading === 'reject' ? (
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -229,7 +230,7 @@ function ReviewModal({
                 <button
                   onClick={() => { setShowRejectForm(false); setRejectReason(''); }}
                   disabled={actionLoading !== null}
-                  className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all"
+                  className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
                 >
                   Batal
                 </button>
@@ -239,13 +240,14 @@ function ReviewModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center border border-slate-100 text-[#0E215D] shrink-0">
+      <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center border border-slate-100 text-slate-900 shrink-0">
         {icon}
       </div>
       <span className="text-xs text-slate-400 font-semibold w-20 shrink-0">{label}</span>
@@ -266,7 +268,20 @@ export default function PersetujuanEventPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => {
+    let active = true;
+    const init = async () => {
+      const result = await getPendingEvents();
+      if (active) {
+        if (result.success) setEvents(result.data);
+        setLoading(false);
+      }
+    };
+    init();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const pendingCount = events.filter(e => e.status === 'pending').length;
   const approvedCount = events.filter(e => e.status === 'published').length;
@@ -292,11 +307,11 @@ export default function PersetujuanEventPage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <span className="w-6 h-6 border-2 border-slate-300 border-t-[#0E215D] rounded-full animate-spin" />
+            <span className="w-6 h-6 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin" />
           </div>
         ) : events.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-5xl mb-4">📋</div>
+            <div className="flex justify-center mb-4 text-slate-300"><ClipboardList size={48} /></div>
             <p className="text-gray-500 font-medium">Belum ada event.</p>
           </div>
         ) : (
@@ -321,7 +336,7 @@ export default function PersetujuanEventPage() {
                         onClick={() => setSelectedEvent(event)}
                         className="text-left"
                       >
-                        <span className="font-semibold text-gray-900 text-[13px] hover:text-blue-600 transition-colors">{event.judul}</span>
+                        <span className="font-semibold text-gray-900 text-[13px] hover:text-slate-700 transition-colors">{event.judul}</span>
                       </button>
                     </td>
                     <td className="px-6 py-3.5">
@@ -347,7 +362,7 @@ export default function PersetujuanEventPage() {
                       {event.status === 'pending' && (
                         <button
                           onClick={() => setSelectedEvent(event)}
-                          className="bg-[#0E215D] hover:bg-[#1a3a8a] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
+                          className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                         >
                           Tinjau
                         </button>
