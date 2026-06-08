@@ -1,7 +1,6 @@
 import React from 'react';
 import { auth } from "@/auth";
 import { db } from "@/db";
-import BuatEventButton from "@/components/penyelenggara/BuatEventButton";
 import { SharedDashboardTopbar } from '@/components/layout/SharedDashboardTopbar';
 import { LayoutDashboard, Settings } from 'lucide-react';
 
@@ -36,8 +35,6 @@ export async function Topbar({ title }: TopbarProps) {
       user={user || null} 
       roleTitle="POLIVENTS" 
       menuItems={menuItems}
-    >
-      <BuatEventButton />
-    </SharedDashboardTopbar>
+    />
   );
 }
