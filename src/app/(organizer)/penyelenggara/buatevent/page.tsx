@@ -250,6 +250,7 @@ export default function BuatEventPage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [metodePembayaranList, setMetodePembayaranList] = useState<MetodePembayaranLocal[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isDirty = useCallback(() => {
     return (
@@ -334,6 +335,7 @@ export default function BuatEventPage() {
   };
 
   const handleSubmit = async (isDraftFlag: boolean) => {
+    if (isPending || isSubmitting) return;
     setError(null);
     setSuccessMsg(null);
     if (!eventTitle.trim()) return setError("Judul event wajib diisi.");
@@ -350,11 +352,13 @@ export default function BuatEventPage() {
         return setError(`Metode pembayaran #${i + 1}: nomor akun wajib diisi.`);
     }
 
+    setIsSubmitting(true);
     startTransition(async () => {
       try {
         const result = await createEvent(buildFormData(isDraftFlag));
         if (result?.error) {
           setError(result.error);
+          setIsSubmitting(false);
         } else {
           setSuccessMsg(
             isDraftFlag
@@ -369,17 +373,21 @@ export default function BuatEventPage() {
             ? "Ukuran form/file melebihi batas server. Maksimal 5MB."
             : "Terjadi kesalahan jaringan atau server."
         );
+        setIsSubmitting(false);
       }
     });
   };
 
   const handleModalYes = () => {
+    if (isPending || isSubmitting) return;
     if (!eventTitle.trim()) { setShowDraftModal(false); resetForm(); return; }
+    setIsSubmitting(true);
     startTransition(async () => {
       await createEvent(buildFormData(true));
       setShowDraftModal(false);
       resetForm();
       router.push("/penyelenggara/buatevent?reset=" + Date.now());
+      setIsSubmitting(false);
     });
   };
 
@@ -403,7 +411,7 @@ export default function BuatEventPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {showDraftModal && (
-        <ConfirmDraftModal onYes={handleModalYes} onNo={handleModalNo} isPending={isPending} />
+        <ConfirmDraftModal onYes={handleModalYes} onNo={handleModalNo} isPending={isPending || isSubmitting} />
       )}
 
       <div className="max-w-3xl mx-auto py-8 px-4 flex flex-col gap-6">
@@ -569,13 +577,13 @@ export default function BuatEventPage() {
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 pb-8">
-          <button type="button" onClick={() => handleSubmit(true)} disabled={isPending}
+          <button type="button" onClick={() => handleSubmit(true)} disabled={isPending || isSubmitting}
             className="px-6 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md disabled:opacity-50">
-            {isPending ? "Menyimpan..." : "Simpan Draft"}
+            {isPending || isSubmitting ? "Menyimpan..." : "Simpan Draft"}
           </button>
-          <button type="button" onClick={() => handleSubmit(false)} disabled={isPending}
+          <button type="button" onClick={() => handleSubmit(false)} disabled={isPending || isSubmitting}
             className="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl disabled:opacity-50">
-            {isPending ? "Mengajukan..." : "Ajukan Publikasi ke Admin"}
+            {isPending || isSubmitting ? "Mengajukan..." : "Ajukan Publikasi ke Admin"}
           </button>
         </div>
       </div>

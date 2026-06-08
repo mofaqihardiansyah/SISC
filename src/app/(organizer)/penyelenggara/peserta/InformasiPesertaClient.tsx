@@ -378,23 +378,13 @@ export default function InformasiPesertaClient() {
   const startItem = totalData === 0 ? 0 : (page - 1) * PER_PAGE + 1;
   const endItem = Math.min(page * PER_PAGE, totalData);
 
-  const getPageNumbers = () => {
-    const pages: (number | "...")[] = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (page > 3) pages.push("...");
-      for (
-        let i = Math.max(2, page - 1);
-        isFinite(i) && i <= Math.min(totalPages - 1, page + 1);
-        i++
-      ) {
-        pages.push(i);
-      }
-      if (page < totalPages - 2) pages.push("...");
-      pages.push(totalPages);
-    }
+  const getPageNumbers = (): (number | string)[] => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | string)[] = [1, 2, 3];
+    if (page > 4) pages.push("...");
+    if (page > 3 && page < totalPages - 1) pages.push(page);
+    if (page < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
     return pages;
   };
 
@@ -578,31 +568,31 @@ export default function InformasiPesertaClient() {
 
         {/* Pagination */}
         {totalData > 0 && (
-          <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100 flex-wrap gap-2">
-            <p className="text-xs text-gray-400">
-              Menampilkan {startItem} - {endItem} dari {totalData} peserta
-            </p>
+          <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100 flex-wrap gap-3">
+            <span className="text-xs text-slate-400 font-semibold">
+              Menampilkan <span className="text-slate-700">{startItem}</span> – <span className="text-slate-700">{endItem}</span> dari <span className="text-slate-700 font-bold">{totalData}</span> peserta
+            </span>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
               >
                 <ChevronLeft size={13} />
               </button>
               {getPageNumbers().map((pg, idx) =>
                 pg === "..." ? (
-                  <span key={`dots-${idx}`} className="px-1 text-gray-400 text-sm">
+                  <span key={`dots-${idx}`} className="text-gray-400 px-1 text-xs font-semibold">
                     ...
                   </span>
                 ) : (
                   <button
                     key={pg}
                     onClick={() => setPage(pg as number)}
-                    className={`w-7 h-7 flex items-center justify-center rounded text-xs font-semibold border transition-colors cursor-pointer ${
+                    className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
                       page === pg
-                        ? "bg-primary text-white border-primary"
-                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"
                     }`}
                   >
                     {pg}
@@ -612,7 +602,7 @@ export default function InformasiPesertaClient() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
               >
                 <ChevronRight size={13} />
               </button>

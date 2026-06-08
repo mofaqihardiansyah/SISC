@@ -50,6 +50,16 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
     return `/profile/eventku?${urlParams.toString()}`;
   };
 
+  const getPageButtons = (): (number | string)[] => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | string)[] = [1, 2, 3];
+    if (currentPage > 4) pages.push("...");
+    if (currentPage > 3 && currentPage < totalPages - 1) pages.push(currentPage);
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
+
   const heading = statusLabels[statusFilter] || 'SEMUA EVENTKU';
 
   return (
@@ -105,22 +115,45 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
           )}
 
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-6">
-              <Link
-                href={createPageURL(currentPage - 1)}
-                className={`p-2 rounded-lg border border-slate-200 transition-colors ${currentPage <= 1 ? 'pointer-events-none opacity-50 bg-slate-50' : 'hover:bg-slate-50 bg-white'}`}
-              >
-                <ChevronLeft size={18} className="text-slate-600" />
-              </Link>
-              <span className="text-sm font-medium text-slate-600 px-3">
-                Halaman {currentPage} dari {totalPages}
+            <div className="flex justify-between items-center mt-6 flex-wrap gap-3">
+              <span className="text-xs text-slate-400 font-semibold">
+                Menampilkan <span className="text-slate-700">{events.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> –{" "}
+                <span className="text-slate-700">{Math.min(currentPage * ITEMS_PER_PAGE, events.length)}</span> dari{" "}
+                <span className="text-slate-700 font-bold">{events.length}</span> eventku
               </span>
-              <Link
-                href={createPageURL(currentPage + 1)}
-                className={`p-2 rounded-lg border border-slate-200 transition-colors ${currentPage >= totalPages ? 'pointer-events-none opacity-50 bg-slate-50' : 'hover:bg-slate-50 bg-white'}`}
-              >
-                <ChevronRight size={18} className="text-slate-600" />
-              </Link>
+              <div className="flex gap-1 items-center">
+                <Link
+                  href={createPageURL(currentPage - 1)}
+                  className={`w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500 ${currentPage <= 1 ? 'pointer-events-none opacity-40 bg-slate-50' : ''}`}
+                >
+                  <ChevronLeft size={14} className="text-slate-600" />
+                </Link>
+                {getPageButtons().map((p, i) =>
+                  p === "..." ? (
+                    <span key={`dots-${i}`} className="text-gray-400 px-1 text-xs font-semibold">
+                      ...
+                    </span>
+                  ) : (
+                    <Link
+                      key={p}
+                      href={createPageURL(p as number)}
+                      className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
+                        currentPage === p
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'border border-gray-200 bg-white text-slate-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {p}
+                    </Link>
+                  )
+                )}
+                <Link
+                  href={createPageURL(currentPage + 1)}
+                  className={`w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500 ${currentPage >= totalPages ? 'pointer-events-none opacity-40 bg-slate-50' : ''}`}
+                >
+                  <ChevronRight size={14} className="text-slate-600" />
+                </Link>
+              </div>
             </div>
           )}
         </div>

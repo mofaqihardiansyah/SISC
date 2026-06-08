@@ -260,9 +260,15 @@ export function ValidasiAksesPenyelenggaraClient({
     return processedData.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   }, [processedData, currentPage]);
 
-  const pageNumbers = useMemo(() => {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }, [totalPages]);
+  const getPageButtons = (): (number | string)[] => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | string)[] = [1, 2, 3];
+    if (currentPage > 4) pages.push("...");
+    if (currentPage > 3 && currentPage < totalPages - 1) pages.push(currentPage);
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
 
   const goPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -733,7 +739,7 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
 
         {/* ── Pagination Area ── */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-3 pt-5 border-t border-slate-100 gap-3">
+        <div className="flex justify-between items-center mt-3 pt-5 border-t border-slate-100 flex-wrap gap-3">
           <span className="text-xs text-slate-400 font-semibold">
             Menampilkan <span className="text-slate-700">{processedData.length > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0}</span> –{" "}
             <span className="text-slate-700">
@@ -747,34 +753,40 @@ export function ValidasiAksesPenyelenggaraClient({
               onClick={() => goPage(currentPage - 1)}
               disabled={currentPage === 1}
               aria-label="Halaman sebelumnya"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
 
-            {pageNumbers.map((page) => (
-              <button
-                key={page}
-                onClick={() => goPage(page)}
-                aria-label={`Halaman ${page}`}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-bold transition-all shadow-sm
-                  ${
-                    page === currentPage
-                      ? "border-slate-800 bg-slate-800 text-white"
-                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
-              >
-                {page}
-              </button>
-            ))}
+            {getPageButtons().map((page, idx) =>
+              page === "..." ? (
+                <span key={`dots-${idx}`} className="text-gray-400 px-1 text-xs font-semibold">
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  onClick={() => goPage(page as number)}
+                  aria-label={`Halaman ${page}`}
+                  className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center
+                    ${
+                      page === currentPage
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"
+                    }`}
+                >
+                  {page}
+                </button>
+              )
+            )}
 
             <button
               onClick={() => goPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               aria-label="Halaman berikutnya"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -822,40 +834,37 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
       )}
 
-      {/* ── Premium Detail Side-Drawer ── */}
+      {/* ── Premium Detail Modal ── */}
       {detailItem !== null && (
-        <div className="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 overflow-hidden">
-            {/* Backdrop with elegant blur */}
-            <div
-              onClick={() => setDetailItem(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 animate-in fade-in"
-            />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+          {/* Backdrop with elegant blur */}
+          <div
+            onClick={() => setDetailItem(null)}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
+          />
 
-            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-              {/* Sliding Card Panel */}
-              <div className="pointer-events-auto w-screen max-w-md transform transition duration-300 translate-x-0 bg-white shadow-2xl h-screen flex flex-col justify-between animate-in slide-in-from-right">
+          <div className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh]">
                 
-                {/* Drawer Header */}
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-slate-100 text-slate-600 font-mono text-[10px] font-extrabold px-2 py-1 rounded-md border border-slate-200">
-                      ID: {detailItem.id}
-                    </span>
-                    <h3 className="text-sm font-extrabold text-gray-800" id="slide-over-title">
-                      Tinjau Profil Lengkap
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => setDetailItem(null)}
-                    className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-[#0E215D] text-white">
+              <div className="flex items-center gap-2">
+                <span className="bg-white/10 text-white font-mono text-[10px] font-extrabold px-2 py-1 rounded-md border border-white/20">
+                  ID: {detailItem.id}
+                </span>
+                <h3 className="text-sm font-extrabold text-white" id="slide-over-title">
+                  Tinjau Profil Lengkap
+                </h3>
+              </div>
+              <button
+                onClick={() => setDetailItem(null)}
+                className="w-8 h-8 rounded-xl hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-                {/* Drawer Content Area (Scrollable) */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Modal Content Area (Scrollable) */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
                   
                   {/* Instansi Title Card */}
                   <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex flex-col items-center text-center relative overflow-hidden">
@@ -1049,8 +1058,6 @@ export function ValidasiAksesPenyelenggaraClient({
                 </div>
 
               </div>
-            </div>
-          </div>
         </div>
       )}
 

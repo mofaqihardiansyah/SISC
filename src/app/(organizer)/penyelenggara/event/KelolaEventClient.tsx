@@ -147,6 +147,16 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
   const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
   const currentEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  const getPageButtons = (): (number | string)[] => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | string)[] = [1, 2, 3];
+    if (currentPage > 4) pages.push("...");
+    if (currentPage > 3 && currentPage < totalPages - 1) pages.push(currentPage);
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
+
   const openEditModal = (event: EventData) => {
     setSelectedEvent(event);
     setFormData({
@@ -430,51 +440,64 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
       {/* PAGINATION SECTION */}
       {totalPages > 1 && (
-        <div className="flex justify-end items-center gap-1.5 mt-6">
-          <button 
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-xl text-slate-400 hover:bg-slate-50 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft size={16}/>
-          </button>
-          
-          {Array.from({ length: totalPages }).map((_, idx) => {
-            const pageNum = idx + 1;
-            return (
-              <button 
-                key={pageNum}
-                onClick={() => setCurrentPage(pageNum)}
-                className={`w-9 h-9 flex items-center justify-center rounded-xl font-bold text-sm transition-all duration-200 hover:scale-105 active:scale-95 ${
-                  currentPage === pageNum 
-                    ? 'bg-slate-900 text-white' 
-                    : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {pageNum}
-              </button>
-            );
-          })}
+        <div className="flex justify-between items-center mt-6 flex-wrap gap-3">
+          <span className="text-xs text-slate-400 font-semibold">
+            Menampilkan <span className="text-slate-700">{filteredEvents.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> –{" "}
+            <span className="text-slate-700">
+              {Math.min(currentPage * itemsPerPage, filteredEvents.length)}
+            </span>{" "}
+            dari <span className="text-slate-700 font-bold">{filteredEvents.length}</span> event
+          </span>
+          <div className="flex gap-1 items-center">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
+            >
+              <ChevronLeft size={14}/>
+            </button>
+            
+            {getPageButtons().map((p, idx) =>
+              p === "..." ? (
+                <span key={`dots-${idx}`} className="text-gray-400 px-1 text-xs font-semibold">
+                  ...
+                </span>
+              ) : (
+                <button 
+                  key={p}
+                  onClick={() => setCurrentPage(p as number)}
+                  className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
+                    currentPage === p 
+                      ? 'bg-slate-900 text-white shadow-sm' 
+                      : 'border border-gray-200 text-slate-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            )}
 
-          <button 
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            className="w-9 h-9 flex items-center justify-center border border-slate-200 rounded-xl text-slate-400 hover:bg-slate-50 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronRight size={16}/>
-          </button>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
+            >
+              <ChevronRight size={14}/>
+            </button>
+          </div>
         </div>
       )}
 
       {/* MODAL EDIT FORM */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-999 flex items-center justify-end bg-black/30 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-xl h-full flex flex-col shadow-xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-50">
-              <h2 className="text-lg font-bold text-[#1E293B]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-3xl max-h-[95vh] rounded-[2rem] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-[#0E215D] text-white">
+              <h2 className="text-lg font-bold text-white">
                 {selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-full text-slate-400 transition-all duration-200 hover:scale-110 active:scale-90" disabled={isSaving}>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-300 hover:text-white transition-all duration-200 hover:scale-110 active:scale-90" disabled={isSaving}>
                 <X size={24}/>
               </button>
             </div>
