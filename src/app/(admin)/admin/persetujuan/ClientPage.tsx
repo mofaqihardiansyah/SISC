@@ -6,6 +6,7 @@ import { FileCheck, CheckCircle, Users, X, Calendar, MapPin, Users as UsersIcon,
 import { Badge } from '@/components/ui/badge';
 import { approveEvent, rejectEvent, getPendingEvents } from '../../../../actions/persetujuan-event';
 import type { PendingEvent } from '../../../../actions/persetujuan-event';
+import Portal from '@/components/ui/Portal';
 
 function EventCategoryIcon({ emoji, className = "w-5 h-5 text-slate-500" }: { emoji: string; className?: string }) {
   switch (emoji) {
@@ -99,7 +100,8 @@ function ReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <Portal>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
 
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
@@ -265,6 +267,7 @@ function ReviewModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 

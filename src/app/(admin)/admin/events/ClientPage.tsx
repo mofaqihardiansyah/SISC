@@ -1,18 +1,14 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Search, 
   ChevronDown, 
-  Calendar, 
-  Building2, 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
   Eye, 
   Trash2,
-  Users,
-  Edit3
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -21,7 +17,6 @@ import { useRouter } from 'next/navigation';
 import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
 import DataEvent from './DataEvent';
-import EditEvent from './EditEvent';
 
 export type Event = {
   id: number;
@@ -66,19 +61,52 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
   const [events, setEvents] = useState<Event[]>(initialEventsData);
 
   // Sync state with props when server data refreshes
-  React.useEffect(() => {
+  useEffect(() => {
     setEvents(initialEventsData);
   }, [initialEventsData]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [targetFilter, setTargetFilter] = useState('all');
+  const [platformFilter, setPlatformFilter] = useState('all');
+  const [priceFilter, setPriceFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [statusTab, setStatusTab] = useState<'all' | 'pending' | 'published' | 'rejected'>('all');
   const [selectedRowIds, setSelectedRowIds] = useState<Set<number>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const EVENTS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, typeFilter, targetFilter, platformFilter, priceFilter, sortBy, statusTab]);
   
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const isFilterActive = useMemo(() => {
+    return searchTerm !== '' || 
+      typeFilter !== 'all' || 
+      targetFilter !== 'all' || 
+      platformFilter !== 'all' || 
+      priceFilter !== 'all' || 
+      sortBy !== 'newest' || 
+      statusTab !== 'all';
+  }, [searchTerm, typeFilter, targetFilter, platformFilter, priceFilter, sortBy, statusTab]);
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setTypeFilter('all');
+    setTargetFilter('all');
+    setPlatformFilter('all');
+    setPriceFilter('all');
+    setSortBy('newest');
+    setStatusTab('all');
+  };
 
   const filteredEvents = useMemo(() => {
     return events.filter(e => {
@@ -86,9 +114,17 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
         (e.penyelenggara && e.penyelenggara.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesType = typeFilter === 'all' || e.jenisEvent === typeFilter;
       const matchesStatus = statusTab === 'all' || e.status === statusTab;
-      return matchesSearch && matchesType && matchesStatus;
+      
+      const matchesTarget = targetFilter === 'all' || 
+        (targetFilter === 'polines' && e.isEventPolines) || 
+        (targetFilter === 'umum' && !e.isEventPolines);
+        
+      const matchesPlatform = platformFilter === 'all' || e.tipePlatform === platformFilter;
+      const matchesPrice = priceFilter === 'all' || e.tipeHarga === priceFilter;
+
+      return matchesSearch && matchesType && matchesStatus && matchesTarget && matchesPlatform && matchesPrice;
     });
-  }, [events, searchTerm, typeFilter, statusTab]);
+  }, [events, searchTerm, typeFilter, statusTab, targetFilter, platformFilter, priceFilter]);
 
   const sortedEvents = useMemo(() => {
     const sorted = [...filteredEvents];
@@ -103,6 +139,10 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
     }
     return sorted;
   }, [filteredEvents, sortBy]);
+
+  const totalPages = Math.ceil(sortedEvents.length / EVENTS_PER_PAGE) || 1;
+  const startIdx = (currentPage - 1) * EVENTS_PER_PAGE;
+  const paginatedEvents = sortedEvents.slice(startIdx, startIdx + EVENTS_PER_PAGE);
 
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus event ini?')) return;
@@ -121,9 +161,39 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
     }
   };
 
-  const handleStatusUpdate = async (id: number, status: 'published' | 'rejected') => {
+  const handleBulkDelete = async () => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${selectedRowIds.size} event terpilih?`)) return;
+
+    const idsArray = Array.from(selectedRowIds);
+    let successCount = 0;
+
+    const loadingToast = toast.loading('Menghapus event terpilih...');
     try {
-      const res = await updateEventStatus(id, status);
+      for (const id of idsArray) {
+        const res = await deleteEvent(id);
+        if (res.success) {
+          successCount++;
+        }
+      }
+      toast.dismiss(loadingToast);
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} event berhasil dihapus`);
+        setEvents(prev => prev.filter(e => !selectedRowIds.has(e.id)));
+        setSelectedRowIds(new Set());
+      } else {
+        toast.error('Gagal menghapus event terpilih');
+      }
+    } catch (err) {
+      toast.dismiss(loadingToast);
+      console.error(err);
+      toast.error('Terjadi kesalahan saat menghapus massal');
+    }
+  };
+
+  const handleStatusUpdate = async (id: number, status: 'published' | 'rejected', reason?: string) => {
+    try {
+      const res = await updateEventStatus(id, status, reason);
       if (res.success) {
         toast.success(res.message || 'Status berhasil diperbarui');
         setEvents(events.map(e => e.id === id ? { ...e, status } : e));
@@ -139,11 +209,6 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
   const openDetail = (event: Event) => {
     setSelectedEvent(event);
     setIsDetailOpen(true);
-  };
-
-  const openEdit = (event: Event) => {
-    setSelectedEvent(event);
-    setIsEditOpen(true);
   };
 
   const handleEditSuccess = () => {
@@ -172,128 +237,185 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-black text-[#0E215D] tracking-tight">Manajemen Event</h1>
-          <p className="text-slate-500 font-medium text-sm max-w-2xl">
-            Kelola event yang didaftarkan oleh penyelenggara di platform.
-          </p>
-        </div>
-        <button className="bg-[#0E215D] text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#0E215D]/20 hover:bg-[#1a3280] transition-all flex items-center gap-2">
-          <Calendar size={16} />
-          Tambah Event Baru
-        </button>
-      </div>
-
       {/* Unified Data Grid */}
       <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col">
         
-        {/* Status Tabs */}
-        <div className="flex items-center border-b border-slate-200/60 px-2 pt-2">
-          {[
-            { id: 'all', label: 'Semua Event', count: events.length },
-            { id: 'pending', label: 'Menunggu Verifikasi', count: events.filter(e => e.status === 'pending').length },
-            { id: 'published', label: 'Published', count: events.filter(e => e.status === 'published').length },
-            { id: 'rejected', label: 'Ditolak', count: events.filter(e => e.status === 'rejected').length }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setStatusTab(tab.id as 'all' | 'pending' | 'published' | 'rejected')}
-              className={cn(
-                "px-5 py-3 text-xs font-black uppercase tracking-widest border-b-2 transition-all flex items-center gap-2",
-                statusTab === tab.id 
-                  ? "border-[#0E215D] text-[#0E215D]" 
-                  : "border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300"
-              )}
-            >
-              {tab.label}
-              <span className={cn(
-                "px-2 py-0.5 rounded-full text-[9px]",
-                statusTab === tab.id ? "bg-[#0E215D]/10 text-[#0E215D]" : "bg-slate-100 text-slate-500"
-              )}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
-
         {/* Control Bar inside Grid */}
-        <div className="p-3 bg-slate-50/50 border-b border-slate-200/60 flex flex-col md:flex-row gap-3 items-center justify-between">
-          <div className="relative group flex-1 w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#0E215D] transition-colors" size={16} />
-            <input 
-              type="text" 
-              placeholder="Cari judul event atau penyelenggara..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200/60 rounded-lg outline-none text-xs font-semibold text-slate-700 placeholder:text-slate-400 focus:border-[#0E215D]/30 transition-all shadow-sm" 
-            />
+        <div className="p-4 bg-slate-50/50 border-b border-slate-200/60 space-y-4">
+          {/* Top Row: Search Bar (Full Width) & Reset Button */}
+          <div className="flex gap-2 items-center">
+            <div className="flex-1 relative group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors" size={15} />
+              <input 
+                type="text" 
+                placeholder="Cari judul event, penyelenggara, atau kata kunci lainnya..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl outline-none text-xs font-medium text-slate-700 placeholder:text-slate-400 focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs" 
+              />
+            </div>
+            {isFilterActive && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 border border-slate-200/60 shadow-xs"
+              >
+                <RotateCcw size={13} /> Reset Filter
+              </button>
+            )}
           </div>
 
-          <div className="flex gap-2 w-full md:w-auto">
-            {selectedRowIds.size > 0 && (
-              <div className="flex items-center gap-2 mr-2 px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold text-slate-600">
-                <span>{selectedRowIds.size} dipilih</span>
-                <div className="h-4 w-px bg-slate-300 mx-1"></div>
-                <button className="text-rose-600 hover:text-rose-700 px-2 py-0.5 rounded hover:bg-rose-50 transition-colors">Hapus</button>
+          {/* Bottom Row: Grid of Dropdowns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
+            {/* Status Dropdown */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Verifikasi</label>
+              <div className="relative">
+                <select 
+                  value={statusTab}
+                  onChange={(e) => setStatusTab(e.target.value as 'all' | 'pending' | 'published' | 'rejected')}
+                  className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
+                >
+                  <option value="all">Semua ({events.length})</option>
+                  <option value="pending">Menunggu ({events.filter(e => e.status === 'pending').length})</option>
+                  <option value="published">Published ({events.filter(e => e.status === 'published').length})</option>
+                  <option value="rejected">Ditolak ({events.filter(e => e.status === 'rejected').length})</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
-            )}
-            <div className="relative min-w-[130px]">
-              <select 
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full appearance-none bg-white border border-slate-200/60 text-slate-700 pl-3 pr-8 py-2 rounded-lg outline-none text-[10px] font-black uppercase tracking-widest cursor-pointer focus:border-[#0E215D]/30 transition-all shadow-sm"
-              >
-                <option value="all">Semua Jenis</option>
-                <option value="seminar">Seminar</option>
-                <option value="conference">Conference</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
             </div>
-            <div className="relative min-w-[130px]">
-              <select 
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full appearance-none bg-white border border-slate-200/60 text-slate-700 pl-3 pr-8 py-2 rounded-lg outline-none text-[10px] font-black uppercase tracking-widest cursor-pointer focus:border-[#0E215D]/30 transition-all shadow-sm"
-              >
-                <option value="newest">Terbaru</option>
-                <option value="oldest">Terlama</option>
-                <option value="name_asc">Nama (A-Z)</option>
-                <option value="name_desc">Nama (Z-A)</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+
+            {/* Type Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Jenis Event</label>
+              <div className="relative">
+                <select 
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
+                >
+                  <option value="all">Semua Jenis</option>
+                  <option value="seminar">Seminar</option>
+                  <option value="conference">Conference</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              </div>
+            </div>
+
+            {/* Target Penyelenggara Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Target Peserta</label>
+              <div className="relative">
+                <select 
+                  value={targetFilter}
+                  onChange={(e) => setTargetFilter(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
+                >
+                  <option value="all">Semua Target</option>
+                  <option value="polines">Polines (Internal)</option>
+                  <option value="umum">Umum (Eksternal)</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              </div>
+            </div>
+
+            {/* Platform Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Platform</label>
+              <div className="relative">
+                <select 
+                  value={platformFilter}
+                  onChange={(e) => setPlatformFilter(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
+                >
+                  <option value="all">Semua Platform</option>
+                  <option value="offline">Offline (Luring)</option>
+                  <option value="online">Online (Daring)</option>
+                  <option value="hybrid">Hybrid</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              </div>
+            </div>
+
+            {/* Price Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Biaya</label>
+              <div className="relative">
+                <select 
+                  value={priceFilter}
+                  onChange={(e) => setPriceFilter(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="free">Gratis</option>
+                  <option value="paid">Berbayar</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              </div>
+            </div>
+
+            {/* Sort Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Urutkan</label>
+              <div className="relative">
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
+                >
+                  <option value="newest">Terbaru</option>
+                  <option value="oldest">Terlama</option>
+                  <option value="name_asc">Nama (A-Z)</option>
+                  <option value="name_desc">Nama (Z-A)</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              </div>
             </div>
           </div>
+
+          {/* Action Row: Bulk Selection Actions */}
+          {selectedRowIds.size > 0 && (
+            <div className="flex justify-end pt-2 border-t border-slate-100/50 mt-1">
+              <div className="flex items-center gap-2 px-3 py-1 bg-rose-50 border border-rose-100 rounded-xl h-[34px]">
+                <span className="text-xs font-bold text-rose-600">{selectedRowIds.size} dipilih</span>
+                <div className="h-4 w-px bg-rose-200 mx-1"></div>
+                <button 
+                  onClick={handleBulkDelete}
+                  className="flex items-center gap-1 text-rose-600 hover:text-rose-700 font-bold text-xs transition-colors cursor-pointer"
+                >
+                  <Trash2 size={12} /> Hapus Massal
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+        <div className="flex-1 min-h-0 overflow-auto">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200/60 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                <th className="px-6 py-3 w-16 text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      className="rounded border-slate-300 text-[#0E215D] focus:ring-[#0E215D] cursor-pointer"
-                      checked={sortedEvents.length > 0 && selectedRowIds.size === sortedEvents.length}
-                      onChange={toggleSelectAll}
-                    />
-                    <span>#</span>
-                  </div>
+              <tr className="bg-slate-50 border-b border-slate-200/60 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <th className="px-3 py-2.5 w-10 text-center select-none">
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer w-3.5 h-3.5"
+                    checked={sortedEvents.length > 0 && selectedRowIds.size === sortedEvents.length}
+                    onChange={toggleSelectAll}
+                  />
                 </th>
-                <th className="px-6 py-3 whitespace-nowrap">Event</th>
-                <th className="px-6 py-3 whitespace-nowrap">Penyelenggara & Waktu</th>
-                <th className="px-6 py-3 text-center whitespace-nowrap">Kategori</th>
-                <th className="px-6 py-3 text-center whitespace-nowrap">Pendaftar</th>
-                <th className="px-6 py-3 text-center whitespace-nowrap">Status</th>
-                <th className="px-6 py-3 text-right whitespace-nowrap">Aksi</th>
+                <th className="px-3 py-2.5 w-10 text-center whitespace-nowrap select-none">#</th>
+                <th className="px-3 py-2.5 w-[25%] min-w-[220px] whitespace-nowrap select-none">Event</th>
+                <th className="px-3 py-2.5 w-[15%] min-w-[130px] whitespace-nowrap select-none">Penyelenggara</th>
+                <th className="px-3 py-2.5 w-[18%] min-w-[150px] whitespace-nowrap select-none">Waktu Pelaksanaan</th>
+                <th className="px-3 py-2.5 w-[12%] min-w-[110px] whitespace-nowrap select-none">Tipe & Harga</th>
+                <th className="px-3 py-2.5 w-[12%] min-w-[110px] whitespace-nowrap select-none">Kuota & Pendaftar</th>
+                <th className="px-3 py-2.5 w-[10%] min-w-[90px] text-center whitespace-nowrap select-none">Status</th>
+                <th className="px-3 py-2.5 w-[8%] min-w-[80px] text-center whitespace-nowrap select-none">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200/60 text-xs">
+            <tbody className="divide-y divide-slate-200/60 text-xs text-slate-600">
               {sortedEvents.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-16 text-center text-slate-500">
+                  <td colSpan={9} className="px-3 py-16 text-center text-slate-500">
                     <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mx-auto mb-3 border border-slate-100 shadow-inner">
                       <Search className="text-slate-300" size={20} />
                     </div>
@@ -302,141 +424,237 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   </td>
                 </tr>
               ) : (
-                sortedEvents.map((event, index) => (
-                  <tr key={event.id} className={cn("hover:bg-slate-50/25 transition-colors group", selectedRowIds.has(event.id) && "bg-blue-50/30")}>
-                    {/* Checkbox & Number */}
-                    <td className="px-6 py-3.5 text-center">
-                      <div className="flex items-center justify-center gap-2">
+                paginatedEvents.map((event, index) => {
+                  const kuotaVal = event.kuota || 0;
+                  const participantVal = event.participantCount || 0;
+                  const percent = kuotaVal > 0 ? Math.round((participantVal / kuotaVal) * 100) : 0;
+
+                  return (
+                    <tr key={event.id} className={cn("hover:bg-slate-50/25 transition-colors group", selectedRowIds.has(event.id) && "bg-blue-50/30")}>
+                      {/* Column 1: Checkbox */}
+                      <td className="px-3 py-2.5 text-center">
                         <input 
                           type="checkbox" 
-                          className="rounded border-slate-300 text-[#0E215D] focus:ring-[#0E215D] cursor-pointer"
+                          className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer w-3.5 h-3.5"
                           checked={selectedRowIds.has(event.id)}
                           onChange={() => toggleSelectRow(event.id)}
                         />
-                        <span className="text-[10px] font-bold text-slate-400">{index + 1}</span>
-                      </div>
-                    </td>
- 
-                    {/* Column 1: Event */}
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200/60 group-hover:border-[#0E215D]/20 transition-colors">
-                          {event.bannerUrl ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
-                              <Building2 size={16} />
+                      </td>
+
+                      {/* Column 2: Number */}
+                      <td className="px-3 py-2.5 text-center font-bold text-slate-400">
+                        {startIdx + index + 1}
+                      </td>
+   
+                      {/* Column 3: Event Banner & Title */}
+                      <td className="px-3 py-2.5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200/60 group-hover:border-slate-900/20 transition-all relative">
+                            {event.bannerUrl ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <div className="font-bold text-slate-800 text-xs hover:text-indigo-600 transition-colors line-clamp-2 leading-snug pr-2" title={event.judul}>
+                              {event.judul}
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              <span className={cn(
+                                "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase whitespace-nowrap",
+                                event.jenisEvent === 'conference'
+                                  ? "bg-blue-50 text-blue-700 border border-blue-100/50"
+                                  : "bg-indigo-50 text-indigo-700 border border-indigo-100/50"
+                              )}>
+                                {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'}
+                              </span>
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wider uppercase whitespace-nowrap bg-slate-50 text-slate-500 border border-slate-100">
+                                {event.isEventPolines ? 'Polines' : 'Umum'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+   
+                      {/* Column 4: Penyelenggara */}
+                      <td className="px-3 py-2.5">
+                          <div className="flex items-center text-slate-700">
+                            <span className="font-medium text-xs truncate max-w-[150px]">{event.penyelenggara || 'Institusi Polines'}</span>
+                          </div>
+                      </td>
+   
+                      {/* Column 5: Waktu Pelaksanaan */}
+                      <td className="px-3 py-2.5">
+                        <div className="flex flex-col gap-0.5">
+                          <div className="text-xs font-bold text-slate-800 whitespace-nowrap">
+                            {format(new Date(event.tanggalMulai), 'dd MMM yyyy', { locale: id })}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-medium">
+                            {format(new Date(event.tanggalMulai), 'HH:mm', { locale: id })} WIB
+                          </div>
+                        </div>
+                      </td>
+   
+                      {/* Column 6: Tipe & Harga */}
+                      <td className="px-3 py-2.5">
+                        <div className="flex flex-col gap-1">
+                          <div>
+                            <span className={cn(
+                              "inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border tracking-wider uppercase whitespace-nowrap",
+                              event.tipePlatform === 'offline' && "bg-blue-50 text-blue-700 border-blue-200/60",
+                              event.tipePlatform === 'online' && "bg-purple-50 text-purple-700 border-purple-200/60",
+                              event.tipePlatform === 'hybrid' && "bg-emerald-50 text-emerald-700 border-emerald-200/60",
+                              !event.tipePlatform && "bg-slate-50 text-slate-600 border-slate-200/60"
+                            )}>
+                              {event.tipePlatform === 'offline' ? 'Offline' : event.tipePlatform === 'online' ? 'Online' : event.tipePlatform === 'hybrid' ? 'Hybrid' : '-'}
+                            </span>
+                          </div>
+                          <div className="text-xs font-bold text-slate-700 ml-1">
+                            {event.tipeHarga === 'free' ? (
+                              <span className="text-emerald-600">Gratis</span>
+                            ) : (
+                              <span>Rp {(event.harga || 0).toLocaleString('id-ID')}</span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      
+                      {/* Column 7: Kuota & Pendaftar Progress Bar */}
+                      <td className="px-3 py-2.5">
+                        <div className="flex flex-col gap-1 w-28">
+                          <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
+                            <span>{participantVal} / {kuotaVal > 0 ? kuotaVal : '∞'} Terdaftar</span>
+                            {kuotaVal > 0 && <span>{percent}%</span>}
+                          </div>
+                          {kuotaVal > 0 && (
+                            <div className="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
+                              <div 
+                                className="bg-indigo-600 h-full rounded-full transition-all duration-500" 
+                                style={{ width: `${Math.min(100, percent)}%` }}
+                              ></div>
                             </div>
                           )}
                         </div>
-                        <div className="font-semibold text-slate-800 text-[13px] group-hover:text-[#0E215D] transition-colors truncate max-w-[200px]" title={event.judul}>
-                          {event.judul}
+                      </td>
+   
+                      {/* Column 8: Status */}
+                      <td className="px-3 py-2.5 text-center">
+                        <div className="flex justify-center">
+                          {event.status === 'pending' ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 uppercase tracking-wider border border-amber-200/60">
+                              Menunggu
+                            </span>
+                          ) : event.status === 'published' ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 uppercase tracking-wider border border-emerald-200/60">
+                              Disetujui
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-700 uppercase tracking-wider border border-rose-200/60">
+                              Ditolak
+                            </span>
+                          )}
                         </div>
-                      </div>
-                    </td>
- 
-                    {/* Column 2: Penyelenggara & Waktu */}
-                    <td className="px-6 py-3.5">
-                      <div className="font-semibold text-slate-700 truncate max-w-[150px]">{event.penyelenggara || 'Institusi Polines'}</div>
-                      <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
-                        <Clock size={10} className="text-slate-400" />
-                        {format(new Date(event.tanggalMulai), 'dd MMM yyyy', { locale: id })}
-                      </div>
-                    </td>
- 
-                    {/* Column 3: Kategori */}
-                    <td className="px-6 py-3.5 text-center">
-                      <span className={cn(
-                        "inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold border tracking-wider uppercase whitespace-nowrap",
-                        event.jenisEvent === 'conference'
-                          ? "bg-blue-50 text-blue-700 border-blue-200/60"
-                          : "bg-indigo-50 text-indigo-700 border-indigo-200/60"
-                      )}>
-                        {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'}
-                      </span>
-                    </td>
-                    
-                    {/* Column 4: Monitoring */}
-                    <td className="px-6 py-3.5">
-                      <div className="flex justify-center">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-slate-50 text-[#0E215D] rounded-full text-xs font-bold border border-slate-200/60">
-                          <Users size={12} strokeWidth={2.5} />
-                          {event.participantCount || 0}
+                      </td>
+   
+                      {/* Column 9: Aksi */}
+                      <td className="px-3 py-2.5 text-right">
+                        <div className="flex justify-end items-center gap-1.5">
+                          <button 
+                            onClick={() => openDetail(event)}
+                            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                            title="Lihat Detail"
+                          >
+                            <Eye size={13} strokeWidth={2.5} />
+                          </button>
+
+                          <button 
+                            onClick={() => handleDelete(event.id)}
+                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                            title="Hapus Event"
+                          >
+                            <Trash2 size={13} strokeWidth={2.5} />
+                          </button>
                         </div>
-                      </div>
-                    </td>
- 
-                    {/* Column 5: Status */}
-                    <td className="px-6 py-3.5">
-                      <div className="flex justify-center">
-                        {event.status === 'pending' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 uppercase tracking-wider border border-amber-200/60">
-                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span> Menunggu
-                          </span>
-                        ) : event.status === 'published' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 uppercase tracking-wider border border-emerald-200/60">
-                            <CheckCircle size={10} strokeWidth={3} /> Disetujui
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-700 uppercase tracking-wider border border-rose-200/60">
-                            <AlertCircle size={10} strokeWidth={3} /> Ditolak
-                          </span>
-                        )}
-                      </div>
-                    </td>
- 
-                    {/* Column 6: Aksi */}
-                    <td className="px-6 py-3.5 text-right">
-                      <div className="flex justify-end items-center gap-1">
-                        <button 
-                          onClick={() => openDetail(event)}
-                          className="p-1.5 text-slate-400 hover:text-[#0E215D] hover:bg-slate-100 rounded-lg transition-colors"
-                          title="Lihat Detail"
-                        >
-                          <Eye size={16} strokeWidth={2.5} />
-                        </button>
-                        <button 
-                          onClick={() => openEdit(event)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Event"
-                        >
-                          <Edit3 size={16} strokeWidth={2.5} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(event.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                          title="Hapus Event"
-                        >
-                          <Trash2 size={16} strokeWidth={2.5} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-[58px]">
+          <span className="text-[11px] text-slate-400 font-medium">
+            {sortedEvents.length > 0 ? (
+              <>
+                Menampilkan <strong className="text-slate-600">{startIdx + 1}</strong> – <strong className="text-slate-600">{Math.min(startIdx + EVENTS_PER_PAGE, sortedEvents.length)}</strong> dari <strong className="text-slate-600">{sortedEvents.length}</strong> event
+              </>
+            ) : (
+              "Tidak ada data"
+            )}
+          </span>
+          {totalPages > 1 && (
+            <div className="flex gap-1 items-center">
+              <button 
+                type="button"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                disabled={mounted ? (currentPage === 1) : false}
+                className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                if (totalPages > 5) {
+                  if (p !== 1 && p !== totalPages && Math.abs(p - currentPage) > 1) {
+                    if (p === 2 && currentPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
+                    if (p === totalPages - 1 && currentPage < totalPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
+                    return null;
+                  }
+                }
+                
+                return (
+                  <button 
+                    type="button"
+                    key={p} 
+                    onClick={() => setCurrentPage(p)}
+                    className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
+                      currentPage === p 
+                        ? "bg-slate-900 text-white shadow-sm shadow-slate-950/10" 
+                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+              
+              <button 
+                type="button"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                disabled={mounted ? (currentPage === totalPages) : false}
+                className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Detail Modal */}
       {selectedEvent && (
         <DataEvent 
-          isOpen={isDetailOpen} 
-          onClose={() => setIsDetailOpen(false)} 
-          event={selectedEvent} 
-          onUpdateStatus={handleStatusUpdate}
-        />
-      )}
-
-      {/* Edit Modal */}
-      {selectedEvent && (
-        <EditEvent 
-          isOpen={isEditOpen} 
-          onClose={() => setIsEditOpen(false)} 
-          event={selectedEvent} 
-          onSuccess={handleEditSuccess}
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          event={selectedEvent}
+          onUpdateStatus={handleStatusUpdate} 
+          onEditSuccess={handleEditSuccess} 
         />
       )}
     </div>

@@ -5,6 +5,7 @@ import { StatCard } from '@/components/admin/StatCard';
 import { FileCheck, CheckCircle, Users, X, Calendar, MapPin, Users as UsersIcon, Wallet, Building2, Phone, Mail, Globe, Clock, Tag, Monitor, ClipboardList } from 'lucide-react';
 import { approveEvent, rejectEvent, getPendingEvents } from '@/actions/persetujuan-event';
 import type { PendingEvent } from '@/actions/persetujuan-event';
+import Portal from '@/components/ui/Portal';
 
 const getPlatformColor = (platform: string | null) => {
   switch (platform) {
@@ -62,11 +63,9 @@ function ReviewModal({
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [actionLoading, setActionLoading] = useState<'approve' | 'reject' | null>(null);
 
-  if (!isOpen || !event) return null;
-
   const handleApproveAction = async () => {
     setActionLoading('approve');
-    await approveEvent(event.id);
+    await approveEvent(event!.id);
     setActionLoading(null);
     onRefresh();
     onClose();
@@ -74,14 +73,17 @@ function ReviewModal({
 
   const handleRejectAction = async () => {
     setActionLoading('reject');
-    await rejectEvent(event.id, rejectReason);
+    await rejectEvent(event!.id, rejectReason);
     setActionLoading(null);
     onRefresh();
     onClose();
   };
 
+  if (!isOpen || !event) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <Portal>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
 
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
@@ -238,6 +240,7 @@ function ReviewModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 

@@ -41,17 +41,17 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 pl-4 border-l border-gray-100 group transition-all"
+        className="flex items-center gap-2.5 pl-3 border-l border-gray-100 group transition-all"
       >
         <div className="text-right hidden sm:block">
-          <p className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+          <p className="text-xs font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
             {user.name || "User"}
           </p>
-          <p className="text-[10px] font-bold text-blue-600 mt-1 uppercase tracking-tighter opacity-80 flex items-center justify-end gap-1">
+          <p className="text-[9px] font-bold text-blue-600 mt-0.5 uppercase tracking-tighter opacity-80 flex items-center justify-end gap-1">
             {roleTitle}
           </p>
         </div>
-        <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden transition-all group-hover:border-blue-400 group-active:scale-95 shadow-sm">
+        <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden transition-all group-hover:border-blue-400 group-active:scale-95 shadow-sm">
           {user.image ? (
             <img 
               src={user.image} 

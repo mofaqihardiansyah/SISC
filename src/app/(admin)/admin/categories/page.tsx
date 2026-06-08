@@ -1,11 +1,10 @@
 import React from 'react';
 import { db } from "@/db";
 import { kategori, tag } from "@/db/schema"; 
-import nextDynamic from 'next/dynamic';
-
-const CategoryClient = nextDynamic(() => import('./CategoryClient'), { ssr: false });
+import CategoryClient from './CategoryClient';
 
 export const dynamic = 'force-dynamic';
+
 
 
 export const metadata = {

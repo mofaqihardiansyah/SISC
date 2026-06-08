@@ -68,9 +68,9 @@ export function SharedDashboardTopbar({ title, user, roleTitle, menuItems, child
   }
 
   return (
-    <header className="h-20 bg-white border-b border-gray-100 pl-16 pr-4 md:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm transition-all">
+    <header className="h-14 bg-white border-b border-gray-100 pl-16 pr-4 md:px-8 flex items-center justify-between relative z-10 shadow-sm transition-all shrink-0">
       <div className="truncate pr-4">
-        <h2 className="text-xl md:text-2xl font-bold font-heading text-gray-900">{dynamicTitle}</h2>
+        <h2 className="text-lg md:text-xl font-bold font-heading text-gray-900">{title || dynamicTitle}</h2>
       </div>
 
       <div className="flex items-center gap-3 md:gap-6">

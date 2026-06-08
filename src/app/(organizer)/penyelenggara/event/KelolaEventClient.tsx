@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
+import Portal from '@/components/ui/Portal';
 
 interface EventData {
   id: number;
@@ -453,7 +454,8 @@ export default function KelolaEventClient() {
 
       {/* MODAL POP-UP EDIT */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-end bg-black/40 backdrop-blur-sm transition-opacity">
+        <Portal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-end bg-black/40 backdrop-blur-sm transition-opacity">
           <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
             {/* Header Modal */}
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
@@ -603,7 +605,8 @@ export default function KelolaEventClient() {
               </button>
             </div>
           </div>
-        </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

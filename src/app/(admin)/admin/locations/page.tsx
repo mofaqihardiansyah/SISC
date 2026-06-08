@@ -2,11 +2,10 @@ import React from 'react';
 import { db } from "@/db";
 import { provinsi, kota } from "@/db/schema"; 
 import { eq } from "drizzle-orm";
-import nextDynamic from 'next/dynamic';
-
-const LocationClient = nextDynamic(() => import('./LocationClient'), { ssr: false });
+import LocationClient from './LocationClient';
 
 export const dynamic = 'force-dynamic';
+
 
 
 export const metadata = {

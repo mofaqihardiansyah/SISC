@@ -6,9 +6,10 @@ import {
   Users, UserCheck, UserX, Clock, TrendingUp, Loader2,
   ChevronUp, ChevronDown, ChevronsUpDown, X, Eye,
 } from "lucide-react";
+import Portal from "@/components/ui/Portal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
+li
 type SortField = "namaLengkap" | "dibuatPada" | "role";
 type SortDir = "asc" | "desc";
 
@@ -135,8 +136,9 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
   ] : [];
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <Portal>
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] p-4">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <h3 className="text-sm font-bold text-gray-800">Detail Pengguna</h3>
@@ -174,8 +176,9 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </Portal>
   );
 }
 
@@ -510,8 +513,9 @@ export default function ManajemenUserPage() {
 
       {/* Single Delete Modal */}
       {deleteModal !== null && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 shadow-xl w-80">
+        <Portal>
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]">
+            <div className="bg-white rounded-2xl p-6 shadow-xl w-80">
             <h3 className="text-sm font-bold text-gray-800 mb-2">Hapus Pengguna</h3>
             <p className="text-xs text-gray-500 mb-5">Apakah kamu yakin ingin menghapus pengguna ini? Tindakan ini tidak bisa dibatalkan.</p>
             <div className="flex gap-2 justify-end">
@@ -526,12 +530,14 @@ export default function ManajemenUserPage() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Bulk Delete Modal */}
       {bulkDeleteModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 shadow-xl w-80">
+        <Portal>
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]">
+            <div className="bg-white rounded-2xl p-6 shadow-xl w-80">
             <h3 className="text-sm font-bold text-gray-800 mb-2">Hapus Massal</h3>
             <p className="text-xs text-gray-500 mb-5">
               Kamu akan menghapus <b>{selectedRows.length} pengguna</b> sekaligus. Tindakan ini tidak bisa dibatalkan.
@@ -548,6 +554,7 @@ export default function ManajemenUserPage() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );

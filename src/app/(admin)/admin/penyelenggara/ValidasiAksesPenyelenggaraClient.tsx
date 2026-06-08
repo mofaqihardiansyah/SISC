@@ -4,6 +4,7 @@
 // Lokasi: src/app/(admin)/admin/penyelenggara/ValidasiAksesPenyelenggaraClient.tsx
 
 import { useState, useMemo, useTransition, useEffect, ComponentType } from "react";
+import Portal from "@/components/ui/Portal";
 import {
   Search,
   ChevronLeft,
@@ -824,7 +825,8 @@ export function ValidasiAksesPenyelenggaraClient({
 
       {/* ── Premium Detail Side-Drawer ── */}
       {detailItem !== null && (
-        <div className="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+        <Portal>
+          <div className="fixed inset-0 z-[9999] overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
           <div className="absolute inset-0 overflow-hidden">
             {/* Backdrop with elegant blur */}
             <div
@@ -1051,7 +1053,8 @@ export function ValidasiAksesPenyelenggaraClient({
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        </Portal>
       )}
 
     </div>
