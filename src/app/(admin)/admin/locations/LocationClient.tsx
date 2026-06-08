@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, MapPin, Navigation, Loader2, X, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import Portal from '@/components/ui/Portal';
 import { 
   addProvinsiAction, editProvinsiAction, deleteProvinsiAction,
   addKotaAction, editKotaAction, deleteKotaAction 
@@ -213,12 +214,12 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                 "Tidak ada data"
               )}
             </span>
-            {mounted && totalProvPages > 1 && (
+            {totalProvPages > 1 && (
               <div className="flex gap-1 items-center">
                 <button 
                   type="button"
                   onClick={() => setProvPage(p => Math.max(1, p - 1))} 
-                  disabled={provPage === 1}
+                  disabled={mounted ? (provPage === 1) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
@@ -252,7 +253,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                 <button 
                   type="button"
                   onClick={() => setProvPage(p => Math.min(totalProvPages, p + 1))} 
-                  disabled={provPage === totalProvPages}
+                  disabled={mounted ? (provPage === totalProvPages) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
@@ -352,12 +353,12 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                 "Tidak ada data"
               )}
             </span>
-            {mounted && totalKotaPages > 1 && (
+            {totalKotaPages > 1 && (
               <div className="flex gap-1 items-center">
                 <button 
                   type="button"
                   onClick={() => setKotaPage(p => Math.max(1, p - 1))} 
-                  disabled={kotaPage === 1}
+                  disabled={mounted ? (kotaPage === 1) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
@@ -391,7 +392,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                 <button 
                   type="button"
                   onClick={() => setKotaPage(p => Math.min(totalKotaPages, p + 1))} 
-                  disabled={kotaPage === totalKotaPages}
+                  disabled={mounted ? (kotaPage === totalKotaPages) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
@@ -405,7 +406,8 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
 
       {/* ================= POPUP MODALS ================= */}
       {modalType !== null && (
-        <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-50 p-4 transition-all animate-fadeIn">
+        <Portal>
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-[9999] p-4 transition-all animate-fadeIn">
           <div className="bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100">
             
             {/* Modal Title */}
@@ -510,7 +512,8 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
             </form>
 
           </div>
-        </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

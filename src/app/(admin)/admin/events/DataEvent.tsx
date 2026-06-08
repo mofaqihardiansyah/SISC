@@ -1,191 +1,537 @@
 "use client";
 
-import React from "react";
-import { X, Calendar, MapPin, Users, Wallet, Building2, Phone, Mail, Clock } from "lucide-react";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import React, { useState, useEffect } from 'react';
+import { 
+  X, 
+  Building2, 
+  Save, 
+  Pencil, 
+  Eye,
+  MapPin,
+  Users,
+  Clock,
+  Globe,
+  Ticket,
+  Mic,
+  Layout,
+  Tag,
+  AlignLeft,
+  ShieldCheck,
+  Image as ImageIcon,
+  Type
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
+import { toast } from 'react-hot-toast';
+import { updateEvent } from '@/actions/admin-event';
+import { cn } from "@/lib/utils";
+import Portal from "@/components/ui/Portal";
+import type { Event } from './ClientPage';
 
 type DataEventProps = {
   isOpen: boolean;
   onClose: () => void;
-  event: {
-    id: number;
-    judul: string;
-    penyelenggara: string | null;
-    tanggalMulai: Date;
-    tanggalSelesai: Date | null;
-    status: "pending" | "published" | "rejected";
-    bannerUrl: string | null;
-    deskripsi: string | null;
-    syaratDanKetentuan: string | null;
-    detailLokasi: string | null;
-    kuota: number | null;
-    tipeHarga: string | null;
-    harga: number | null;
-    emailKontak: string | null;
-    teleponKontak: string | null;
-    jenisEvent: "seminar" | "conference" | null;
-    tipePlatform: "online" | "offline" | "hybrid" | null;
-    participantCount?: number;
-  };
-  onUpdateStatus: (id: number, status: "published" | "rejected") => Promise<void>;
+  event: Event;
+  onUpdateStatus: (id: number, status: 'published' | 'rejected', reason?: string) => Promise<void>;
+  onEditSuccess: () => void;
+  initialMode?: 'view' | 'edit';
 };
 
-function StatusBadge({ status }: { status: "pending" | "published" | "rejected" }) {
-  if (status === "pending")
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-amber-50 text-amber-700 border-amber-200/60 whitespace-nowrap">
-        Menunggu
-      </span>
-    );
-  if (status === "published")
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200/60 whitespace-nowrap">
-        Aktif
-      </span>
-    );
-  return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-rose-50 text-rose-700 border-rose-200/60 whitespace-nowrap">
-      Ditolak
-    </span>
-  );
-}
+export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEditSuccess, initialMode = 'view' }: DataEventProps) {
+  const [mode, setMode] = useState<'view' | 'edit'>(initialMode);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [actionLoading, setActionLoading] = useState<'approve' | 'reject' | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-export default function DataEvent({ isOpen, onClose, event, onUpdateStatus }: DataEventProps) {
+  const [formData, setFormData] = useState<Partial<Event>>({});
+
+  useEffect(() => {
+    if (event) {
+      setFormData({
+        ...event,
+        namaPembicara: event.namaPembicara || '',
+        websiteSumber: event.websiteSumber || '',
+        tipePlatform: event.tipePlatform || 'offline',
+        tipeHarga: event.tipeHarga || 'free',
+        isEventPolines: event.isEventPolines ?? false,
+      });
+    }
+  }, [event]);
+
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode, isOpen]);
+
   if (!isOpen) return null;
 
-  const rows = [
-    {
-      label: "Kategori",
-      value: event.jenisEvent === "conference" ? "Konferensi" : event.jenisEvent === "seminar" ? "Seminar" : "Event",
-    },
-    {
-      label: "Tanggal Mulai",
-      value: format(new Date(event.tanggalMulai), "dd MMMM yyyy, HH:mm", { locale: id }),
-    },
-    {
-      label: "Tanggal Selesai",
-      value: event.tanggalSelesai
-        ? format(new Date(event.tanggalSelesai), "dd MMMM yyyy, HH:mm", { locale: id })
-        : "-",
-    },
-    {
-      label: "Platform / Tipe",
-      value: event.tipePlatform
-        ? event.tipePlatform.toUpperCase()
-        : "-",
-    },
-    {
-      label: "Lokasi / Link",
-      value: event.detailLokasi || "-",
-    },
-    {
-      label: "Kuota Peserta",
-      value: event.kuota ? `${event.kuota} Orang` : "-",
-    },
-    {
-      label: "Jumlah Pendaftar",
-      value: event.participantCount !== undefined ? `${event.participantCount} Orang` : "-",
-    },
-    {
-      label: "Harga Tiket",
-      value: event.tipeHarga === "free" ? "Gratis" : event.harga ? `Rp ${event.harga.toLocaleString("id-ID")}` : "-",
-    },
-    {
-      label: "Email Kontak",
-      value: event.emailKontak || "-",
-    },
-    {
-      label: "Telepon Kontak",
-      value: event.teleponKontak || "-",
-    },
-  ];
+  const handleApproveAction = async () => {
+    setActionLoading('approve');
+    try {
+      await onUpdateStatus(event.id, 'published');
+      onClose();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-gray-800">Detail Event</h3>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+  const handleRejectAction = async () => {
+    if (!rejectReason.trim()) {
+      alert('Alasan penolakan tidak boleh kosong.');
+      return;
+    }
+    setActionLoading('reject');
+    try {
+      await onUpdateStatus(event.id, 'rejected', rejectReason);
+      onClose();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const finalValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
+  };
+
+  const handleDateChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: new Date(value) }));
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await updateEvent(event.id, formData as Record<string, unknown>);
+      if (res.success) {
+        toast.success('Event berhasil diperbarui');
+        onEditSuccess();
+        setMode('view');
+      } else {
+        toast.error(res.error || 'Gagal memperbarui event');
+      }
+    } catch (err) {
+      console.error("[DataEvent] Submit error:", err);
+      toast.error('Terjadi kesalahan sistem');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // Reset form data to original event
+    setFormData({
+      ...event,
+      namaPembicara: event.namaPembicara || '',
+      websiteSumber: event.websiteSumber || '',
+      tipePlatform: event.tipePlatform || 'offline',
+      tipeHarga: event.tipeHarga || 'free',
+      isEventPolines: event.isEventPolines ?? false,
+    });
+    setMode('view');
+  };
+
+  const inputClasses = "w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-100 text-slate-700 font-medium";
+  const selectClasses = cn(inputClasses, "appearance-none cursor-pointer");
+
+  // ---- VIEW MODE ----
+  const renderViewMode = () => {
+    const rows = [
+      { label: 'Penyelenggara', value: event.penyelenggara || '-', icon: Building2 },
+      { label: 'Jenis Event', value: event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : '-', icon: Layout },
+      { label: 'Target Peserta', value: event.isEventPolines ? 'Polines (Internal)' : 'Umum (Eksternal)', icon: Tag },
+      { label: 'Tanggal Mulai', value: format(new Date(event.tanggalMulai), 'dd MMMM yyyy HH:mm', { locale: idLocale }) + ' WIB', icon: Clock },
+      { label: 'Tanggal Selesai', value: event.tanggalSelesai ? format(new Date(event.tanggalSelesai), 'dd MMMM yyyy HH:mm', { locale: idLocale }) + ' WIB' : '-', icon: Clock },
+      { label: 'Platform', value: event.tipePlatform === 'offline' ? 'Luring (Offline)' : event.tipePlatform === 'online' ? 'Daring (Online)' : event.tipePlatform === 'hybrid' ? 'Hybrid' : '-', icon: Globe },
+      { label: 'Lokasi / Platform', value: event.detailLokasi || '-', icon: MapPin },
+      { label: 'Pembicara', value: event.namaPembicara || '-', icon: Mic },
+      { label: 'Kuota Peserta', value: `${event.kuota || 0} Orang`, icon: Users },
+      { label: 'Jumlah Pendaftar', value: `${event.participantCount || 0} Orang`, icon: Users },
+      { label: 'Harga Tiket', value: event.tipeHarga === 'free' ? 'Gratis' : `Rp ${(event.harga || 0).toLocaleString('id-ID')}`, icon: Ticket },
+    ];
+
+    if (!event.isEventPolines && event.websiteSumber) {
+      rows.push({ label: 'Website Sumber', value: event.websiteSumber, icon: Globe });
+    }
+
+    return (
+      <div className="space-y-5">
+        {/* Avatar/Banner + Name + Status */}
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-slate-50 relative">
+            {event.bannerUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
+                <Building2 size={24} />
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-bold text-slate-800 text-sm leading-snug truncate" title={event.judul}>
+              {event.judul}
+            </div>
+            <div className="text-xs text-slate-400 mb-1.5 truncate">oleh {event.penyelenggara || '-'}</div>
+            <span className={`
+              ${event.status === 'published' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : ''}
+              ${event.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-100' : ''}
+              ${event.status === 'rejected' ? 'bg-rose-50 text-rose-700 border-rose-100' : ''}
+              text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border inline-block
+            `}>
+              {event.status === 'published' ? 'Disetujui' : event.status === 'pending' ? 'Menunggu' : 'Ditolak'}
+            </span>
+          </div>
         </div>
 
-        <div className="p-5">
-          {/* Poster + Judul + Status */}
-          <div className="flex items-start gap-4 mb-5">
-            <div className="w-16 h-20 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-              {event.bannerUrl ? (
-                <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover" />
-              ) : (
-                <Building2 className="w-8 h-8 text-gray-300" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-bold text-gray-800 text-sm break-words leading-tight mb-1">{event.judul}</div>
-              <div className="text-xs text-gray-400 mb-2 truncate">{event.penyelenggara || "Institusi Polines"}</div>
-              <StatusBadge status={event.status} />
-            </div>
-          </div>
+        {/* Divider */}
+        <div className="h-px bg-slate-100"></div>
 
-          {/* Details Table */}
-          <div className="space-y-3">
-            {rows.map(({ label, value }) => (
-              <div key={label} className="flex justify-between items-start gap-4">
-                <span className="text-[11px] text-gray-400 font-medium shrink-0 w-32">{label}</span>
-                <span className="text-[11px] text-gray-700 text-right font-medium break-all">{value}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Description Section */}
-          {event.deskripsi && (
-            <div className="mt-5 pt-4 border-t border-gray-100">
-              <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-1.5 block">
-                Deskripsi Event
+        {/* Key-Value Details */}
+        <div className="space-y-3">
+          {rows.map(({ label, value, icon: Icon }) => (
+            <div key={label} className="flex justify-between items-start gap-4">
+              <span className="text-[11px] text-slate-400 font-medium shrink-0 w-40 flex items-center gap-1.5">
+                <Icon size={12} className="text-slate-300" />
+                {label}
               </span>
-              <div className="text-[11px] text-gray-600 bg-gray-50/50 p-3 rounded-xl border border-gray-100/80 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto custom-scrollbar">
-                {event.deskripsi}
-              </div>
+              <span className="text-[11px] text-slate-700 text-right font-semibold">{value || "-"}</span>
             </div>
-          )}
+          ))}
+        </div>
 
-          {/* Terms Section */}
+        {/* Divider */}
+        <div className="h-px bg-slate-100"></div>
+
+        {/* Descriptions */}
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <AlignLeft size={12} /> Deskripsi Event
+            </h4>
+            <div className="text-[11px] text-slate-600 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+              {event.deskripsi || 'Tidak ada deskripsi.'}
+            </div>
+          </div>
+
           {event.syaratDanKetentuan && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-1.5 block">
-                Syarat & Ketentuan
-              </span>
-              <div className="text-[11px] text-gray-600 bg-gray-50/50 p-3 rounded-xl border border-gray-100/80 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto custom-scrollbar">
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheck size={12} /> Syarat & Ketentuan
+              </h4>
+              <div className="text-[11px] text-slate-600 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
                 {event.syaratDanKetentuan}
               </div>
             </div>
           )}
+        </div>
+      </div>
+    );
+  };
 
-          {/* Moderation Buttons (only shown for pending status) */}
-          {event.status === "pending" && (
-            <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">
+  // ---- EDIT MODE ----
+  const renderEditMode = () => {
+    const labelClasses = "text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5";
+
+    return (
+      <div className="space-y-5">
+        {/* Banner Section */}
+        <div className="space-y-2">
+          <label className={labelClasses}><ImageIcon size={12} /> Poster / Banner Event</label>
+          <div className="relative h-40 w-full rounded-xl bg-slate-100 overflow-hidden group border border-slate-200 shadow-sm">
+            {formData.bannerUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={formData.bannerUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1">
+                <ImageIcon size={28} strokeWidth={1} />
+                <p className="text-[10px] font-bold uppercase tracking-wider">No Poster</p>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-xs duration-300">
+              <div className="w-4/5 space-y-2 text-center">
+                <label className="text-[10px] text-white font-bold uppercase tracking-wider block">Update URL Poster</label>
+                <input
+                  type="text"
+                  name="bannerUrl"
+                  value={formData.bannerUrl || ''}
+                  onChange={handleChange}
+                  placeholder="https://link-gambar.com/poster.jpg"
+                  className="w-full px-3 py-1.5 bg-white rounded-xl text-xs outline-none border border-slate-200 focus:ring-2 focus:ring-slate-100 text-slate-700 font-semibold"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section: Klasifikasi */}
+        <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
+          <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Klasifikasi Event</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelClasses}><Layout size={12} /> Tipe Event</label>
+            <select name="jenisEvent" value={formData.jenisEvent || ''} onChange={handleChange} className={selectClasses}>
+              <option value="seminar">Seminar</option>
+              <option value="conference">Conference</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClasses}><Tag size={12} /> Jenis Event</label>
+            <select
+              name="isEventPolines"
+              value={formData.isEventPolines ? "true" : "false"}
+              onChange={(e) => setFormData(prev => ({ ...prev, isEventPolines: e.target.value === "true" }))}
+              className={selectClasses}
+            >
+              <option value="true">Polines (Internal)</option>
+              <option value="false">Umum (Eksternal)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Section: Detail Umum */}
+        <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
+          <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Detail Umum</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2">
+            <label className={labelClasses}><Type size={12} /> Judul Event</label>
+            <input type="text" name="judul" value={formData.judul || ''} onChange={handleChange} className={inputClasses} required />
+          </div>
+          <div>
+            <label className={labelClasses}><Globe size={12} /> Tipe Platform</label>
+            <select name="tipePlatform" value={formData.tipePlatform || 'offline'} onChange={handleChange} className={selectClasses}>
+              <option value="offline">Luring (Offline)</option>
+              <option value="online">Daring (Online)</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClasses}><MapPin size={12} /> Lokasi / Link Platform</label>
+            <input type="text" name="detailLokasi" value={formData.detailLokasi || ''} onChange={handleChange} className={inputClasses} placeholder="Alamat atau Link Zoom/GMeet" />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelClasses}><Mic size={12} /> Pembicara / Pemateri</label>
+            <input type="text" name="namaPembicara" value={formData.namaPembicara || ''} onChange={handleChange} className={inputClasses} placeholder="Nama pembicara (pisahkan dengan koma)" />
+          </div>
+          <div>
+            <label className={labelClasses}><Ticket size={12} /> Status Biaya</label>
+            <select name="tipeHarga" value={formData.tipeHarga || 'free'} onChange={handleChange} className={selectClasses}>
+              <option value="free">Gratis</option>
+              <option value="paid">Berbayar</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClasses}><Ticket size={12} /> Nominal Biaya (IDR)</label>
+            <input type="number" name="harga" value={formData.harga || 0} onChange={handleChange} className={inputClasses} disabled={formData.tipeHarga === 'free'} />
+          </div>
+        </div>
+
+        {/* Section: Jadwal & Kuota */}
+        <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
+          <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Jadwal & Kuota</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelClasses}><Clock size={12} /> Tanggal & Waktu Mulai</label>
+            <input type="datetime-local" name="tanggalMulai" value={formData.tanggalMulai ? new Date(formData.tanggalMulai).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('tanggalMulai', e.target.value)} className={inputClasses} />
+          </div>
+          <div>
+            <label className={labelClasses}><Clock size={12} /> Tanggal & Waktu Selesai</label>
+            <input type="datetime-local" name="tanggalSelesai" value={formData.tanggalSelesai ? new Date(formData.tanggalSelesai).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('tanggalSelesai', e.target.value)} className={inputClasses} />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelClasses}><Users size={12} /> Batas Kuota Peserta</label>
+            <input type="number" name="kuota" value={formData.kuota || 0} onChange={handleChange} className={inputClasses} />
+          </div>
+        </div>
+
+        {/* Section: Registrasi & Konten */}
+        <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
+          <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Registrasi & Konten</h3>
+        </div>
+        <div className="grid grid-cols-1 gap-4">
+          {!formData.isEventPolines && (
+            <div className="animate-in slide-in-from-top-2 duration-300">
+              <label className={cn("text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5")}><Globe size={12} /> Link Sumber / Web Sumber</label>
+              <input
+                type="text"
+                name="websiteSumber"
+                value={formData.websiteSumber || ''}
+                onChange={handleChange}
+                className={cn(inputClasses, "border-blue-100 bg-blue-50/30")}
+                placeholder="Contoh: https://eventbanget.com/detail-event"
+              />
+            </div>
+          )}
+          <div>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><AlignLeft size={12} /> Deskripsi Lengkap Event</label>
+            <textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><ShieldCheck size={12} /> Syarat & Ketentuan</label>
+            <textarea name="syaratDanKetentuan" value={formData.syaratDanKetentuan || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Portal>
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-300"
+          onClick={onClose}
+        ></div>
+
+        {/* Modal Content */}
+        <div className={cn(
+          "relative w-full bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300",
+          mode === 'edit' ? 'max-w-3xl' : 'max-w-xl'
+        )}>
+
+          {/* Header */}
+          <div className="flex items-center justify-between p-5 border-b border-slate-100 shrink-0">
+            <div className="flex items-center gap-3">
+              <h3 className="text-sm font-bold text-slate-800">
+                {mode === 'view' ? 'Detail Event' : 'Edit Event'}
+              </h3>
+              {/* Mode badge */}
+              <span className={cn(
+                "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                mode === 'view' 
+                  ? "bg-slate-50 text-slate-500 border-slate-200" 
+                  : "bg-blue-50 text-blue-600 border-blue-200"
+              )}>
+                {mode === 'view' ? 'Lihat' : 'Editing'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Toggle View/Edit */}
               <button
-                onClick={() => onUpdateStatus(event.id, "rejected")}
-                className="flex-1 py-2 bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-600 rounded-xl text-xs font-semibold transition-all text-center"
+                type="button"
+                onClick={() => mode === 'view' ? setMode('edit') : handleCancelEdit()}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95",
+                  mode === 'view'
+                    ? "bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200/60"
+                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200/60"
+                )}
               >
-                Tolak Event
+                {mode === 'view' ? (
+                  <><Pencil size={12} /> Edit</>
+                ) : (
+                  <><Eye size={12} /> Lihat</>
+                )}
               </button>
-              <button
-                onClick={() => onUpdateStatus(event.id, "published")}
-                className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all text-center"
-              >
-                Setujui Event
+              <button onClick={onClose} className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors cursor-pointer">
+                <X className="w-4 h-4" />
               </button>
             </div>
+          </div>
+
+          {/* Scrollable Body */}
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            {mode === 'view' ? renderViewMode() : renderEditMode()}
+          </div>
+
+          {/* Footer */}
+          {mode === 'edit' ? (
+            /* Edit Mode Footer */
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-3 justify-end shrink-0">
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="px-4 py-2 text-xs font-semibold border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-slate-600 cursor-pointer duration-200 active:scale-95"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer duration-200 active:scale-95 shadow-sm"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <Save size={14} />
+                    Simpan Perubahan
+                  </>
+                )}
+              </button>
+            </div>
+          ) : (
+            /* View Mode Footer - Moderation for pending events */
+            event.status === 'pending' && (
+              <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between shrink-0">
+                <span className="text-[11px] font-semibold text-slate-400">Moderasi Event ini:</span>
+                {!showRejectForm ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleApproveAction}
+                      disabled={actionLoading !== null}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-xs flex items-center gap-1.5 cursor-pointer shadow-sm hover:shadow"
+                    >
+                      {actionLoading === 'approve' ? (
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : '✓ Setujui Event'}
+                    </button>
+                    <button
+                      onClick={() => setShowRejectForm(true)}
+                      disabled={actionLoading !== null}
+                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-xs flex items-center gap-1.5 cursor-pointer shadow-sm hover:shadow"
+                    >
+                      ✗ Tolak Event
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex-1 ml-4 flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      placeholder="Masukkan alasan penolakan..."
+                      className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-slate-100 text-slate-700 font-medium"
+                    />
+                    <button
+                      onClick={handleRejectAction}
+                      disabled={actionLoading !== null}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition-all cursor-pointer"
+                    >
+                      Konfirmasi Tolak
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowRejectForm(false);
+                        setRejectReason('');
+                      }}
+                      className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition-all cursor-pointer"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
           )}
         </div>
       </div>
-    </div>
+    </Portal>
   );
 }
-

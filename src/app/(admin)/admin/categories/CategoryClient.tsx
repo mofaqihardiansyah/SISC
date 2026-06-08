@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Layers, Tag as TagIcon, Loader2, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import Portal from '@/components/ui/Portal';
 import { 
   addKategoriAction, editKategoriAction, deleteKategoriAction,
   addTagAction, editTagAction, deleteTagAction 
@@ -210,12 +211,12 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                 "Tidak ada kategori ditemukan"
               )}
             </span>
-            {mounted && totalKatPages > 1 && (
+            {totalKatPages > 1 && (
               <div className="flex gap-1 items-center">
                 <button 
                   type="button"
                   onClick={() => setKatPage(p => Math.max(1, p - 1))} 
-                  disabled={katPage === 1}
+                  disabled={mounted ? (katPage === 1) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
@@ -249,7 +250,7 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                 <button 
                   type="button"
                   onClick={() => setKatPage(p => Math.min(totalKatPages, p + 1))} 
-                  disabled={katPage === totalKatPages}
+                  disabled={mounted ? (katPage === totalKatPages) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
@@ -343,12 +344,12 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                 "Tidak ada tag ditemukan"
               )}
             </span>
-            {mounted && totalTagPages > 1 && (
+            {totalTagPages > 1 && (
               <div className="flex gap-1 items-center">
                 <button 
                   type="button"
                   onClick={() => setTagPage(p => Math.max(1, p - 1))} 
-                  disabled={tagPage === 1}
+                  disabled={mounted ? (tagPage === 1) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
@@ -382,7 +383,7 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                 <button 
                   type="button"
                   onClick={() => setTagPage(p => Math.min(totalTagPages, p + 1))} 
-                  disabled={tagPage === totalTagPages}
+                  disabled={mounted ? (tagPage === totalTagPages) : false}
                   className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
@@ -396,7 +397,8 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
 
       {/* ================= POPUP MODALS ================= */}
       {modalType !== null && (
-        <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-50 p-4 transition-all animate-fadeIn">
+        <Portal>
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-[9999] p-4 transition-all animate-fadeIn">
           <div className="bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100">
             
             {/* Modal Title */}
@@ -475,7 +477,8 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
             </form>
 
           </div>
-        </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

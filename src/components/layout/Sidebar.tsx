@@ -72,9 +72,9 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
       {/* Tombol Hamburger (Hanya muncul di Mobile) */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-5 left-4 z-60 p-2 bg-slate-900 text-white rounded-xl shadow-md hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        className="md:hidden fixed top-2.5 left-4 z-60 p-2 bg-slate-900 text-white rounded-xl shadow-md hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
       >
-        {isOpen ? <MoreVertical className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isOpen ? <MoreVertical className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
       {/* Overlay Background Gelap saat Sidebar Terbuka di Mobile */}
@@ -87,23 +87,23 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
 
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-400 flex flex-col h-screen border-r border-slate-800 transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 w-48 bg-slate-900 text-slate-400 flex flex-col h-screen border-r border-slate-800 transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo Section */}
-        <div className="p-6 hidden md:block">
-          <h1 className="text-xl font-bold text-white tracking-tight">
+        <div className="pt-5 pb-3 px-5 hidden md:block">
+          <h1 className="text-lg font-extrabold text-white tracking-wider">
             POLIVENTS
           </h1>
-          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest mt-1">{roleTitle}</p>
+          <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-widest mt-0.5">{roleTitle}</p>
         </div>
         
         {/* Spasi tambahan untuk mobile agar menu tidak tertutup tombol hamburger */}
-        <div className="h-24 md:hidden"></div>
+        <div className="h-16 md:hidden"></div>
  
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-2.5 py-3 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
             if (item.subItems) {
               const isDropdownOpen = !!openDropdowns[item.label];
@@ -123,27 +123,30 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
                       }));
                     }}
                     className={cn(
-                      "w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group font-medium text-sm",
+                      "w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group font-medium text-xs",
                       hasActiveSub
                         ? "text-white bg-slate-800"
                         : "text-slate-400 hover:bg-slate-800 hover:text-white"
                     )}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <item.icon className={cn(
-                        "w-5 h-5 transition-colors duration-200",
+                        "w-4 h-4 transition-colors duration-200",
                         hasActiveSub ? "text-white" : "text-slate-500 group-hover:text-white"
                       )} />
                       <span>{item.label}</span>
                     </div>
                     <ChevronDown className={cn(
-                      "w-4 h-4 text-slate-500 transition-transform duration-200 group-hover:text-white",
+                      "w-3.5 h-3.5 text-slate-500 transition-transform duration-200 group-hover:text-white",
                       isDropdownOpen && "transform rotate-180 text-white"
                     )} />
                   </button>
 
-                  {isDropdownOpen && (
-                    <div className="mt-1 ml-4 pl-3 border-l border-slate-800/80 space-y-1 bg-slate-950/20 rounded-r-xl py-1">
+                  <div className={cn(
+                    "grid transition-all duration-200 ease-in-out overflow-hidden",
+                    isDropdownOpen ? "grid-rows-[1fr] opacity-100 mt-0.5" : "grid-rows-[0fr] opacity-0 mt-0"
+                  )}>
+                    <div className="min-h-0 ml-3 pl-2.5 border-l border-slate-800/80 space-y-0.5 bg-slate-950/20 rounded-r-lg py-1">
                       {item.subItems.map((sub) => {
                         const isSubActive = sub.exactMatch
                           ? pathname === sub.href
@@ -154,22 +157,22 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
                             key={sub.href}
                             href={sub.href}
                             className={cn(
-                              "flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200 group",
+                              "flex items-center gap-2 px-2.5 py-2 rounded-md transition-all duration-200 group",
                               isSubActive
-                                ? "bg-white text-slate-900 font-semibold shadow-lg shadow-white/5"
+                                ? "bg-white text-slate-900 font-semibold shadow-md shadow-white/5"
                                 : "text-slate-400 font-medium hover:bg-slate-800/80 hover:text-white"
                             )}
                           >
                             <sub.icon className={cn(
-                              "w-4 h-4",
+                              "w-3.5 h-3.5",
                               isSubActive ? "text-slate-900" : "text-slate-500 group-hover:text-white"
                             )} />
-                            <span className="text-sm">{sub.label}</span>
+                            <span className="text-[11px]">{sub.label}</span>
                           </Link>
                         );
                       })}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             }
@@ -185,17 +188,17 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+                  "flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 group",
                   isActive 
-                    ? "bg-white text-slate-900 font-semibold shadow-lg shadow-white/5" 
+                    ? "bg-white text-slate-900 font-semibold shadow-md shadow-white/5" 
                     : "text-slate-400 font-medium hover:bg-slate-800 hover:text-white"
                 )}
               >
                 <item.icon className={cn(
-                  "w-5 h-5",
+                  "w-4 h-4",
                   isActive ? "text-slate-900" : "text-slate-500 group-hover:text-white"
                 )} />
-                <span className="text-sm">{item.label}</span>
+                <span className="text-xs">{item.label}</span>
               </Link>
             );
           })}

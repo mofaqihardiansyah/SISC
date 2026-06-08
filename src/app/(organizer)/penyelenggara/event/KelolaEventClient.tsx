@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
+import Portal from '@/components/ui/Portal';
 
 interface EventData {
   id: number;
@@ -490,11 +491,12 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
       {/* MODAL EDIT FORM */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
-          <div className="relative bg-white w-full max-w-3xl max-h-[95vh] rounded-[2rem] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-[#0E215D] text-white">
-              <h2 className="text-lg font-bold text-white">
+        <Portal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-end bg-black/40 backdrop-blur-sm transition-opacity">
+          <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            {/* Header Modal */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-100">
+              <h2 className="text-xl font-bold text-[#1E293B]">
                 {selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
               </h2>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-300 hover:text-white transition-all duration-200 hover:scale-110 active:scale-90" disabled={isSaving}>
@@ -587,7 +589,8 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
               </button>
             </div>
           </div>
-        </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

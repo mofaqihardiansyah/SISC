@@ -4,6 +4,7 @@
 // Lokasi: src/app/(admin)/admin/penyelenggara/ValidasiAksesPenyelenggaraClient.tsx
 
 import { useState, useMemo, useTransition, useEffect, ComponentType } from "react";
+import Portal from "@/components/ui/Portal";
 import {
   Search,
   ChevronLeft,
@@ -836,12 +837,14 @@ export function ValidasiAksesPenyelenggaraClient({
 
       {/* ── Premium Detail Modal ── */}
       {detailItem !== null && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-          {/* Backdrop with elegant blur */}
-          <div
-            onClick={() => setDetailItem(null)}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
-          />
+        <Portal>
+          <div className="fixed inset-0 z-[9999] overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Backdrop with elegant blur */}
+            <div
+              onClick={() => setDetailItem(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 animate-in fade-in"
+            />
 
           <div className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh]">
                 
@@ -1058,7 +1061,10 @@ export function ValidasiAksesPenyelenggaraClient({
                 </div>
 
               </div>
-        </div>
+            </div>
+          </div>
+          </div>
+        </Portal>
       )}
 
     </div>

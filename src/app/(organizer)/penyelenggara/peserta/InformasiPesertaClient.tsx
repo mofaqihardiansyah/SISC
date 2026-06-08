@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import Portal from "@/components/ui/Portal";
 
 // ============================================================
 // TIPE DATA
@@ -201,11 +202,11 @@ function LampiranPopup({
   const isPdf = /\.pdf$/i.test(url);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "rgba(0,0,0,0.6)" }}
-      onClick={onClose}
-    >
+    <Portal>
+      <div
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      >
       <div
         className="bg-white rounded-2xl overflow-hidden w-full max-w-2xl shadow-2xl animate-in fade-in zoom-in duration-200"
         onClick={(e) => e.stopPropagation()}
@@ -272,7 +273,8 @@ function LampiranPopup({
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </Portal>
   );
 }
 
