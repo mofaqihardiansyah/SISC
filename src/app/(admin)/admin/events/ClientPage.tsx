@@ -4,7 +4,6 @@ import React, { useState, useMemo } from 'react';
 import { 
   Search, 
   ChevronDown, 
-  Calendar, 
   Building2, 
   CheckCircle, 
   Clock, 
@@ -173,17 +172,11 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-black text-[#0E215D] tracking-tight">Manajemen Event</h1>
-          <p className="text-slate-500 font-medium text-sm max-w-2xl">
-            Kelola event yang didaftarkan oleh penyelenggara di platform.
-          </p>
-        </div>
-        <button className="bg-[#0E215D] text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#0E215D]/20 hover:bg-[#1a3280] transition-all flex items-center gap-2">
-          <Calendar size={16} />
-          Tambah Event Baru
-        </button>
+      <div className="space-y-1 mb-8">
+        <h1 className="text-3xl font-black text-[#0E215D] tracking-tight">Manajemen Event</h1>
+        <p className="text-slate-500 font-medium text-sm max-w-2xl">
+          Kelola event yang didaftarkan oleh penyelenggara di platform.
+        </p>
       </div>
 
       {/* Unified Data Grid */}

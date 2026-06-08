@@ -41,13 +41,13 @@ export function StatCard({ label, value, icon: Icon, color }: StatCardProps) {
   const style = colorStyles[color];
 
   return (
-    <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-50 flex flex-col gap-4">
-      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white", style.icon)}>
+    <div className="bg-white p-4 rounded-[24px] shadow-sm border border-gray-50 flex items-center gap-4">
+      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0", style.icon)}>
         <Icon size={24} />
       </div>
-      <div>
-        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{label}</p>
-        <h3 className="text-3xl font-black text-gray-900">{value}</h3>
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</p>
+        <h3 className="text-2xl font-black text-gray-900">{value}</h3>
       </div>
     </div>
   );

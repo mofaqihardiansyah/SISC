@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Check,
   X,
+  Eye,
   FileText,
   ExternalLink,
   ArrowUpDown,
@@ -668,13 +669,13 @@ export function ValidasiAksesPenyelenggaraClient({
                             </div>
                           ) : (
                             <>
-                              {/* Tombol Tinjau Detail Langsung */}
+                              {/* Tombol Preview Detail */}
                               <button
                                 onClick={() => setDetailItem(item)}
                                 className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 text-slate-500 flex items-center justify-center border border-slate-200/50 shadow-sm transition-all hover:scale-105 active:scale-95"
-                                title="Tinjau Detail"
+                                title="Preview Detail"
                               >
-                                <FileText className="w-4 h-4" />
+                                <Eye className="w-4 h-4" />
                               </button>
 
                               <div className="relative">

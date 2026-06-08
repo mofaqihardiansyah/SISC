@@ -22,8 +22,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { getOrganizerPapers, updatePaperStatus } from "@/actions/organizer-paper";
-import type { PaperData, EventData } from "@/actions/organizer-paper";
+import { getOrganizerPapers, updatePaperStatus } from "./actions";
+import type { PaperData, EventData } from "./actions";
 
 const STATUS_CFG: Record<string, { label: string; bg: string; text: string; border: string }> = {
   review: { label: "Sedang Direview", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
@@ -87,53 +87,14 @@ export default function ReviewPaperPage() {
     setTimeout(() => setNotif(null), 4000);
   };
 
-  // Fetch data (with mock fallback for preview when not logged in)
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const result = await getOrganizerPapers();
-      if (result.success && result.data.length > 0) {
+      try {
+        const result = await getOrganizerPapers();
         setPapers(result.data);
         setEvents(result.events);
-      } else {
-        // Preview mode: show mock data
-        setEvents([
-          { id: 1, judul: "ICITB 2025 - International Conference" },
-          { id: 2, judul: "Seminar Nasional Teknologi 2025" },
-        ]);
-        setPapers([
-          {
-            id: 1, judul: "Implementasi AI untuk Deteksi Dini Penyakit", penulis: "Dr. Andi Pratama, S.Kom, M.T., Rina Wijaya, S.T., M.Kom",
-            fileUrl: "/", status: "review", komentarPenolakan: null, eventId: 1,
-            eventJudul: "ICITB 2025 - International Conference", dibuatPada: new Date("2025-05-20T10:30:00"),
-            userNama: "Budi Santoso", userEmail: "budi@email.com",
-          },
-          {
-            id: 2, judul: "Analisis Big Data pada Sektor Pendidikan", penulis: "Prof. Dr. Siti Nurhaliza, M.Sc.",
-            fileUrl: "/", status: "review", komentarPenolakan: null, eventId: 1,
-            eventJudul: "ICITB 2025 - International Conference", dibuatPada: new Date("2025-05-19T14:15:00"),
-            userNama: "Citra Dewi", userEmail: "citra@email.com",
-          },
-          {
-            id: 3, judul: "Blockchain untuk Keamanan Data Medis", penulis: "Ahmad Fauzi, Ph.D., Dewi Lestari",
-            fileUrl: "/", status: "accepted", komentarPenolakan: null, eventId: 2,
-            eventJudul: "Seminar Nasional Teknologi 2025", dibuatPada: new Date("2025-05-18T09:00:00"),
-            userNama: "Eko Prasetyo", userEmail: "eko@email.com",
-          },
-          {
-            id: 4, judul: "Sistem Cerdas untuk Optimalisasi Rantai Pasok", penulis: "Maya Sari, S.T., M.T.",
-            fileUrl: "/", status: "rejected", komentarPenolakan: "Paper tidak sesuai dengan scope conference. Silakan submit ke conference yang lebih relevan.",
-            eventId: 1, eventJudul: "ICITB 2025 - International Conference", dibuatPada: new Date("2025-05-17T16:45:00"),
-            userNama: "Fajar Ramadhan", userEmail: "fajar@email.com",
-          },
-          {
-            id: 5, judul: "Machine Learning untuk Prediksi Cuaca Ekstrem", penulis: "Dr. Rizky Amalia, M.T., Hendra Gunawan",
-            fileUrl: "/", status: "review", komentarPenolakan: null, eventId: 2,
-            eventJudul: "Seminar Nasional Teknologi 2025", dibuatPada: new Date("2025-05-16T11:20:00"),
-            userNama: "Gita Permata", userEmail: "gita@email.com",
-          },
-        ]);
-      }
+      } catch { setEvents([]); setPapers([]); }
       setLoading(false);
     })();
   }, []);
@@ -144,7 +105,7 @@ export default function ReviewPaperPage() {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        p => p.judul.toLowerCase().includes(q) || p.penulis.toLowerCase().includes(q)
+        p => p.judul.toLowerCase().includes(q) || (Array.isArray(p.penulis) && p.penulis.some(a => a.nama.toLowerCase().includes(q)))
       );
     }
     if (eventFilter !== "all") result = result.filter(p => p.eventId === eventFilter);
@@ -204,8 +165,6 @@ export default function ReviewPaperPage() {
     if (!date) return "-";
     return format(new Date(date), "d MMM yyyy, HH:mm", { locale: id });
   };
-
-  const getAuthors = (penulis: string) => penulis ? penulis.split(",").map(a => a.trim()) : [];
 
   if (loading) {
     return (
@@ -343,7 +302,7 @@ export default function ReviewPaperPage() {
                             <span className="font-semibold text-slate-800 text-[13px] line-clamp-1">{paper.judul}</span>
                           </td>
                           <td className="px-5 py-4">
-                            <span className="text-xs text-slate-500 line-clamp-1">{paper.penulis}</span>
+                            <span className="text-xs text-slate-500 line-clamp-1">{Array.isArray(paper.penulis) ? paper.penulis.map(a => a.nama).join(', ') : ''}</span>
                           </td>
                           <td className="px-5 py-4">
                             <span className="text-xs text-slate-500">{paper.eventJudul || "-"}</span>
@@ -412,7 +371,7 @@ export default function ReviewPaperPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-slate-800 text-sm line-clamp-2">{paper.judul}</h4>
-                          <p className="text-xs text-slate-400 mt-0.5">{paper.penulis}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{Array.isArray(paper.penulis) ? paper.penulis.map(a => a.nama).join(', ') : ''}</p>
                         </div>
                         <StatusBadge status={status} />
                       </div>
@@ -501,14 +460,55 @@ export default function ReviewPaperPage() {
                       {selectedPaper.judul}
                     </p>
                   </div>
+                  {(selectedPaper.track || selectedPaper.kataKunci) && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedPaper.track && (
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            Track / Topik
+                          </p>
+                          <p className="text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            {selectedPaper.track}
+                          </p>
+                        </div>
+                      )}
+                      {selectedPaper.kataKunci && (
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            Kata Kunci
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {selectedPaper.kataKunci.split(',').map((k, i) => (
+                              <span key={i} className="bg-slate-800 text-white px-2 py-1 rounded text-[11px] font-bold">
+                                {k.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-1.5">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                       <User size={12} /> Daftar Penulis
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {getAuthors(selectedPaper.penulis).map((author, idx) => (
-                        <span key={idx} className="bg-slate-800 text-white px-2.5 py-1 rounded-lg text-xs font-semibold">{author}</span>
-                      ))}
+                    <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      {Array.isArray(selectedPaper.penulis) ? selectedPaper.penulis.map((author, idx) => (
+                        <div key={idx} className="flex flex-col bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-slate-800">{author.nama}</span>
+                            {author.isCorresponding && (
+                              <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
+                                Penulis Utama
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex flex-col text-[11px] text-slate-500 mt-1">
+                            <span>{author.email}</span>
+                            <span>{author.afiliasi}</span>
+                          </div>
+                        </div>
+                      )) : null}
                     </div>
                   </div>
                   <div className="space-y-1.5">
@@ -568,16 +568,16 @@ export default function ReviewPaperPage() {
 
                 {/* RIGHT: PDF + Actions */}
                 <div className="lg:col-span-3 flex flex-col h-full">
-                  <div className="flex-1 bg-slate-100 relative min-h-[400px] lg:min-h-0">
-                    <div className="absolute inset-0 flex flex-col">
-                      <div className="bg-white border-b border-slate-200 px-5 py-2.5 flex items-center justify-between shrink-0">
-                        <div className="flex items-center gap-2">
-                          <Eye size={15} className="text-slate-500" />
-                          <h3 className="text-xs font-bold text-slate-800">Pratinjau Paper</h3>
-                        </div>
-                        <span className="px-2 py-0.5 text-[9px] font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">PDF</span>
+                  <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[400px] lg:min-h-0">
+                    <div className="bg-slate-50/75 border-b border-slate-200 px-5 py-3 flex items-center justify-between shrink-0">
+                      <div className="flex items-center gap-2">
+                        <Eye size={16} className="text-slate-500" />
+                        <h3 className="text-xs font-bold text-slate-800">Pratinjau Langsung Paper</h3>
                       </div>
-                      <iframe src={`${selectedPaper.fileUrl}#toolbar=0&navpanes=0`} className="flex-1 w-full border-none" title="PDF Viewer" />
+                      <span className="px-2 py-0.5 text-[9px] font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">PDF FILE</span>
+                    </div>
+                    <div className="flex-1 bg-slate-100 relative w-full">
+                      <iframe src={`${selectedPaper.fileUrl}#toolbar=0&navpanes=0`} className="absolute inset-0 w-full h-full border-none" title="PDF Document Viewer" />
                     </div>
                   </div>
 
