@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ChevronLeft, FileText, Download, Info, CheckCircle2, AlertTriangle, XCircle, Eye } from 'lucide-react';
+import { ChevronLeft, FileText, Download, CheckCircle2, AlertTriangle, XCircle, Eye } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';

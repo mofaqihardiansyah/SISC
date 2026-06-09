@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, LogOut, LayoutDashboard, Settings, Home } from "lucide-react";
+import Image from "next/image";
+import { LogOut, LayoutDashboard, Settings, Home } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
@@ -36,9 +37,11 @@ export default function UserMenu({ user }: UserMenuProps) {
         className="flex items-center justify-center bg-white/10 w-10 h-10 rounded-full transition-all duration-300 hover:bg-white/20 active:scale-95 overflow-hidden border border-white/20"
         title={user.name || "Profil"}
       >
-        <img 
+        <Image 
           src={user.image || "/uploads/avatars/fotodummy.jpg"} 
           alt="Profile" 
+          width={40}
+          height={40}
           className="w-full h-full object-cover"
         />
       </button>

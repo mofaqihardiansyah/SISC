@@ -19,7 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .safeParse(credentials);
 
         if (parsedCredentials.success) {
-          const { email, password, role } = parsedCredentials.data;
+          const { email, password } = parsedCredentials.data;
           const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
           const user = userList[0];
 

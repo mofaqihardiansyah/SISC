@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
       }
       toast.success('Kode OTP reset password telah dikirim ke email Anda.');
       router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
-    } catch (_error) {
+    } catch {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
   };

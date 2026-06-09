@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { User, LogOut, Home } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
@@ -53,9 +54,11 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
         </div>
         <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden transition-all group-hover:border-blue-400 group-active:scale-95 shadow-sm">
           {user.image ? (
-            <img 
+            <Image 
               src={user.image} 
               alt="Profile" 
+              width={32}
+              height={32}
               className="w-full h-full object-cover"
             />
           ) : (

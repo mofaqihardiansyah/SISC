@@ -1,9 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 import Portal from '@/components/ui/Portal';
+
+interface RawEventData {
+  id: number;
+  judul: string | null;
+  status: string | null;
+  jenisEvent: string | null;
+  tipePlatform: string | null;
+  kuota: number | null;
+  harga: number | null;
+  tanggalMulai: Date | null;
+  bannerUrl: string | null;
+  alasanPenolakan: string | null;
+  detailLokasi: string | null;
+  deskripsi: string | null;
+}
 
 interface EventData {
   id: number;
@@ -33,8 +49,7 @@ interface EventFormData {
 }
 
 interface KelolaEventClientProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialEvents: any[];
+  initialEvents: RawEventData[];
 }
 
 export default function KelolaEventClient({ initialEvents }: KelolaEventClientProps) {
@@ -64,8 +79,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     deskripsi: ""
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const formatDbData = (rawData: any[]) => {
+  const formatDbData = (rawData: RawEventData[]) => {
     if (!rawData || rawData.length === 0) return [];
     
     return rawData.map((ev) => {
@@ -180,8 +194,8 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
       const hargaStr = String(formData.harga).replace(/\./g, '').replace(/,/g, '');
       const payload = {
         judul: formData.judul,
-        jenisEvent: formData.tipeEvent.toLowerCase(),
-        tipePlatform: formData.platform.toLowerCase(),
+        jenisEvent: formData.tipeEvent.toLowerCase() as 'seminar' | 'conference',
+        tipePlatform: formData.platform.toLowerCase() as 'online' | 'offline' | 'hybrid',
         detailLokasi: formData.venue,
         harga: formData.tipeTiket === "Free" ? 0 : parseInt(hargaStr || "0", 10),
         deskripsi: formData.deskripsi,
@@ -354,8 +368,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                 <div className="flex gap-6 flex-1 min-w-0 pr-6">
                   <div className="relative w-[240px] h-[135px] rounded-[20px] overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
                     {ev.img ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={ev.img} alt="" className={`w-full h-full object-cover ${isRejected ? 'opacity-40 grayscale' : ''}`} />
+                      <Image src={ev.img} alt="" fill className={`object-cover ${isRejected ? 'opacity-40 grayscale' : ''}`} sizes="240px" />
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
                         <ImageIcon size={28} className="mb-1" />

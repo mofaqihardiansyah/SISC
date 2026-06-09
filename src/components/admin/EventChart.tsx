@@ -7,10 +7,8 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  AreaChart,
   Area,
   Line,
-  LineChart,
   ComposedChart
 } from 'recharts';
 

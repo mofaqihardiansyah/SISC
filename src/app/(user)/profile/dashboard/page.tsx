@@ -1,10 +1,11 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Activity, Megaphone, MapPin, Calendar, Bookmark, History } from 'lucide-react';
 import { db } from '@/db'; 
 import { auth } from '@/auth';
 import { event, bookmark, pendaftaran } from '@/db/schema'; 
-import { desc, eq, and } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 
 function StatsCard({ label, value, bg, renderIcon }: { 
   label: string; 
@@ -105,11 +106,10 @@ export default async function UserDashboard() {
             upcomingEventsData.map((data) => (
               <EventCard 
                 key={data.id} 
+                id={data.id}
                 judul={data.judul}
-                slug={data.slug ?? ''}
                 date={'TBA'} 
                 location={'TBA'} 
-                organizer={`Penyelenggara ID: ${data.organizerId}`} 
                 bannerUrl={data.bannerUrl}
               />
             ))
@@ -156,19 +156,18 @@ export default async function UserDashboard() {
   );
 }
 
-function EventCard({ judul, slug, date, location, organizer, bannerUrl }: {
+function EventCard({ judul, id, date, location, bannerUrl }: {
   judul: string;
-  slug: string;
+  id: number;
   date: string;
   location: string;
-  organizer: string;
   bannerUrl: string | null;
 }) {
   return (
-    <Link href={`/events/${slug}`} className="block flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group bg-white">
-      <div className="w-full md:w-40 h-32 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-200">
+    <Link href={`/event/${id}`} className="block flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group bg-white">
+      <div className="w-full md:w-40 h-32 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-200 relative">
         {bannerUrl ? (
-          <img src={bannerUrl} alt={judul} className="w-full h-full object-cover" />
+          <Image src={bannerUrl} alt={judul} fill className="object-cover" sizes="(max-width: 768px) 100vw, 160px" />
         ) : (
           <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs p-2 text-center italic">Tanpa Banner</div>
         )}

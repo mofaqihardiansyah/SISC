@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   Search, 
   ChevronDown, 
@@ -448,8 +449,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200/60 group-hover:border-slate-900/20 transition-all relative">
                             {event.bannerUrl ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover" />
+                              <Image src={event.bannerUrl} alt={event.judul} fill className="object-cover" sizes="48px" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
                               </div>

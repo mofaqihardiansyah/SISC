@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { pendaftaran, event } from "@/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";

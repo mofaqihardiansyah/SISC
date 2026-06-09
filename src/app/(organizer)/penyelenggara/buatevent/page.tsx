@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Landmark, Wallet } from "lucide-react";
 import { createEvent, type MetodePembayaranInput } from "@/actions/create-event";
@@ -367,9 +368,10 @@ export default function BuatEventPage() {
           );
           setTimeout(() => router.push("/penyelenggara/event"), 1500);
         }
-      } catch (err: any) {
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : '';
         setError(
-          err.message?.includes("exceeded")
+          errorMessage.includes("exceeded")
             ? "Ukuran form/file melebihi batas server. Maksimal 5MB."
             : "Terjadi kesalahan jaringan atau server."
         );
@@ -504,8 +506,7 @@ export default function BuatEventPage() {
               <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
               {bannerPreview ? (
                 <div className="relative w-full h-40 rounded-xl overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={bannerPreview} alt="Banner Preview" className="w-full h-full object-cover" />
+                  <Image src={bannerPreview} alt="Banner Preview" fill className="object-cover" sizes="100vw" />
                   <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                     <p className="text-white text-sm font-medium">Klik untuk ganti</p>
                   </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Camera, KeyRound, Loader2, Eye, EyeOff } from "lucide-react";
+import { KeyRound, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";

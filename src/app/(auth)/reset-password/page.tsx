@@ -9,7 +9,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { resetPassword, verifyResetOtpAction, requestPasswordReset } from '@/actions/auth';
 import { Loader2 } from 'lucide-react';
@@ -26,7 +26,6 @@ const resetPasswordSchema = z.object({
 type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 
 function ResetPasswordContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
   
@@ -58,7 +57,7 @@ function ResetPasswordContent() {
         toast.success('Kode OTP valid. Silakan masukkan kata sandi baru Anda.');
         setStep(2);
       }
-    } catch (_error) {
+    } catch {
       toast.error('Terjadi kesalahan saat memverifikasi OTP.');
     } finally {
       setIsVerifyingOTP(false);
@@ -74,7 +73,7 @@ function ResetPasswordContent() {
       } else {
         toast.success('Kode OTP baru telah dikirim ke email anda.');
       }
-    } catch (_error) {
+    } catch {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsResending(false);
@@ -101,7 +100,7 @@ function ResetPasswordContent() {
       } else {
         window.location.href = '/login';
       }
-    } catch (_error) {
+    } catch {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
   };

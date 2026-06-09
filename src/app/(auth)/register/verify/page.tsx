@@ -8,7 +8,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { verifyOtpAction, resendOtpAction } from '@/actions/auth';
 import { Loader2 } from 'lucide-react';
-import { signIn, getSession } from 'next-auth/react';
 
 function VerifyContent() {
   const router = useRouter();

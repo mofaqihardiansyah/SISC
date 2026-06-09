@@ -6,7 +6,6 @@ import {
   FileCheck, 
   Users, 
   Calendar, 
-  ClipboardList,
   UserCog,
   Settings,
   Layers,

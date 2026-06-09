@@ -28,7 +28,6 @@ export default function EventSection({
   events,
   emptyMessage = "Belum ada event.",
   type,
-  organizerLabel,
   isLoggedIn = false,
 }: EventSectionProps) {
   return (

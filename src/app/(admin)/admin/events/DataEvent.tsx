@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   X, 
   Building2, 
@@ -164,8 +165,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-slate-50 relative">
             {event.bannerUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={event.bannerUrl} alt={event.judul} className="w-full h-full object-cover" />
+              <Image src={event.bannerUrl} alt={event.judul} fill className="object-cover" sizes="64px" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
                 <Building2 size={24} />
@@ -244,8 +244,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
           <label className={labelClasses}><ImageIcon size={12} /> Poster / Banner Event</label>
           <div className="relative h-40 w-full rounded-xl bg-slate-100 overflow-hidden group border border-slate-200 shadow-sm">
             {formData.bannerUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={formData.bannerUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <Image src={formData.bannerUrl} alt="Preview" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="100vw" />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1">
                 <ImageIcon size={28} strokeWidth={1} />

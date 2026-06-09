@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Camera, Globe, Mail, Phone, FileText, Eye, Loader2, KeyRound } from 'lucide-react';
+import { Globe, Mail, Phone, FileText, Eye, Loader2, KeyRound } from 'lucide-react';
 import { updateProfilPenyelenggara } from './actions';
 import Image from 'next/image';
 import { toast } from 'sonner';

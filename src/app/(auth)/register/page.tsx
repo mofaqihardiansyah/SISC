@@ -63,8 +63,7 @@ export default function RegisterPage() {
   const [showVisitorPassword, setShowVisitorPassword] = React.useState(false);
   const [showOrganizerPassword, setShowOrganizerPassword] = React.useState(false);
   const [globalError, setGlobalError] = React.useState<string | null>(null);
-  const [isVisitorSubmitting, setIsVisitorSubmitting] = React.useState(false);
-  const [isOrganizerSubmitting, setIsOrganizerSubmitting] = React.useState(false);
+
 
   const visitorPasswordValue = useWatch({ control: visitorForm.control, name: 'password', defaultValue: '' });
   const organizerPasswordValue = useWatch({ control: organizerForm.control, name: 'password', defaultValue: '' });
@@ -86,10 +85,8 @@ export default function RegisterPage() {
   const organizerStrength = calculateStrength(organizerPasswordValue);
 
   const onVisitorSubmit = async (data: VisitorValues) => {
-    setIsVisitorSubmitting(true);
     setGlobalError(null);
     const result = await registerUser(data, 'visitor');
-    setIsVisitorSubmitting(false);
 
     if (result.error) {
       setGlobalError(result.error);
@@ -105,10 +102,8 @@ export default function RegisterPage() {
       return;
     }
 
-    setIsOrganizerSubmitting(true);
     setGlobalError(null);
     const result = await registerUser(data, 'organizer');
-    setIsOrganizerSubmitting(false);
 
     if (result.error) {
       setGlobalError(result.error);

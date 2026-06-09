@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
@@ -176,9 +177,11 @@ export default function SettingsPage() {
         <div className="space-y-6">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-100 flex-shrink-0">
-              <img 
+              <Image 
                 src={formData.avatarUrl || "/uploads/avatars/fotodummy.jpg"} 
                 alt="Profile" 
+                width={96}
+                height={96}
                 className="w-full h-full object-cover"
               />
             </div>

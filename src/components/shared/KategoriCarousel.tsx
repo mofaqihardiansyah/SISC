@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 
 type Kategori = {
   id: number;
@@ -92,15 +93,15 @@ export default function KategoriCarousel({
               >
                 {/* Background Icon */}
                 {cat.iconUrl && (
-                  <div className="absolute -bottom-2 -right-2 opacity-20 select-none pointer-events-none w-12 h-12">
-                    <img src={cat.iconUrl} alt="" className="w-full h-full object-contain" />
+                  <div className="absolute -bottom-2 -right-2 opacity-20 select-none pointer-events-none w-12 h-12 relative">
+                    <Image src={cat.iconUrl} alt="" fill className="object-contain" sizes="48px" />
                   </div>
                 )}
 
                 {/* Main Icon */}
                 {cat.iconUrl && (
                   <div className="relative z-10 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center p-2">
-                    <img src={cat.iconUrl} alt={cat.nama ?? ""} className="w-7 h-7 object-contain" />
+                    <Image src={cat.iconUrl} alt={cat.nama ?? ""} width={28} height={28} className="object-contain" />
                   </div>
                 )}
               </div>

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { db } from './index';
 import {
   profilPenyelenggara, tag, eventTag, 
-  lampiranEvent, bookmark, logAdmin,
+  bookmark, logAdmin,
   jadwalEvent, pendaftaran, peserta
 } from './schema';
 import { eq } from 'drizzle-orm';
@@ -101,7 +101,7 @@ export async function seedDummy() {
     });
 
     if (!existing) {
-      const [newReg] = await db.insert(pendaftaran).values({
+      await db.insert(pendaftaran).values({
         eventId: p.eventId,
         userId: p.userId,
         kodePendaftaran: p.kodePendaftaran,

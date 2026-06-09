@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import EventCard from "@/components/shared/EventCard";
 import {
   Globe,
@@ -263,15 +264,17 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             </div>
           </div>
 
-          <div className="w-full md:w-[220px] shrink-0">
+          <div className="w-full md:w-[220px] h-[160px] shrink-0 relative">
             {event.gambar ? (
-              <img
+              <Image
                 src={event.gambar}
                 alt={event.nama}
-                className="w-full h-[160px] rounded-[10px] object-cover border-2 border-white/15"
+                fill
+                className="rounded-[10px] object-cover border-2 border-white/15"
+                sizes="(max-width: 768px) 100vw, 220px"
               />
             ) : (
-              <div className="w-full h-[160px] rounded-[10px] bg-white/5 flex items-center justify-center text-5xl">
+              <div className="w-full h-full rounded-[10px] bg-white/5 flex items-center justify-center text-5xl">
                 <Tent size={48} className="text-slate-400" />
               </div>
             )}

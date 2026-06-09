@@ -60,12 +60,6 @@ function formatDateDisplay(d: Date | string | null): string {
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function formatTimeDisplay(d: Date | string | null): string {
-  if (!d) return '-';
-  const date = typeof d === 'string' ? new Date(d) : d;
-  return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-
 function ReviewModal({
   event,
   isOpen,

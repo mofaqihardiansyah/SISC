@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { X, Save, Image as ImageIcon, Layout, Tag, Type, Globe, MapPin, Mic, Ticket, Clock, Users, AlignLeft, ShieldCheck } from "lucide-react";
 import { updateEvent } from "@/actions/admin-event";
 import { toast } from "react-hot-toast";
@@ -96,7 +97,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
              <label className={labelClasses}><ImageIcon size={12} /> Poster / Banner Event</label>
              <div className="relative h-48 w-full rounded-xl bg-slate-100 overflow-hidden group border border-slate-200 shadow-sm">
                 {formData.bannerUrl ? (
-                   <img src={formData.bannerUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                   <Image src={formData.bannerUrl} alt="Preview" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="100vw" />
                 ) : (
                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1">
                       <ImageIcon size={32} strokeWidth={1} />

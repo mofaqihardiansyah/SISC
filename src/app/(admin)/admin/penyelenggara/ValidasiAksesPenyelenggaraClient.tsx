@@ -22,7 +22,6 @@ import {
   Mail,
   Building2,
   Globe,
-  CornerDownRight,
   MoreHorizontal,
 } from "lucide-react";
 import type { PenyelenggaraItem, StatusValidasi } from "@/types/penyelenggara";
@@ -68,74 +67,6 @@ function StatusBadge({ status }: { status: StatusValidasi }) {
       <Icon className="h-3 w-3 shrink-0" />
       {label}
     </span>
-  );
-}
-
-// ─── ValidationButtons ────────────────────────────────────────────────────────
-
-function ValidationButtons({
-  currentStatus,
-  isLoading,
-  onChangeStatus,
-}: {
-  currentStatus: StatusValidasi;
-  isLoading: boolean;
-  onChangeStatus: (status: StatusValidasi) => void;
-}) {
-  return (
-    <div className="flex items-center gap-1.5">
-      {/* Jika pending, tampilkan kedua opsi centang dan silang */}
-      {currentStatus === "pending" && (
-        <>
-          <button
-            onClick={() => onChangeStatus("approved")}
-            disabled={isLoading}
-            title="Setujui Hak Akses"
-            aria-label="Setujui"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-600 hover:text-white transition-all duration-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
-          >
-            <Check className="h-4 w-4" strokeWidth={2.5} />
-          </button>
-          <button
-            onClick={() => onChangeStatus("rejected")}
-            disabled={isLoading}
-            title="Tolak Hak Akses"
-            aria-label="Tolak"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-all duration-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
-          >
-            <X className="h-4 w-4" strokeWidth={2.5} />
-          </button>
-        </>
-      )}
-
-      {/* Jika approved (sudah disetujui), hanya tampilkan tombol "Tolak Akses" */}
-      {currentStatus === "approved" && (
-        <button
-          onClick={() => onChangeStatus("rejected")}
-          disabled={isLoading}
-          title="Tolak / Cabut Hak Akses"
-          aria-label="Tolak Akses"
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all duration-200 text-[10px] font-extrabold tracking-wide shadow-sm disabled:cursor-not-allowed disabled:opacity-40 whitespace-nowrap"
-        >
-          <X className="h-3 w-3" strokeWidth={2.5} />
-          Tolak Akses
-        </button>
-      )}
-
-      {/* Jika rejected (ditolak), hanya tampilkan tombol "Setujui Akses" */}
-      {currentStatus === "rejected" && (
-        <button
-          onClick={() => onChangeStatus("approved")}
-          disabled={isLoading}
-          title="Setujui Kembali Hak Akses"
-          aria-label="Setujui Akses"
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all duration-200 text-[10px] font-extrabold tracking-wide shadow-sm disabled:cursor-not-allowed disabled:opacity-40 whitespace-nowrap"
-        >
-          <Check className="h-3 w-3" strokeWidth={2.5} />
-          Setujui Akses
-        </button>
-      )}
-    </div>
   );
 }
 
@@ -1055,14 +986,11 @@ export function ValidasiAksesPenyelenggaraClient({
                     )}
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
         </Portal>
-    )
-    }
-
+      )}
     </div>
   );
 }

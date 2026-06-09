@@ -9,8 +9,9 @@ export default function BuatEventButton() {
 
   const handleClick = () => {
     const isBuatEventPage = pathname.includes("/buatevent");
-    const isDirtyFn = (window as any).__buatEventIsDirty;
-    const showModalFn = (window as any).__buatEventShowModal;
+    const w = window as unknown as { __buatEventIsDirty?: () => boolean; __buatEventShowModal?: () => void };
+    const isDirtyFn = w.__buatEventIsDirty;
+    const showModalFn = w.__buatEventShowModal;
 
     if (isBuatEventPage && isDirtyFn && isDirtyFn() && showModalFn) {
       showModalFn();

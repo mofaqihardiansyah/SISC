@@ -1,6 +1,6 @@
 import React from 'react';
 import { db } from "@/db";
-import { users, event } from "@/db/schema"; // Diubah dari 'events' menjadi 'event'
+import { users, event } from "@/db/schema";
 import { auth } from "@/auth";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -16,7 +16,6 @@ export default async function KelolaEventPage() {
   const userId = parseInt(session.user.id, 10);
   if (isNaN(userId)) redirect("/login");
 
-  // Ambil status verifikasi user
   const [user] = await db
     .select({ isApproved: users.isApproved })
     .from(users)
@@ -32,12 +31,10 @@ export default async function KelolaEventPage() {
     );
   }
 
-  // Ambil daftar event milik penyelenggara dari tabel 'event'
   const initialEventsData = await db
     .select()
-    .from(event) // Menggunakan 'event'
+    .from(event)
     .where(eq(event.organizerId, userId));
 
-  // Berikan tipe any[] sementara ke props untuk menghindari konflik tipe schema Drizzle vs UI state
-  return <KelolaEventClient initialEvents={initialEventsData as any[]} />;
+  return <KelolaEventClient initialEvents={initialEventsData} />;
 }

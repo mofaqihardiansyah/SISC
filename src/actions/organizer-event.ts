@@ -51,7 +51,7 @@ export async function getDaftarEvent() {
  * Menggunakan eq() dari drizzle-orm untuk mencocokkan ID.
  * Memeriksa apakah penyelenggara telah disetujui (isApproved) terlebih dahulu.
  */
-export async function updateEventDatabase(id: number | string, data: any) {
+export async function updateEventDatabase(id: number | string, data: Partial<typeof event.$inferInsert>) {
   try {
     if (!id) throw new Error("ID Event tidak valid atau tidak ditemukan");
 
@@ -77,9 +77,10 @@ export async function updateEventDatabase(id: number | string, data: any) {
     }
 
     // Eksekusi update ke PostgreSQL via Drizzle ORM
+    const eventId = Number(id);
     await db.update(event)
       .set(data)
-      .where(and(eq(event.id, id as any), eq(event.organizerId, userId)));
+      .where(and(eq(event.id, eventId), eq(event.organizerId, userId)));
 
     return { 
       success: true 

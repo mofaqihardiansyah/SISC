@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Search, Trash2, MoreVertical, ChevronLeft, ChevronRight,
+  Search, Trash2, ChevronLeft, ChevronRight,
   Users, UserCheck, UserX, Clock, TrendingUp, Loader2,
   ChevronUp, ChevronDown, ChevronsUpDown, X, Eye,
 } from "lucide-react";
+import Image from "next/image";
 import Portal from "@/components/ui/Portal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -62,8 +63,9 @@ const ROWS_PER_PAGE = 5;
 
 function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string; avatarUrl: string | null }; size?: "md" | "lg" }) {
   const cls = size === "lg" ? "w-16 h-16 text-base" : "w-8 h-8 text-[10px]";
+  const imgSize = size === "lg" ? 64 : 32;
   return user.avatarUrl ? (
-    <img src={user.avatarUrl} alt={user.namaLengkap} className={`${cls} rounded-full object-cover shrink-0`} />
+    <Image src={user.avatarUrl} alt={user.namaLengkap} width={imgSize} height={imgSize} className={`${cls} rounded-full object-cover shrink-0`} />
   ) : (
     <div className={`${cls} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
       style={{ backgroundColor: getAvatarColor(user.id) }}>

@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { event, users, peserta, pendaftaran, transaksi } from "@/db/schema";
-import { count, eq, and, gte, lte, sql } from "drizzle-orm";
+import { count, eq, and, gte, sql } from "drizzle-orm";
 
 export async function getDashboardStats() {
   try {
@@ -118,9 +118,7 @@ export async function getMonthlyGrowth() {
     for (let i = 0; i < 12; i++) {
       const mName = monthNames[i];
       
-      const foundEvent = eventData.find((item: any) => {
-        // Handle conversion from 'May' to 'MEI' etc if needed, but the query returns 'Mon'
-        // For simplicity, we compare based on monthNum if available, but let's use the name mapping
+      const foundEvent = eventData.find((item: { month: string; monthNum: number; count: number }) => {
         const dbMonth = item.month?.toUpperCase();
         const map: Record<string, string> = {
           'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MEI', 'JUN': 'JUN',
@@ -129,7 +127,7 @@ export async function getMonthlyGrowth() {
         return map[dbMonth] === mName || dbMonth === mName;
       });
 
-      const foundReg = registrationData.find((item: any) => {
+      const foundReg = registrationData.find((item: { month: string; monthNum: number; count: number }) => {
         const dbMonth = item.month?.toUpperCase();
         const map: Record<string, string> = {
           'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MEI', 'JUN': 'JUN',
@@ -138,7 +136,7 @@ export async function getMonthlyGrowth() {
         return map[dbMonth] === mName || dbMonth === mName;
       });
 
-      const foundRev = revenueData.find((item: any) => {
+      const foundRev = revenueData.find((item: { month: string; total: number }) => {
         const dbMonth = item.month?.toUpperCase();
         const map: Record<string, string> = {
           'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MEI', 'JUN': 'JUN',
