@@ -109,7 +109,7 @@ function ResetPasswordContent() {
     <AuthLayout leftTitle="Buat kata sandi baru untuk akun Anda.">
       <div className="space-y-8">
         <div>
-          <h2 className="text-3xl font-heading font-black text-slate-900 mb-2 tracking-tight">
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
             {step === 1 ? 'Verifikasi OTP' : 'Kata Sandi Baru'}
           </h2>
           <p className="text-slate-500 text-sm font-medium">
@@ -153,13 +153,14 @@ function ResetPasswordContent() {
             <div className="text-center">
               <p className="text-sm text-slate-500 font-medium">
                 Tidak menerima kode?{' '}
-                <button 
+                <Button 
+                  variant="link"
                   onClick={handleResend}
                   disabled={isResending}
-                  className="text-primary font-bold hover:underline disabled:opacity-50 cursor-pointer"
+                  className="font-bold"
                 >
                   {isResending ? 'Mengirim...' : 'Kirim Ulang Kode'}
-                </button>
+                </Button>
               </p>
             </div>
           </div>

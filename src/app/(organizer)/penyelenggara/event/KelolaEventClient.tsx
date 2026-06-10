@@ -6,6 +6,9 @@ import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as Image
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 import Portal from '@/components/ui/Portal';
 import { STATUS_LABEL } from "@/lib/constants";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface RawEventData {
   id: number;
@@ -16,7 +19,7 @@ interface RawEventData {
   kuota: number | null;
   harga: number | null;
   tanggalMulai: Date | null;
-  bannerUrl: string | null;
+  urlBanner: string | null;
   alasanPenolakan: string | null;
   detailLokasi: string | null;
   deskripsi: string | null;
@@ -81,10 +84,10 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
   });
 
   const STATUS_UI_MAP: Record<string, string> = {
-    draft: STATUS_LABEL.draft?.toUpperCase() ?? "DRAFT",
-    published: "DIPUBLIKASI",
-    rejected: STATUS_LABEL.rejected?.toUpperCase() ?? "DITOLAK",
-    pending: STATUS_LABEL.pending?.toUpperCase() ?? "MENUNGGU",
+    draft: STATUS_LABEL.draft ?? "Draft",
+    published: "Dipublikasi",
+    rejected: STATUS_LABEL.rejected ?? "Ditolak",
+    pending: STATUS_LABEL.pending ?? "Menunggu",
   };
 
   const formatDbData = (rawData: RawEventData[]) => {
@@ -92,7 +95,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     
     return rawData.map((ev) => {
       const rawStatus = ev.status?.toLowerCase() || "draft";
-      let uiStatus = STATUS_UI_MAP[rawStatus] || "DRAFT";
+      let uiStatus = STATUS_UI_MAP[rawStatus] || "Draft";
 
       const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
       const tglString = ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', options) : "Belum diatur";
@@ -107,7 +110,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         harga: ev.harga ? ev.harga.toLocaleString('id-ID') : "0",
         tanggal: tglString,
         rawTanggal: ev.tanggalMulai || "", 
-        img: ev.bannerUrl || "",
+        img: ev.urlBanner || "",
         alasan: ev.alasanPenolakan || "Tidak ada alasan spesifik.",
         venue: ev.detailLokasi || "",
         deskripsi: ev.deskripsi || ""
@@ -139,8 +142,8 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
   // Hitung data statistik riil
   const totalEventsCount = dbEvents.length;
-  const aktifEventsCount = dbEvents.filter(ev => ev.status === "DIPUBLIKASI").length;
-  const pendingEventsCount = dbEvents.filter(ev => ev.status === "DRAFT").length;
+  const aktifEventsCount = dbEvents.filter(ev => ev.status === "Dipublikasi").length;
+  const pendingEventsCount = dbEvents.filter(ev => ev.status === "Draft").length;
 
   const filteredEvents = dbEvents.filter((ev) => {
     const cocokJudul = ev.judul.toLowerCase().includes(searchQuery.toLowerCase());
@@ -210,9 +213,10 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
       const res = await updateEventDatabase(selectedEvent.id, payload);
       if (!res?.success) {
-        alert("Gagal menyimpan perubahan: " + (res?.error || "Terjadi kesalahan"));
+        toast.error("Gagal menyimpan perubahan: " + (res?.error || "Terjadi kesalahan"));
         return;
       }
+      toast.success("Event berhasil diperbarui");
       await loadEvents(); 
       setIsModalOpen(false);
     } catch (error) {
@@ -226,7 +230,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     <div className="space-y-6">
       {/* HEADER HALAMAN */}
       <div className="mb-6">
-        <h1 className="text-[28px] font-bold text-sisc-slate">Kelola Event</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Kelola Event</h1>
         <p className="text-slate-400 text-sm">Manajemen dan pantau event Anda di sini</p>
       </div>
 
@@ -275,7 +279,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         <div className="flex gap-3 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-            <input 
+            <Input 
               type="text" 
               placeholder="Cari nama event..." 
               className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl outline-none text-sm focus:border-slate-400"
@@ -288,7 +292,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
           <div className="flex flex-col gap-2">
             <label className="text-sm2 font-bold text-slate-500">Tanggal</label>
-            <input 
+            <Input 
               type="date" 
               className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-sm2 text-slate-600 outline-none w-full cursor-pointer"
               value={dateFilter}
@@ -431,15 +435,15 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                 </div>
 
                 <div className="shrink-0 pl-4">
-                  <button 
+                  <Button 
                     onClick={() => !isRejected && openEditModal(ev)}
-                    className={`min-w-36 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-                      isRejected ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md'
-                    }`}
+                    variant={isRejected ? "ghost" : "default"}
+                    disabled={isRejected}
+                    className={isRejected ? "text-slate-300 cursor-not-allowed" : ""}
                   >
                     {isDraft ? "Lanjutkan" : "Kelola Event"}
                     {!isRejected && <ChevronRight size={16} />}
-                  </button>
+                  </Button>
                 </div>
               </div>
             );
@@ -470,13 +474,15 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
             dari <span className="text-slate-700 font-bold">{filteredEvents.length}</span> event
           </span>
           <div className="flex gap-1 items-center">
-            <button 
+            <Button 
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
+              variant="ghost"
+              size="icon"
+              aria-label="Halaman sebelumnya"
             >
               <ChevronLeft size={14}/>
-            </button>
+            </Button>
             
             {getPageButtons().map((p, idx) =>
               p === "..." ? (
@@ -484,27 +490,27 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                   ...
                 </span>
               ) : (
-                <button 
+                <Button 
                   key={p}
                   onClick={() => setCurrentPage(p as number)}
-                  className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
-                    currentPage === p 
-                      ? 'bg-slate-900 text-white shadow-sm' 
-                      : 'border border-gray-200 text-slate-600 hover:bg-gray-50'
-                  }`}
+                  variant={currentPage === p ? "default" : "outline"}
+                  size="icon-xs"
+                  className={currentPage === p ? "" : "border-gray-200"}
                 >
                   {p}
-                </button>
+                </Button>
               )
             )}
 
-            <button 
+            <Button 
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
+              variant="ghost"
+              size="icon"
+              aria-label="Halaman selanjutnya"
             >
               <ChevronRight size={14}/>
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -523,9 +529,9 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
               <h2 className="text-xl font-bold text-sisc-slate">
                 {selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all active:scale-90" disabled={isSaving}>
+              <Button onClick={() => setIsModalOpen(false)} variant="ghost" size="icon" aria-label="Tutup" disabled={isSaving}>
                 <X size={24}/>
-              </button>
+              </Button>
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
@@ -549,7 +555,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-600">Judul Event</label>
-                <input type="text" value={formData.judul} onChange={(e) => setFormData({...formData, judul: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
+                <Input type="text" value={formData.judul} onChange={(e) => setFormData({...formData, judul: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
               </div>
 
               <div className="space-y-1.5">
@@ -567,7 +573,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-600">Lokasi / Venue</label>
                 <div className="relative">
-                  <input type="text" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm outline-none" />
+                  <Input type="text" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm outline-none" />
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
                 </div>
               </div>
@@ -583,7 +589,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-600">Biaya (Rp)</label>
                   <div className="relative">
-                    <input type="text" value={formData.tipeTiket === "Free" ? "0" : formData.harga} onChange={(e) => setFormData({...formData, harga: e.target.value})} disabled={formData.tipeTiket === "Free"} className="w-full border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm outline-none disabled:bg-slate-50" />
+                    <Input type="text" value={formData.tipeTiket === "Free" ? "0" : formData.harga} onChange={(e) => setFormData({...formData, harga: e.target.value})} disabled={formData.tipeTiket === "Free"} className="w-full border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm outline-none disabled:bg-slate-50" />
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Rp</span>
                   </div>
                 </div>
@@ -597,20 +603,22 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
             {/* Footer Modal */}
             <div className="p-6 border-t border-slate-100 flex gap-4 bg-slate-50/50">
-              <button 
+              <Button 
                 onClick={() => setIsModalOpen(false)} 
-                className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-slate-500 hover:bg-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md text-sm"
+                variant="outline"
+                className="flex-1"
                 disabled={isSaving}
               >
                 Batal
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={handleSimpanPerubahan}
-                disabled={isSaving}
-                className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl text-sm flex items-center justify-center"
+                loading={isSaving}
+                variant="default"
+                className="flex-1"
               >
-                {isSaving ? "Menyimpan..." : (selectedEvent?.status === "DRAFT" ? "Simpan Draft" : "Simpan Perubahan")}
-              </button>
+                {selectedEvent?.status === "DRAFT" ? "Simpan Draft" : "Simpan Perubahan"}
+              </Button>
             </div>
           </div>
           </div>

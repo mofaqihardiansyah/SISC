@@ -1,4 +1,5 @@
 import EventCard from "./EventCard";
+import EmptyState from "@/components/profile/EmptyState";
 
 interface EventSectionProps {
   title: string;
@@ -6,7 +7,7 @@ interface EventSectionProps {
   events: {
     id: number;
     judul: string | null;
-    bannerUrl: string | null;
+    urlBanner: string | null;
     tanggalMulai: Date | null;
     tipeHarga: string | null;
     harga: number | null;
@@ -47,8 +48,8 @@ export default function EventSection({
         style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}
       >
         {events.length === 0 ? (
-          <div className="col-span-full py-10 text-center bg-gray-100 rounded-xl">
-            <p className="text-gray-500 italic">{emptyMessage}</p>
+          <div className="col-span-full">
+            <EmptyState title={emptyMessage} />
           </div>
         ) : (
           events.map((ev) => (
@@ -69,7 +70,7 @@ export default function EventSection({
               price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
               category={ev.jenisEvent ?? ""}
               type={type}
-              imageUrl={ev.bannerUrl || undefined}
+              imageUrl={ev.urlBanner || undefined}
               tipePlatform={ev.tipePlatform ?? undefined}
               kotaNama={ev.kotaNama ?? undefined}
               kategoriNama={ev.kategoriNama ?? undefined}

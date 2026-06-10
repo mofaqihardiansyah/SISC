@@ -4,9 +4,7 @@ import { db } from "@/db";
 import { event } from "@/db/schema";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import crypto from "crypto";
+import { put } from "@vercel/blob";
 
 // ── Hapus qrisImageBase64, qrisImageExt, qrisPreview ──
 export type MetodePembayaranInput = {
@@ -26,7 +24,7 @@ export async function createEvent(formData: FormData) {
   // ── Field utama ─────────────────────────────────────────────────
   const judul = (formData.get("judul") as string)?.trim();
   const jenisEvent = formData.get("jenisEvent") as "seminar" | "conference";
-  const isEventPolines = formData.get("isEventPolines") === "true";
+  const eventPolines = formData.get("eventPolines") === "true";
   const tipePlatform = formData.get("tipePlatform") as "online" | "offline" | "hybrid";
   const tipeHarga = formData.get("tipeHarga") as "free" | "paid";
   const harga = parseInt(formData.get("harga") as string) || 0;
@@ -60,16 +58,13 @@ export async function createEvent(formData: FormData) {
   if (isNaN(tanggalMulai.getTime())) return { error: "Format tanggal mulai tidak valid." };
 
   // ── Upload banner ─────────────────────────────────────────────────
-  let bannerUrl: string | null = null;
+  let urlBanner: string | null = null;
   if (bannerFile && bannerFile.size > 0) {
     if (bannerFile.size > 5 * 1024 * 1024) return { error: "Ukuran banner maksimal 5MB." };
-    const bytes = await bannerFile.arrayBuffer();
     const ext = bannerFile.name.split(".").pop() ?? "jpg";
-    const fileName = `${crypto.randomUUID()}.${ext}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "banners");
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(path.join(uploadDir, fileName), Buffer.from(bytes));
-    bannerUrl = `/uploads/banners/${fileName}`;
+    const fileName = `uploads/banners/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+    const blob = await put(fileName, bannerFile, { access: 'public', addRandomSuffix: false });
+    urlBanner = blob.url;
   }
 
   // ── Proses metode pembayaran ──────────────────────────────────────
@@ -102,7 +97,7 @@ export async function createEvent(formData: FormData) {
       judul,
       slug,
       jenisEvent,
-      isEventPolines,
+      eventPolines,
       tipePlatform,
       tipeHarga,
       harga,
@@ -115,7 +110,7 @@ export async function createEvent(formData: FormData) {
       kuota,
       linkEksternal,
       kategoriId,
-      bannerUrl,
+      urlBanner,
       status: isDraft ? "draft" : "pending",
       namaBank,
       nomorRekening,
@@ -126,7 +121,7 @@ export async function createEvent(formData: FormData) {
       namaEwallet,
       nomorEwallet,
       pemilikEwallet,
-      // qrisImageUrl dihapus — tidak diisi
+      // urlGambarQris dihapus — tidak diisi
     });
 
     return { success: true };

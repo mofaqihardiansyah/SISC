@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin, Calendar, Tag, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, MapPin, Calendar, Tag, Sparkles } from "lucide-react";
 import type { event } from "@/db/schema";
 import type { InferSelectModel } from "drizzle-orm";
 
@@ -17,6 +18,13 @@ type Props = {
 export default function Header({ event }: Props) {
   return (
     <div data-header className="bg-slate-900 rounded-2xl px-6 py-4 text-white shadow-md">
+      <Link
+        href="/penyelenggara"
+        className="flex items-center gap-1.5 text-white/60 hover:text-white text-xs font-medium mb-3 transition-colors w-fit"
+      >
+        <ArrowLeft size={14} />
+        Kembali ke Dashboard
+      </Link>
       <div className="flex items-center justify-between gap-6">
 
         {/* KIRI */}
@@ -66,9 +74,9 @@ export default function Header({ event }: Props) {
 
         {/* KANAN â€” gambar lebih kecil */}
         <div className="w-48 h-32 shrink-0 relative">
-          {event.bannerUrl ? (
+          {event.urlBanner ? (
             <Image
-              src={event.bannerUrl}
+              src={event.urlBanner}
               alt={event.judul ?? "Banner"}
               fill
               className="rounded-xl object-cover"

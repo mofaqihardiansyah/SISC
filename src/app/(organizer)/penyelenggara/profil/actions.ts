@@ -7,12 +7,12 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function updateProfilPenyelenggara(data: {
-  avatarUrl: string;
+  urlAvatar: string;
   namaInstansi: string;
   deskripsiInstansi: string;
-  websiteUrl: string;
+  urlWebsite: string;
   nomorTelepon: string;
-  dokumenLegalitasUrl: string;
+  urlDokumenLegalitas: string;
 }) {
   try {
     const session = await auth();
@@ -20,9 +20,9 @@ export async function updateProfilPenyelenggara(data: {
     
     const userId = parseInt(session.user.id, 10);
     
-    // Update users table for avatarUrl and nomorTelepon
+    // Update users table for urlAvatar and nomorTelepon
     await db.update(users).set({
-      avatarUrl: data.avatarUrl || "/uploads/avatars/fotodummy.jpg",
+      urlAvatar: data.urlAvatar || "/uploads/avatars/fotodummy.jpg",
       nomorTelepon: data.nomorTelepon,
       diperbaruiPada: new Date(),
     }).where(eq(users.id, userId));
@@ -34,8 +34,8 @@ export async function updateProfilPenyelenggara(data: {
       await db.update(profilPenyelenggara).set({
         namaInstansi: data.namaInstansi,
         deskripsiInstansi: data.deskripsiInstansi,
-        websiteUrl: data.websiteUrl,
-        dokumenLegalitasUrl: data.dokumenLegalitasUrl,
+        urlWebsite: data.urlWebsite,
+        urlDokumenLegalitas: data.urlDokumenLegalitas,
         diperbaruiPada: new Date(),
       }).where(eq(profilPenyelenggara.userId, userId));
     } else {
@@ -43,8 +43,8 @@ export async function updateProfilPenyelenggara(data: {
         userId: userId,
         namaInstansi: data.namaInstansi,
         deskripsiInstansi: data.deskripsiInstansi,
-        websiteUrl: data.websiteUrl,
-        dokumenLegalitasUrl: data.dokumenLegalitasUrl,
+        urlWebsite: data.urlWebsite,
+        urlDokumenLegalitas: data.urlDokumenLegalitas,
       });
     }
     

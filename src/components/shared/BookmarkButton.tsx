@@ -3,29 +3,29 @@
 import { Bookmark } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 interface BookmarkButtonProps {
   eventId: string;
-  isLoggedIn: boolean;
+  isLoggedIn?: boolean;
   onRemove?: () => void;
-  // Tambahkan prop ini untuk menentukan status awal tanpa nunggu API
   initialBookmarked?: boolean; 
 }
 
 export default function BookmarkButton({ 
-  eventId, 
-  isLoggedIn, 
+  eventId,
   onRemove, 
-  initialBookmarked = false // Default ke false jika tidak diisi
+  initialBookmarked = false
 }: BookmarkButtonProps) {
   const router = useRouter();
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
   
-  // SOLUSI POIN 1: Gunakan initialBookmarked sebagai state awal
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Jika initialBookmarked diberikan (seperti di hal favorit), tidak perlu fetch ulang
     if (!isLoggedIn || initialBookmarked) return;
 
     fetch(`/api/bookmark?eventId=${eventId}`)
@@ -65,10 +65,12 @@ export default function BookmarkButton({
   };
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={handleClick}
       disabled={loading}
-      className="cursor-pointer transition-all active:scale-90"
+      aria-label={bookmarked ? "Hapus bookmark" : "Tambah bookmark"}
     >
       <Bookmark
         className={`w-5 h-5 transition-colors ${
@@ -76,6 +78,6 @@ export default function BookmarkButton({
         }`}
         fill={bookmarked ? "currentColor" : "none"}
       />
-    </button>
+    </Button>
   );
 }

@@ -4,6 +4,8 @@ import { count, eq, and, gte, sql, sum, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { DashboardContent } from "@/components/penyelenggara/DashboardContent";
+export const dynamic = 'force-dynamic';
+
 
 export default async function PenyelenggaraDashboard() {
   const session = await auth();
@@ -13,19 +15,19 @@ export default async function PenyelenggaraDashboard() {
   if (isNaN(userId)) redirect("/login");
 
   const [dbUser] = await db
-    .select({ isApproved: users.isApproved })
+    .select({ disetujui: users.disetujui })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
 
-  const isApproved = dbUser?.isApproved || false;
+  const disetujui = dbUser?.disetujui || false;
 
   // Get all events for the filter dropdown
   const allEvents = await db
     .select({ 
       id: event.id, 
       judul: event.judul,
-      bannerUrl: event.bannerUrl,
+      urlBanner: event.urlBanner,
       tanggalMulai: event.tanggalMulai,
       status: event.status,
       tipePlatform: event.tipePlatform,
@@ -171,7 +173,7 @@ export default async function PenyelenggaraDashboard() {
       }}
       initialGrafikData={grafikData}
       initialGrafikPendapatan={grafikPendapatan}
-      isApproved={isApproved}
+      disetujui={disetujui}
       recentParticipants={recentParticipants}
       recentPapers={recentPapers}
     />

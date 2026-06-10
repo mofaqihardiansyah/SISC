@@ -24,6 +24,10 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { getOrganizerPapers, updatePaperStatus } from "./actions";
 import type { PaperData, EventData } from "./actions";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+export const dynamic = 'force-dynamic';
+
 
 const STATUS_CFG: Record<string, { label: string; bg: string; text: string; border: string }> = {
   review: { label: "Sedang Direview", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
@@ -192,7 +196,7 @@ export default function ReviewPaperPage() {
 
       {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-sisc-slate">Review Paper</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Review Paper</h1>
         <p className="text-slate-500 text-sm mt-1">Kelola dan review paper yang disubmit ke event anda</p>
       </div>
 
@@ -221,7 +225,7 @@ export default function ReviewPaperPage() {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-            <input
+            <Input
               type="text"
               placeholder="Cari judul atau penulis paper..."
               value={searchQuery}
@@ -317,22 +321,24 @@ export default function ReviewPaperPage() {
                             <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                               {status === "review" ? (
                                 <>
-                                  <button
+                                  <Button
                                     onClick={() => handleAccept(paper)}
                                     disabled={!!isActionLoading}
-                                    title="Terima Paper"
-                                    className="w-8 h-8 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-600 flex items-center justify-center transition-colors disabled:opacity-50 cursor-pointer"
+                                    variant="success"
+                                    size="icon"
+                                    aria-label="Terima Paper"
                                   >
-                                    {isActionLoading ? <Loader2 size={14} className="animate-spin" /> : <ThumbsUp size={14} />}
-                                  </button>
-                                  <button
+                                    <ThumbsUp size={14} />
+                                  </Button>
+                                  <Button
                                     onClick={() => { setRejectPaper(paper); setRejectReason(""); }}
                                     disabled={!!isActionLoading}
-                                    title="Tolak Paper"
-                                    className="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center transition-colors disabled:opacity-50 cursor-pointer"
+                                    variant="destructive"
+                                    size="icon"
+                                    aria-label="Tolak Paper"
                                   >
-                                    {isActionLoading ? <Loader2 size={14} className="animate-spin" /> : <ThumbsDown size={14} />}
-                                  </button>
+                                    <ThumbsDown size={14} />
+                                  </Button>
                                 </>
                               ) : (
                                 <span className={`text-xxs font-bold px-2.5 py-1 rounded-md border ${
@@ -343,12 +349,14 @@ export default function ReviewPaperPage() {
                                   {status === "accepted" ? "Diterima" : "Ditolak"}
                                 </span>
                               )}
-                              <button
+                              <Button
                                 onClick={() => setSelectedPaper(paper)}
-                                className="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+                                variant="ghost"
+                                size="icon"
+                                aria-label="Detail Paper"
                               >
                                 <Eye size={14} />
-                              </button>
+                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -382,14 +390,14 @@ export default function ReviewPaperPage() {
                       <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-50" onClick={(e) => e.stopPropagation()}>
                         {status === "review" && (
                           <>
-                            <button onClick={() => handleAccept(paper)} disabled={actionLoading?.id === paper.id}
-                              className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xxs font-bold hover:bg-emerald-100 transition-colors disabled:opacity-50 cursor-pointer">Terima</button>
-                            <button onClick={() => { setRejectPaper(paper); setRejectReason(""); }} disabled={actionLoading?.id === paper.id}
-                              className="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-xxs font-bold hover:bg-rose-100 transition-colors disabled:opacity-50 cursor-pointer">Tolak</button>
+                            <Button onClick={() => handleAccept(paper)} disabled={actionLoading?.id === paper.id}
+                              variant="success" size="sm">Terima</Button>
+                            <Button onClick={() => { setRejectPaper(paper); setRejectReason(""); }} disabled={actionLoading?.id === paper.id}
+                              variant="destructive" size="sm">Tolak</Button>
                           </>
                         )}
-                        <button onClick={() => setSelectedPaper(paper)}
-                          className="px-3 py-1.5 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-xxs font-bold hover:bg-slate-100 transition-colors cursor-pointer">Detail</button>
+                        <Button onClick={() => setSelectedPaper(paper)}
+                          variant="ghost" size="sm">Detail</Button>
                       </div>
                     </div>
                   );
@@ -406,20 +414,21 @@ export default function ReviewPaperPage() {
               Menampilkan {(page - 1) * PER_PAGE + 1} - {Math.min(page * PER_PAGE, filteredPapers.length)} dari {filteredPapers.length} paper
             </p>
             <div className="flex items-center gap-1">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer">
+              <Button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                variant="ghost" size="icon" aria-label="Halaman sebelumnya">
                 <ChevronLeft size={13} />
-              </button>
+              </Button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(pg => (
-                <button key={pg} onClick={() => setPage(pg)}
-                  className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                    page === pg ? "bg-sisc-slate text-white border-sisc-slate" : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}>{pg}</button>
+                <Button key={pg} onClick={() => setPage(pg)}
+                  variant={page === pg ? "default" : "outline"}
+                  size="icon-xs"
+                  className={page === pg ? "" : "border-slate-200"}
+                >{pg}</Button>
               ))}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer">
+              <Button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                variant="ghost" size="icon" aria-label="Halaman selanjutnya">
                 <ChevronRight size={13} />
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -436,9 +445,9 @@ export default function ReviewPaperPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
               <div className="flex items-center gap-3">
-                <button onClick={() => setSelectedPaper(null)} className="p-2 hover:bg-slate-50 rounded-full text-slate-400 transition-colors cursor-pointer">
+                <Button onClick={() => setSelectedPaper(null)} variant="ghost" size="icon" aria-label="Tutup">
                   <X size={20} />
-                </button>
+                </Button>
                 <div>
                   <h2 className="text-lg font-bold text-sisc-slate">Detail Paper</h2>
                   <p className="text-xs text-slate-400">Review dan kelola submission paper</p>
@@ -563,7 +572,7 @@ export default function ReviewPaperPage() {
                   <div className="border-t border-slate-100 pt-4 flex items-center gap-3">
                     <FileText size={16} className="text-slate-400 shrink-0" />
                     <span className="text-xs text-slate-500 truncate">Dokumen Paper (PDF)</span>
-                    <a href={selectedPaper.fileUrl} download
+                    <a href={selectedPaper.urlFile} download
                       className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">
                       <Download size={13} /> Unduh
                     </a>
@@ -581,7 +590,7 @@ export default function ReviewPaperPage() {
                       <span className="px-2 py-0.5 text-nano font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">PDF FILE</span>
                     </div>
                     <div className="flex-1 bg-slate-100 relative w-full">
-                      <iframe src={`${selectedPaper.fileUrl}#toolbar=0&navpanes=0`} className="absolute inset-0 w-full h-full border-none" title="PDF Document Viewer" />
+                      <iframe src={`${selectedPaper.urlFile}#toolbar=0&navpanes=0`} className="absolute inset-0 w-full h-full border-none" title="PDF Document Viewer" />
                     </div>
                   </div>
 
@@ -594,26 +603,24 @@ export default function ReviewPaperPage() {
                       <div className="flex items-center gap-3">
                         {selectedPaper.status === "review" && (
                           <>
-                            <button
+                            <Button
                               onClick={() => { setSelectedPaper(null); setRejectPaper(selectedPaper); setRejectReason(""); }}
                               disabled={actionLoading?.id === selectedPaper.id}
-                              className="px-5 py-2.5 border border-rose-200 text-rose-600 rounded-xl font-bold text-xs hover:bg-rose-50 transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                              variant="destructive"
+                              loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "reject"}
                             >
-                              {actionLoading?.id === selectedPaper.id && actionLoading.type === "reject" ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : <ThumbsDown size={14} />}
+                              <ThumbsDown size={14} />
                               Tolak
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               onClick={() => handleAccept(selectedPaper)}
                               disabled={actionLoading?.id === selectedPaper.id}
-                              className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2 shadow-sm"
+                              variant="success"
+                              loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "accept"}
                             >
-                              {actionLoading?.id === selectedPaper.id && actionLoading.type === "accept" ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : <ThumbsUp size={14} />}
+                              <ThumbsUp size={14} />
                               Terima Paper
-                            </button>
+                            </Button>
                           </>
                         )}
                       </div>
@@ -654,14 +661,15 @@ export default function ReviewPaperPage() {
               </div>
             </div>
             <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end gap-3">
-              <button onClick={() => setRejectPaper(null)}
-                className="px-5 py-2.5 border border-slate-200 rounded-xl font-bold text-xs text-slate-500 hover:bg-white transition-all cursor-pointer"
-                disabled={!!actionLoading}>Batal</button>
-              <button onClick={handleReject} disabled={actionLoading?.id === rejectPaper.id || !rejectReason.trim()}
-                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl font-bold text-xs hover:bg-rose-700 transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2 shadow-sm">
-                {actionLoading?.id === rejectPaper.id ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
+              <Button onClick={() => setRejectPaper(null)}
+                variant="outline"
+                disabled={!!actionLoading}>Batal</Button>
+              <Button onClick={handleReject} disabled={actionLoading?.id === rejectPaper.id || !rejectReason.trim()}
+                variant="destructive"
+                loading={actionLoading?.id === rejectPaper.id}>
+                <XCircle size={14} />
                 Tolak Paper
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, MoreVertical, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 export type MenuItem = {
   label: string;
@@ -70,12 +71,15 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
   return (
     <>
       {/* Tombol Hamburger (Hanya muncul di Mobile) */}
-      <button 
+      <Button
+        variant="default"
+        size="icon"
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-2.5 left-4 z-60 p-2 bg-slate-900 text-white rounded-xl shadow-md hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        className="md:hidden fixed top-2.5 left-4 z-60"
+        aria-label={isOpen ? "Tutup menu" : "Buka menu"}
       >
         {isOpen ? <MoreVertical className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
+      </Button>
 
       {/* Overlay Background Gelap saat Sidebar Terbuka di Mobile */}
       {isOpen && (
@@ -115,7 +119,8 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
 
               return (
                 <div key={item.label} className="space-y-1">
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       setOpenDropdowns((prev) => ({
                         ...prev,
@@ -140,7 +145,7 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
                       "w-3.5 h-3.5 text-slate-500 transition-transform duration-200 group-hover:text-white",
                       isDropdownOpen && "transform rotate-180 text-white"
                     )} />
-                  </button>
+                  </Button>
 
                   <div className={cn(
                     "grid transition-all duration-200 ease-in-out overflow-hidden",

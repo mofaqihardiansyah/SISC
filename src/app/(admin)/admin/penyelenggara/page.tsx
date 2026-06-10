@@ -5,6 +5,8 @@ import { users, profilPenyelenggara } from '@/db/schema';
 import { eq, isNull, and } from 'drizzle-orm';
 import { ValidasiAksesPenyelenggaraClient } from './ValidasiAksesPenyelenggaraClient';
 import type { PenyelenggaraItem } from '@/types/penyelenggara';
+export const dynamic = 'force-dynamic';
+
 
 async function fetchPenyelenggara(): Promise<PenyelenggaraItem[]> {
   const rows = await db
@@ -13,12 +15,12 @@ async function fetchPenyelenggara(): Promise<PenyelenggaraItem[]> {
       namaOrganisasi: profilPenyelenggara.namaInstansi,
       email: users.email,
       noTelepon: users.nomorTelepon,
-      isApproved: users.isApproved,
-      isSuspended: users.isSuspended,
+      disetujui: users.disetujui,
+      diblokir: users.diblokir,
       namaLengkap: users.namaLengkap,
       deskripsiInstansi: profilPenyelenggara.deskripsiInstansi,
-      dokumenLegalitasUrl: profilPenyelenggara.dokumenLegalitasUrl,
-      websiteUrl: profilPenyelenggara.websiteUrl,
+      urlDokumenLegalitas: profilPenyelenggara.urlDokumenLegalitas,
+      urlWebsite: profilPenyelenggara.urlWebsite,
       dibuatPada: users.dibuatPada,
     })
     .from(users)
@@ -33,13 +35,13 @@ async function fetchPenyelenggara(): Promise<PenyelenggaraItem[]> {
     email: row.email ?? '-',
     noTelepon: row.noTelepon ?? '-',
     status:
-      row.isSuspended ? 'rejected' :
-      row.isApproved  ? 'approved' :
+      row.diblokir ? 'rejected' :
+      row.disetujui  ? 'approved' :
       'pending',
     namaLengkap: row.namaLengkap ?? '-',
     deskripsiInstansi: row.deskripsiInstansi ?? null,
-    dokumenLegalitasUrl: row.dokumenLegalitasUrl ?? null,
-    websiteUrl: row.websiteUrl ?? null,
+    urlDokumenLegalitas: row.urlDokumenLegalitas ?? null,
+    urlWebsite: row.urlWebsite ?? null,
     dibuatPada: row.dibuatPada ? row.dibuatPada.toISOString() : null,
   }));
 }

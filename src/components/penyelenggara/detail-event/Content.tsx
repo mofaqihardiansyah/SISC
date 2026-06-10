@@ -8,7 +8,7 @@ type EventType = {
   judul: string | null;
   deskripsi: string | null;
   syaratDanKetentuan: string | null;
-  bannerUrl: string | null;
+  urlBanner: string | null;
   namaPembicara: string | null;
   peranPembicara: string | null;
   tanggalMulai: Date | null;
@@ -20,7 +20,7 @@ type EventType = {
   tipeHarga: "free" | "paid" | null;
   harga: number | null;
   kuota: number | null;
-  isEventPolines: boolean | null;
+  eventPolines: boolean | null;
   kategori?: { nama: string | null } | null;
   kota?: {
     nama: string | null;
@@ -87,7 +87,7 @@ export default function Content({ event }: Props) {
       ? "Conference"
       : "â€”";
 
-  const polinesLabel = event.isEventPolines ? "Polines" : "Umum";
+  const polinesLabel = event.eventPolines ? "Polines" : "Umum";
 
   const platformLabel =
     event.tipePlatform === "online"
@@ -190,10 +190,10 @@ export default function Content({ event }: Props) {
 
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-slate-505">Banner Event</label>
-            {event.bannerUrl ? (
+            {event.urlBanner ? (
               <div className="border border-slate-200 rounded-xl overflow-hidden relative w-full h-48">
                 <Image
-                  src={event.bannerUrl}
+                  src={event.urlBanner}
                   alt={event.judul ?? "Banner"}
                   fill
                   className="object-cover"

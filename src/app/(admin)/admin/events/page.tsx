@@ -2,6 +2,8 @@ import React from 'react';
 import { getAdminEvents, getAdminEventStats } from '@/actions/admin-event';
 import ClientPage from './ClientPage';
 import type { Event, Stats } from './ClientPage';
+export const dynamic = 'force-dynamic';
+
 
 export const metadata = {
   title: 'Manajemen Event | Admin Dashboard',

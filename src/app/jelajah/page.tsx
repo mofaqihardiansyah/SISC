@@ -1,19 +1,21 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { RotateCcw, ChevronDown, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RotateCcw, ChevronDown, Loader2, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
 import EventCard from '@/components/shared/EventCard';
+import EmptyState from '@/components/profile/EmptyState';
 
 type EventType = {
   id: number;
   judul: string;
-  bannerUrl?: string;
+  urlBanner?: string;
   harga: number;
   tipeHarga: string;
   tipePlatform: string;
   jenisEvent: string | null;
-  isEventPolines: boolean;
+  eventPolines: boolean;
   tanggalMulai: string;
   tanggalSelesai: string;
   status: string;
@@ -200,7 +202,7 @@ function JelajahContent() {
                 {/* LOKASI */}
                 {openDropdown === item && item === "Lokasi" && (
                   <div className="mt-3 space-y-2">
-                    <input
+                    <Input
                       type="text"
                       placeholder="Cari kota..."
                       value={searchLocation}
@@ -346,9 +348,11 @@ function JelajahContent() {
               </p>
 
               {events.length === 0 ? (
-                <div className="text-center text-gray-400 py-20">
-                  Tidak ada event yang sesuai filter.
-                </div>
+                <EmptyState
+                  icon={<SearchX size={48} className="text-slate-300" />}
+                  title="Tidak Ada Event"
+                  description="Tidak ada event yang sesuai dengan filter atau kata kunci pencarian Anda. Coba ubah filter atau kata kunci."
+                />
               ) : (
                 <div className="grid grid-cols-3 gap-6">
                   {events.map((event) => (
@@ -367,8 +371,8 @@ function JelajahContent() {
                       }
                       price={event.tipeHarga === "free" ? 0 : (event.harga ?? null)}
                       category={event.jenisEvent ?? ""}
-                      type={event.isEventPolines ? "POLINES" : "UMUM"}
-                      imageUrl={event.bannerUrl}
+                      type={event.eventPolines ? "POLINES" : "UMUM"}
+                      imageUrl={event.urlBanner}
                       tipePlatform={event.tipePlatform}
                       kotaNama={event.kotaNama}
                       kategoriNama={event.kategoriNama}

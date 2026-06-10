@@ -6,6 +6,8 @@ import { db } from '@/db';
 import { auth } from '@/auth';
 import { event, bookmark, pendaftaran } from '@/db/schema'; 
 import { desc, eq, type InferSelectModel } from 'drizzle-orm';
+export const dynamic = 'force-dynamic';
+
 
 type EventRow = InferSelectModel<typeof event>;
 type BookmarkRow = InferSelectModel<typeof bookmark>;
@@ -91,7 +93,7 @@ export default async function UserDashboard() {
       
       {/* PAGE HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Pusat Aktivitas Anda</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pusat Aktivitas Anda</h1>
         <p className="text-slate-500 mt-2">Pantau event favorit dan riwayat kegiatan Anda di sini</p>
       </div>
 
@@ -127,7 +129,7 @@ export default async function UserDashboard() {
                 judul={data.judul}
                 date={'TBA'} 
                 location={'TBA'} 
-                bannerUrl={data.bannerUrl}
+                urlBanner={data.urlBanner}
               />
             ))
           ) : (
@@ -173,18 +175,18 @@ export default async function UserDashboard() {
   );
 }
 
-function EventCard({ judul, id, date, location, bannerUrl }: {
+function EventCard({ judul, id, date, location, urlBanner }: {
   judul: string;
   id: number;
   date: string;
   location: string;
-  bannerUrl: string | null;
+  urlBanner: string | null;
 }) {
   return (
     <Link href={`/event/${id}`} className="block flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group bg-white">
       <div className="w-full md:w-40 h-32 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-200 relative">
-        {bannerUrl ? (
-          <Image src={bannerUrl} alt={judul} fill className="object-cover" sizes="(max-width: 768px) 100vw, 160px" />
+        {urlBanner ? (
+          <Image src={urlBanner} alt={judul} fill className="object-cover" sizes="(max-width: 768px) 100vw, 160px" />
         ) : (
           <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs p-2 text-center italic">Tanpa Banner</div>
         )}

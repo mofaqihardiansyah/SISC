@@ -15,7 +15,7 @@ const menuItems: MenuItem[] = [
   { label: "Dashboard", href: "/penyelenggara", icon: LayoutDashboard, exactMatch: true },
   { label: "Event", href: "/penyelenggara/event", icon: CalendarRange },
   { label: "Peserta", href: "/penyelenggara/peserta", icon: Users },
-  { label: "Review Paper", href: "/penyelenggara/review-papper", icon: FileText },
+  { label: "Review Paper", href: "/penyelenggara/review-paper", icon: FileText },
   { label: "Profil", href: "/penyelenggara/profil", icon: UserCircle },
   { label: "Bantuan", href: "/penyelenggara/bantuan", icon: HelpCircle },
 ];

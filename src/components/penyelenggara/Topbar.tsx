@@ -16,7 +16,7 @@ export async function Topbar() {
   const user = dbUser ? {
     name: dbUser.namaLengkap || session?.user?.name || "Penyelenggara",
     email: dbUser.email || session?.user?.email,
-    image: dbUser.avatarUrl || session?.user?.image,
+    image: dbUser.urlAvatar || session?.user?.image,
   } : session?.user;
 
   const menuItems = [

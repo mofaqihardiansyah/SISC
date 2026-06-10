@@ -10,6 +10,8 @@ import {
   UserCheck
 } from 'lucide-react';
 import { getDashboardStats, getRecentEvents, getMonthlyGrowth } from '@/lib/actions/dashboard';
+export const dynamic = 'force-dynamic';
+
 
 export default async function DashboardPage() {
   const [stats, recentEvents, chartData] = await Promise.all([

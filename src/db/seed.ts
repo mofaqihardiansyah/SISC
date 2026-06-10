@@ -1,12 +1,7 @@
 import 'dotenv/config';
-import { seedReset } from './seedreset';
-import { seedProvinsi } from './seedprovinsi';
-import { seedKota } from './seedkota';
-import { seedKategori } from './seedkategori';
-import { seedUsers } from './seed-users';
-import { seedEvents } from './seedevents';
-import { seedDummy } from './seed-dummy';
-import { seedProfileDemo } from './seed-profile-demo';
+import { seedMaster } from './seed-master';
+import { seedEvent } from './seed-event';
+import { seedDemo } from './seed-demo';
 
 async function main() {
   const start = Date.now();
@@ -14,22 +9,11 @@ async function main() {
   console.log("--------------------------------------");
 
   try {
-    // 1. Reset Database
-    await seedReset();
-
-    // 2. Master Data (No dependencies)
-    await seedProvinsi();
-    await seedKategori();
-
-    // 3. Data with dependencies
-    await seedKota(); // Needs Provinsi
-    await seedUsers(); // Base users
-    await seedEvents(); // Needs Kategori, Kota, Organizer (User)
-    
-    // 4. Dummy & Demo Data
-    await seedDummy(); // Needs Events, Users
-    await seedProfileDemo(); // Needs Users, Events
-
+    await seedMaster();
+    console.log("--------------------------------------");
+    await seedEvent();
+    console.log("--------------------------------------");
+    await seedDemo();
     console.log("--------------------------------------");
     const duration = ((Date.now() - start) / 1000).toFixed(2);
     console.log(`✅ ALL SEEDING TASKS COMPLETED SUCCESSFULLY in ${duration}s! ✨`);

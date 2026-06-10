@@ -7,6 +7,9 @@ import {
   addKategoriAction, editKategoriAction, deleteKategoriAction,
   addTagAction, editTagAction, deleteTagAction 
 } from '@/actions/categories-locations';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface KategoriItem {
   id: number;
@@ -106,6 +109,15 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
 
       if (res.success) {
         handleCloseModal();
+        const msgs: Record<string, string> = {
+          addKategori: "Kategori berhasil ditambahkan",
+          editKategori: "Kategori berhasil diperbarui",
+          deleteKategori: "Kategori berhasil dihapus",
+          addTag: "Tag berhasil ditambahkan",
+          editTag: "Tag berhasil diperbarui",
+          deleteTag: "Tag berhasil dihapus",
+        };
+        if (modalType) toast.success(msgs[modalType] || "Berhasil");
       } else {
         setErrorMsg(res.error || "Gagal memproses aksi");
       }
@@ -128,19 +140,20 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
               <Layers size={16} className="text-indigo-600" />
               <h2>Daftar Kategori ({filteredKategori.length})</h2>
             </div>
-            <button 
+            <Button 
               onClick={() => handleOpenModal('addKategori')}
-              className="flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md cursor-pointer"
+              variant="default"
+              size="sm"
             >
               <Plus size={14} /> Tambah Kategori
-            </button>
+            </Button>
           </div>
 
           {/* Search Bar for Kategori */}
           <div className="p-3 bg-slate-50/30 border-b border-slate-100 shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
-              <input 
+              <Input 
                 type="text" 
                 placeholder="Cari kategori..."
                 value={katSearch}
@@ -173,20 +186,22 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                     </td>
                     <td className="px-6 py-3.5 text-right">
                       <div className="flex justify-end gap-2">
-                        <button 
+                        <Button 
                           onClick={() => handleOpenModal('editKategori', kat.id, kat.nama || '')}
-                          className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:text-blue-700 transition-colors cursor-pointer" 
-                          title="Edit"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Edit"
                         >
                           <Edit2 size={13} />
-                        </button>
-                        <button 
+                        </Button>
+                        <Button 
                           onClick={() => handleOpenModal('deleteKategori', kat.id, kat.nama || '')}
-                          className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 hover:text-red-700 transition-colors cursor-pointer" 
-                          title="Hapus"
+                          variant="destructive"
+                          size="icon"
+                          aria-label="Hapus"
                         >
                           <Trash2 size={13} />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -213,14 +228,16 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
             </span>
             {totalKatPages > 1 && (
               <div className="flex gap-1 items-center">
-                <button 
+                <Button 
                   type="button"
                   onClick={() => setKatPage(p => Math.max(1, p - 1))} 
                   disabled={mounted ? (katPage === 1) : false}
-                  className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Halaman sebelumnya"
                 >
-                  <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
-                </button>
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </Button>
                 
                 {Array.from({ length: totalKatPages }, (_, i) => i + 1).map((p) => {
                   if (totalKatPages > 5) {
@@ -232,29 +249,29 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                   }
                   
                   return (
-                    <button 
+                    <Button 
                       type="button"
                       key={p} 
                       onClick={() => setKatPage(p)}
-                      className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
-                        katPage === p 
-                          ? "bg-slate-900 text-white shadow-sm shadow-slate-950/10" 
-                          : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                      }`}
+                      variant={katPage === p ? "default" : "outline"}
+                      size="icon-xs"
+                      className={katPage === p ? "" : "border-slate-200"}
                     >
                       {p}
-                    </button>
+                    </Button>
                   );
                 })}
                 
-                <button 
+                <Button 
                   type="button"
                   onClick={() => setKatPage(p => Math.min(totalKatPages, p + 1))} 
                   disabled={mounted ? (katPage === totalKatPages) : false}
-                  className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Halaman selanjutnya"
                 >
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                </button>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
               </div>
             )}
           </div>
@@ -267,19 +284,20 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
               <TagIcon size={16} className="text-emerald-600" />
               <h2>Daftar Tag ({filteredTags.length})</h2>
             </div>
-            <button 
+            <Button 
               onClick={() => handleOpenModal('addTag')}
-              className="flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md cursor-pointer"
+              variant="default"
+              size="sm"
             >
               <Plus size={14} /> Tambah Tag
-            </button>
+            </Button>
           </div>
           
           {/* Search Bar for Tags */}
           <div className="p-3 bg-slate-50/30 border-b border-slate-100 shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
-              <input 
+              <Input 
                 type="text" 
                 placeholder="Cari tag..."
                 value={tagSearch}
@@ -306,20 +324,22 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                     <td className="px-6 py-3.5 font-medium text-slate-800">{tg.nama}</td>
                     <td className="px-6 py-3.5 text-right">
                       <div className="flex justify-end gap-2">
-                        <button 
+                        <Button 
                           onClick={() => handleOpenModal('editTag', tg.id, tg.nama || '')}
-                          className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:text-blue-700 transition-colors cursor-pointer" 
-                          title="Edit"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Edit"
                         >
                           <Edit2 size={13} />
-                        </button>
-                        <button 
+                        </Button>
+                        <Button 
                           onClick={() => handleOpenModal('deleteTag', tg.id, tg.nama || '')}
-                          className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 hover:text-red-700 transition-colors cursor-pointer" 
-                          title="Hapus"
+                          variant="destructive"
+                          size="icon"
+                          aria-label="Hapus"
                         >
                           <Trash2 size={13} />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -346,14 +366,16 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
             </span>
             {totalTagPages > 1 && (
               <div className="flex gap-1 items-center">
-                <button 
+                <Button 
                   type="button"
                   onClick={() => setTagPage(p => Math.max(1, p - 1))} 
                   disabled={mounted ? (tagPage === 1) : false}
-                  className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Halaman sebelumnya"
                 >
-                  <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
-                </button>
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </Button>
                 
                 {Array.from({ length: totalTagPages }, (_, i) => i + 1).map((p) => {
                   if (totalTagPages > 5) {
@@ -365,29 +387,29 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                   }
                   
                   return (
-                    <button 
+                    <Button 
                       type="button"
                       key={p} 
                       onClick={() => setTagPage(p)}
-                      className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
-                        tagPage === p 
-                          ? "bg-slate-900 text-white shadow-sm shadow-slate-950/10" 
-                          : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                      }`}
+                      variant={tagPage === p ? "default" : "outline"}
+                      size="icon-xs"
+                      className={tagPage === p ? "" : "border-slate-200"}
                     >
                       {p}
-                    </button>
+                    </Button>
                   );
                 })}
                 
-                <button 
+                <Button 
                   type="button"
                   onClick={() => setTagPage(p => Math.min(totalTagPages, p + 1))} 
                   disabled={mounted ? (tagPage === totalTagPages) : false}
-                  className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Halaman selanjutnya"
                 >
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                </button>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
               </div>
             )}
           </div>
@@ -415,13 +437,15 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                 {modalType === 'editTag' && 'Ubah Tag'}
                 {modalType === 'deleteTag' && 'Hapus Tag'}
               </h3>
-              <button 
+              <Button 
                 onClick={handleCloseModal}
                 disabled={loading}
-                className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer disabled:opacity-50"
+                variant="ghost"
+                size="icon"
+                aria-label="Tutup"
               >
                 <X size={16} />
-              </button>
+              </Button>
             </div>
 
             {/* Modal Body / Form */}
@@ -438,7 +462,7 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                   <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
                     Nama {modalType.toLowerCase().includes('kategori') ? 'Kategori' : 'Tag'}
                   </label>
-                  <input 
+                  <Input 
                     type="text" 
                     value={inputNama}
                     onChange={(e) => setInputNama(e.target.value)}
@@ -457,26 +481,22 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
 
               {/* Action Buttons */}
               <div className="flex gap-2 justify-end pt-2">
-                <button 
+                <Button 
                   type="button"
                   onClick={handleCloseModal}
                   disabled={loading}
-                  className="px-4 py-2 text-xs font-semibold border border-slate-200 rounded-xl hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm disabled:opacity-50 text-slate-600 cursor-pointer"
+                  variant="outline"
                 >
                   Batal
-                </button>
-                <button 
+                </Button>
+                <Button 
                   type="submit"
                   disabled={loading}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm flex items-center gap-1.5 disabled:opacity-50 cursor-pointer ${
-                    modalType.startsWith('delete') 
-                      ? 'bg-red-600 hover:bg-red-700' 
-                      : 'bg-slate-900 hover:bg-slate-800'
-                  }`}
+                  loading={loading}
+                  variant={modalType.startsWith('delete') ? 'destructive' : 'default'}
                 >
-                  {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   {modalType.startsWith('delete') ? 'Hapus' : 'Simpan'}
-                </button>
+                </Button>
               </div>
             </form>
 

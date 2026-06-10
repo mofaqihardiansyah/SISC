@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Star, Plus } from 'lucide-react';
 
 export default function BantuanPage() {
@@ -60,12 +62,6 @@ export default function BantuanPage() {
           padding: 40px 24px 80px;
         }
         .bantuan-header { margin-bottom: 32px; }
-        .bantuan-title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #0f172a;
-          margin-bottom: 8px;
-        }
         .bantuan-subtitle { font-size: 15px; color: #64748b; }
         .bantuan-search {
           width: 100%;
@@ -200,11 +196,11 @@ export default function BantuanPage() {
 
         <div className="bantuan-container">
           <div className="bantuan-header">
-            <h1 className="bantuan-title">Bantuan & Dukungan</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Bantuan & Dukungan</h1>
             <p className="bantuan-subtitle">Temukan jawaban atas pertanyaan Anda</p>
           </div>
 
-          <input
+          <Input
             type="text"
             placeholder="Cari topik bantuan..."
             className="bantuan-search"
@@ -221,13 +217,14 @@ export default function BantuanPage() {
               {filteredFaqs.length > 0 ? (
                 filteredFaqs.map((faq) => (
                   <div key={faq.id} className="faq-item">
-                    <button
+                    <Button
+                      variant="ghost"
                       className="faq-btn"
                       onClick={() => setOpenFaq(openFaq === faq.id ? null : faq.id)}
                     >
                       <span className="faq-question">{faq.question}</span>
                       <Plus className={`faq-icon ${openFaq === faq.id ? 'open' : ''}`} />
-                    </button>
+                    </Button>
                     {openFaq === faq.id && (
                       <div className="faq-answer">{faq.answer}</div>
                     )}
@@ -248,11 +245,11 @@ export default function BantuanPage() {
               <div className="form-grid">
                 <div>
                   <label className="form-label">Nama Anda</label>
-                  <input type="text" placeholder="Masukkan nama Anda" className="form-input" />
+                  <Input type="text" placeholder="Masukkan nama Anda" className="form-input" />
                 </div>
                 <div>
                   <label className="form-label">Email Anda</label>
-                  <input type="email" placeholder="Masukkan email Anda" className="form-input" />
+                  <Input type="email" placeholder="Masukkan email Anda" className="form-input" />
                 </div>
               </div>
               <div>
@@ -269,7 +266,7 @@ export default function BantuanPage() {
                 <label className="form-label">Pesan</label>
                 <textarea rows={6} placeholder="Tulis pesan Anda di sini..." className="form-textarea" />
               </div>
-              <button className="btn-kirim">Kirim Pesan</button>
+              <Button variant="default" className="btn-kirim">Kirim Pesan</Button>
             </div>
           </div>
 

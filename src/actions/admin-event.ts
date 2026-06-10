@@ -68,12 +68,12 @@ export async function getAdminEventStats() {
     const polines = await db
       .select({ count: sql<number>`count(*)` })
       .from(event)
-      .where(eq(event.isEventPolines, true));
+      .where(eq(event.eventPolines, true));
 
     const umum = await db
       .select({ count: sql<number>`count(*)` })
       .from(event)
-      .where(eq(event.isEventPolines, false));
+      .where(eq(event.eventPolines, false));
 
     return {
       success: true,
@@ -140,8 +140,8 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
       'detailLokasi', 'linkEksternal', 'namaKontak', 'emailKontak', 
       'teleponKontak', 'kuota', 'maksTiketPerTransaksi', 
       'satuAkunSatuTransaksi', 'status', 'namaPembicara', 
-      'peranPembicara', 'fotoPembicaraUrl', 'bannerUrl',
-      'isEventPolines', 'websiteSumber'
+      'peranPembicara', 'urlFotoPembicara', 'urlBanner',
+      'eventPolines', 'websiteSumber'
     ];
 
     Object.keys(data).forEach(key => {
@@ -149,7 +149,7 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
         let value = data[key];
         
         // Convert boolean fields
-        if (['isEventPolines', 'satuAkunSatuTransaksi'].includes(key)) {
+        if (['eventPolines', 'satuAkunSatuTransaksi'].includes(key)) {
           if (typeof value === 'string') {
             value = value === 'true';
           }

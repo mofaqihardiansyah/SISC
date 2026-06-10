@@ -25,17 +25,17 @@ const visitorSchema = z.object({
   }, 'Nomor telepon tidak valid untuk negara tersebut'),
   tanggalLahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
   jenisKelamin: z.enum(['Laki-laki', 'Perempuan'], { message: 'Pilih jenis kelamin' }),
-  institution: z.string().min(3, 'Institusi minimal 3 karakter'),
+  institusi: z.string().min(3, 'Institusi minimal 3 karakter'),
   pekerjaan: z.string().min(3, 'Pekerjaan minimal 3 karakter'),
   password: z.string()
     .min(8, 'Password minimal 8 karakter')
     .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'Password harus mengandung kombinasi huruf dan angka'),
 });
 
-const organizerSchema = visitorSchema.omit({ institution: true, tanggalLahir: true, jenisKelamin: true, pekerjaan: true, namaLengkap: true }).extend({
+const organizerSchema = visitorSchema.omit({ institusi: true, tanggalLahir: true, jenisKelamin: true, pekerjaan: true, namaLengkap: true }).extend({
   namaInstansi: z.string().min(3, 'Nama instansi minimal 3 karakter'),
   deskripsiInstansi: z.string().min(10, 'Deskripsi minimal 10 karakter'),
-  dokumenLegalitasUrl: z.string().optional(),
+  urlDokumenLegalitas: z.string().optional(),
 });
 
 type VisitorValues = z.infer<typeof visitorSchema>;
@@ -51,13 +51,13 @@ export default function RegisterPage() {
   const organizerForm = useForm<OrganizerValues>({
     resolver: zodResolver(organizerSchema),
     defaultValues: {
-      dokumenLegalitasUrl: "",
+      urlDokumenLegalitas: "",
     }
   });
 
   const currentDokumenUrl = useWatch({
     control: organizerForm.control,
-    name: 'dokumenLegalitasUrl',
+    name: 'urlDokumenLegalitas',
   });
 
   const [showVisitorPassword, setShowVisitorPassword] = React.useState(false);
@@ -97,7 +97,7 @@ export default function RegisterPage() {
   };
 
   const onOrganizerSubmit = async (data: OrganizerValues) => {
-    if (!data.dokumenLegalitasUrl) {
+    if (!data.urlDokumenLegalitas) {
       setGlobalError('Harap unggah dokumen legalitas (PDF)');
       return;
     }
@@ -138,7 +138,7 @@ export default function RegisterPage() {
       `}</style>
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-heading font-black text-slate-900 mb-1 tracking-tight">
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
             Buat Akun
           </h2>
           <p className="text-slate-500 text-sm font-medium">
@@ -243,9 +243,9 @@ export default function RegisterPage() {
                   <Input 
                     placeholder="Nama Sekolah/Kampus/Perusahaan"
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
-                    {...visitorForm.register('institution')}
+                    {...visitorForm.register('institusi')}
                   />
-                  {visitorForm.formState.errors.institution && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.institution.message}</p>}
+                  {visitorForm.formState.errors.institusi && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.institusi.message}</p>}
                 </div>
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Pekerjaan</Label>
@@ -268,13 +268,16 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('password')}
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowVisitorPassword(!showVisitorPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2"
+                    aria-label={showVisitorPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   >
                     {showVisitorPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
+                  </Button>
                 </div>
                 {visitorPasswordValue && (
                   <div className="mt-2 space-y-1">
@@ -363,13 +366,16 @@ export default function RegisterPage() {
                       className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                       {...organizerForm.register('password')}
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setShowOrganizerPassword(!showOrganizerPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2"
+                      aria-label={showOrganizerPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                     >
                       {showOrganizerPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
+                    </Button>
                   </div>
                   {organizerPasswordValue && (
                     <div className="mt-2 space-y-1">
@@ -392,7 +398,7 @@ export default function RegisterPage() {
                   variant="button"
                   currentUrl={currentDokumenUrl}
                   onSuccess={(url) => {
-                    organizerForm.setValue('dokumenLegalitasUrl', url);
+                    organizerForm.setValue('urlDokumenLegalitas', url);
                   }}
                 />
                 <p className="mt-2 text-xs text-slate-400 flex items-center">

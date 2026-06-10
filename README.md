@@ -1,6 +1,16 @@
 # Sistem Informasi Seminar & Conference (SISC)
 
-Aplikasi SISC dibangun menggunakan **Next.js (App Router)**, **PostgreSQL (Docker)**, dan **Drizzle ORM**. Ikuti panduan singkat ini untuk menyiapkan _environment_ lokal Anda.
+Aplikasi SISC (juga disebut **POLIVENTS**) adalah platform web untuk manajemen event seminar dan konferensi. Dibangun menggunakan **Next.js 16 (App Router)**, **PostgreSQL (Docker)**, dan **Drizzle ORM**.
+
+### Fitur Utama
+- Manajemen event (CRUD, approval, filtering, pencarian)
+- Registrasi peserta event dengan pembayaran (transfer bank / e-wallet / QRIS)
+- Submit & review paper/makalah
+- Dashboard per role dengan grafik (Recharts, Chart.js)
+- Scraping event otomatis dari EventKampus (Crawlee/Playwright + Inngest)
+- Autentikasi email (OTP), forgot & reset password
+- Bookmark event favorit
+- Validasi penyelenggara dengan dokumen legalitas
 
 ---
 
@@ -18,8 +28,6 @@ Pastikan Anda telah menginstal software berikut:
 
 ### Kloning & Install Dependencies
 
-Buka terminal dan jalankan:
-
 ```bash
 git clone https://github.com/mofaqihardiansyah/SISC.git
 cd SISC
@@ -28,69 +36,93 @@ npm install
 
 ### Konfigurasi `.env`
 
-Buat file bernama `.env` di root proyek Anda, lalu _copy-paste_ teks berikut (sesuai dengan konfigurasi Docker kita):
+Buat file bernama `.env` di root proyek:
 
 ```env
+# Database
 DATABASE_URL="postgresql://sisc_user:sisc_password@localhost:5433/sisc_db"
+
+# NextAuth
+AUTH_SECRET="your-secret-key"
+
+# Email (untuk OTP)
+EMAIL_SERVER_HOST="smtp.gmail.com"
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER="your-email@gmail.com"
+EMAIL_SERVER_PASSWORD="your-app-password"
+EMAIL_FROM="your-email@gmail.com"
+
+# Vercel Blob (untuk file upload)
+# Dapatkan token dari https://vercel.com/docs/storage/vercel-blob
+BLOB_READ_WRITE_TOKEN="your-blob-token"
+
+# Inngest (untuk scraping)
+INGEST_SIGNING_KEY="your-signing-key"
+
+# App
+NEXT_PUBLIC_URL="http://localhost:3000"
 ```
 
 ---
 
-## 🐳 3. Menjalankan Database PostgreSQL (Dgn Docker)
-
-Kita menggunakan kontainer Docker untuk mempermudah. Pastikan aplikasi Docker Desktop Anda **sudah menyala**, lalu jalankan perintah ini di terminal proyek:
+## 🐳 3. Menjalankan Database PostgreSQL
 
 ```bash
 docker-compose up -d
 ```
 
-> **Catatan**: Ini akan menjalankan server PostgreSQL `sisc-postgres` di _background_. Data Anda akan tersimpan aman di dalam _volume_ Docker meskipun dijeda.
+PostgreSQL 16 akan berjalan di `localhost:5433`, user `sisc_user`, database `sisc_db`.
 
 ---
 
 ## 🗄️ 4. Setup Database (Migrasi & Seed)
 
-Setelah kontainer database menyala, Anda wajib mensinkronisasi struktur tabel dan mengisi data awal:
-
-### Sinkronisasi Skema (Drizzle)
-Jalankan perintah ini untuk membuat tabel di database:
-
 ```bash
+# Sinkronisasi skema
 npm run db:push
-```
 
-### Mengisi Data (Seeding) - WAJIB
-Jalankan perintah ini untuk mengisi data kategori, provinsi, kota, dan akun dummy:
-
-```bash
+# Isi data awal (kategori, provinsi, kota, akun dummy)
 npm run db:seed
-```
 
-**Melihat/Mengontrol Isi Database**:
-Jika ingin melihat visualisasi tabel layaknya phpMyAdmin, jalankan ini:
-
-```bash
+# (Opsional) Lihat database via Drizzle Studio
 npm run db:studio
 ```
 
-_(Buka URL yang muncul di konsol, biasanya `https://local.drizzle.studio`)_
-
 ---
 
-## ▶️ 5. Menjalankan Aplikasi Next.js
-
-Setelah semua (_Docker berjalan & Drizzle sinkron_) sukses, nyalakan proyek:
+## ▶️ 5. Menjalankan Aplikasi
 
 ```bash
 npm run dev
 ```
 
-Kunjungi **[http://localhost:3000](http://localhost:3000)** di _browser_ Anda.
+Kunjungi **http://localhost:3000**
 
 ---
 
-## ⚠️ Aturan Kolaborasi (Git Rules)
+## 👥 Role & Akun Default
 
-- **Jangan komit langsung ke `main`**. Selalu buat _branch_ terpisah!
-- Setiap mengerjakan fitur, jalankan: `git checkout -b feature/nama-fitur-anda`.
-- Pastikan selalu melakukan `git pull origin main` di _branch_ `main` Anda sebelum membuat _branch_ fitur yang baru.
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | (lihat seed) | - |
+| Organizer | (lihat seed) | - |
+| Visitor | (lihat seed) | - |
+
+---
+
+## 🐳 Docker
+
+```yaml
+Services:
+  postgres:16-alpine (port 5433)
+  Database: sisc_db
+  User: sisc_user
+```
+
+---
+
+## ⚠️ Aturan Kolaborasi
+
+- **Jangan komit langsung ke `main`**. Buat _branch_ fitur.
+- Sebelum membuat branch baru, `git pull origin main`.
+- Format branch: `feature/nama-fitur-anda`.

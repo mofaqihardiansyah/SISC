@@ -3,6 +3,8 @@ import { db } from '@/db';
 import { event, kategori, kota } from '@/db/schema';
 import { eq, and, ilike, desc, isNull, sql, asc, gte, lte } from 'drizzle-orm';
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -45,7 +47,7 @@ export async function GET(req: Request) {
     ];
 
     if (q) conditions.push(ilike(event.judul, `%${q}%`));
-    if (polines === 'true') conditions.push(eq(event.isEventPolines, true));
+    if (polines === 'true') conditions.push(eq(event.eventPolines, true));
     if (price === 'Gratis') conditions.push(eq(event.tipeHarga, 'free'));
     if (price === 'Berbayar') conditions.push(eq(event.tipeHarga, 'paid'));
     if (type) conditions.push(eq(event.tipePlatform, type as 'online' | 'offline' | 'hybrid'));
@@ -127,12 +129,12 @@ export async function GET(req: Request) {
     const events = await db.select({
       id: event.id,
       judul: event.judul,
-      bannerUrl: event.bannerUrl,
+      urlBanner: event.urlBanner,
       harga: event.harga,
       tipeHarga: event.tipeHarga,
       tipePlatform: event.tipePlatform,
       jenisEvent: event.jenisEvent,        // ← tambahan
-      isEventPolines: event.isEventPolines,
+      eventPolines: event.eventPolines,
       tanggalMulai: event.tanggalMulai,
       tanggalSelesai: event.tanggalSelesai,
       status: event.status,

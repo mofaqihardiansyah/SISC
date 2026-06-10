@@ -19,7 +19,7 @@ export type PaperData = {
   kataKunci: string | null;
   track: string | null;
   penulis: Author[];
-  fileUrl: string;
+  urlFile: string;
   status: string | null;
   komentarPenolakan: string | null;
   dibuatPada: Date | null;
@@ -62,7 +62,7 @@ export async function getOrganizerPapers(): Promise<PapersResult> {
       kataKunci: paperSubmission.kataKunci,
       track: paperSubmission.track,
       penulis: paperSubmission.penulis,
-      fileUrl: paperSubmission.fileUrl,
+      urlFile: paperSubmission.urlFile,
       status: paperSubmission.status,
       komentarPenolakan: paperSubmission.komentarPenolakan,
       dibuatPada: paperSubmission.dibuatPada,
@@ -109,5 +109,5 @@ export async function updatePaperStatus(
       diperbaruiPada: new Date(),
     })
     .where(eq(paperSubmission.id, paperId));
-  revalidatePath("/penyelenggara/review-papper");
+  revalidatePath("/penyelenggara/review-paper");
 }

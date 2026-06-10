@@ -16,14 +16,14 @@ export async function getEvents() {
       .select({
         id: event.id,
         judul: event.judul,
-        bannerUrl: event.bannerUrl,
+        urlBanner: event.urlBanner,
         harga: event.harga,
         tanggalMulai: event.tanggalMulai,
         jenisEvent: event.jenisEvent,
         penyelenggara: event.penyelenggara,
         namaKota: kota.nama,
         namaKategori: kategori.nama,
-        isEventPolines: event.isEventPolines,
+        eventPolines: event.eventPolines,
         tipePlatform: event.tipePlatform,
       })
       .from(bookmark)

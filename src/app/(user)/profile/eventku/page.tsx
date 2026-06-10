@@ -1,8 +1,12 @@
 import React from 'react';
 import { Search, ChevronDown, X, CalendarDays, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { getUserEvents } from '@/actions/user-event';
 import EventCard from '@/components/profile/EventCard';
+import EmptyState from '@/components/profile/EmptyState';
 import Link from 'next/link';
+export const dynamic = 'force-dynamic';
+
 
 interface EventkuPageProps {
   searchParams: Promise<{ q?: string; status?: string; page?: string }>;
@@ -16,10 +20,10 @@ interface FilterSectionProps {
 }
 
 const statusLabels: Record<EventStatus, string> = {
-  all: 'SEMUA EVENTKU',
-  pending: 'MENUNGGU VERIFIKASI',
-  registered: 'TERDAFTAR',
-  completed: 'SELESAI',
+  all: 'Semua Eventku',
+  pending: 'Menunggu Verifikasi',
+  registered: 'Terdaftar',
+  completed: 'Selesai',
 };
 
 const statusOptions = [
@@ -60,14 +64,14 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
     return pages;
   };
 
-  const heading = statusLabels[statusFilter] || 'SEMUA EVENTKU';
+  const heading = statusLabels[statusFilter] || 'Semua Eventku';
 
   return (
     <div className="space-y-8 max-w-4xl animate-in fade-in duration-500">
       
       {/* PAGE HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Eventku</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Eventku</h1>
         <p className="text-slate-500 mt-2">Kelola pendaftaran dan riwayat keikutsertaan event Anda</p>
       </div>
 
@@ -90,28 +94,14 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
               />
             ))
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 py-16 px-6 text-center">
-              <div className="w-20 h-20 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-5">
-                <CalendarDays className="text-sisc-navy/50" size={36} />
-              </div>
-              <h4 className="text-lg font-bold text-slate-800 mb-2">
-                {searchQuery ? 'Event Tidak Ditemukan' : 'Belum Ada Event'}
-              </h4>
-              <p className="text-slate-500 max-w-md mb-6 leading-relaxed text-sm">
-                {searchQuery
-                  ? `Kami tidak dapat menemukan event yang cocok dengan kata kunci "${searchQuery}". Coba gunakan kata kunci atau filter lain.`
-                  : 'Kamu belum mendaftar ke event apapun. Yuk, jelajahi berbagai seminar dan konferensi menarik yang tersedia!'}
-              </p>
-              {!searchQuery && (
-                <Link
-                  href="/jelajah"
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-sisc-navy hover:bg-sisc-deep text-white rounded-xl font-bold transition-all shadow-lg shadow-sisc-navy/20 active:scale-95 text-sm"
-                >
-                  <Compass size={18} />
-                  Jelajahi Event Sekarang
-                </Link>
-              )}
-            </div>
+            <EmptyState
+              icon={<CalendarDays className="text-slate-300" size={48} />}
+              title={searchQuery ? 'Event Tidak Ditemukan' : 'Belum Ada Event'}
+              description={searchQuery
+                ? `Kami tidak dapat menemukan event yang cocok dengan kata kunci "${searchQuery}". Coba gunakan kata kunci atau filter lain.`
+                : 'Kamu belum mendaftar ke event apapun. Yuk, jelajahi berbagai seminar dan konferensi menarik yang tersedia!'}
+              action={!searchQuery ? { label: "Jelajahi Event Sekarang", href: "/jelajah", icon: <Compass size={18} /> } : undefined}
+            />
           )}
 
           {totalPages > 1 && (
@@ -178,7 +168,7 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
             className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sisc-navy transition-colors"
             size={16}
           />
-          <input
+          <Input
             type="text"
             name="q"
             defaultValue={currentSearch}

@@ -1,21 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Search, Bookmark } from "lucide-react";
 import { getEvents } from "./action"; 
 import EventCard from "@/components/shared/EventCard"; 
+export const dynamic = 'force-dynamic';
+
 
 interface EventData {
   id: number;
   judul: string | null;
-  bannerUrl: string | null;
+  urlBanner: string | null;
   harga: number | null;
   tanggalMulai: Date | null;
   jenisEvent: string | null;
   penyelenggara: string | null;
   namaKota: string | null;
   namaKategori: string | null;
-  isEventPolines: boolean | null;
+  eventPolines: boolean | null;
   tipePlatform: string | null;
 }
 
@@ -56,7 +60,7 @@ export default function EventFavoritPage() {
       
       {/* PAGE HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Event Favorit</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Event Favorit</h1>
         <p className="text-slate-500 mt-2">Pantau event yang telah Anda tandai sebagai favorit</p>
       </div>
 
@@ -67,7 +71,7 @@ export default function EventFavoritPage() {
           <div className="pb-2 w-full md:w-80 z-10">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input 
+              <Input 
                 type="text"
                 placeholder="Cari event favoritmu..."
                 className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none text-sm text-black"
@@ -79,10 +83,11 @@ export default function EventFavoritPage() {
 
           <div className="flex flex-row gap-8 relative z-10">
             {["all", "seminar", "conference"].map((tab) => (
-              <button
+              <Button
                 key={tab}
+                variant="ghost"
                 onClick={() => setActiveTab(tab)}
-                className={`pb-4 text-sm font-bold uppercase tracking-wider transition-all relative ${
+                className={`pb-4 text-sm font-bold uppercase tracking-wider relative ${
                   activeTab === tab ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
                 }`}
               >
@@ -90,7 +95,7 @@ export default function EventFavoritPage() {
                 {activeTab === tab && (
                   <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-full"></div>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -105,7 +110,7 @@ export default function EventFavoritPage() {
             
             // --- LOGIKA DETEKSI POLINES ---
             const isPolines = 
-              item.isEventPolines === true || 
+              item.eventPolines === true || 
               item.judul?.toUpperCase().includes("POLINES");
 
             return (
@@ -113,7 +118,7 @@ export default function EventFavoritPage() {
                 key={item.id}
                 id={item.id.toString()}
                 title={item.judul ?? ''}
-                imageUrl={item.bannerUrl ?? undefined}
+                imageUrl={item.urlBanner ?? undefined}
                 date={item.tanggalMulai
                   ? new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
                       day: 'numeric', month: 'long', year: 'numeric'

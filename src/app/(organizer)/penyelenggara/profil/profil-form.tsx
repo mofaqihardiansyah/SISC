@@ -4,18 +4,20 @@ import React, { useState, useRef } from 'react';
 import { Globe, Mail, Phone, FileText, Eye, Loader2, KeyRound } from 'lucide-react';
 import { updateProfilPenyelenggara } from './actions';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 interface ProfilFormProps {
   initialData: {
-    avatarUrl: string | null;
+    urlAvatar: string | null;
     namaInstansi: string | null;
     deskripsiInstansi: string | null;
-    websiteUrl: string | null;
+    urlWebsite: string | null;
     email: string | null;
     nomorTelepon: string | null;
-    dokumenLegalitasUrl: string | null;
-    isApproved: boolean;
+    urlDokumenLegalitas: string | null;
+    disetujui: boolean;
   };
 }
 
@@ -28,15 +30,15 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
   const [errorPass, setErrorPass] = useState('');
 
   const [formData, setFormData] = useState({
-    avatarUrl: initialData.avatarUrl || '/uploads/avatars/fotodummy.jpg',
+    urlAvatar: initialData.urlAvatar || '/uploads/avatars/fotodummy.jpg',
     namaInstansi: initialData.namaInstansi || '',
     deskripsiInstansi: initialData.deskripsiInstansi || '',
-    websiteUrl: initialData.websiteUrl || '',
+    urlWebsite: initialData.urlWebsite || '',
     nomorTelepon: initialData.nomorTelepon || '',
-    dokumenLegalitasUrl: initialData.dokumenLegalitasUrl || '',
+    urlDokumenLegalitas: initialData.urlDokumenLegalitas || '',
   });
 
-  const [avatarPreview, setAvatarPreview] = useState(formData.avatarUrl);
+  const [avatarPreview, setAvatarPreview] = useState(formData.urlAvatar);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingDokumen, setIsUploadingDokumen] = useState(false);
 
@@ -60,7 +62,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
       const result = await res.json();
       
       if (result.success) {
-        setFormData(prev => ({ ...prev, avatarUrl: result.url }));
+        setFormData(prev => ({ ...prev, urlAvatar: result.url }));
         setAvatarPreview(result.url);
         toast.success('Logo berhasil diupload');
       } else {
@@ -91,7 +93,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
       const result = await res.json();
       
       if (result.success) {
-        setFormData(prev => ({ ...prev, dokumenLegalitasUrl: result.url }));
+        setFormData(prev => ({ ...prev, urlDokumenLegalitas: result.url }));
         toast.success('Dokumen berhasil diupload');
       } else {
         toast.error(result.error || 'Gagal upload dokumen');
@@ -163,8 +165,8 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
       {/* Header Section */}
       <div>
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-slate-900">Profil Penyelenggara</h1>
-          {initialData.isApproved && (
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Profil Penyelenggara</h1>
+          {initialData.disetujui && (
             <span className="bg-emerald-100 text-emerald-600 text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
               Akun Terverifikasi
@@ -202,14 +204,14 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
                 accept="image/jpeg, image/png, image/webp" 
                 className="hidden" 
               />
-              <button 
+              <Button 
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingLogo}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl disabled:opacity-50 font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+                loading={isUploadingLogo}
+                variant="default"
               >
-                {isUploadingLogo ? 'Mengupload...' : 'Ubah Logo'}
-              </button>
+                Ubah Logo
+              </Button>
               <p className="text-xs text-slate-500 mt-2">Format: JPG, PNG, WEBP. Maks: 10MB</p>
             </div>
           </div>
@@ -217,7 +219,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="md:col-span-2">
               <label className="text-sm font-semibold mb-2 block">Nama Organisasi</label>
-              <input 
+              <Input 
                 type="text" 
                 value={formData.namaInstansi}
                 onChange={(e) => setFormData(prev => ({ ...prev, namaInstansi: e.target.value }))}
@@ -243,10 +245,10 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                   <Globe size={18} />
                 </div>
-                <input 
+                <Input 
                   type="url" 
-                  value={formData.websiteUrl}
-                  onChange={(e) => setFormData(prev => ({ ...prev, websiteUrl: e.target.value }))}
+                  value={formData.urlWebsite}
+                  onChange={(e) => setFormData(prev => ({ ...prev, urlWebsite: e.target.value }))}
                   placeholder="https://..."
                   className="w-full pl-12 pr-4 py-3 border rounded-lg"
                 />
@@ -267,7 +269,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                 <Mail size={18} />
               </div>
-              <input 
+              <Input 
                 type="email" 
                 value={initialData.email || ''}
                 readOnly
@@ -283,7 +285,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                 <Phone size={18} />
               </div>
-              <input 
+              <Input 
                 type="text" 
                 value={formData.nomorTelepon}
                 onChange={(e) => setFormData(prev => ({ ...prev, nomorTelepon: e.target.value }))}
@@ -304,19 +306,19 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
               accept="application/pdf" 
               className="hidden" 
             />
-            <button 
+            <Button 
               type="button"
               onClick={() => docInputRef.current?.click()}
-              disabled={isUploadingDokumen}
-              className="px-4 py-2 border border-slate-300 hover:bg-slate-50 rounded-xl disabled:opacity-50 font-semibold flex items-center gap-2 text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+              loading={isUploadingDokumen}
+              variant="outline"
             >
-              {isUploadingDokumen ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText size={16} />}
-              {formData.dokumenLegalitasUrl ? 'Ubah Dokumen' : 'Upload Dokumen (PDF)'}
-            </button>
+              <FileText size={16} />
+              {formData.urlDokumenLegalitas ? 'Ubah Dokumen' : 'Upload Dokumen (PDF)'}
+            </Button>
             
-            {formData.dokumenLegalitasUrl && (
+            {formData.urlDokumenLegalitas && (
               <a 
-                href={formData.dokumenLegalitasUrl}
+                href={formData.urlDokumenLegalitas}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-blue-600 hover:underline text-sm font-semibold"
@@ -328,15 +330,15 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
         </div>
 
         <div className="mt-8 pt-6 border-t border-slate-200">
-          <button 
+          <Button 
             type="button"
             onClick={handleSubmit}
-            disabled={isSaving}
-            className="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+            loading={isSaving}
+            variant="default"
+            className="w-full sm:w-auto"
           >
-            {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
-            {isSaving ? 'Menyimpan...' : 'Simpan Profil Organisasi'}
-          </button>
+            Simpan Profil Organisasi
+          </Button>
         </div>
       </section>
 
@@ -352,7 +354,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
         <div className="space-y-4 max-w-md">
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Saat Ini</label>
-            <input
+            <Input
               type="password"
               value={passLama}
               onChange={(e) => setPassLama(e.target.value)}
@@ -362,7 +364,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Baru</label>
-            <input
+            <Input
               type="password"
               value={passBaru}
               onChange={(e) => setPassBaru(e.target.value)}
@@ -372,7 +374,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Konfirmasi Kata Sandi Baru</label>
-            <input
+            <Input
               type="password"
               value={passKonfirm}
               onChange={(e) => setPassKonfirm(e.target.value)}
@@ -383,15 +385,15 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
           
           {errorPass && <p className="text-sm text-red-600">{errorPass}</p>}
           
-          <button
+          <Button
             type="button"
             onClick={handleUpdatePassword}
-            disabled={loadingPass}
-            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold disabled:opacity-50 flex items-center justify-center gap-2 mt-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+            loading={loadingPass}
+            variant="default"
+            className="w-full mt-4"
           >
-            {loadingPass && <Loader2 className="w-4 h-4 animate-spin" />}
-            {loadingPass ? 'Memperbarui...' : 'Perbarui Kata Sandi'}
-          </button>
+            Perbarui Kata Sandi
+          </Button>
         </div>
       </section>
     </div>

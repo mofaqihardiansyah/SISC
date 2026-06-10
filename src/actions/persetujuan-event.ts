@@ -35,7 +35,7 @@ export type PendingEvent = {
   batasRegistrasi: Date | null;
   alasanPenolakan: string | null;
   icon: string;
-  bannerUrl: string | null;
+  urlBanner: string | null;
 };
 
 const baseEventSelect = {
@@ -63,7 +63,7 @@ const baseEventSelect = {
   peranPembicara: event.peranPembicara,
   syaratKetentuan: event.syaratDanKetentuan,
   alasanPenolakan: event.alasanPenolakan,
-  bannerUrl: event.bannerUrl,
+  urlBanner: event.urlBanner,
 };
 
 type EventRow = {
@@ -91,7 +91,7 @@ type EventRow = {
   peranPembicara: string | null;
   syaratKetentuan: string | null;
   alasanPenolakan: string | null;
-  bannerUrl: string | null;
+  urlBanner: string | null;
 };
 
 const baseWhere = isNull(event.dihapusPada);
@@ -142,7 +142,7 @@ function mapEvent(r: EventRow): PendingEvent {
     syaratKetentuan: r.syaratKetentuan,
     batasRegistrasi: r.batasRegistrasi,
     alasanPenolakan: r.alasanPenolakan,
-    bannerUrl: r.bannerUrl,
+    urlBanner: r.urlBanner,
     icon: getEventIcon(r.kategoriNama, r.judul),
   };
 }

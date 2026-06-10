@@ -98,8 +98,8 @@ export async function PUT(req: Request) {
         namaLengkap: body.name ?? '',
         email: body.email ?? '',
         nomorTelepon: body.phone ?? '',
-        institution: body.institution ?? '',
-        avatarUrl: body.avatarUrl,
+        institusi: body.institusi ?? '',
+        urlAvatar: body.urlAvatar,
         diperbaruiPada: new Date(),
       })
       .where(eq(users.id, userId));

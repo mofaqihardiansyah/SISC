@@ -21,7 +21,7 @@ export async function Topbar({ title = "User Profile" }: TopbarProps) {
   const user = dbUser ? {
     name: dbUser.namaLengkap || session?.user?.name || "Demo User",
     email: dbUser.email || session?.user?.email || "demo@example.com",
-    image: dbUser.avatarUrl || session?.user?.image,
+    image: dbUser.urlAvatar || session?.user?.image,
   } : session?.user || {
     name: "Demo User",
     email: "demo@example.com",

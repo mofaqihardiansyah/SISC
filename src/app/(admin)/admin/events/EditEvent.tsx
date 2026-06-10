@@ -4,10 +4,12 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { X, Save, Image as ImageIcon, Layout, Tag, Type, Globe, MapPin, Mic, Ticket, Clock, Users, AlignLeft, ShieldCheck } from "lucide-react";
 import { updateEvent } from "@/actions/admin-event";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import type { Event } from "./ClientPage";
 import { cn } from "@/lib/utils";
 import Portal from "@/components/ui/Portal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type EditEventProps = {
   isOpen: boolean;
@@ -28,7 +30,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
         websiteSumber: event.websiteSumber || "",
         tipePlatform: event.tipePlatform || "offline",
         tipeHarga: event.tipeHarga || "free",
-        isEventPolines: event.isEventPolines ?? false,
+        eventPolines: event.eventPolines ?? false,
         penyelenggara: event.penyelenggara || "",
         emailKontak: event.emailKontak || "",
         teleponKontak: event.teleponKontak || "",
@@ -85,9 +87,9 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <p className="text-nano text-slate-400 font-medium tracking-normal mt-1">Kelola data event dan simpan perubahannya!</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors cursor-pointer">
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Tutup">
             <X className="w-4.5 h-4.5" />
-          </button>
+          </Button>
         </div>
 
         {/* Form Body */}
@@ -96,8 +98,8 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
           <div className="space-y-3">
              <label className={labelClasses}><ImageIcon size={12} /> Poster / Banner Event</label>
              <div className="relative h-48 w-full rounded-xl bg-slate-100 overflow-hidden group border border-slate-200 shadow-sm">
-                {formData.bannerUrl ? (
-                   <Image src={formData.bannerUrl} alt="Preview" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="100vw" />
+                {formData.urlBanner ? (
+                   <Image src={formData.urlBanner} alt="Preview" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="100vw" />
                 ) : (
                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1">
                       <ImageIcon size={32} strokeWidth={1} />
@@ -107,10 +109,10 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
                 <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-xs duration-300">
                     <div className="w-4/5 space-y-2 text-center">
                         <label className="text-xxs text-white font-bold uppercase tracking-wider block">Update URL Poster</label>
-                        <input 
+                        <Input 
                             type="text" 
-                            name="bannerUrl"
-                            value={formData.bannerUrl || ''}
+                            name="urlBanner"
+                            value={formData.urlBanner || ''}
                             onChange={handleChange}
                             placeholder="https://link-gambar.com/poster.jpg"
                             className="w-full px-3 py-1.5 bg-white rounded-xl text-xs outline-none border border-slate-200 focus:ring-2 focus:ring-slate-100 text-slate-700 font-semibold"
@@ -143,9 +145,9 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <div className="relative">
                 <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                 <select 
-                   name="isEventPolines" 
-                   value={formData.isEventPolines ? "true" : "false"} 
-                   onChange={(e) => setFormData(prev => prev ? ({ ...prev, isEventPolines: e.target.value === "true" }) : null)} 
+                   name="eventPolines" 
+                   value={formData.eventPolines ? "true" : "false"} 
+                   onChange={(e) => setFormData(prev => prev ? ({ ...prev, eventPolines: e.target.value === "true" }) : null)} 
                    className={cn(inputClasses, "appearance-none")}
                 >
                   <option value="true">Polines (Internal)</option>
@@ -164,7 +166,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Type size={12} /> Judul Event</label>
               <div className="relative">
                 <Type className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <input type="text" name="judul" value={formData.judul} onChange={handleChange} className={inputClasses} required />
+                <Input type="text" name="judul" value={formData.judul} onChange={handleChange} className={inputClasses} required />
               </div>
             </div>
 
@@ -184,7 +186,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><MapPin size={12} /> Lokasi / Link Platform</label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <input type="text" name="detailLokasi" value={formData.detailLokasi || ''} onChange={handleChange} className={inputClasses} placeholder="Alamat atau Link Zoom/GMeet" />
+                <Input type="text" name="detailLokasi" value={formData.detailLokasi || ''} onChange={handleChange} className={inputClasses} placeholder="Alamat atau Link Zoom/GMeet" />
               </div>
             </div>
 
@@ -192,7 +194,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Mic size={12} /> Pembicara / Pemateri</label>
               <div className="relative">
                 <Mic className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <input type="text" name="namaPembicara" value={formData.namaPembicara || ''} onChange={handleChange} className={inputClasses} placeholder="Nama pembicara (pisahkan dengan koma)" />
+                <Input type="text" name="namaPembicara" value={formData.namaPembicara || ''} onChange={handleChange} className={inputClasses} placeholder="Nama pembicara (pisahkan dengan koma)" />
               </div>
             </div>
 
@@ -211,7 +213,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Ticket size={12} /> Nominal Biaya (IDR)</label>
               <div className="relative">
                 <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <input type="number" name="harga" value={formData.harga || 0} onChange={handleChange} className={inputClasses} disabled={formData.tipeHarga === 'free'} />
+                <Input type="number" name="harga" value={formData.harga || 0} onChange={handleChange} className={inputClasses} disabled={formData.tipeHarga === 'free'} />
               </div>
             </div>
 
@@ -225,7 +227,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Clock size={12} /> Tanggal & Waktu Mulai</label>
               <div className="relative">
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <input type="datetime-local" name="tanggalMulai" value={formData.tanggalMulai ? new Date(formData.tanggalMulai).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('tanggalMulai', e.target.value)} className={inputClasses} />
+                <Input type="datetime-local" name="tanggalMulai" value={formData.tanggalMulai ? new Date(formData.tanggalMulai).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('tanggalMulai', e.target.value)} className={inputClasses} />
               </div>
             </div>
 
@@ -233,7 +235,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Clock size={12} /> Tanggal & Waktu Selesai</label>
               <div className="relative">
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <input type="datetime-local" name="tanggalSelesai" value={formData.tanggalSelesai ? new Date(formData.tanggalSelesai).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('tanggalSelesai', e.target.value)} className={inputClasses} />
+                <Input type="datetime-local" name="tanggalSelesai" value={formData.tanggalSelesai ? new Date(formData.tanggalSelesai).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('tanggalSelesai', e.target.value)} className={inputClasses} />
               </div>
             </div>
 
@@ -241,7 +243,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Users size={12} /> Batas Kuota Peserta</label>
               <div className="relative">
                 <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <input type="number" name="kuota" value={formData.kuota || 0} onChange={handleChange} className={inputClasses} />
+                <Input type="number" name="kuota" value={formData.kuota || 0} onChange={handleChange} className={inputClasses} />
               </div>
             </div>
 
@@ -251,12 +253,12 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
                <h3 className="font-bold text-slate-800 uppercase tracking-wider text-micro">4. Registrasi & Konten</h3>
             </div>
 
-            {!formData.isEventPolines && (
+            {!formData.eventPolines && (
               <div className="md:col-span-2 animate-in slide-in-from-top-2 duration-300">
                 <label className={labelClasses}><Globe size={12} /> Link Sumber / Web Sumber (Khusus Event Umum)</label>
                 <div className="relative">
                   <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                  <input 
+                  <Input 
                     type="text" 
                     name="websiteSumber" 
                     value={formData.websiteSumber || ''} 
@@ -282,18 +284,14 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
 
         {/* Footer Actions */}
         <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-3 justify-end shrink-0">
-          <button 
-            type="button" 
-            onClick={onClose} 
-            className="px-4 py-2 text-xs font-semibold border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-slate-600 cursor-pointer animate-all duration-200 active:scale-95"
-          >
+          <Button variant="outline" onClick={onClose} className="text-xs">
             Batal
-          </button>
-          <button 
-            type="button" 
+          </Button>
+          <Button 
+            variant="default"
             onClick={handleSubmit} 
-            disabled={isSubmitting} 
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer animate-all duration-200 active:scale-95 shadow-sm"
+            disabled={isSubmitting}
+            className="text-xs"
           >
             {isSubmitting ? (
               <>
@@ -306,7 +304,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
                 Simpan Perubahan
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

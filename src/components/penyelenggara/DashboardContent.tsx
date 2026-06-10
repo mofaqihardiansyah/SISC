@@ -9,12 +9,13 @@ import { Users, Eye, Coins, Clock, Ticket, Search, ChevronDown, Check, FileText,
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Input } from '@/components/ui/input';
 
 interface DashboardContentProps {
   allEvents: { 
     id: number; 
     judul: string | null;
-    bannerUrl: string | null;
+    urlBanner: string | null;
     tanggalMulai: Date | null;
     status: string | null;
     tipePlatform: string | null;
@@ -27,7 +28,7 @@ interface DashboardContentProps {
   };
   initialGrafikData: { tanggal: string; jumlah: number }[];
   initialGrafikPendapatan: { tanggal: string; jumlah: number }[];
-  isApproved: boolean;
+  disetujui: boolean;
   recentParticipants: { id: number; namaLengkap: string | null; email: string | null; eventJudul: string | null; dibuatPada: Date | null }[];
   recentPapers: { id: number; judul: string | null; penulis: unknown; status: string | null; eventJudul: string | null; dibuatPada: Date | null }[];
 }
@@ -37,7 +38,7 @@ export function DashboardContent({
   initialStats,
   initialGrafikData,
   initialGrafikPendapatan,
-  isApproved,
+  disetujui,
   recentParticipants: initialParticipants,
   recentPapers: initialPapers,
 }: DashboardContentProps) {
@@ -106,7 +107,7 @@ export function DashboardContent({
 
   return (
     <div className="space-y-8">
-      {!isApproved && (
+      {!disetujui && (
         <div className="bg-amber-50 border border-amber-200/80 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex gap-4">
             <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0 animate-pulse">
@@ -135,7 +136,7 @@ export function DashboardContent({
           <div className="flex-1 w-full relative event-filter-dropdown">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
+              <Input
                 type="text"
                 placeholder="Cari dan filter berdasarkan nama event..."
                 value={isDropdownOpen ? searchQuery : (selectedEventId === "all" ? "" : selectedEvent?.judul || "")}
@@ -217,9 +218,9 @@ export function DashboardContent({
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-5 w-full md:w-auto">
               <div className="relative w-32 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-50">
-                {selectedEvent.bannerUrl ? (
+                {selectedEvent.urlBanner ? (
                   <Image
-                    src={selectedEvent.bannerUrl}
+                    src={selectedEvent.urlBanner}
                     alt={selectedEvent.judul || ""}
                     fill
                     className="object-cover"

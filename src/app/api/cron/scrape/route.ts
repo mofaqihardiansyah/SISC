@@ -60,9 +60,9 @@ export async function GET() {
         extractedLinks.push(linkSumber);
         scrapedData.push({
           judul: judul.substring(0, 100), // Memastikan judul tidak terlalu panjang
-          bannerUrl: banner,
+          urlBanner: banner,
           linkEksternal: linkSumber,
-          isEventPolines: false, 
+          eventPolines: false, 
           hasilScraping: true,   
           status: 'published',   
           websiteSumber: targetUrl,

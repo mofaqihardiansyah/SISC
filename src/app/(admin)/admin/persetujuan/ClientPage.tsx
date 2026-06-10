@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { approveEvent, rejectEvent, getPendingEvents } from '../../../../actions/persetujuan-event';
 import type { PendingEvent } from '../../../../actions/persetujuan-event';
 import Portal from '@/components/ui/Portal';
+import { toast } from 'sonner';
 
 function EventCategoryIcon({ emoji, className = "w-5 h-5 text-slate-500" }: { emoji: string; className?: string }) {
   switch (emoji) {
@@ -79,16 +80,26 @@ function ReviewModal({
 
   const handleApproveAction = async () => {
     setActionLoading('approve');
-    await approveEvent(event.id);
+    const res = await approveEvent(event.id);
     setActionLoading(null);
+    if (res.success) {
+      toast.success(res.message || "Event berhasil disetujui");
+    } else {
+      toast.error(res.error || "Gagal menyetujui event");
+    }
     onRefresh();
     onClose();
   };
 
   const handleRejectAction = async () => {
     setActionLoading('reject');
-    await rejectEvent(event.id, rejectReason);
+    const res = await rejectEvent(event.id, rejectReason);
     setActionLoading(null);
+    if (res.success) {
+      toast.success(res.message || "Event berhasil ditolak");
+    } else {
+      toast.error(res.error || "Gagal menolak event");
+    }
     onRefresh();
     onClose();
   };

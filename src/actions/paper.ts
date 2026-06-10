@@ -18,7 +18,7 @@ export interface SubmittedPaper {
     afiliasi: string;
     isCorresponding: boolean;
   }[];
-  fileUrl: string;
+  urlFile: string;
   status: 'review' | 'accepted' | 'rejected' | null;
   komentarPenolakan: string | null;
   dibuatPada: Date | null;
@@ -37,7 +37,7 @@ const paperSchema = z.object({
     afiliasi: z.string().min(3, "Afiliasi penulis harus diisi"),
     isCorresponding: z.boolean()
   })).min(1, "Minimal harus ada 1 penulis"),
-  fileUrl: z.string().min(1, "URL file tidak valid"),
+  urlFile: z.string().min(1, "URL file tidak valid"),
 });
 
 export async function getSubmissionData() {
@@ -60,7 +60,7 @@ export async function getSubmissionData() {
       .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
       .where(and(eq(pendaftaran.userId, userId), eq(event.jenisEvent, 'conference')));
 
-    // Mengambil riwayat status paper yang pernah disubmit beserta penulis dan fileUrl
+    // Mengambil riwayat status paper yang pernah disubmit beserta penulis dan urlFile
     const submittedPapers = await db
       .select({
         id: paperSubmission.id,
@@ -68,7 +68,7 @@ export async function getSubmissionData() {
         kataKunci: paperSubmission.kataKunci,
         track: paperSubmission.track,
         penulis: paperSubmission.penulis,
-        fileUrl: paperSubmission.fileUrl,
+        urlFile: paperSubmission.urlFile,
         status: paperSubmission.status,
         komentarPenolakan: paperSubmission.komentarPenolakan,
         dibuatPada: paperSubmission.dibuatPada,

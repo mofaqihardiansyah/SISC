@@ -8,7 +8,7 @@ import { SCRAPER } from "@/lib/constants";
 interface ScrapedEvent {
   judul: string;
   linkEksternal: string;
-  bannerUrl: string;
+  urlBanner: string;
   detailLokasi: string;
   tanggalMentah: string;
   websiteSumber: string;
@@ -57,7 +57,7 @@ export const seminarCrawler = new PlaywrightCrawler({
           data.push({
             judul: titleEl.textContent?.trim() || "Tanpa Judul",
             linkEksternal: link,
-            bannerUrl: imageEl?.getAttribute('src') || "",
+            urlBanner: imageEl?.getAttribute('src') || "",
             detailLokasi: location,
             tanggalMentah: date, // Akan diolah di luar evaluate
             websiteSumber: targetUrl
@@ -104,9 +104,9 @@ export const seminarCrawler = new PlaywrightCrawler({
           judul: r.judul,
           slug: `${slugify(r.judul)}-${Math.floor(Math.random() * 1000)}`,
           linkEksternal: r.linkEksternal,
-          bannerUrl: r.bannerUrl,
+          urlBanner: r.urlBanner,
           detailLokasi: r.detailLokasi,
-          isEventPolines: false,
+          eventPolines: false,
           hasilScraping: true,
           status: 'published' as const,
           websiteSumber: r.websiteSumber,

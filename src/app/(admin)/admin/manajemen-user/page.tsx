@@ -9,6 +9,10 @@ import {
 import Image from "next/image";
 import Portal from "@/components/ui/Portal";
 import { PAGINATION } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+export const dynamic = 'force-dynamic';
+
 
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type SortField = "namaLengkap" | "dibuatPada" | "role";
@@ -19,19 +23,19 @@ interface User {
   namaLengkap: string;
   email: string;
   role: "organizer" | "visitor";
-  isSuspended: boolean;
-  isApproved: boolean;
+  diblokir: boolean;
+  disetujui: boolean;
   dibuatPada: string;
-  avatarUrl: string | null;
+  urlAvatar: string | null;
 }
 
 interface UserDetail extends User {
   nomorTelepon: string | null;
-  institution: string | null;
+  institusi: string | null;
   pekerjaan: string | null;
   jenisKelamin: string | null;
   tanggalLahir: string | null;
-  lastActiveAt: string | null;
+  terakhirAktifPada: string | null;
 }
 
 interface ApiResponse {
@@ -62,11 +66,11 @@ const ROWS_PER_PAGE = PAGINATION.ROWS_PER_PAGE;
 
 // â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string; avatarUrl: string | null }; size?: "md" | "lg" }) {
+function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string; urlAvatar: string | null }; size?: "md" | "lg" }) {
   const cls = size === "lg" ? "w-16 h-16 text-base" : "w-8 h-8 text-xxs";
   const imgSize = size === "lg" ? 64 : 32;
-  return user.avatarUrl ? (
-    <Image src={user.avatarUrl} alt={user.namaLengkap} width={imgSize} height={imgSize} className={`${cls} rounded-full object-cover shrink-0`} />
+  return user.urlAvatar ? (
+    <Image src={user.urlAvatar} alt={user.namaLengkap} width={imgSize} height={imgSize} className={`${cls} rounded-full object-cover shrink-0`} />
   ) : (
     <div className={`${cls} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
       style={{ backgroundColor: getAvatarColor(user.id) }}>
@@ -75,9 +79,9 @@ function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string
   );
 }
 
-function StatusBadge({ user }: { user: Pick<User, "isSuspended" | "isApproved" | "role"> }) {
-  if (user.isSuspended) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-rose-50 text-rose-700 border-rose-200/60 whitespace-nowrap">Ditangguhkan</span>;
-  if (user.role === "organizer" && !user.isApproved) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-amber-50 text-amber-700 border-amber-200/60 whitespace-nowrap">Menunggu</span>;
+function StatusBadge({ user }: { user: Pick<User, "diblokir" | "disetujui" | "role"> }) {
+  if (user.diblokir) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-rose-50 text-rose-700 border-rose-200/60 whitespace-nowrap">Ditangguhkan</span>;
+  if (user.role === "organizer" && !user.disetujui) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-amber-50 text-amber-700 border-amber-200/60 whitespace-nowrap">Menunggu</span>;
   return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200/60 whitespace-nowrap">Aktif</span>;
 }
 
@@ -128,13 +132,13 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
   const rows: { label: string; value: string | null }[] = user ? [
     { label: "Email", value: user.email },
     { label: "Nomor Telepon", value: user.nomorTelepon },
-    { label: "Institusi", value: user.institution },
+    { label: "Institusi", value: user.institusi },
     { label: "Pekerjaan", value: user.pekerjaan },
     { label: "Jenis Kelamin", value: user.jenisKelamin },
     { label: "Tanggal Lahir", value: formatDate(user.tanggalLahir) },
     { label: "Role", value: user.role === "organizer" ? "Organizer" : "Visitor" },
     { label: "Tanggal Bergabung", value: formatDate(user.dibuatPada) },
-    { label: "Terakhir Aktif", value: formatDateTime(user.lastActiveAt) },
+    { label: "Terakhir Aktif", value: formatDateTime(user.terakhirAktifPada) },
   ] : [];
 
   return (
@@ -148,9 +152,9 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <h3 className="text-sm font-bold text-gray-800">Detail Pengguna</h3>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 transition-colors">
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Tutup">
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
 
         {loading ? (
@@ -335,7 +339,7 @@ export default function ManajemenUserPage() {
 
   return (
     <div className="flex-1 p-6 bg-gray-50 min-h-screen overflow-y-auto">
-      <h1 className="text-xl font-bold text-gray-800 mb-5">Manajemen User</h1>
+      <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Manajemen User</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-5">
@@ -360,19 +364,22 @@ export default function ManajemenUserPage() {
               <span className="text-xs font-semibold text-red-600">
                 {selectedRows.length} user dipilih
               </span>
-              <button
+              <Button
+                variant="destructive"
+                size="sm"
                 onClick={() => setBulkDeleteModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
               >
                 <Trash2 className="w-3 h-3" />
                 Hapus Massal
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-xs"
                 onClick={() => setSelectedRows([])}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Tutup"
               >
                 <X className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -383,7 +390,7 @@ export default function ManajemenUserPage() {
             <label className="block text-xxs font-semibold text-gray-400 uppercase tracking-wider mb-1">Cari Pengguna</label>
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
-              <input type="text" placeholder="Nama atau email..."
+              <Input type="text" placeholder="Nama atau email..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:outline-none focus:ring-2 focus:ring-slate-100 text-gray-700"
@@ -434,7 +441,7 @@ export default function ManajemenUserPage() {
                 </td></tr>
               ) : error ? (
                 <tr><td colSpan={8} className="py-8 text-center text-red-400 text-xs">
-                  {error} <button onClick={fetchUsers} className="ml-2 underline">Coba lagi</button>
+                  {error} <Button variant="link" onClick={fetchUsers} size="xs">Coba lagi</Button>
                 </td></tr>
               ) : users.length === 0 ? (
                 <tr><td colSpan={8} className="py-8 text-center text-gray-400">Tidak ada data ditemukan</td></tr>
@@ -447,14 +454,14 @@ export default function ManajemenUserPage() {
                         className="accent-slate-900 cursor-pointer w-3.5 h-3.5" />
                     </td>
                     <td className="px-6 py-3.5">
-                      <button className="flex items-center gap-2.5 text-left hover:opacity-80 transition-opacity"
+                      <Button variant="ghost" className="flex items-center gap-2.5 text-left hover:opacity-80"
                         onClick={() => setDetailUserId(user.id)}>
                         <Avatar user={user} />
                         <div>
                           <div className="font-semibold text-gray-800 text-sm2 hover:text-slate-700 transition-colors">{user.namaLengkap}</div>
                           <div className="text-xxs text-gray-400">{user.email}</div>
                         </div>
-                      </button>
+                      </Button>
                     </td>
                     <td className="px-6 py-3.5">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider whitespace-nowrap ${user.role === "organizer" ? "bg-indigo-50 text-indigo-700 border-indigo-200/60" : "bg-slate-50 text-slate-700 border-slate-200/60"}`}>
@@ -466,14 +473,12 @@ export default function ManajemenUserPage() {
                     <td className="px-6 py-3.5 text-gray-500 text-xs">{user.email}</td>
                     <td className="px-6 py-3.5">
                       <div className="flex gap-1.5">
-                        <button onClick={() => setDetailUserId(user.id)}
-                          className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-all duration-200 hover:scale-110 active:scale-90 shadow-sm" title="Lihat Detail">
+                        <Button variant="outline" size="icon-xs" onClick={() => setDetailUserId(user.id)} aria-label="Lihat Detail">
                           <Eye className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => setDeleteModal(user.id)}
-                          className="w-6 h-6 rounded-lg bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 transition-all duration-200 hover:scale-110 active:scale-90 shadow-sm">
+                        </Button>
+                        <Button variant="destructive" size="icon-xs" onClick={() => setDeleteModal(user.id)} aria-label="Hapus">
                           <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -490,24 +495,21 @@ export default function ManajemenUserPage() {
             <b className="text-gray-600">{total.toLocaleString("id-ID")}</b> pengguna
           </span>
           <div className="flex gap-1 items-center">
-            <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}
-              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95">
-              <ChevronLeft className="w-3.5 h-3.5 text-gray-500" />
-            </button>
+            <Button variant="outline" size="icon-xs" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} aria-label="Halaman sebelumnya">
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </Button>
             {getPageButtons().map((p, i) =>
               p === "..." ? (
                 <span key={`d${i}`} className="text-gray-400 px-1 text-xs">...</span>
               ) : (
-                <button key={p} onClick={() => setCurrentPage(p as number)}
-                  className={`w-7 h-7 rounded-xl text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${currentPage === p ? "bg-slate-900 text-white shadow-sm" : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"}`}>
+                <Button key={p} variant={currentPage === p ? "default" : "outline"} size="icon-xs" onClick={() => setCurrentPage(p as number)}>
                   {p}
-                </button>
+                </Button>
               )
             )}
-            <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95">
-              <ChevronRight className="w-3.5 h-3.5 text-gray-500" />
-            </button>
+            <Button variant="outline" size="icon-xs" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} aria-label="Halaman berikutnya">
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
           </div>
         </div>
       </div>
@@ -529,14 +531,12 @@ export default function ManajemenUserPage() {
             <h3 className="text-sm font-bold text-gray-800 mb-2">Hapus Pengguna</h3>
             <p className="text-xs text-gray-500 mb-5">Apakah kamu yakin ingin menghapus pengguna ini? Tindakan ini tidak bisa dibatalkan.</p>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setDeleteModal(null)} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm disabled:opacity-50">
+              <Button variant="outline" size="sm" onClick={() => setDeleteModal(null)} disabled={deleteLoading}>
                 Batal
-              </button>
-              <button onClick={() => handleDelete(deleteModal)} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm flex items-center gap-1.5 disabled:opacity-50">
+              </Button>
+              <Button variant="destructive" size="sm" onClick={() => handleDelete(deleteModal)} disabled={deleteLoading}>
                 {deleteLoading && <Loader2 className="w-3 h-3 animate-spin" />}Hapus
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -557,14 +557,12 @@ export default function ManajemenUserPage() {
               Kamu akan menghapus <b>{selectedRows.length} pengguna</b> sekaligus. Tindakan ini tidak bisa dibatalkan.
             </p>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setBulkDeleteModal(false)} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm disabled:opacity-50">
+              <Button variant="outline" size="sm" onClick={() => setBulkDeleteModal(false)} disabled={deleteLoading}>
                 Batal
-              </button>
-              <button onClick={handleBulkDelete} disabled={deleteLoading}
-                className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm flex items-center gap-1.5 disabled:opacity-50">
+              </Button>
+              <Button variant="destructive" size="sm" onClick={handleBulkDelete} disabled={deleteLoading}>
                 {deleteLoading && <Loader2 className="w-3 h-3 animate-spin" />}Hapus {selectedRows.length} User
-              </button>
+              </Button>
             </div>
           </div>
         </div>

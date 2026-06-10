@@ -6,7 +6,10 @@ import { KeyRound, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { UPLOAD_LIMITS } from "@/lib/constants";
+export const dynamic = 'force-dynamic';
+
 
 export default function AdminSettingsPage() {
   const router = useRouter();
@@ -24,7 +27,7 @@ export default function AdminSettingsPage() {
   const [loadingProfil, setLoadingProfil] = useState(false);
   const [loadingPass, setLoadingPass] = useState(false);
 
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [urlAvatar, setAvatarUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,7 +41,7 @@ export default function AdminSettingsPage() {
           setInisial(data.namaLengkap.charAt(0).toUpperCase());
         }
         if (data.email) setEmail(data.email);
-        if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+        if (data.urlAvatar) setAvatarUrl(data.urlAvatar);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -55,7 +58,7 @@ export default function AdminSettingsPage() {
       const res = await fetch("/api/admin/pengaturan", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ namaLengkap, email, avatarUrl }),
+        body: JSON.stringify({ namaLengkap, email, urlAvatar }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -102,7 +105,7 @@ export default function AdminSettingsPage() {
       await fetch("/api/admin/pengaturan", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ namaLengkap, email, avatarUrl: data.url }),
+        body: JSON.stringify({ namaLengkap, email, urlAvatar: data.url }),
       });
       
       router.refresh();
@@ -157,7 +160,7 @@ export default function AdminSettingsPage() {
     <div className="space-y-8 max-w-4xl animate-in fade-in duration-500 p-6 md:p-8">
       {/* Header Section */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Pengaturan Admin</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pengaturan Admin</h1>
         <p className="text-slate-500 mt-2">Kelola informasi pribadi dan pengaturan keamanan Anda.</p>
       </div>
 
@@ -168,8 +171,8 @@ export default function AdminSettingsPage() {
         <div className="space-y-6">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full border-2 border-slate-100 flex-shrink-0 relative overflow-hidden bg-slate-900 flex items-center justify-center">
-              {avatarUrl ? (
-                <Image src={avatarUrl} alt="Profil Admin" fill className="object-cover" />
+              {urlAvatar ? (
+                <Image src={urlAvatar} alt="Profil Admin" fill className="object-cover" />
               ) : (
                 <span className="text-3xl font-bold text-white">{inisial}</span>
               )}
@@ -202,7 +205,7 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="md:col-span-1">
               <label className="text-sm font-semibold mb-2 block text-slate-700">Nama Lengkap</label>
-              <input 
+              <Input 
                 type="text" 
                 value={namaLengkap}
                 onChange={(e) => setNamaLengkap(e.target.value)}
@@ -213,7 +216,7 @@ export default function AdminSettingsPage() {
             
             <div className="md:col-span-1">
               <label className="text-sm font-semibold mb-2 block text-slate-700">Email Kerja</label>
-              <input 
+              <Input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -252,46 +255,46 @@ export default function AdminSettingsPage() {
           <div>
             <label className="text-sm font-semibold mb-2 block text-slate-700">Kata Sandi Saat Ini</label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 value={passLama}
                 onChange={(e) => setPassLama(e.target.value)}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl pr-12 focus:outline-none focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 transition-all text-sm text-slate-700 bg-slate-50 focus:bg-white"
                 placeholder="Masukkan kata sandi saat ini"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+              </Button>
             </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block text-slate-700">Kata Sandi Baru</label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 value={passBaru}
                 onChange={(e) => setPassBaru(e.target.value)}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl pr-12 focus:outline-none focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 transition-all text-sm text-slate-700 bg-slate-50 focus:bg-white"
                 placeholder="Minimal 8 karakter"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+              </Button>
             </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block text-slate-700">Konfirmasi Kata Sandi Baru</label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 value={passKonfirm}
                 onChange={(e) => setPassKonfirm(e.target.value)}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl pr-12 focus:outline-none focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 transition-all text-sm text-slate-700 bg-slate-50 focus:bg-white"
                 placeholder="Ketik ulang kata sandi baru"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+              </Button>
             </div>
           </div>
           

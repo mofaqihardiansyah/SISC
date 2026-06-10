@@ -1,0 +1,490 @@
+[browser] Image with src "/icon/Teknologi.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/icon/Bisnis.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/icon/Seni.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+⨯ Error: Failed query: select "id", "nama_lengkap", "email", "nomor_telepon", "institusi", "pekerjaan", "password", "email_terverifikasi", "tanggal_lahir", "jenis_kelamin", "role", "disetujui", "diblokir", "terakhir_aktif_pada", "url_avatar", "dibuat_pada", "diperbarui_pada", "dihapus_pada" from "users" "users" where "users"."id" = $1 limit $2
+params: 1,1
+    at async Topbar (src\components\admin\Topbar.tsx:17:14)
+  15 |   let dbUser = null;
+  16 |   if (session?.user?.id) {
+> 17 |     dbUser = await db.query.users.findFirst({
+     |              ^
+  18 |       where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+  19 |     });
+  20 |   } {
+  query: 'select "id", "nama_lengkap", "email", "nomor_telepon", "institusi", "pekerjaan", "password", "email_terverifikasi", "tanggal_lahir", "jenis_kelamin", "role", "disetujui", "diblokir", "terakhir_aktif_pada", "url_avatar", "dibuat_pada", "diperbarui_pada", "dihapus_pada" from "users" "users" where "users"."id" = $1 limit $2',
+  params: [ 1, 1 ],
+  digest: '1996652001',
+  [cause]: error: column "institusi" does not exist
+      at async Topbar (src\components\admin\Topbar.tsx:17:14)
+    15 |   let dbUser = null;
+    16 |   if (session?.user?.id) {
+  > 17 |     dbUser = await db.query.users.findFirst({
+       |              ^
+    18 |       where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+    19 |     });
+    20 |   } {
+    length: 173,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: 'Perhaps you meant to reference the column "users.institution".',
+    position: '56',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3732',
+    routine: 'errorMissingColumn'
+  }
+}
+⨯ Error: Failed query: select "id", "nama_lengkap", "email", "nomor_telepon", "institusi", "pekerjaan", "password", "email_terverifikasi", "tanggal_lahir", "jenis_kelamin", "role", "disetujui", "diblokir", "terakhir_aktif_pada", "url_avatar", "dibuat_pada", "diperbarui_pada", "dihapus_pada" from "users" "users" where "users"."id" = $1 limit $2
+params: 1,1
+    at async Topbar (src\components\admin\Topbar.tsx:17:14)
+  15 |   let dbUser = null;
+  16 |   if (session?.user?.id) {
+> 17 |     dbUser = await db.query.users.findFirst({
+     |              ^
+  18 |       where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+  19 |     });
+  20 |   } {
+  query: 'select "id", "nama_lengkap", "email", "nomor_telepon", "institusi", "pekerjaan", "password", "email_terverifikasi", "tanggal_lahir", "jenis_kelamin", "role", "disetujui", "diblokir", "terakhir_aktif_pada", "url_avatar", "dibuat_pada", "diperbarui_pada", "dihapus_pada" from "users" "users" where "users"."id" = $1 limit $2',
+  params: [ 1, 1 ],
+  digest: '1996652001',
+  [cause]: error: column "institusi" does not exist
+      at async Topbar (src\components\admin\Topbar.tsx:17:14)
+    15 |   let dbUser = null;
+    16 |   if (session?.user?.id) {
+  > 17 |     dbUser = await db.query.users.findFirst({
+       |              ^
+    18 |       where: (u, { eq }) => eq(u.id, Number(session.user.id)),
+    19 |     });
+    20 |   } {
+    length: 173,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: 'Perhaps you meant to reference the column "users.institution".',
+    position: '56',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3732',
+    routine: 'errorMissingColumn'
+  }
+}
+[browser] Uncaught Error: Failed query: select "id", "nama_lengkap", "email", "nomor_telepon", "institusi", "pekerjaan", "password", "email_terverifikasi", "tanggal_lahir", "jenis_kelamin", "role", "disetujui", "diblokir", "terakhir_aktif_pada", "url_avatar", "dibuat_pada", "diperbarui_pada", "dihapus_pada" from "users" "users" where "users"."id" = $1 limit $2
+params: 1,1
+    at NodePgPreparedQuery.queryWithCache (node_modules\src\pg-core\session.ts:73:11)
+    at <anonymous> (node_modules\src\node-postgres\session.ts:154:19)
+    at Topbar (src\components\admin\Topbar.tsx:17:14)
+    at resolveErrorDev (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:120)
+    at processFullStringRow (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:44)
+    at processFullBinaryRow (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:29)
+    at processBinaryChunk (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)
+    at progress (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:31)
+  71 | 				return await query();
+  72 | 			} catch (e) {
+> 73 | 				throw new DrizzleQueryError(queryString, params, e as Error);
+     |       ^
+  74 | 			}
+  75 | 		}
+  76 |
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_recharts_es6_util_0sqqvqz._.js:2084:25)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_recharts_es6_util_0sqqvqz._.js:2084:25)
+[browser] Image with src "/uploads/banners/banner12.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/uploads/banners/banner12.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/uploads/banners/banner9.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/uploads/banners/banner18.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/uploads/banners/banner8.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/uploads/avatars/fotodummy.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/uploads/banners/banner18.jpg" has "fill" prop and "sizes" prop of "100vw", but image is not rendered at full viewport width. Please adjust "sizes" to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/uploads/banners/banner1.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "/logo_sementara.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+[browser] Image with src "/uploads/avatars/fotodummy.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+⨯ Error: Invalid src prop (https://picsum.photos/seed/avatar/200/200) on `next/image`, hostname "picsum.photos" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at ignore-listed frames {
+  digest: '939742955@E231'
+}
+[browser] Uncaught Error: Invalid src prop (https://picsum.photos/seed/avatar/200/200) on `next/image`, hostname "picsum.photos" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at defaultLoader (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_11g7hyd._.js:6365:49)
+    at generateImgAttrs/<.srcSet< (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_11g7hyd._.js:3789:45)
+    at generateImgAttrs (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_11g7hyd._.js:3789:24)
+    at getImgProps (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_11g7hyd._.js:4202:43)
+    at Image< (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_11g7hyd._.js:6706:82)
+    at react_stack_bottom_frame (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:15037:24)
+    at renderWithHooks (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4620:42)
+    at updateForwardRef (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5908:21)
+    at beginWork (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6766:24)
+    at runWithFiberInDEV (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:131)
+    at performUnitOfWork (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopSync (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:57)
+    at renderRootSync (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)
+    at performWorkOnRoot (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)
+    at performWorkOnRootViaSchedulerTask (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:26)
+    at performWorkUntilDeadline (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:72)
+    at SharedDashboardUserMenu (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/_0-d2.kq._.js:519:250)
+    at SharedDashboardTopbar (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/_0-d2.kq._.js:754:231)
+    at Topbar (src\components\penyelenggara\Topbar.tsx:28:5)
+    at OrganizerLayout (src\app\(organizer)\penyelenggara\layout.tsx:14:9)
+  26 |
+  27 |   return (
+> 28 |     <SharedDashboardTopbar 
+     |     ^
+  29 |       title="Dashboard" 
+  30 |       user={user || null} 
+  31 |       roleTitle="Penyelenggara" 
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+[browser] Image with src "https://picsum.photos/seed/avatar/200/200" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+[GET /api/organizer/peserta] Error: Failed query: select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2
+params: 2,10
+    at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+  44 |
+  45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+> 46 |     const rawData = await db
+     |                     ^
+  47 |       .select({
+  48 |         pendaftaranId: pendaftaran.id,
+  49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+  query: 'select "pendaftaran"."id", "pendaftaran"."kode_pendaftaran", "pendaftaran"."status", "pendaftaran"."dibuat_pada", "pendaftaran"."bukti_pembayaran", "event"."judul", "peserta"."id", "peserta"."nama_lengkap", "peserta"."email", "peserta"."nomor_telepon", "peserta"."jenis_kelamin", users.avatar_url from "pendaftaran" inner join "event" on "pendaftaran"."event_id" = "event"."id" left join "peserta" on "pendaftaran"."id" = "peserta"."pendaftaran_id" left join users on "pendaftaran"."user_id" = users.id where "event"."organizer_id" = $1 order by "pendaftaran"."dibuat_pada" desc limit $2',
+  params: [ 2, 10 ],
+  [cause]: error: column users.avatar_url does not exist
+      at async GET (src\app\api\organizer\peserta\route.ts:46:21)
+    44 |
+    45 |     // Ambil data menggunakan Query Builder dengan limit & offset
+  > 46 |     const rawData = await db
+       |                     ^
+    47 |       .select({
+    48 |         pendaftaranId: pendaftaran.id,
+    49 |         kodePendaftaran: pendaftaran.kodePendaftaran, {
+    length: 115,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '281',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3721',
+    routine: 'errorMissingColumn'
+  }
+}
+[browser] Image with src "https://picsum.photos/seed/avatar/200/200" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+[browser] Image with src "https://picsum.photos/seed/avatar/200/200" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/Documents/PBL smt 4/sisc/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:1294:21)
+⨯ upstream image https://fastly.picsum.photos/id/300/1200/600.jpg?hmac=b-scxjX8fqCAUJSl3KlYtQSbfgn1DhKjZUG_lD1XTuU resolved to private ip ["64:ff9b::8cf8:815b"]
+⨯ upstream image https://fastly.picsum.photos/id/337/1200/600.jpg?hmac=Wl-zKEm9CN25mMUNcIlG8HeCcoNNDtwjx0m6oOl-H-M resolved to private ip ["64:ff9b::8cf8:815b"]
+⨯ upstream image https://fastly.picsum.photos/id/447/1200/600.jpg?hmac=4ZBGbEROBJgcXEYnrBQheN8yWO-T3Be0Uw5Fiim18_w resolved to private ip ["64:ff9b::8cf8:815b"]
+⨯ upstream image https://fastly.picsum.photos/id/802/1200/600.jpg?hmac=QE7WAyUXVCmS4nsDGxOHRGeX2Gk2OoD-l_y2gUU3i7Q resolved to private ip ["64:ff9b::8cf8:815b"]
+⨯ upstream image https://fastly.picsum.photos/id/337/1200/600.jpg?hmac=Wl-zKEm9CN25mMUNcIlG8HeCcoNNDtwjx0m6oOl-H-M resolved to private ip ["64:ff9b::8cf8:815b"]
+⨯ upstream image https://fastly.picsum.photos/id/337/1200/600.jpg?hmac=Wl-zKEm9CN25mMUNcIlG8HeCcoNNDtwjx0m6oOl-H-M resolved to private ip ["64:ff9b::8cf8:815b"]
+⨯ upstream image https://fastly.picsum.photos/id/337/1200/600.jpg?hmac=Wl-zKEm9CN25mMUNcIlG8HeCcoNNDtwjx0m6oOl-H-M resolved to private ip ["64:ff9b::8cf8:815b"]
