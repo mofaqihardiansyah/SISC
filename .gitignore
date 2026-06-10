@@ -71,3 +71,6 @@ public/uploads/documents/*
 
 # Biarkan banners di-commit (untuk aset dummy development)
 !public/uploads/banners/
+
+dev-error.txt
+dev-output.txt
