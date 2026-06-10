@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
+import { UPLOAD_LIMITS } from '@/lib/constants';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function SettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > UPLOAD_LIMITS.AVATAR_MAX_SIZE) {
       toast.error('Ukuran file maksimal 2MB');
       return;
     }
@@ -348,25 +349,31 @@ export default function SettingsPage() {
 
       {/* MODAL */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-md">
-            <h3 className="font-bold text-lg mb-4">
-              Yakin ingin menghapus akun ini?
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+            onClick={() => setShowDeleteModal(false)} 
+          />
+          <div className="relative bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="font-bold text-xl text-slate-900 mb-2">
+              Hapus Akun Permanen?
             </h3>
+            <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+              Tindakan ini tidak dapat dibatalkan. Semua data profil, riwayat event, dan sertifikat Anda akan dihapus secara permanen.
+            </p>
 
-            <div className="flex gap-4">
-              <button
-                onClick={handleDelete}
-                className="flex-1 bg-red-600 text-white py-2 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
-              >
-                Iya
-              </button>
-
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 bg-slate-200 text-slate-700 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+                className="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 hover:bg-slate-200 active:scale-[0.98]"
               >
-                Tidak
+                Batal
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 bg-rose-600 text-white py-2.5 rounded-xl font-bold text-sm transition-all duration-200 hover:bg-rose-700 active:scale-[0.98] shadow-sm"
+              >
+                Ya, Hapus Akun
               </button>
             </div>
           </div>

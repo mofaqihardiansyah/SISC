@@ -3,6 +3,8 @@
 import { db } from "@/db";
 import { event, users, peserta, pendaftaran, transaksi } from "@/db/schema";
 import { count, eq, and, gte, sql } from "drizzle-orm";
+import { MONTHS_ID } from "@/lib/constants";
+import { PAGINATION } from "@/lib/constants";
 
 export async function getDashboardStats() {
   try {
@@ -59,7 +61,7 @@ export async function getDashboardStats() {
 export async function getRecentEvents() {
   try {
     const data = await db.query.event.findMany({
-      limit: 4,
+      limit: PAGINATION.RECENT_EVENTS_LIMIT,
       orderBy: (event, { desc }) => [desc(event.dibuatPada)],
     });
 
@@ -74,7 +76,7 @@ export async function getMonthlyGrowth() {
   try {
     // Ambil data 12 bulan terakhir
     const twelveMonthsAgo = new Date();
-    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - PAGINATION.DASHBOARD_MONTHS_BACK);
     twelveMonthsAgo.setDate(1);
 
     // 1. Data Event Baru per Bulan
@@ -112,36 +114,29 @@ export async function getMonthlyGrowth() {
       .groupBy(sql`TO_CHAR(${transaksi.dibuatPada}, 'Mon')`);
 
     // Format data untuk Recharts - Mulai dari JAN sampai DES
-    const monthNames = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
+    const monthNames = [...MONTHS_ID];
     const fullYear = [];
     
     for (let i = 0; i < 12; i++) {
       const mName = monthNames[i];
       
+      const map: Record<string, string> = {
+        'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MEI', 'JUN': 'JUN',
+        'JUL': 'JUL', 'AUG': 'AGU', 'SEP': 'SEP', 'OCT': 'OKT', 'NOV': 'NOV', 'DEC': 'DES'
+      };
+
       const foundEvent = eventData.find((item: { month: string; monthNum: number; count: number }) => {
         const dbMonth = item.month?.toUpperCase();
-        const map: Record<string, string> = {
-          'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MEI', 'JUN': 'JUN',
-          'JUL': 'JUL', 'AUG': 'AGU', 'SEP': 'SEP', 'OCT': 'OKT', 'NOV': 'NOV', 'DEC': 'DES'
-        };
         return map[dbMonth] === mName || dbMonth === mName;
       });
 
       const foundReg = registrationData.find((item: { month: string; monthNum: number; count: number }) => {
         const dbMonth = item.month?.toUpperCase();
-        const map: Record<string, string> = {
-          'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MEI', 'JUN': 'JUN',
-          'JUL': 'JUL', 'AUG': 'AGU', 'SEP': 'SEP', 'OCT': 'OKT', 'NOV': 'NOV', 'DEC': 'DES'
-        };
         return map[dbMonth] === mName || dbMonth === mName;
       });
 
       const foundRev = revenueData.find((item: { month: string; total: number }) => {
         const dbMonth = item.month?.toUpperCase();
-        const map: Record<string, string> = {
-          'JAN': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'APR': 'APR', 'MAY': 'MEI', 'JUN': 'JUN',
-          'JUL': 'JUL', 'AUG': 'AGU', 'SEP': 'SEP', 'OCT': 'OKT', 'NOV': 'NOV', 'DEC': 'DES'
-        };
         return map[dbMonth] === mName || dbMonth === mName;
       });
       
@@ -150,7 +145,7 @@ export async function getMonthlyGrowth() {
         count: foundEvent ? Math.round(Number(foundEvent.count)) : 0,
         registrations: foundReg ? Math.round(Number(foundReg.count)) : 0,
         revenue: foundRev ? Math.round(Number(foundRev.total)) : 0,
-        trend: foundEvent ? Math.round(Number(foundEvent.count) * 0.8) : 0,
+        trend: foundEvent ? Math.round(Number(foundEvent.count) * PAGINATION.TREND_MULTIPLIER) : 0,
       });
     }
 

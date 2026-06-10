@@ -178,7 +178,7 @@ export default function RegisterPage() {
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('namaLengkap')}
                 />
-                {visitorForm.formState.errors.namaLengkap && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.namaLengkap.message}</p>}
+                {visitorForm.formState.errors.namaLengkap && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.namaLengkap.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -190,7 +190,7 @@ export default function RegisterPage() {
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('email')}
                 />
-                {visitorForm.formState.errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.email.message}</p>}
+                {visitorForm.formState.errors.email && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.email.message}</p>}
               </div>
 
               <div className="flex gap-4">
@@ -209,7 +209,7 @@ export default function RegisterPage() {
                       />
                     )}
                   />
-                  {visitorForm.formState.errors.nomorTelepon && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.nomorTelepon.message}</p>}
+                  {visitorForm.formState.errors.nomorTelepon && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.nomorTelepon.message}</p>}
                 </div>
               </div>
 
@@ -221,7 +221,7 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('tanggalLahir')}
                   />
-                  {visitorForm.formState.errors.tanggalLahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.tanggalLahir.message}</p>}
+                  {visitorForm.formState.errors.tanggalLahir && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.tanggalLahir.message}</p>}
                 </div>
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Jenis Kelamin</Label>
@@ -233,7 +233,7 @@ export default function RegisterPage() {
                     <option value="Laki-laki">Laki-laki</option>
                     <option value="Perempuan">Perempuan</option>
                   </select>
-                  {visitorForm.formState.errors.jenisKelamin && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.jenisKelamin.message}</p>}
+                  {visitorForm.formState.errors.jenisKelamin && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.jenisKelamin.message}</p>}
                 </div>
               </div>
 
@@ -245,7 +245,7 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('institution')}
                   />
-                  {visitorForm.formState.errors.institution && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.institution.message}</p>}
+                  {visitorForm.formState.errors.institution && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.institution.message}</p>}
                 </div>
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Pekerjaan</Label>
@@ -254,7 +254,7 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('pekerjaan')}
                   />
-                  {visitorForm.formState.errors.pekerjaan && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.pekerjaan.message}</p>}
+                  {visitorForm.formState.errors.pekerjaan && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.pekerjaan.message}</p>}
                 </div>
               </div>
 
@@ -283,14 +283,14 @@ export default function RegisterPage() {
                       <div className={`flex-1 rounded-full ${visitorStrength.score >= 2 ? visitorStrength.color : 'bg-slate-200'}`} />
                       <div className={`flex-1 rounded-full ${visitorStrength.score >= 4 ? visitorStrength.color : 'bg-slate-200'}`} />
                     </div>
-                    <p className="text-[10px] font-bold text-slate-500 text-right">{visitorStrength.label}</p>
+                    <p className="text-xxs font-bold text-slate-500 text-right">{visitorStrength.label}</p>
                   </div>
                 )}
-                {visitorForm.formState.errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{visitorForm.formState.errors.password.message}</p>}
+                {visitorForm.formState.errors.password && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.password.message}</p>}
               </div>
               <Button 
                 type="submit" 
-                className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg mt-2 shadow-none transition-all active:scale-[0.98] cursor-pointer"
+                className="w-full bg-primary hover:bg-sisc-auth h-12 text-white font-bold rounded-lg mt-2 shadow-none transition-all active:scale-[0.98] cursor-pointer"
                 disabled={visitorForm.formState.isSubmitting}
               >
                 {visitorForm.formState.isSubmitting ? 'Mendaftar...' : 'Buat Akun'}
@@ -309,7 +309,7 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('namaInstansi')}
                   />
-                  {organizerForm.formState.errors.namaInstansi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.namaInstansi.message}</p>}
+                  {organizerForm.formState.errors.namaInstansi && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{organizerForm.formState.errors.namaInstansi.message}</p>}
                 </div>
               </div>
               <div className="space-y-2">
@@ -331,7 +331,7 @@ export default function RegisterPage() {
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('email')}
                   />
-                  {organizerForm.formState.errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.email.message}</p>}
+                  {organizerForm.formState.errors.email && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{organizerForm.formState.errors.email.message}</p>}
                 </div>
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
@@ -348,7 +348,7 @@ export default function RegisterPage() {
                       />
                     )}
                   />
-                  {organizerForm.formState.errors.nomorTelepon && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.nomorTelepon.message}</p>}
+                  {organizerForm.formState.errors.nomorTelepon && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{organizerForm.formState.errors.nomorTelepon.message}</p>}
                 </div>
               </div>
 
@@ -378,10 +378,10 @@ export default function RegisterPage() {
                         <div className={`flex-1 rounded-full ${organizerStrength.score >= 2 ? organizerStrength.color : 'bg-slate-200'}`} />
                         <div className={`flex-1 rounded-full ${organizerStrength.score >= 4 ? organizerStrength.color : 'bg-slate-200'}`} />
                       </div>
-                      <p className="text-[10px] font-bold text-slate-500 text-right">{organizerStrength.label}</p>
+                      <p className="text-xxs font-bold text-slate-500 text-right">{organizerStrength.label}</p>
                     </div>
                   )}
-                  {organizerForm.formState.errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{organizerForm.formState.errors.password.message}</p>}
+                  {organizerForm.formState.errors.password && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{organizerForm.formState.errors.password.message}</p>}
                 </div>
               </div>
 
@@ -403,7 +403,7 @@ export default function RegisterPage() {
               <div className="pt-2">
                 <Button 
                   type="submit" 
-                  className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+                  className="w-full bg-primary hover:bg-sisc-auth h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
                   disabled={organizerForm.formState.isSubmitting}
                 >
                   {organizerForm.formState.isSubmitting ? 'Mendaftarkan...' : 'Daftar Penyelenggara'}

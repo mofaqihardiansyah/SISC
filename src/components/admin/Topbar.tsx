@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { SharedDashboardTopbar } from '@/components/layout/SharedDashboardTopbar';
 import { LayoutDashboard, Settings } from 'lucide-react';
+import { SITE } from "@/lib/constants";
 
 interface TopbarProps {
   title: string;
@@ -19,7 +20,7 @@ export async function Topbar({ title }: TopbarProps) {
   }
 
   const user = dbUser ? {
-    name: dbUser.namaLengkap || session?.user?.name || "Admin POLIVENTS",
+    name: dbUser.namaLengkap || session?.user?.name || `Admin ${SITE.NAME}`,
     email: dbUser.email || session?.user?.email,
     image: dbUser.avatarUrl || session?.user?.image,
   } : session?.user;
@@ -33,7 +34,7 @@ export async function Topbar({ title }: TopbarProps) {
     <SharedDashboardTopbar 
       title={title} 
       user={user || null} 
-      roleTitle="POLIVENTS" 
+      roleTitle={SITE.NAME} 
       menuItems={menuItems}
     />
   );

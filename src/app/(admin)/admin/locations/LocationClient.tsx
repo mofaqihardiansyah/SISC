@@ -204,11 +204,11 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
           </div>
 
           {/* Pagination Controls Provinsi */}
-          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-[58px]">
-            <span className="text-[11px] text-slate-400 font-medium">
+          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-14">
+            <span className="text-micro text-slate-400 font-medium">
               {filteredProvinsi.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startProvIndex + 1}</strong> – <strong className="text-slate-600">{Math.min(startProvIndex + PROV_PER_PAGE, filteredProvinsi.length)}</strong> dari <strong className="text-slate-600">{filteredProvinsi.length}</strong> provinsi
+                  Menampilkan <strong className="text-slate-600">{startProvIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startProvIndex + PROV_PER_PAGE, filteredProvinsi.length)}</strong> dari <strong className="text-slate-600">{filteredProvinsi.length}</strong> provinsi
                 </>
               ) : (
                 "Tidak ada data"
@@ -228,8 +228,8 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                 {Array.from({ length: totalProvPages }, (_, i) => i + 1).map((p) => {
                   if (totalProvPages > 5) {
                     if (p !== 1 && p !== totalProvPages && Math.abs(p - provPage) > 1) {
-                      if (p === 2 && provPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
-                      if (p === totalProvPages - 1 && provPage < totalProvPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
+                      if (p === 2 && provPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
+                      if (p === totalProvPages - 1 && provPage < totalProvPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
                       return null;
                     }
                   }
@@ -309,7 +309,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                   <tr key={k.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-3.5 font-medium text-slate-800">{k.namaKota}</td>
                     <td className="px-6 py-3.5">
-                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]">
+                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-micro">
                         {k.namaProvinsi || "Provinsi Tidak Diketahui"}
                       </span>
                     </td>
@@ -343,11 +343,11 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
           </div>
 
           {/* Pagination Controls Kota */}
-          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-[58px]">
-            <span className="text-[11px] text-slate-400 font-medium">
+          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-14">
+            <span className="text-micro text-slate-400 font-medium">
               {filteredKota.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startKotaIndex + 1}</strong> – <strong className="text-slate-600">{Math.min(startKotaIndex + KOTA_PER_PAGE, filteredKota.length)}</strong> dari <strong className="text-slate-600">{filteredKota.length}</strong> kota
+                  Menampilkan <strong className="text-slate-600">{startKotaIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startKotaIndex + KOTA_PER_PAGE, filteredKota.length)}</strong> dari <strong className="text-slate-600">{filteredKota.length}</strong> kota
                 </>
               ) : (
                 "Tidak ada data"
@@ -367,8 +367,8 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                 {Array.from({ length: totalKotaPages }, (_, i) => i + 1).map((p) => {
                   if (totalKotaPages > 5) {
                     if (p !== 1 && p !== totalKotaPages && Math.abs(p - kotaPage) > 1) {
-                      if (p === 2 && kotaPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
-                      if (p === totalKotaPages - 1 && kotaPage < totalKotaPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
+                      if (p === 2 && kotaPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
+                      if (p === totalKotaPages - 1 && kotaPage < totalKotaPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
                       return null;
                     }
                   }
@@ -407,8 +407,12 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
       {/* ================= POPUP MODALS ================= */}
       {modalType !== null && (
         <Portal>
-          <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-[9999] p-4 transition-all animate-fadeIn">
-          <div className="bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={handleCloseModal} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100 animate-in zoom-in-95 duration-300">
             
             {/* Modal Title */}
             <div className="flex justify-between items-center mb-4">
@@ -443,7 +447,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                   {/* Select Provinsi (only for Kota form) */}
                   {modalType.toLowerCase().includes('kota') && (
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
                         Pilih Provinsi
                       </label>
                       <select
@@ -465,7 +469,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                   )}
 
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
                       Nama {modalType.toLowerCase().includes('provinsi') ? 'Provinsi' : 'Kota'}
                     </label>
                     <input 

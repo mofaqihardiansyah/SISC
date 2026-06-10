@@ -3,7 +3,7 @@ import { useState, useMemo, useTransition, useEffect, ComponentType } from "reac
 import Portal from "@/components/ui/Portal";
 import {
   Search,
-  ChevronLeft,
+  ChevronLeft, 
   ChevronRight,
   Check,
   X,
@@ -29,7 +29,7 @@ import type { PenyelenggaraItem, StatusValidasi } from "@/types/penyelenggara";
 
 const PAGE_SIZE = 6;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const formatDate = (iso: string | null) =>
   iso
@@ -40,7 +40,7 @@ const formatDate = (iso: string | null) =>
       })
     : "-";
 
-// ─── StatusBadge ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ StatusBadge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function StatusBadge({ status }: { status: StatusValidasi }) {
   const config: Record<StatusValidasi, { label: string; className: string; icon: ComponentType<{ className?: string }> }> = {
@@ -63,7 +63,7 @@ function StatusBadge({ status }: { status: StatusValidasi }) {
   const { label, className, icon: Icon } = config[status];
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wide shadow-sm transition-all duration-300 ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xxs font-bold tracking-wide shadow-sm transition-all duration-300 ${className}`}
     >
       <Icon className="h-3 w-3 shrink-0" />
       {label}
@@ -71,7 +71,7 @@ function StatusBadge({ status }: { status: StatusValidasi }) {
   );
 }
 
-// ─── Main Client Component ────────────────────────────────────────────────────
+// â”€â”€â”€ Main Client Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function ValidasiAksesPenyelenggaraClient({
   initialData,
@@ -120,7 +120,7 @@ export function ValidasiAksesPenyelenggaraClient({
     }
   }, [successMsg, errorMsg]);
 
-  // ─── Dynamic Counts (Real-time Stats) ───────────────────────────────────────
+  // â”€â”€â”€ Dynamic Counts (Real-time Stats) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const stats = useMemo(() => {
     const total = data.length;
     const pending = data.filter((d) => d.status === "pending").length;
@@ -129,7 +129,7 @@ export function ValidasiAksesPenyelenggaraClient({
     return { total, pending, approved, rejected };
   }, [data]);
 
-  // ─── Filter & Sort Logic ───────────────────────────────────────────────────
+  // â”€â”€â”€ Filter & Sort Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const processedData = useMemo(() => {
     let result = [...data];
@@ -174,7 +174,7 @@ export function ValidasiAksesPenyelenggaraClient({
     return result;
   }, [data, search, statusTab, sortBy]);
 
-  // ─── Pagination ────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const totalPages = Math.max(1, Math.ceil(processedData.length / PAGE_SIZE));
   
@@ -204,7 +204,7 @@ export function ValidasiAksesPenyelenggaraClient({
     setCurrentPage(page);
   };
 
-  // ─── Selection Logic ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Selection Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const pageRowIds = useMemo(() => pageItems.map((item) => item.rawId), [pageItems]);
   
@@ -232,7 +232,7 @@ export function ValidasiAksesPenyelenggaraClient({
     setSelectedIds([]);
   };
 
-  // ─── Update Status via API ────────────────────────────────────────────────
+  // â”€â”€â”€ Update Status via API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleChangeStatus = (rawId: number, status: StatusValidasi, skipToast = false) => {
     const prevStatus = data.find((d) => d.rawId === rawId)?.status;
@@ -306,7 +306,7 @@ export function ValidasiAksesPenyelenggaraClient({
     });
   };
 
-  // ─── Bulk Action Logic ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Bulk Action Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleBulkChangeStatus = async (status: StatusValidasi) => {
     if (selectedIds.length === 0) return;
@@ -346,7 +346,7 @@ export function ValidasiAksesPenyelenggaraClient({
   return (
     <div className="flex flex-col gap-6 relative min-h-[calc(100vh-80px)] pb-24">
       
-      {/* ── Alerts Banner ── */}
+      {/* â”€â”€ Alerts Banner â”€â”€ */}
       {errorMsg && (
         <div className="flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-xs font-semibold text-rose-700 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-500" />
@@ -376,10 +376,11 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
       )}
 
-      {/* ── Bulk Actions Progress Overlay ── */}
+      {/* â”€â”€ Bulk Actions Progress Overlay â”€â”€ */}
       {bulkLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm w-full text-center border border-slate-100 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" />
+          <div className="relative bg-white rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm w-full text-center border border-slate-100 animate-in zoom-in-95 duration-300">
             <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
             <h3 className="text-sm font-bold text-gray-800 mb-1">Memproses Akses Penyelenggara...</h3>
             <p className="text-xs text-gray-500 mb-4">Mohon tunggu sebentar, sistem sedang melakukan pembaruan massal.</p>
@@ -389,14 +390,14 @@ export function ValidasiAksesPenyelenggaraClient({
                 style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
               />
             </div>
-            <span className="text-[11px] font-extrabold text-indigo-600 tracking-wider">
+            <span className="text-micro font-extrabold text-indigo-600 tracking-wider">
               {bulkProgress.current} dari {bulkProgress.total} Selesai
             </span>
           </div>
         </div>
       )}
 
-      {/* ── Main Data Card Container ── */}
+      {/* â”€â”€ Main Data Card Container â”€â”€ */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5">
         
         {/* Header Title inside card */}
@@ -464,7 +465,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
           {/* Baris Bawah: Status Tabs Filter */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Filter Status:</span>
+            <span className="text-xxs font-extrabold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Filter Status:</span>
             <div className="flex flex-wrap gap-1.5">
               {(
                 [
@@ -491,7 +492,7 @@ export function ValidasiAksesPenyelenggaraClient({
                   >
                     {tab.label}
                     <span
-                      className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold shadow-inner
+                      className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-md text-xxs font-extrabold shadow-inner
                         ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}
                     >
                       {tab.count}
@@ -503,7 +504,7 @@ export function ValidasiAksesPenyelenggaraClient({
           </div>
         </div>
 
-        {/* ── Table Area ── */}
+        {/* â”€â”€ Table Area â”€â”€ */}
         <div className="overflow-x-auto border border-slate-100 rounded-2xl shadow-sm">
           <table className="w-full text-xs">
             <thead className="bg-slate-50/70 border-b border-slate-100">
@@ -522,7 +523,7 @@ export function ValidasiAksesPenyelenggaraClient({
                   (col, idx) => (
                     <th
                       key={col}
-                      className={`px-5 py-4 font-bold uppercase tracking-wider text-slate-400 text-[10px]
+                      className={`px-5 py-4 font-bold uppercase tracking-wider text-slate-400 text-xxs
                         ${idx === 0 ? "w-16 text-center" : "text-left"}`}
                     >
                       {col}
@@ -565,7 +566,7 @@ export function ValidasiAksesPenyelenggaraClient({
                       </td>
 
                       {/* Display No. */}
-                      <td className="px-5 py-3 text-slate-500 font-mono text-[11px] font-bold text-center">
+                      <td className="px-5 py-3 text-slate-500 font-mono text-micro font-bold text-center">
                         {(currentPage - 1) * PAGE_SIZE + idx + 1}
                       </td>
 
@@ -573,7 +574,7 @@ export function ValidasiAksesPenyelenggaraClient({
                       <td className="px-5 py-3">
                         <button
                           onClick={() => setDetailItem(item)}
-                          className="text-left font-bold text-slate-800 text-[13px] hover:text-indigo-600 transition-colors group-hover/row:translate-x-0.5 transform duration-200"
+                          className="text-left font-bold text-slate-800 text-sm2 hover:text-indigo-600 transition-colors group-hover/row:translate-x-0.5 transform duration-200"
                         >
                           {item.namaOrganisasi}
                         </button>
@@ -667,10 +668,10 @@ export function ValidasiAksesPenyelenggaraClient({
           </table>
         </div>
 
-        {/* ── Pagination Area ── */}
+        {/* â”€â”€ Pagination Area â”€â”€ */}
         <div className="flex justify-between items-center mt-3 pt-5 border-t border-slate-100 flex-wrap gap-3">
           <span className="text-xs text-slate-400 font-semibold">
-            Menampilkan <span className="text-slate-700">{processedData.length > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0}</span> –{" "}
+            Menampilkan <span className="text-slate-700">{processedData.length > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0}</span> â€“{" "}
             <span className="text-slate-700">
               {Math.min(currentPage * PAGE_SIZE, processedData.length)}
             </span>{" "}
@@ -722,7 +723,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
       </div>
 
-      {/* ── Floating Bulk Action Bar ── */}
+      {/* â”€â”€ Floating Bulk Action Bar â”€â”€ */}
       {selectedIds.length > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 border border-slate-200 shadow-2xl rounded-3xl p-4 flex items-center justify-between gap-6 max-w-lg w-[90%] backdrop-blur-md animate-in slide-in-from-bottom-8 fade-in-40 duration-300">
           <div className="flex items-center gap-3">
@@ -731,21 +732,21 @@ export function ValidasiAksesPenyelenggaraClient({
             </div>
             <div>
               <h4 className="text-xs font-bold text-slate-800">Aksi Massal</h4>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Kelola status massal.</p>
+              <p className="text-xxs text-slate-400 font-semibold mt-0.5">Kelola status massal.</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleBulkChangeStatus("approved")}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl transition-all shadow-sm hover:shadow active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold rounded-xl transition-all shadow-sm hover:shadow active:scale-95 whitespace-nowrap"
             >
               <Check className="w-3.5 h-3.5" />
               Setujui
             </button>
             <button
               onClick={() => handleBulkChangeStatus("rejected")}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded-xl transition-all shadow-sm hover:shadow active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-micro font-bold rounded-xl transition-all shadow-sm hover:shadow active:scale-95 whitespace-nowrap"
             >
               <X className="w-3.5 h-3.5" />
               Tolak
@@ -763,23 +764,20 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
       )}
 
-      {/* ── Premium Detail Modal ── */}
+      {/* â”€â”€ Premium Detail Modal â”€â”€ */}
       {detailItem !== null && (
         <Portal>
-          <div className="fixed inset-0 z-9999 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 overflow-hidden">
-            {/* Backdrop with elegant blur */}
-            <div
-              onClick={() => setDetailItem(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 animate-in fade-in"
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => setDetailItem(null)} 
             />
-
-          <div className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh]">
+            <div className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[95vh]">
                 
             {/* Modal Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-[#0E215D] text-white">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-sisc-navy text-white">
               <div className="flex items-center gap-2">
-                <span className="bg-white/10 text-white font-mono text-[10px] font-extrabold px-2 py-1 rounded-md border border-white/20">
+                <span className="bg-white/10 text-white font-mono text-xxs font-extrabold px-2 py-1 rounded-md border border-white/20">
                   ID: {detailItem.id}
                 </span>
                 <h3 className="text-sm font-extrabold text-white" id="slide-over-title">
@@ -805,7 +803,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     <h4 className="text-sm font-extrabold text-slate-800 leading-snug relative z-10">
                       {detailItem.namaOrganisasi}
                     </h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1 relative z-10">
+                    <p className="text-xxs text-slate-400 font-bold uppercase tracking-wider mt-1 relative z-10">
                       Instansi Penyelenggara
                     </p>
                     
@@ -817,17 +815,17 @@ export function ValidasiAksesPenyelenggaraClient({
 
                   {/* Deskripsi Instansi */}
                   <div className="space-y-2">
-                    <h5 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">
+                    <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none">
                       Tentang / Deskripsi
                     </h5>
-                    <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-inner-sm text-xs text-slate-600 leading-relaxed min-h-[80px]">
+                    <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-inner-sm text-xs text-slate-600 leading-relaxed min-h-20">
                       {detailItem.deskripsiInstansi || "Tidak ada deskripsi profil instansi yang ditulis oleh penyelenggara."}
                     </div>
                   </div>
 
                   {/* Legal Document Attachment */}
                   <div className="space-y-2">
-                    <h5 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">
+                    <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none">
                       Dokumen Legalitas Penyelenggara
                     </h5>
                     {detailItem.dokumenLegalitasUrl ? (
@@ -838,7 +836,7 @@ export function ValidasiAksesPenyelenggaraClient({
                           </div>
                           <div>
                             <h6 className="text-xs font-bold text-slate-800">Berkas Dokumen Legalitas</h6>
-                            <p className="text-[10px] text-slate-400 font-semibold">Dokumen pendukung verifikasi (.pdf/.jpg)</p>
+                            <p className="text-xxs text-slate-400 font-semibold">Dokumen pendukung verifikasi (.pdf/.jpg)</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -863,7 +861,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
                   {/* Profile Details Rows */}
                   <div className="space-y-3 pt-2">
-                    <h5 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-3">
+                    <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-3">
                       Informasi Narahubung & Detail
                     </h5>
 
@@ -871,7 +869,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
                       <Users className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                       <div className="flex-1">
-                        <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nama Penyelenggara</span>
+                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Nama Penyelenggara</span>
                         <span className="text-xs font-semibold text-slate-700">{detailItem.namaOrganisasi}</span>
                       </div>
                     </div>
@@ -880,7 +878,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
                       <Mail className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                       <div className="flex-1">
-                        <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email Akun</span>
+                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Email Akun</span>
                         <span className="text-xs font-semibold text-slate-700 select-all">{detailItem.email}</span>
                       </div>
                     </div>
@@ -889,7 +887,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
                       <Phone className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                       <div className="flex-1">
-                        <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nomor Telepon</span>
+                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Nomor Telepon</span>
                         <span className="text-xs font-semibold text-slate-700 select-all">{detailItem.noTelepon}</span>
                       </div>
                     </div>
@@ -898,7 +896,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
                       <Globe className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                       <div className="flex-1">
-                        <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Website</span>
+                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Website</span>
                         {detailItem.websiteUrl ? (
                           <a
                             href={detailItem.websiteUrl.startsWith("http") ? detailItem.websiteUrl : `https://${detailItem.websiteUrl}`}
@@ -919,7 +917,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
                       <Calendar className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                       <div className="flex-1">
-                        <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tanggal Pendaftaran</span>
+                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Tanggal Pendaftaran</span>
                         <span className="text-xs font-semibold text-slate-700">{formatDate(detailItem.dibuatPada)}</span>
                       </div>
                     </div>
@@ -930,7 +928,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
                 {/* Drawer Footer Actions */}
                 <div className="p-6 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between gap-3">
-                  <div className="text-[10px] font-semibold text-slate-400">
+                  <div className="text-xxs font-semibold text-slate-400">
                     ID Transaksi: #{detailItem.rawId}
                   </div>
 
@@ -989,7 +987,6 @@ export function ValidasiAksesPenyelenggaraClient({
                 </div>
               </div>
             </div>
-          </div>
         </Portal>
       )}
     </div>

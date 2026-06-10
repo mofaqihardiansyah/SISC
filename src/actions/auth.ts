@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import dns from "dns";
+import { AUTH, SITE } from "@/lib/constants";
 
 // Paksa Node.js menggunakan Google DNS & Cloudflare DNS untuk memintas DNS ISP lokal yang bermasalah/timeout
 try {
@@ -43,20 +44,20 @@ async function sendOTPEmail(email: string, code: string) {
     });
 
     const mailOptions = {
-      from: `"POLIVENTS" <${process.env.EMAIL_USER}>`,
+      from: `"${AUTH.EMAIL_SENDER_NAME}" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Kode Verifikasi (OTP) POLIVENTS",
+      subject: `Kode Verifikasi (OTP) ${SITE.NAME}`,
       text: `Kode verifikasi Anda adalah: ${code}. Kode ini akan kedaluwarsa dalam 10 menit.`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-          <h2 style="color: #03428B; text-align: center;">POLIVENTS</h2>
+          <h2 style="color: #03428B; text-align: center;">${SITE.NAME}</h2>
           <p style="font-size: 16px; color: #333;">Halo,</p>
           <p style="font-size: 16px; color: #333;">Berikut adalah kode verifikasi Anda:</p>
           <div style="background-color: #f4f4f4; padding: 15px; text-align: center; border-radius: 6px; margin: 20px 0;">
             <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #03428B;">${code}</span>
           </div>
           <p style="font-size: 14px; color: #666;">Kode ini akan kedaluwarsa dalam 10 menit. Jangan bagikan kode ini kepada siapa pun.</p>
-          <p style="font-size: 14px; color: #666; margin-top: 30px;">Terima kasih,<br>Tim POLIVENTS</p>
+          <p style="font-size: 14px; color: #666; margin-top: 30px;">Terima kasih,<br>Tim ${SITE.NAME}</p>
         </div>
       `,
     };

@@ -143,7 +143,7 @@ function ResetPasswordContent() {
 
             <Button 
               onClick={handleVerifyOTP}
-              className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full bg-primary hover:bg-sisc-auth h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
               disabled={isVerifyingOTP || otp.length !== 6}
             >
               {isVerifyingOTP ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
@@ -178,7 +178,7 @@ function ResetPasswordContent() {
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 {...register('password')}
               />
-              {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}
+              {errors.password && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{errors.password.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -192,13 +192,13 @@ function ResetPasswordContent() {
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 {...register('confirmPassword')}
               />
-              {errors.confirmPassword && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.confirmPassword.message}</p>}
+              {errors.confirmPassword && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{errors.confirmPassword.message}</p>}
             </div>
 
             <div className="pt-2">
               <Button 
                 type="submit" 
-                className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+                className="w-full bg-primary hover:bg-sisc-auth h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

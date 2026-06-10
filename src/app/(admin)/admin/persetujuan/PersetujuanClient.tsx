@@ -151,7 +151,7 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
         rejectedCount={stats.rejectedCount}
       />
 
-      <section className="bg-white rounded-[24px] shadow-sm border border-gray-50 p-8">
+      <section className="bg-white rounded-3xl shadow-sm border border-gray-50 p-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900 tracking-tight">Daftar Registrasi Event</h2>
           <FilterBar

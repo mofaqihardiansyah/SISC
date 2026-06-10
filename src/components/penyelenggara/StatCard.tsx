@@ -12,7 +12,7 @@ interface StatCardProps {
 export function StatCard({ title, value, trend, className, icon: Icon }: StatCardProps) {
   return (
     <div className={cn(
-      "bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-between text-center min-h-[140px]",
+      "bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-between text-center min-h-36",
       className
     )}>
       {/* Icon & Title */}
@@ -36,10 +36,10 @@ export function StatCard({ title, value, trend, className, icon: Icon }: StatCar
       <div className="h-6 flex items-center justify-center">
         {trend ? (
           <div className="flex items-center gap-1">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xxs font-bold bg-green-100 text-green-700">
               {trend}
             </span>
-            <span className="text-[10px] text-gray-400 font-medium">Bulan ini</span>
+            <span className="text-xxs text-gray-400 font-medium">Bulan ini</span>
           </div>
         ) : null}
       </div>

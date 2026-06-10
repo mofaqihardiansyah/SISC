@@ -26,7 +26,7 @@ export default function Loading() {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 h-[400px]">
           <div className="h-6 bg-slate-200 rounded w-1/4 mb-6"></div>
-          <div className="w-full h-[280px] bg-slate-100 rounded-2xl flex items-end justify-between p-4">
+          <div className="w-full h-72 bg-slate-100 rounded-2xl flex items-end justify-between p-4">
             {[...Array(6)].map((_, idx) => (
               <div
                 key={idx}

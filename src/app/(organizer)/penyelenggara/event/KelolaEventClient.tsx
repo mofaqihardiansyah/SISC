@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 import Portal from '@/components/ui/Portal';
+import { STATUS_LABEL } from "@/lib/constants";
 
 interface RawEventData {
   id: number;
@@ -79,13 +80,19 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     deskripsi: ""
   });
 
+  const STATUS_UI_MAP: Record<string, string> = {
+    draft: STATUS_LABEL.draft?.toUpperCase() ?? "DRAFT",
+    published: "DIPUBLIKASI",
+    rejected: STATUS_LABEL.rejected?.toUpperCase() ?? "DITOLAK",
+    pending: STATUS_LABEL.pending?.toUpperCase() ?? "MENUNGGU",
+  };
+
   const formatDbData = (rawData: RawEventData[]) => {
     if (!rawData || rawData.length === 0) return [];
     
     return rawData.map((ev) => {
-      let uiStatus = "DRAFT";
-      if (ev.status === "published" || ev.status === "DIPUBLIKASI") uiStatus = "DIPUBLIKASI";
-      if (ev.status === "rejected" || ev.status === "DITOLAK") uiStatus = "DITOLAK";
+      const rawStatus = ev.status?.toLowerCase() || "draft";
+      let uiStatus = STATUS_UI_MAP[rawStatus] || "DRAFT";
 
       const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
       const tglString = ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', options) : "Belum diatur";
@@ -219,51 +226,51 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     <div className="space-y-6">
       {/* HEADER HALAMAN */}
       <div className="mb-6">
-        <h1 className="text-[28px] font-bold text-[#1E293B]">Kelola Event</h1>
+        <h1 className="text-[28px] font-bold text-sisc-slate">Kelola Event</h1>
         <p className="text-slate-400 text-sm">Manajemen dan pantau event Anda di sini</p>
       </div>
 
       {/* STATS AREA - UKURAN & PADDING TETAP P-8, WARNA DISESUAIKAN */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* CARD TOTAL EVENT */}
-        <div className="bg-white p-8 rounded-[24px] border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
           {/* Icon Abu-Abu */}
           <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
           </div>
           {/* Judul Hitam Pekat */}
-          <p className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider mb-1">Total Event</p>
+          <p className="text-micro font-extrabold text-sisc-slate uppercase tracking-wider mb-1">Total Event</p>
           {/* Angka Abu-Abu */}
           <h3 className="text-[26px] font-semibold text-slate-400 leading-none">{isLoading ? "..." : totalEventsCount}</h3>
         </div>
 
         {/* CARD EVENT AKTIF */}
-        <div className="bg-white p-8 rounded-[24px] border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
           {/* Icon Abu-Abu */}
           <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-check"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>
           </div>
           {/* Judul Hitam Pekat */}
-          <p className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider mb-1">Event Aktif</p>
+          <p className="text-micro font-extrabold text-sisc-slate uppercase tracking-wider mb-1">Event Aktif</p>
           {/* Angka Abu-Abu */}
           <h3 className="text-[26px] font-semibold text-slate-400 Perkalian leading-none">{isLoading ? "..." : aktifEventsCount}</h3>
         </div>
 
         {/* CARD EVENT PENDING */}
-        <div className="bg-white p-8 rounded-[24px] border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
           {/* Icon Abu-Abu */}
           <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-clock"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7.5"/><path d="M16 2v2"/><path d="M8 2v2"/><path d="M3 10h18"/><path d="M18 22a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-5h-1.5V15"/></svg>
           </div>
           {/* Judul Hitam Pekat */}
-          <p className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider mb-1">Event Pending</p>
+          <p className="text-micro font-extrabold text-sisc-slate uppercase tracking-wider mb-1">Event Pending</p>
           {/* Angka Abu-Abu */}
           <h3 className="text-[26px] font-semibold text-slate-400 leading-none">{isLoading ? "..." : pendingEventsCount}</h3>
         </div>
       </div>
 
       {/* FILTER PANEL */}
-      <div className="bg-white p-8 rounded-[24px] shadow-sm border border-slate-100 mb-8">
+      <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 mb-8">
         {/* BARIS ATAS: Search Bar */}
         <div className="flex gap-3 mb-6">
           <div className="relative flex-1">
@@ -280,35 +287,35 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         
         <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-500">Tanggal</label>
+            <label className="text-sm2 font-bold text-slate-500">Tanggal</label>
             <input 
               type="date" 
-              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-sm2 text-slate-600 outline-none w-full cursor-pointer"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-500">Status</label>
+            <label className="text-sm2 font-bold text-slate-500">Status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-sm2 text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Status">Semua Status</option>
               <option value="DIPUBLIKASI">Dipublikasi</option>
-              <option value="DRAFT">Draft</option>
-              <option value="DITOLAK">Ditolak</option>
+              <option value="DRAFT">{STATUS_LABEL.draft}</option>
+              <option value="DITOLAK">{STATUS_LABEL.rejected}</option>
             </select>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-500">Tipe</label>
+            <label className="text-sm2 font-bold text-slate-500">Tipe</label>
             <select
               value={tipeFilter}
               onChange={(e) => setTipeFilter(e.target.value)}
-              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-sm2 text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Tipe">Semua Tipe</option>
               <option value="Seminar">Seminar</option>
@@ -317,11 +324,11 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-500">Kategori</label>
+            <label className="text-sm2 font-bold text-slate-500">Kategori</label>
             <select
               value={kategoriFilter}
               onChange={(e) => setKategoriFilter(e.target.value)}
-              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-sm2 text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Kategori">Semua Kategori</option>
               <option>Teknologi & Informasi</option>
@@ -338,11 +345,11 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-bold text-slate-500">Harga</label>
+            <label className="text-sm2 font-bold text-slate-500">Harga</label>
             <select
               value={hargaFilter}
               onChange={(e) => setHargaFilter(e.target.value)}
-              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-[13px] text-slate-600 outline-none w-full cursor-pointer"
+              className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-sm2 text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Harga">Semua Harga</option>
               <option value="Gratis">Free (Gratis)</option>
@@ -362,17 +369,17 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
             const isRejected = ev.status === "DITOLAK";
 
             return (
-              <div key={ev.id} className="bg-white p-6 rounded-[24px] border border-slate-100 flex items-center justify-between shadow-sm hover:border-slate-300 transition-all">
+              <div key={ev.id} className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center justify-between shadow-sm hover:border-slate-300 transition-all">
                 
                 {/* ================= SISI KIRI: GAMBAR & DETAIL INFO ================= */}
                 <div className="flex gap-6 flex-1 min-w-0 pr-6">
-                  <div className="relative w-[240px] h-[135px] rounded-[20px] overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
+                  <div className="relative w-60 h-32 rounded-2xl overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
                     {ev.img ? (
                       <Image src={ev.img} alt="" fill className={`object-cover ${isRejected ? 'opacity-40 grayscale' : ''}`} sizes="240px" />
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
                         <ImageIcon size={28} className="mb-1" />
-                        <span className="text-[9px] font-bold uppercase tracking-wider">No Banner</span>
+                        <span className="text-nano font-bold uppercase tracking-wider">No Banner</span>
                       </div>
                     )}
                     {isRejected && (
@@ -383,7 +390,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                   </div>
                   
                   <div className="flex flex-col justify-center min-w-0">
-                    <div className="flex items-center gap-2 mb-2 text-[10px] font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-2 mb-2 text-xxs font-bold uppercase tracking-wider">
                       <span className={`px-2 py-0.5 rounded-md border ${
                         isDraft ? 'bg-yellow-50 text-yellow-500 border-yellow-100' : 
                         isRejected ? 'bg-red-50 text-red-400 border-red-100' : 
@@ -391,28 +398,28 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                       }`}>
                         {ev.status}
                       </span>
-                      <span className="text-slate-300">• {ev.sub}</span>
+                      <span className="text-slate-300">â€¢ {ev.sub}</span>
                     </div>
-                    <h3 className="font-bold text-[#1E293B] text-xl leading-tight mb-1 truncate">{ev.judul}</h3>
+                    <h3 className="font-bold text-sisc-slate text-xl leading-tight mb-1 truncate">{ev.judul}</h3>
                     <div className="text-[12px] text-slate-400 flex items-center gap-1.5">
                       {isDraft ? <Edit3 size={12} className="shrink-0" /> : <Calendar size={12} className="shrink-0" />} <span>{ev.tanggal}</span>
                     </div>
                     {isRejected && (
                       <div className="flex items-center gap-1 mt-2 text-red-400">
                         <Info size={12} />
-                        <p className="text-[11px] font-medium italic text-slate-400">Alasan: {ev.alasan}</p>
+                        <p className="text-micro font-medium italic text-slate-400">Alasan: {ev.alasan}</p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-16 shrink-0 px-8 border-l border-slate-50">
-                  <div className="w-[80px]">
-                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Peserta</p>
+                  <div className="w-20">
+                    <p className="text-xxs text-slate-400 uppercase font-bold tracking-wider mb-1">Peserta</p>
                     <p className="font-bold text-slate-700 text-base">{ev.peserta}</p>
                   </div>
-                  <div className="w-[120px]">
-                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Harga</p>
+                  <div className="w-28">
+                    <p className="text-xxs text-slate-400 uppercase font-bold tracking-wider mb-1">Harga</p>
                     <p className="font-bold text-slate-700 text-base">
                       {ev.harga === "0" ? (
                         <span className="inline-block text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-md text-xs border border-green-100">Gratis</span>
@@ -426,7 +433,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                 <div className="shrink-0 pl-4">
                   <button 
                     onClick={() => !isRejected && openEditModal(ev)}
-                    className={`min-w-[150px] py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                    className={`min-w-36 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                       isRejected ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md'
                     }`}
                   >
@@ -438,12 +445,12 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
             );
           })
         ) : (
-          <div className="bg-white rounded-[24px] border border-slate-100 p-12 text-center shadow-sm flex flex-col items-center justify-center space-y-2">
+          <div className="bg-white rounded-3xl border border-slate-100 p-12 text-center shadow-sm flex flex-col items-center justify-center space-y-2">
             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
               <Search size={18} />
             </div>
             <div>
-              <h4 className="font-bold text-[#1E293B] text-base">Data Event Tidak Ditemukan</h4>
+              <h4 className="font-bold text-sisc-slate text-base">Data Event Tidak Ditemukan</h4>
               <p className="text-slate-400 text-sm max-w-sm mx-auto mt-0.5">
                 Coba periksa kembali kata kunci pencarian atau gunakan parameter filter lainnya.
               </p>
@@ -456,7 +463,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-6 flex-wrap gap-3">
           <span className="text-xs text-slate-400 font-semibold">
-            Menampilkan <span className="text-slate-700">{filteredEvents.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> –{" "}
+            Menampilkan <span className="text-slate-700">{filteredEvents.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> â€“{" "}
             <span className="text-slate-700">
               {Math.min(currentPage * itemsPerPage, filteredEvents.length)}
             </span>{" "}
@@ -505,14 +512,18 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
       {/* MODAL EDIT FORM */}
       {isModalOpen && (
         <Portal>
-          <div className="fixed inset-0 z-[9999] flex items-center justify-end bg-black/40 backdrop-blur-sm transition-opacity">
-          <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+          <div className="fixed inset-0 z-50 flex items-center justify-end">
+            <div 
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => !isSaving && setIsModalOpen(false)} 
+            />
+            <div className="relative bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
             {/* Header Modal */}
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
-              <h2 className="text-xl font-bold text-[#1E293B]">
+              <h2 className="text-xl font-bold text-sisc-slate">
                 {selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-300 hover:text-white transition-all duration-200 hover:scale-110 active:scale-90" disabled={isSaving}>
+              <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all active:scale-90" disabled={isSaving}>
                 <X size={24}/>
               </button>
             </div>

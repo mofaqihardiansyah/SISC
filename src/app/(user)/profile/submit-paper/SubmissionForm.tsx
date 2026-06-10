@@ -190,7 +190,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                 >
                   {isCompleted ? <Check size={14} /> : s.num}
                 </div>
-                <span className={`text-[10px] uppercase tracking-wider font-bold ${isCurrent || isCompleted ? 'text-slate-800' : 'text-slate-400'}`}>
+                <span className={`text-xxs uppercase tracking-wider font-bold ${isCurrent || isCompleted ? 'text-slate-800' : 'text-slate-400'}`}>
                   {s.title}
                 </span>
               </div>
@@ -241,7 +241,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                     <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-slate-400" /> Kata Kunci (Keywords)
                     </label>
-                    <div className="flex flex-wrap gap-2 min-h-[56px] p-3.5 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
+                    <div className="flex flex-wrap gap-2 min-h-14 p-3.5 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
                       {kataKunci.length === 0 ? (
                         <p className="text-xs text-slate-400 self-center px-1">Belum ada kata kunci...</p>
                       ) : (
@@ -265,7 +265,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                         onChange={e => setKeywordInput(e.target.value)}
                         onKeyDown={handleAddKeyword}
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 bg-slate-100 rounded text-slate-400 text-[9px] font-bold tracking-wider">ENTER ↵</div>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 bg-slate-100 rounded text-slate-400 text-nano font-bold tracking-wider">ENTER â†µ</div>
                     </div>
                   </div>
                   
@@ -349,7 +349,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-bold text-slate-900 truncate">{file.name}</p>
-                            <p className="text-[11px] text-slate-500 font-medium">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <p className="text-micro text-slate-500 font-medium">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                           </div>
                         </div>
                         <button type="button" onClick={() => setFile(null)} className="p-2 hover:bg-rose-50 rounded-xl text-slate-400 hover:text-rose-500 transition-all duration-200 hover:scale-105 active:scale-95">
@@ -374,7 +374,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                   
                   {uploading && (
                     <div className="space-y-2 pt-2">
-                      <div className="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      <div className="flex justify-between text-micro font-bold text-slate-500 uppercase tracking-wider">
                         <span>Sedang mengunggah file...</span>
                         <span>{uploadProgress}%</span>
                       </div>

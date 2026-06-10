@@ -45,7 +45,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
             {/* Header Title with optimized Status position & size */}
             <div className="border-b border-slate-100 pb-4 flex items-center justify-between gap-4">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">CONFERENCE PAPER</span>
+                <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">CONFERENCE PAPER</span>
                 <h2 className="text-base font-extrabold text-slate-900 line-clamp-1" title={paper.eventJudul}>
                   {paper.eventJudul}
                 </h2>
@@ -77,7 +77,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
                       {paper.kataKunci.split(',').map((k, i) => (
-                        <span key={i} className="bg-primary/10 text-primary px-2 py-1 rounded text-[11px] font-bold">
+                        <span key={i} className="bg-primary/10 text-primary px-2 py-1 rounded text-micro font-bold">
                           {k.trim()}
                         </span>
                       ))}
@@ -112,12 +112,12 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-800">{author.nama}</span>
                       {author.isCorresponding && (
-                        <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
+                        <span className="bg-amber-100 text-amber-800 text-nano font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
                           Penulis Utama
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-col text-[11px] text-slate-500 mt-1">
+                    <div className="flex flex-col text-micro text-slate-500 mt-1">
                       <span>{author.email}</span>
                       <span>{author.afiliasi}</span>
                     </div>
@@ -163,7 +163,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
 
             {/* Timeline Section */}
             <div className="border-t border-slate-100 pt-6 space-y-4">
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <h4 className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                 Riwayat & Aktivitas Paper
               </h4>
@@ -174,7 +174,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
                   <div className="absolute -left-[29px] top-0.5 w-3.5 h-3.5 rounded-full border-2 border-white bg-emerald-500 shadow-sm" />
                   <div>
                     <p className="text-xs font-bold text-slate-800">Paper Berhasil Dikirim</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">
+                    <p className="text-xxs text-slate-400 mt-0.5">
                       {paper.dibuatPada ? format(new Date(paper.dibuatPada), 'd MMMM yyyy, HH:mm', { locale: id }) : '-'}
                     </p>
                   </div>
@@ -187,7 +187,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
                   }`} />
                   <div>
                     <p className="text-xs font-bold text-slate-800">Proses Review Akademik</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
+                    <p className="text-xxs text-slate-500 mt-0.5">
                       {status !== 'review' ? 'Review selesai' : 'Reviewer sedang meninjau dokumen'}
                     </p>
                   </div>
@@ -200,7 +200,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
                   }`} />
                   <div>
                     <p className="text-xs font-bold text-slate-800">Keputusan Penyelenggara</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
+                    <p className="text-xxs text-slate-500 mt-0.5">
                       {status === 'accepted' ? 'Paper Diterima' : status === 'rejected' ? 'Revisi Diperlukan' : 'Menunggu keputusan'}
                     </p>
                   </div>
@@ -213,7 +213,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
           <div className="border-t border-slate-100 pt-4 mt-6 flex items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-2 text-slate-500">
               <FileText size={16} className="text-slate-400" />
-              <span className="font-medium truncate max-w-[150px]" title={paper.judul}>Dokumen Paper (PDF)</span>
+              <span className="font-medium truncate max-w-36" title={paper.judul}>Dokumen Paper (PDF)</span>
             </div>
             <a
               href={paper.fileUrl}
@@ -235,7 +235,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
                 <Eye size={16} className="text-slate-500" />
                 <h3 className="text-xs font-bold text-slate-800">Pratinjau Langsung Paper</h3>
               </div>
-              <span className="px-2 py-0.5 text-[9px] font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">
+              <span className="px-2 py-0.5 text-nano font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">
                 PDF FILE
               </span>
             </div>

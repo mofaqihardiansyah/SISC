@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ERROR_MESSAGES } from "@/lib/constants";
 
 export default function EventViewTracker({
   eventId,
@@ -22,13 +23,13 @@ export default function EventViewTracker({
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Gagal mencatat tayangan");
+          throw new Error(ERROR_MESSAGES.TRACK_VIEW);
         }
 
         sessionStorage.setItem(key, "true");
       })
       .catch((error) => {
-        console.error("Gagal mencatat tayangan:", error);
+        console.error(ERROR_MESSAGES.TRACK_VIEW, error);
       });
   }, [eventId]);
 

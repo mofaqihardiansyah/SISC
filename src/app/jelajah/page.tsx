@@ -154,7 +154,7 @@ function JelajahContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[#f8fafc]">
+    <div className="min-h-screen flex flex-col font-sans bg-slate-50">
 
       {/* MAIN */}
       <div className="max-w-[1300px] mx-auto w-full px-10 py-10 flex gap-8">

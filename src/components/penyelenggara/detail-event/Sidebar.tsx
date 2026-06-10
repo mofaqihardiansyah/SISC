@@ -86,7 +86,7 @@ export default function Sidebar() {
             className={clsx(
               "px-3 py-2 rounded-xl transition-all text-sm font-medium text-left w-full",
               activeSection === menu.id
-                ? "bg-[#13254C] text-white"
+                ? "bg-sisc-nav text-white"
                 : "hover:bg-gray-100 text-gray-600"
             )}
           >

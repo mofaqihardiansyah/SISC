@@ -60,22 +60,22 @@ export default function EventCard({
         <div className="p-4">
           <div className="flex flex-wrap gap-1 mb-2">
             {tipePlatform && (
-              <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full capitalize">
+              <span className="text-xxs font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full capitalize">
                 {tipePlatform.charAt(0).toUpperCase() + tipePlatform.slice(1)}
               </span>
             )}
             {category && (
-              <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">
+              <span className="text-xxs font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">
                 {category}
               </span>
             )}
           </div>
 
-          <h3 className="text-[13px] font-bold text-slate-800 mt-1 line-clamp-2">
+          <h3 className="text-sm2 font-bold text-slate-800 mt-1 line-clamp-2">
             {title}
           </h3>
 
-          <p className="text-[11px] text-slate-400 mt-1">{date}</p>
+          <p className="text-micro text-slate-400 mt-1">{date}</p>
 
           <div className="flex justify-between items-center mt-2">
             <p className={`text-sm font-extrabold ${
@@ -96,7 +96,7 @@ export default function EventCard({
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t flex items-center gap-4 text-[11px] text-slate-500 bg-slate-50/50">
+        <div className="px-4 py-3 border-t flex items-center gap-4 text-micro text-slate-500 bg-slate-50/50">
           <div className="flex items-center gap-1.5 min-w-0">
             <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
             <span className="truncate">{kotaNama ?? "-"}</span>

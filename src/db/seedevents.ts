@@ -1,5 +1,6 @@
 import { db } from "./index";
 import { event } from "./schema";
+import { SEED } from "@/lib/constants";
 
 function slug(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -217,7 +218,7 @@ export async function seedEvents() {
       emailKontak: "wirausaha@gmail.com", 
       teleponKontak: "081234000111", 
       jumlahTayangan: 567, 
-      linkEksternal: "https://loket.com/", 
+      linkEksternal: SEED.DEFAULT_TICKET_URL, 
       namaPembicara: "Gibran Rakabuming", 
       peranPembicara: "Entrepreneur & Mentor", 
       fotoPembicaraUrl: "/uploads/speakers/speaker4.jpg" 
@@ -586,7 +587,7 @@ export async function seedEvents() {
       emailKontak: "info@kkdi.id", 
       teleponKontak: "021-5551234", 
       jumlahTayangan: 320, 
-      linkEksternal: "https://loket.com/", 
+      linkEksternal: SEED.DEFAULT_TICKET_URL, 
       namaPembicara: "dr. Budi Santoso, Sp.KO", 
       peranPembicara: "Chief Medical Officer", 
       fotoPembicaraUrl: "/uploads/speakers/speaker3.jpg" 

@@ -64,8 +64,8 @@ export default function Header({ event }: Props) {
           </div>
         </div>
 
-        {/* KANAN — gambar lebih kecil */}
-        <div className="w-[200px] h-[130px] shrink-0 relative">
+        {/* KANAN â€” gambar lebih kecil */}
+        <div className="w-48 h-32 shrink-0 relative">
           {event.bannerUrl ? (
             <Image
               src={event.bannerUrl}
@@ -75,9 +75,9 @@ export default function Header({ event }: Props) {
               sizes="200px"
             />
           ) : (
-            <div className="rounded-xl w-full h-[130px] bg-white/10 flex flex-col items-center justify-center text-xs text-slate-300 gap-1.5">
+            <div className="rounded-xl w-full h-32 bg-white/10 flex flex-col items-center justify-center text-xs text-slate-300 gap-1.5">
               <Sparkles size={28} className="text-slate-300" />
-              <span className="font-semibold uppercase tracking-wider text-[9px]">Event</span>
+              <span className="font-semibold uppercase tracking-wider text-nano">Event</span>
             </div>
           )}
         </div>

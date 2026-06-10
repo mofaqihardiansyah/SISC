@@ -5,6 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Area, AreaChart,
 } from "recharts";
+import { ERROR_MESSAGES, FILTER_OPTIONS } from "@/lib/constants";
 
 type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
@@ -35,7 +36,7 @@ export function EventChart({ initialData, selectedEventId }: EventChartProps) {
       try {
         setLoading(true);
         const res = await fetch(url.toString(), { signal: controller.signal });
-        if (!res.ok) throw new Error("Gagal mengambil data grafik peserta");
+        if (!res.ok) throw new Error(ERROR_MESSAGES.FETCH_PESERTA);
         const json = await res.json();
         setData(json);
       } catch (error) {
@@ -66,9 +67,9 @@ export function EventChart({ initialData, selectedEventId }: EventChartProps) {
           onChange={e => setFilter(e.target.value as FilterType)}
           className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl p-2.5 font-bold outline-none"
         >
-          <option value="bulan-ini">Bulan Ini</option>
-          <option value="bulan-lalu">Bulan Lalu</option>
-          <option value="tahun-ini">Tahun Ini</option>
+          {FILTER_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
         </select>
       </div>
 

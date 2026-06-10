@@ -48,7 +48,7 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
           <p className="text-xs font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
             {user.name || "User"}
           </p>
-          <p className="text-[9px] font-bold text-blue-600 mt-0.5 uppercase tracking-tighter opacity-80 flex items-center justify-end gap-1">
+          <p className="text-nano font-bold text-blue-600 mt-0.5 uppercase tracking-tighter opacity-80 flex items-center justify-end gap-1">
             {roleTitle}
           </p>
         </div>
@@ -71,7 +71,7 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
         <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="px-4 py-3 border-b border-gray-50">
             <p className="text-sm font-bold text-gray-900 truncate">{user.name || "User"}</p>
-            <p className="text-[10px] text-gray-500 truncate">{user.email || ""}</p>
+            <p className="text-xxs text-gray-500 truncate">{user.email || ""}</p>
           </div>
           
           <div className="py-1">

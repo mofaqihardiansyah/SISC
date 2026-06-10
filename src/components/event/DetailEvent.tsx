@@ -16,6 +16,7 @@ import {
   User,
 } from "lucide-react";
 import EventViewTracker from "./EventViewTracker";
+import { UI_TEXT } from "@/lib/constants";
 
 type SectionId = "deskripsi" | "pendaftaran" | "syarat";
 
@@ -74,7 +75,7 @@ const formatRupiah = (angka: number | null) => {
 };
 
 const formatTanggal = (dateStr: Date | null) => {
-  if (!dateStr) return "TANGGAL BELUM DITENTUKAN";
+  if (!dateStr) return UI_TEXT.NO_DATE;
 
   const date = new Date(dateStr);
 
@@ -98,7 +99,7 @@ const formatTanggal = (dateStr: Date | null) => {
 function parseDeskripsi(deskripsi: string | null) {
   if (!deskripsi) {
     return {
-      teks: "Tidak ada deskripsi.",
+      teks: UI_TEXT.NO_DESCRIPTION,
       materi: [],
     };
   }
@@ -195,11 +196,11 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
       return (
         <a
           href={urlPendaftaran}
-          className="block w-full p-3 bg-[#1a2744] hover:bg-[#243560] text-white rounded-lg text-[15px] font-bold text-center transition-colors mb-4"
+          className="block w-full p-3 bg-sisc-dark hover:bg-sisc-med text-white rounded-lg text-base2 font-bold text-center transition-colors mb-4"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Kunjungi Website
+          {UI_TEXT.VISIT_WEBSITE}
         </a>
       );
     }
@@ -207,9 +208,9 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
     return (
       <a
         href={urlPendaftaran}
-        className="block w-full p-3 bg-[#1a2744] hover:bg-[#243560] text-white rounded-lg text-[15px] font-bold text-center transition-colors mb-4"
+        className="block w-full p-3 bg-sisc-dark hover:bg-sisc-med text-white rounded-lg text-base2 font-bold text-center transition-colors mb-4"
       >
-        {isLoggedIn ? "Daftar" : "Login untuk Daftar"}
+        {isLoggedIn ? UI_TEXT.REGISTER : UI_TEXT.LOGIN_TO_REGISTER}
       </a>
     );
   };
@@ -224,10 +225,10 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
     <>
       <EventViewTracker eventId={event.id} />
 
-      <section className="bg-[#1a2744] text-white py-12 px-0 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-[#1a2744] before:from-60% before:to-[#243560]">
+      <section className="bg-sisc-dark text-white py-12 px-0 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-sisc-dark before:from-60% before:to-sisc-med">
         <div className="max-w-[1100px] mx-auto px-6 relative flex flex-col md:flex-row gap-10 items-start">
           <div className="flex-1">
-            <span className="inline-block bg-white/15 text-[#a8c4f0] text-xs font-semibold tracking-[1px] uppercase px-3 py-1 rounded mb-4">
+            <span className="inline-block bg-white/15 text-sisc-light text-xs font-semibold tracking-[1px] uppercase px-3 py-1 rounded mb-4">
               {event.kategori}
             </span>
 
@@ -236,7 +237,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             </h1>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-sm text-[#a8c4f0] flex items-center gap-2">
+              <span className="text-sm text-sisc-light flex items-center gap-2">
                 {event.tipePlatform === "online" ? (
                   <Globe size={18} />
                 ) : event.tipePlatform === "hybrid" ? (
@@ -254,27 +255,27 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
                 </strong>
               </span>
 
-              <span className="text-sm text-[#a8c4f0] flex items-center gap-2">
+              <span className="text-sm text-sisc-light flex items-center gap-2">
                 <Calendar size={18} /> {formatTanggal(event.tanggal)}
               </span>
 
-              <span className="text-sm text-[#a8c4f0] flex items-center gap-2">
+              <span className="text-sm text-sisc-light flex items-center gap-2">
                 <Tag size={18} /> {event.kategori}
               </span>
             </div>
           </div>
 
-          <div className="w-full md:w-[220px] h-[160px] shrink-0 relative">
+          <div className="w-full md:w-56 h-40 shrink-0 relative">
             {event.gambar ? (
               <Image
                 src={event.gambar}
                 alt={event.nama}
                 fill
-                className="rounded-[10px] object-cover border-2 border-white/15"
+                className="rounded-md object-cover border-2 border-white/15"
                 sizes="(max-width: 768px) 100vw, 220px"
               />
             ) : (
-              <div className="w-full h-full rounded-[10px] bg-white/5 flex items-center justify-center text-5xl">
+              <div className="w-full h-full rounded-md bg-white/5 flex items-center justify-center text-5xl">
                 <Tent size={48} className="text-slate-400" />
               </div>
             )}
@@ -283,14 +284,14 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
       </section>
 
       <nav
-        className="sticky top-[64px] z-40 bg-white border-b border-gray-200"
+        className="sticky top-16 z-40 bg-white border-b border-gray-200"
         ref={navRef}
       >
         <div className="max-w-[1100px] mx-auto px-6 flex">
           {navItems.map((item) => (
             <button
               key={item.id}
-              className={`px-3 md:px-5 py-3.5 text-[13px] md:text-sm font-medium bg-transparent border-b-2 cursor-pointer whitespace-nowrap transition-colors hover:text-gray-900 ${
+              className={`px-3 md:px-5 py-3.5 text-sm2 md:text-sm font-medium bg-transparent border-b-2 cursor-pointer whitespace-nowrap transition-colors hover:text-gray-900 ${
                 activeSection === item.id
                   ? "text-gray-900 font-bold border-gray-900"
                   : "text-gray-500 border-transparent"
@@ -322,7 +323,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
 
             {event.pembicara && (
               <div className="mb-4">
-                <p className="text-[13px] font-bold text-gray-900 mb-1">
+                <p className="text-sm2 font-bold text-gray-900 mb-1">
                   Special Speaker:
                 </p>
                 <p className="text-sm text-gray-700">{event.pembicara}</p>
@@ -330,18 +331,18 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             )}
 
             <div className="mb-4">
-              <p className="text-[13px] font-bold text-gray-900 mb-1">
+              <p className="text-sm2 font-bold text-gray-900 mb-1">
                 Pelaksanaan:
               </p>
               <p className="text-sm text-gray-700">
                 {formatTanggal(event.tanggal)}
               </p>
-              <p className="text-[13px] text-gray-500">{event.lokasi}</p>
+              <p className="text-sm2 text-gray-500">{event.lokasi}</p>
             </div>
 
             {materi.length > 0 && (
               <div className="mb-4">
-                <p className="text-[13px] font-bold text-gray-900 mb-1">
+                <p className="text-sm2 font-bold text-gray-900 mb-1">
                   Materi yang Dipelajari:
                 </p>
                 <ol className="list-none p-0 mt-2 flex flex-col gap-1.5">
@@ -369,10 +370,10 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
               Pendaftaran
             </h2>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-5 md:px-6 mb-4 last:mb-0">
+            <div className="bg-gray-50 border border-gray-200 rounded-md p-5 md:px-6 mb-4 last:mb-0">
               <div className="flex items-center gap-2.5 mb-4">
                 <ClipboardList size={22} />
-                <h3 className="text-base font-bold text-[#1a2744]">
+                <h3 className="text-base font-bold text-sisc-dark">
                   Langkah Pendaftaran
                 </h3>
               </div>
@@ -383,7 +384,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
                     key={i}
                     className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed"
                   >
-                    <span className="w-6 h-6 bg-[#1a2744] text-white rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-[1px]">
+                    <span className="w-6 h-6 bg-sisc-dark text-white rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-px">
                       {i + 1}
                     </span>
                     <span dangerouslySetInnerHTML={{ __html: langkah }} />
@@ -393,16 +394,16 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
             </div>
 
             {event.loket.length > 0 && (
-              <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-5 md:px-6 mb-4 last:mb-0">
+              <div className="bg-gray-50 border border-gray-200 rounded-md p-5 md:px-6 mb-4 last:mb-0">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Ticket size={22} />
-                  <h3 className="text-base font-bold text-[#1a2744]">
+                  <h3 className="text-base font-bold text-sisc-dark">
                     Loket Platform
                   </h3>
                 </div>
 
-                <p className="text-[13px] text-gray-500 mb-4">
-                  {event.loket.length} kategori pendaftaran – harga mulai
+                <p className="text-sm2 text-gray-500 mb-4">
+                  {event.loket.length} kategori pendaftaran â€“ harga mulai
                   dari {formatRupiah(event.harga)}
                 </p>
 
@@ -412,7 +413,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
                       key={i}
                       className="flex items-center gap-4 py-3.5 px-4 border-b border-gray-200 bg-white last:border-b-0"
                     >
-                      <div className="text-[15px] font-bold text-[#1a2744] min-w-[90px]">
+                      <div className="text-base2 font-bold text-sisc-dark min-w-24">
                         {formatRupiah(tiket.harga)}
                       </div>
 
@@ -442,10 +443,10 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
               Syarat dan Ketentuan
             </h2>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-5 md:px-6 mb-4 last:mb-0">
+            <div className="bg-gray-50 border border-gray-200 rounded-md p-5 md:px-6 mb-4 last:mb-0">
               <div className="flex items-center gap-2.5 mb-4">
                 <ScrollText size={22} />
-                <h3 className="text-base font-bold text-[#1a2744]">
+                <h3 className="text-base font-bold text-sisc-dark">
                   Ketentuan Peserta
                 </h3>
               </div>
@@ -464,11 +465,11 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
           </section>
         </div>
 
-        <aside className="w-full md:w-[280px] shrink-0 static md:sticky md:top-[128px] self-start">
+        <aside className="w-full md:w-72 shrink-0 static md:sticky md:top-32 self-start">
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <p className="text-xs text-gray-400 mb-1">Harga mulai dari</p>
 
-            <p className="text-[22px] font-extrabold text-[#1a2744] mb-4">
+            <p className="text-[22px] font-extrabold text-sisc-dark mb-4">
               {formatRupiah(event.harga)}
             </p>
 
@@ -482,10 +483,10 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
               </div>
 
               <div>
-                <p className="text-[11px] text-gray-400">
+                <p className="text-micro text-gray-400">
                   Diselenggarakan oleh
                 </p>
-                <p className="text-[13px] font-bold text-gray-900">
+                <p className="text-sm2 font-bold text-gray-900">
                   {event.penyelenggara}
                 </p>
               </div>

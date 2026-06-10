@@ -10,14 +10,14 @@ import Portal from '@/components/ui/Portal';
 
 function EventCategoryIcon({ emoji, className = "w-5 h-5 text-slate-500" }: { emoji: string; className?: string }) {
   switch (emoji) {
-    case "💻": return <Laptop className={className} />;
-    case "🎭": return <Film className={className} />;
-    case "📚": return <BookOpen className={className} />;
-    case "💼": return <Briefcase className={className} />;
-    case "🏥": return <HeartPulse className={className} />;
-    case "⚽": return <Trophy className={className} />;
-    case "🎵": return <Music className={className} />;
-    case "🍽️": return <Utensils className={className} />;
+    case "ðŸ’»": return <Laptop className={className} />;
+    case "ðŸŽ­": return <Film className={className} />;
+    case "ðŸ“š": return <BookOpen className={className} />;
+    case "ðŸ’¼": return <Briefcase className={className} />;
+    case "ðŸ¥": return <HeartPulse className={className} />;
+    case "âš½": return <Trophy className={className} />;
+    case "ðŸŽµ": return <Music className={className} />;
+    case "ðŸ½ï¸": return <Utensils className={className} />;
     default: return <Calendar className={className} />;
   }
 }
@@ -95,23 +95,26 @@ function ReviewModal({
 
   return (
     <Portal>
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+      <div 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+        onClick={onClose} 
+      />
 
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="bg-slate-900 px-6 py-5 flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               {event.jenisEvent && (
                 <>
-                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">{event.jenisEvent}</span>
-                  <span className="text-[10px] font-bold text-slate-300">•</span>
+                  <span className="text-xxs font-bold text-slate-300 uppercase tracking-wider">{event.jenisEvent}</span>
+                  <span className="text-xxs font-bold text-slate-300">â€¢</span>
                 </>
               )}
-              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">{event.platform || '-'}</span>
-              <span className="text-[10px] font-bold text-slate-300">•</span>
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${
+              <span className="text-xxs font-bold text-slate-300 uppercase tracking-wider">{event.platform || '-'}</span>
+              <span className="text-xxs font-bold text-slate-300">â€¢</span>
+              <span className={`text-xxs font-bold uppercase tracking-wider ${
                 event.status === 'pending' ? 'text-amber-300' :
                 event.status === 'published' ? 'text-emerald-300' : 'text-rose-300'
               }`}>
@@ -137,7 +140,7 @@ function ReviewModal({
               { label: 'Harga', value: event.harga },
             ].map((item) => (
               <div key={item.label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
+                <p className="text-nano font-bold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
                 <p className="text-xs font-bold text-slate-800 truncate">{item.value}</p>
               </div>
             ))}
@@ -217,14 +220,14 @@ function ReviewModal({
               >
                 {actionLoading === 'approve' ? (
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : '✓ Setujui'}
+                ) : 'âœ“ Setujui'}
               </button>
               <button
                 onClick={() => setShowRejectForm(true)}
                 disabled={actionLoading !== null}
                 className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
               >
-                ✗ Tolak
+                âœ— Tolak
               </button>
             </div>
           )}
@@ -321,7 +324,7 @@ export default function PersetujuanEventClient({ initialEvents }: { initialEvent
       </section>
 
       {/* Events Table Section */}
-      <section className="bg-white rounded-[24px] shadow-sm border border-gray-50 p-8">
+      <section className="bg-white rounded-3xl shadow-sm border border-gray-50 p-8">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900 tracking-tight">Daftar Registrasi Event Terbaru</h2>
         </div>
@@ -354,7 +357,7 @@ export default function PersetujuanEventClient({ initialEvents }: { initialEvent
                         className="flex items-center gap-3 text-left"
                       >
                         <EventCategoryIcon emoji={event.icon} className="w-5 h-5 text-slate-500 shrink-0" />
-                        <span className="font-semibold text-gray-900 text-[13px] hover:text-slate-700 transition-colors">{event.judul}</span>
+                        <span className="font-semibold text-gray-900 text-sm2 hover:text-slate-700 transition-colors">{event.judul}</span>
                       </button>
                     </td>
                     <td className="py-4 px-4">

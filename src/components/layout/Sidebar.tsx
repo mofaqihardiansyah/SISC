@@ -96,7 +96,7 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
           <h1 className="text-lg font-extrabold text-white tracking-wider">
             POLIVENTS
           </h1>
-          <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-widest mt-0.5">{roleTitle}</p>
+          <p className="text-nano text-slate-500 font-semibold uppercase tracking-widest mt-0.5">{roleTitle}</p>
         </div>
         
         {/* Spasi tambahan untuk mobile agar menu tidak tertutup tombol hamburger */}
@@ -167,7 +167,7 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
                               "w-3.5 h-3.5",
                               isSubActive ? "text-slate-900" : "text-slate-500 group-hover:text-white"
                             )} />
-                            <span className="text-[11px]">{sub.label}</span>
+                            <span className="text-micro">{sub.label}</span>
                           </Link>
                         );
                       })}

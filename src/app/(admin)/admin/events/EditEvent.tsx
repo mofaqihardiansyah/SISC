@@ -69,12 +69,12 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
   };
 
   const inputClasses = "w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-100 text-slate-700 font-medium";
-  const labelClasses = "text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block flex items-center gap-1.5";
+  const labelClasses = "text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 block flex items-center gap-1.5";
 
   return (
     <Portal>
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={onClose}></div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
       
       <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
         {/* Header */}
@@ -82,7 +82,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider leading-none">Edit Data Event</h2>
-              <p className="text-[9px] text-slate-400 font-medium tracking-normal mt-1">Kelola data event dan simpan perubahannya!</p>
+              <p className="text-nano text-slate-400 font-medium tracking-normal mt-1">Kelola data event dan simpan perubahannya!</p>
             </div>
           </div>
           <button onClick={onClose} className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors cursor-pointer">
@@ -101,12 +101,12 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
                 ) : (
                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1">
                       <ImageIcon size={32} strokeWidth={1} />
-                      <p className="text-[10px] font-bold uppercase tracking-wider">No Poster Uploaded</p>
+                      <p className="text-xxs font-bold uppercase tracking-wider">No Poster Uploaded</p>
                    </div>
                 )}
                 <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-xs duration-300">
                     <div className="w-4/5 space-y-2 text-center">
-                        <label className="text-[10px] text-white font-bold uppercase tracking-wider block">Update URL Poster</label>
+                        <label className="text-xxs text-white font-bold uppercase tracking-wider block">Update URL Poster</label>
                         <input 
                             type="text" 
                             name="bannerUrl"
@@ -124,7 +124,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
             {/* --- BAGIAN 1: TIPE & JENIS --- */}
             <div className="md:col-span-2 flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
                <div className="w-1 h-4 bg-slate-900 rounded-full"></div>
-               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">1. Klasifikasi Event</h3>
+               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-micro">1. Klasifikasi Event</h3>
             </div>
 
             <div>
@@ -157,7 +157,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
             {/* --- BAGIAN 2: DETAIL UMUM --- */}
             <div className="md:col-span-2 flex items-center gap-2 pt-2 pb-1.5 border-b border-slate-200/60">
                <div className="w-1 h-4 bg-slate-900 rounded-full"></div>
-               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">2. Detail Umum</h3>
+               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-micro">2. Detail Umum</h3>
             </div>
 
             <div className="md:col-span-2">
@@ -218,7 +218,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
             {/* --- BAGIAN 3: JADWAL & KUOTA --- */}
             <div className="md:col-span-2 flex items-center gap-2 pt-2 pb-1.5 border-b border-slate-200/60">
                <div className="w-1 h-4 bg-slate-900 rounded-full"></div>
-               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">3. Jadwal & Kuota</h3>
+               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-micro">3. Jadwal & Kuota</h3>
             </div>
 
             <div>
@@ -248,7 +248,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
             {/* --- BAGIAN 4: LINK & DESKRIPSI --- */}
             <div className="md:col-span-2 flex items-center gap-2 pt-2 pb-1.5 border-b border-slate-200/60">
                <div className="w-1 h-4 bg-slate-900 rounded-full"></div>
-               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">4. Registrasi & Konten</h3>
+               <h3 className="font-bold text-slate-800 uppercase tracking-wider text-micro">4. Registrasi & Konten</h3>
             </div>
 
             {!formData.isEventPolines && (

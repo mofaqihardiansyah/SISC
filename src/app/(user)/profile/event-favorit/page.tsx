@@ -62,7 +62,7 @@ export default function EventFavoritPage() {
 
       {/* SEARCH & FILTER */}
       <div className="relative">
-        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-slate-100"></div>
+        <div className="absolute bottom-0 left-0 w-full h-px bg-slate-100"></div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative">
           <div className="pb-2 w-full md:w-80 z-10">
             <div className="relative">

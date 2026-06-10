@@ -111,13 +111,13 @@ export default function LoginPage() {
                 disabled={isLoading}
                 {...register('email')}
               />
-              {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email.message}</p>}
+              {errors.email && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between ml-0.5">
                 <Label htmlFor="password" className="text-sm font-semibold text-slate-700">Kata Sandi</Label>
-                <a href="/forgot-password" className="text-primary text-[11px] font-bold hover:underline">Lupa kata sandi?</a>
+                <a href="/forgot-password" className="text-primary text-micro font-bold hover:underline">Lupa kata sandi?</a>
               </div>
               <div className="relative">
                 <Input 
@@ -141,13 +141,13 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-              {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}
+              {errors.password && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{errors.password.message}</p>}
             </div>
 
             <div className="pt-2">
               <Button 
                 type="submit" 
-                className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+                className="w-full bg-primary hover:bg-sisc-auth h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
                 disabled={isLoading}
               >
                 {isLoading ? 'Masuk...' : 'Masuk'}

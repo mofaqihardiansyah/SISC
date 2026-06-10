@@ -82,9 +82,9 @@ export default function KategoriCarousel({
           <a
             key={cat.id}
             href={`/jelajah?kategori=${encodeURIComponent(cat.nama ?? "")}`}
-            className="flex-shrink-0 min-w-[170px] max-w-[190px]"
+            className="flex-shrink-0 min-w-44 max-w-48"
           >
-            <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white hover:-translate-y-1 transition-transform duration-200 h-full min-h-[170px]">
+            <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white hover:-translate-y-1 transition-transform duration-200 h-full min-h-44">
               {/* Header */}
               <div
                 className={`relative h-24 w-full ${
@@ -107,7 +107,7 @@ export default function KategoriCarousel({
               </div>
 
               {/* Label */}
-              <div className="px-3 py-3 flex items-center min-h-[56px]">
+              <div className="px-3 py-3 flex items-center min-h-14">
                 <span className="text-xs font-semibold text-gray-700 leading-tight line-clamp-2 w-full">
                   {cat.nama}
                 </span>

@@ -32,9 +32,9 @@ export default async function DetailEventPage({ params }: Props) {
   return (
   <>
     <SetMainOverflow />
-    <div className="flex flex-col h-full bg-[#F8FAFC]">
+    <div className="flex flex-col h-full bg-slate-50">
 
-      {/* HEADER — diam */}
+      {/* HEADER â€” diam */}
       <div className="flex-shrink-0 pb-3">
         <Header event={detailEvent} />
       </div>
@@ -42,12 +42,12 @@ export default async function DetailEventPage({ params }: Props) {
       {/* BODY */}
       <div className="flex flex-1 gap-4 min-h-0">
 
-        {/* SIDEBAR — diam */}
-        <div className="w-[200px] flex-shrink-0">
+        {/* SIDEBAR â€” diam */}
+        <div className="w-48 flex-shrink-0">
           <Sidebar />
         </div>
 
-        {/* CONTENT — satu-satunya yang scroll */}
+        {/* CONTENT â€” satu-satunya yang scroll */}
         <div className="flex-1 overflow-y-auto pb-8 min-w-0" id="detail-scroll">
           <Content event={detailEvent} />
         </div>

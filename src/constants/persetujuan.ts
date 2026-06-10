@@ -1,21 +1,10 @@
-export const PAGE_SIZE = 10;
-export const DEBOUNCE_MS = 400;
-export const SEARCH_MIN_LENGTH = 2;
-export const BANNER_HEIGHT = "h-48";
-export const MODAL_MAX_HEIGHT = "max-h-[90vh]";
-
-export const statusOptions = [
-  { value: "all", label: "Semua Status" },
-  { value: "pending", label: "Menunggu" },
-  { value: "published", label: "Disetujui" },
-  { value: "rejected", label: "Ditolak" },
-] as const;
-
-export const statusLabel: Record<string, string> = {
-  pending: "Menunggu",
-  published: "Disetujui",
-  rejected: "Ditolak",
-};
+import { STATUS_OPTIONS, STATUS_LABEL, PAGINATION, UI, BANNER } from "@/lib/constants";
+export { STATUS_OPTIONS as statusOptions, STATUS_LABEL as statusLabel };
+export const PAGE_SIZE = PAGINATION.PAGE_SIZE;
+export const DEBOUNCE_MS = UI.DEBOUNCE_MS;
+export const SEARCH_MIN_LENGTH = UI.SEARCH_MIN_LENGTH;
+export const BANNER_HEIGHT = BANNER.HEIGHT;
+export const MODAL_MAX_HEIGHT = BANNER.MODAL_MAX_HEIGHT;
 
 export function getPlatformColor(platform: string | null) {
   switch (platform) {

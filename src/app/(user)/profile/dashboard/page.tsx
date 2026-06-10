@@ -114,7 +114,7 @@ export default async function UserDashboard() {
             <p className="text-sm text-slate-500 mt-1">Jangan lewatkan kesempatan bergabung</p>
           </div>
           <Link href="/profile/eventku" className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
-            Lihat Selengkapnya <span className="text-lg">→</span>
+            Lihat Selengkapnya <span className="text-lg">â†’</span>
           </Link>
         </div>
 
@@ -152,13 +152,13 @@ export default async function UserDashboard() {
             latestEventsData.map((data) => (
               <div key={data.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-blue-200 transition-all group">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="px-2 py-1 rounded text-[10px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">
+                  <span className="px-2 py-1 rounded text-xxs font-black bg-blue-100 text-blue-600 uppercase tracking-wider">
                     Event Baru
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Baru Saja</span>
+                  <span className="text-xxs text-slate-400 font-medium">Baru Saja</span>
                 </div>
                 <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900">
-                  <span className="font-bold text-[#0E215D]">{data.judul}</span> telah dibuka pendaftarannya! Jangan sampai kehabisan kuota.
+                  <span className="font-bold text-sisc-navy">{data.judul}</span> telah dibuka pendaftarannya! Jangan sampai kehabisan kuota.
                 </p>
               </div>
             ))

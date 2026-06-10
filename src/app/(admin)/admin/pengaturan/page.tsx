@@ -6,6 +6,7 @@ import { KeyRound, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { UPLOAD_LIMITS } from "@/lib/constants";
 
 export default function AdminSettingsPage() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export default function AdminSettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > UPLOAD_LIMITS.AVATAR_MAX_SIZE) {
       toast.error("Ukuran file maksimal 2MB");
       return;
     }

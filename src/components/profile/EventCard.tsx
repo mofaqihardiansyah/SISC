@@ -81,7 +81,7 @@ export default function EventCard({
           <div className="space-y-2">
             {status && (
               <span
-                className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
+                className={`inline-flex items-center gap-1.5 text-xxs uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
                   status === 'pending'
                     ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
@@ -171,7 +171,7 @@ export default function EventCard({
           <div className="flex items-center gap-2 mb-3">
             {status && (
               <span
-                className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
+                className={`inline-flex items-center gap-1.5 text-xxs uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${
                   status === 'pending'
                     ? 'bg-amber-50 text-amber-600 border border-amber-100'
                     : status === 'registered'
@@ -241,7 +241,7 @@ export default function EventCard({
         <div className="flex flex-col gap-3">
           {timeLeft && (
             <div className="bg-slate-900 text-white px-4 py-2 rounded-xl text-center shadow-lg shadow-slate-200">
-              <p className="text-[10px] uppercase tracking-[0.2em] opacity-60 font-bold">
+              <p className="text-xxs uppercase tracking-[0.2em] opacity-60 font-bold">
                 Dimulai Dalam
               </p>
               <p className="text-xs font-mono font-bold mt-0.5">{timeLeft}</p>

@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Landmark, Wallet } from "lucide-react";
 import { createEvent, type MetodePembayaranInput } from "@/actions/create-event";
+import { BANK_LIST, E_WALLET_LIST } from "@/lib/constants";
+import { UPLOAD_LIMITS } from "@/lib/constants";
 
 declare global {
   interface Window {
@@ -13,23 +15,21 @@ declare global {
   }
 }
 
-const BANK_OPTIONS = [
-  "BCA", "BNI", "BRI", "Mandiri", "BSI", "CIMB Niaga",
-  "Danamon", "Permata", "BTN", "Bank Jateng", "Lainnya",
-];
+const BANK_OPTIONS = [...BANK_LIST, "Bank Jateng", "Lainnya"];
 
-const EWALLET_OPTIONS = [
-  "GoPay", "OVO", "Dana", "ShopeePay", "LinkAja",
-  "Jenius", "Sakuku", "Lainnya",
-];
+const EWALLET_OPTIONS = [...E_WALLET_LIST, "Jenius", "Sakuku", "Lainnya"];
 
-// ─── Popup Konfirmasi ─────────────────────────────────────────────
+// â”€â”€â”€ Popup Konfirmasi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ConfirmDraftModal({ onYes, onNo, isPending }: {
   onYes: () => void; onNo: () => void; isPending: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+      <div 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+        onClick={onNo} 
+      />
+      <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-300">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
@@ -43,7 +43,7 @@ function ConfirmDraftModal({ onYes, onNo, isPending }: {
             <p className="text-sm text-gray-500 mt-0.5">Data event yang sudah kamu isi belum disimpan.</p>
           </div>
         </div>
-        <p className="text-sm text-gray-600 mb-5 pl-[52px]">
+        <p className="text-sm text-gray-600 mb-5 pl-14">
           Apakah kamu ingin menyimpan data ini ke dalam draft sebelum membuat event baru?
         </p>
         <div className="flex gap-3 justify-end">
@@ -61,12 +61,12 @@ function ConfirmDraftModal({ onYes, onNo, isPending }: {
   );
 }
 
-// ─── Tipe internal dengan field "lainnya" ─────────────────────────
+// â”€â”€â”€ Tipe internal dengan field "lainnya" â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type MetodePembayaranLocal = MetodePembayaranInput & {
   namaPenyediaCustom?: string; // diisi ketika namaPenyedia === "Lainnya"
 };
 
-// ─── Komponen 1 item metode pembayaran ───────────────────────────
+// â”€â”€â”€ Komponen 1 item metode pembayaran â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MetodePembayaranItem({
   item, index, onChange, onRemove,
 }: {
@@ -225,7 +225,7 @@ function MetodePembayaranItem({
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────
+// â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function BuatEventPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -296,7 +296,7 @@ export default function BuatEventPage() {
     setMetodePembayaranList((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // ── Resolve nama penyedia final (custom jika "Lainnya") ──────────
+  // â”€â”€ Resolve nama penyedia final (custom jika "Lainnya") â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const resolveNamaPenyedia = (item: MetodePembayaranLocal): string => {
     if (item.namaPenyedia === "Lainnya") {
       return item.namaPenyediaCustom?.trim() ?? "";
@@ -341,7 +341,7 @@ export default function BuatEventPage() {
     setSuccessMsg(null);
     if (!eventTitle.trim()) return setError("Judul event wajib diisi.");
     if (!startDate) return setError("Tanggal mulai wajib diisi.");
-    if (bannerFile && bannerFile.size > 5 * 1024 * 1024)
+    if (bannerFile && bannerFile.size > UPLOAD_LIMITS.BANNER_MAX_SIZE)
       return setError("Ukuran banner terlalu besar. Maksimal 5MB.");
 
     for (let i = 0; i < metodePembayaranList.length; i++) {
@@ -515,7 +515,7 @@ export default function BuatEventPage() {
                 <div className="flex flex-col items-center gap-2 p-10">
                   <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><UploadIcon /></div>
                   <p className="text-sm font-medium text-gray-700">Drag & Drop Banner Event</p>
-                  <p className="text-xs text-gray-400">Recommended size: 1200 × 630px (Max 5MB)</p>
+                  <p className="text-xs text-gray-400">Recommended size: 1200 Ã— 630px (Max 5MB)</p>
                 </div>
               )}
             </label>
@@ -592,7 +592,7 @@ export default function BuatEventPage() {
   );
 }
 
-// ─── Helper Components ────────────────────────────────────────────
+// â”€â”€â”€ Helper Components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (

@@ -50,8 +50,8 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
           {children}
 
           {/* Footer Form */}
-          <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-[11px] font-medium">
-            <p>© 2026 POLIVENTS.</p>
+          <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-micro font-medium">
+            <p>Â© 2026 POLIVENTS.</p>
             <div className="flex gap-4">
               <a href="#" className="hover:text-slate-600 transition-colors">Ketentuan</a>
               <a href="#" className="hover:text-slate-600 transition-colors">Kebijakan Privasi</a>

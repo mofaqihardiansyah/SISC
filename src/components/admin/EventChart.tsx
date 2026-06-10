@@ -36,14 +36,14 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-gray-100 min-w-[200px]">
+      <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-gray-100 min-w-48">
         <p className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">{label}</p>
         <div className="space-y-2">
           {payload.map((item, idx) => (
             <div key={idx} className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                <p className="text-[11px] font-bold text-gray-500 uppercase">
+                <p className="text-micro font-bold text-gray-500 uppercase">
                   {item.dataKey === 'count' ? 'EVENT' : 
                    item.dataKey === 'registrations' ? 'DAFTAR' :
                    item.dataKey === 'revenue' ? 'REVENUE' : 'TREN'}
@@ -111,7 +111,7 @@ export function EventChart({ data }: { data: ChartData[] }) {
             } ${!isShowAll && !activeSeries.includes('count') ? 'opacity-40 hover:opacity-100' : ''}`}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('count') ? 'bg-white' : 'bg-blue-600'}`} />
-            <span className="text-[10px] font-black tracking-wider">EVENT</span>
+            <span className="text-xxs font-black tracking-wider">EVENT</span>
           </button>
 
           <button 
@@ -123,7 +123,7 @@ export function EventChart({ data }: { data: ChartData[] }) {
             } ${!isShowAll && !activeSeries.includes('registrations') ? 'opacity-40 hover:opacity-100' : ''}`}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('registrations') ? 'bg-white' : 'bg-emerald-500'}`} />
-            <span className="text-[10px] font-black tracking-wider">DAFTAR</span>
+            <span className="text-xxs font-black tracking-wider">DAFTAR</span>
           </button>
 
           <button 
@@ -135,7 +135,7 @@ export function EventChart({ data }: { data: ChartData[] }) {
             } ${!isShowAll && !activeSeries.includes('revenue') ? 'opacity-40 hover:opacity-100' : ''}`}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('revenue') ? 'bg-white' : 'bg-orange-500'}`} />
-            <span className="text-[10px] font-black tracking-wider">REVENUE</span>
+            <span className="text-xxs font-black tracking-wider">REVENUE</span>
           </button>
 
           <button 
@@ -147,7 +147,7 @@ export function EventChart({ data }: { data: ChartData[] }) {
             } ${!isShowAll && !activeSeries.includes('trend') ? 'opacity-40 hover:opacity-100' : ''}`}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('trend') ? 'bg-white' : 'bg-slate-400'}`} />
-            <span className="text-[10px] font-black tracking-wider">TREN</span>
+            <span className="text-xxs font-black tracking-wider">TREN</span>
           </button>
         </div>
       </div>

@@ -46,7 +46,7 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
               </div>
               <span 
                 className={cn(
-                  "mt-3 text-[10px] font-black uppercase tracking-widest transition-colors duration-300",
+                  "mt-3 text-xxs font-black uppercase tracking-widest transition-colors duration-300",
                   isActive ? "text-primary" : isCompleted ? "text-slate-600" : "text-slate-400"
                 )}
               >

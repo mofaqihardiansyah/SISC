@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Star, Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ERROR_MESSAGES } from '@/lib/constants';
 
 export default function HelpClient() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -50,7 +51,7 @@ export default function HelpClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nama || !formData.email || !formData.subjek || !formData.pesan) {
-      toast.error("Semua kolom wajib diisi");
+      toast.error(ERROR_MESSAGES.FORM_REQUIRED);
       return;
     }
 
@@ -71,7 +72,7 @@ export default function HelpClient() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Terjadi kesalahan jaringan");
+      toast.error(ERROR_MESSAGES.NETWORK_ERROR);
     } finally {
       setIsSubmitting(false);
     }

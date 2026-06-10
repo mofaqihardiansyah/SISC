@@ -55,6 +55,23 @@
 
   /* Custom Brand Colors */
   --color-brand-dark: #0F172B;
+  --color-sisc-navy: #0E215D;
+  --color-sisc-slate: #1E293B;
+  --color-sisc-dark: #1a2744;
+  --color-sisc-med: #243560;
+  --color-sisc-light: #a8c4f0;
+  --color-sisc-auth: #02336B;
+  --color-sisc-deep: #0a1845;
+  --color-sisc-nav: #13254C;
+  --color-sisc-hover: #1a3a8a;
+  --color-sisc-grid: #f0f0f0;
+
+  /* Typography helper sizes */
+  --text-xxs: 10px;
+  --text-micro: 11px;
+  --text-nano: 9px;
+  --text-sm2: 13px;
+  --text-base2: 15px;
 
   /* Border Radius */
   --radius-sm: calc(var(--radius) * 0.6);

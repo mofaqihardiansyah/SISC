@@ -1,5 +1,6 @@
 import { inngest } from "./client";
 import { seminarCrawler } from "../scraper/engine";
+import { SCRAPER } from "@/lib/constants";
 
 export const scrapeEvents = inngest.createFunction(
   { 
@@ -12,7 +13,7 @@ export const scrapeEvents = inngest.createFunction(
 
     const result = await step.run("execute-scraping", async () => {
       // Menjalankan crawler dengan list URL yang diberikan
-      await seminarCrawler.run(urls || ["https://eventkampus.com/event/kategori/seminar"]);
+      await seminarCrawler.run(urls || [SCRAPER.DEFAULT_URL]);
       return { success: true, processedUrls: urls };
     });
 

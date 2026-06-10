@@ -75,7 +75,7 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
 
       <div className="flex-1 flex flex-col mt-6">
         <h3 className="text-base font-extrabold text-slate-800 mb-4 uppercase tracking-tight flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-700">
-          <span className="w-1.5 h-6 bg-[#0E215D] rounded-full"></span>
+          <span className="w-1.5 h-6 bg-sisc-navy rounded-full"></span>
           {heading}
         </h3>
 
@@ -92,7 +92,7 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 py-16 px-6 text-center">
               <div className="w-20 h-20 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-5">
-                <CalendarDays className="text-[#0E215D]/50" size={36} />
+                <CalendarDays className="text-sisc-navy/50" size={36} />
               </div>
               <h4 className="text-lg font-bold text-slate-800 mb-2">
                 {searchQuery ? 'Event Tidak Ditemukan' : 'Belum Ada Event'}
@@ -105,7 +105,7 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
               {!searchQuery && (
                 <Link
                   href="/jelajah"
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-[#0E215D] hover:bg-[#0a1845] text-white rounded-xl font-bold transition-all shadow-lg shadow-[#0E215D]/20 active:scale-95 text-sm"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-sisc-navy hover:bg-sisc-deep text-white rounded-xl font-bold transition-all shadow-lg shadow-sisc-navy/20 active:scale-95 text-sm"
                 >
                   <Compass size={18} />
                   Jelajahi Event Sekarang
@@ -117,7 +117,7 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
           {totalPages > 1 && (
             <div className="flex justify-between items-center mt-6 flex-wrap gap-3">
               <span className="text-xs text-slate-400 font-semibold">
-                Menampilkan <span className="text-slate-700">{events.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> –{" "}
+                Menampilkan <span className="text-slate-700">{events.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> â€“{" "}
                 <span className="text-slate-700">{Math.min(currentPage * ITEMS_PER_PAGE, events.length)}</span> dari{" "}
                 <span className="text-slate-700 font-bold">{events.length}</span> eventku
               </span>
@@ -168,14 +168,14 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
       method="GET"
       className="flex flex-wrap gap-3 items-end bg-slate-50/70 p-4 rounded-2xl border border-slate-200"
     >
-      {/* Search input — grows to fill available space */}
-      <div className="flex-1 min-w-[180px]">
-        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
+      {/* Search input â€” grows to fill available space */}
+      <div className="flex-1 min-w-44">
+        <label className="block text-xxs font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
           Cari Nama Event
         </label>
         <div className="relative group">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#0E215D] transition-colors"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sisc-navy transition-colors"
             size={16}
           />
           <input
@@ -183,21 +183,21 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
             name="q"
             defaultValue={currentSearch}
             placeholder="Ketikkan sesuatu..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#0E215D]/10 focus:border-[#0E215D] outline-none text-sm transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-sisc-navy/10 focus:border-sisc-navy outline-none text-sm transition-all shadow-sm"
           />
         </div>
       </div>
 
-      {/* Status dropdown — fixed but shrinkable */}
-      <div className="w-[180px] shrink-0">
-        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
+      {/* Status dropdown â€” fixed but shrinkable */}
+      <div className="w-44 shrink-0">
+        <label className="block text-xxs font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
           Status
         </label>
         <div className="relative">
           <select
             name="status"
             defaultValue={currentStatus}
-            className="w-full appearance-none bg-white border border-slate-200 py-2.5 pl-3 pr-8 rounded-xl outline-none text-sm cursor-pointer shadow-sm focus:border-[#0E215D] transition-all"
+            className="w-full appearance-none bg-white border border-slate-200 py-2.5 pl-3 pr-8 rounded-xl outline-none text-sm cursor-pointer shadow-sm focus:border-sisc-navy transition-all"
           >
             {statusOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -216,7 +216,7 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
       <div className="flex gap-2 shrink-0">
         <button
           type="submit"
-          className="bg-[#0E215D] hover:bg-[#0a1845] text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-[#0E215D]/10 text-sm active:scale-95 whitespace-nowrap"
+          className="bg-sisc-navy hover:bg-sisc-deep text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-sisc-navy/10 text-sm active:scale-95 whitespace-nowrap"
         >
           Terapkan
         </button>

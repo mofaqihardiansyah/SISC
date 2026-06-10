@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { users, profilPenyelenggara } from '@/db/schema';
 import { eq, isNull, ilike, or, sql, and, ne, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
+import { PAGINATION } from '@/lib/constants';
 
 export async function GET(req: Request) {
   try {
@@ -99,7 +100,7 @@ export async function GET(req: Request) {
     const page = Math.max(1, Number(searchParams.get('page') ?? '1'));
     const sortBy = searchParams.get('sortBy') ?? 'dibuatPada';
     const sortDir = searchParams.get('sortDir') ?? 'desc';
-    const limit = 5;
+    const limit = PAGINATION.ROWS_PER_PAGE;
     const offset = (page - 1) * limit;
 
     const conditions = [isNull(users.dihapusPada), ne(users.role, 'admin')];

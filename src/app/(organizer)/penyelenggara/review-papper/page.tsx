@@ -34,7 +34,7 @@ const STATUS_CFG: Record<string, { label: string; bg: string; text: string; bord
 function StatusBadge({ status }: { status: string | null }) {
   const cfg = STATUS_CFG[status || "review"] || STATUS_CFG.review;
   return (
-    <span className={`inline-block px-2.5 py-0.5 text-[10px] font-bold rounded-md border tracking-wide whitespace-nowrap ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+    <span className={`inline-block px-2.5 py-0.5 text-xxs font-bold rounded-md border tracking-wide whitespace-nowrap ${cfg.bg} ${cfg.text} ${cfg.border}`}>
       {cfg.label}
     </span>
   );
@@ -192,32 +192,32 @@ export default function ReviewPaperPage() {
 
       {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-[#1E293B]">Review Paper</h1>
+        <h1 className="text-3xl font-bold text-sisc-slate">Review Paper</h1>
         <p className="text-slate-500 text-sm mt-1">Kelola dan review paper yang disubmit ke event anda</p>
       </div>
 
       {/* STATS CARDS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Paper</p>
-          <p className="text-2xl font-bold text-[#1E293B] mt-1">{stats.total}</p>
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p className="text-micro font-bold text-slate-400 uppercase tracking-wider">Total Paper</p>
+          <p className="text-2xl font-bold text-sisc-slate mt-1">{stats.total}</p>
         </div>
-        <div className="bg-white p-5 rounded-[20px] border border-amber-100 shadow-sm">
-          <p className="text-[11px] font-bold text-amber-500 uppercase tracking-wider">Perlu Direview</p>
+        <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+          <p className="text-micro font-bold text-amber-500 uppercase tracking-wider">Perlu Direview</p>
           <p className="text-2xl font-bold text-amber-600 mt-1">{stats.review}</p>
         </div>
-        <div className="bg-white p-5 rounded-[20px] border border-emerald-100 shadow-sm">
-          <p className="text-[11px] font-bold text-emerald-500 uppercase tracking-wider">Diterima</p>
+        <div className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
+          <p className="text-micro font-bold text-emerald-500 uppercase tracking-wider">Diterima</p>
           <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.accepted}</p>
         </div>
-        <div className="bg-white p-5 rounded-[20px] border border-rose-100 shadow-sm">
-          <p className="text-[11px] font-bold text-rose-500 uppercase tracking-wider">Ditolak</p>
+        <div className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm">
+          <p className="text-micro font-bold text-rose-500 uppercase tracking-wider">Ditolak</p>
           <p className="text-2xl font-bold text-rose-600 mt-1">{stats.rejected}</p>
         </div>
       </div>
 
       {/* FILTER SECTION */}
-      <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100">
+      <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
@@ -232,7 +232,7 @@ export default function ReviewPaperPage() {
           <select
             value={eventFilter === "all" ? "all" : eventFilter}
             onChange={(e) => setEventFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
-            className="px-4 py-2.5 border border-slate-200 rounded-xl outline-none text-sm bg-white text-slate-600 cursor-pointer min-w-[180px]"
+            className="px-4 py-2.5 border border-slate-200 rounded-xl outline-none text-sm bg-white text-slate-600 cursor-pointer min-w-44"
           >
             <option value="all">Semua Event</option>
             {events.map(ev => <option key={ev.id} value={ev.id}>{ev.judul}</option>)}
@@ -240,7 +240,7 @@ export default function ReviewPaperPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 border border-slate-200 rounded-xl outline-none text-sm bg-white text-slate-600 cursor-pointer min-w-[160px]"
+            className="px-4 py-2.5 border border-slate-200 rounded-xl outline-none text-sm bg-white text-slate-600 cursor-pointer min-w-40"
           >
             <option value="all">Semua Status</option>
             <option value="review">Perlu Direview</option>
@@ -251,13 +251,13 @@ export default function ReviewPaperPage() {
       </div>
 
       {/* PAPER LIST */}
-      <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         {papers.length === 0 ? (
           <div className="p-12 text-center">
             <div className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mx-auto mb-4">
               <BookText size={28} />
             </div>
-            <h4 className="font-bold text-[#1E293B] text-base mb-1">
+            <h4 className="font-bold text-sisc-slate text-base mb-1">
               {events.length === 0 ? "Belum Ada Event" : "Belum Ada Paper"}
             </h4>
             <p className="text-slate-400 text-sm max-w-md mx-auto">
@@ -273,13 +273,13 @@ export default function ReviewPaperPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center w-12">No</th>
-                    <th className="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Judul Paper</th>
-                    <th className="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Penulis</th>
-                    <th className="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Event</th>
-                    <th className="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Status</th>
-                    <th className="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Tanggal Submit</th>
-                    <th className="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right w-44">Aksi</th>
+                    <th className="px-5 py-3.5 text-xxs font-bold text-slate-400 uppercase tracking-wider text-center w-12">No</th>
+                    <th className="px-5 py-3.5 text-xxs font-bold text-slate-400 uppercase tracking-wider">Judul Paper</th>
+                    <th className="px-5 py-3.5 text-xxs font-bold text-slate-400 uppercase tracking-wider">Penulis</th>
+                    <th className="px-5 py-3.5 text-xxs font-bold text-slate-400 uppercase tracking-wider">Event</th>
+                    <th className="px-5 py-3.5 text-xxs font-bold text-slate-400 uppercase tracking-wider text-center">Status</th>
+                    <th className="px-5 py-3.5 text-xxs font-bold text-slate-400 uppercase tracking-wider text-right">Tanggal Submit</th>
+                    <th className="px-5 py-3.5 text-xxs font-bold text-slate-400 uppercase tracking-wider text-right w-44">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -299,7 +299,7 @@ export default function ReviewPaperPage() {
                             <span className="text-xs font-semibold text-slate-400">{(page - 1) * PER_PAGE + index + 1}</span>
                           </td>
                           <td className="px-5 py-4">
-                            <span className="font-semibold text-slate-800 text-[13px] line-clamp-1">{paper.judul}</span>
+                            <span className="font-semibold text-slate-800 text-sm2 line-clamp-1">{paper.judul}</span>
                           </td>
                           <td className="px-5 py-4">
                             <span className="text-xs text-slate-500 line-clamp-1">{Array.isArray(paper.penulis) ? paper.penulis.map(a => a.nama).join(', ') : ''}</span>
@@ -335,7 +335,7 @@ export default function ReviewPaperPage() {
                                   </button>
                                 </>
                               ) : (
-                                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${
+                                <span className={`text-xxs font-bold px-2.5 py-1 rounded-md border ${
                                   status === "accepted"
                                     ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                                     : "bg-rose-50 text-rose-600 border-rose-200"
@@ -383,13 +383,13 @@ export default function ReviewPaperPage() {
                         {status === "review" && (
                           <>
                             <button onClick={() => handleAccept(paper)} disabled={actionLoading?.id === paper.id}
-                              className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-bold hover:bg-emerald-100 transition-colors disabled:opacity-50 cursor-pointer">Terima</button>
+                              className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xxs font-bold hover:bg-emerald-100 transition-colors disabled:opacity-50 cursor-pointer">Terima</button>
                             <button onClick={() => { setRejectPaper(paper); setRejectReason(""); }} disabled={actionLoading?.id === paper.id}
-                              className="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-bold hover:bg-rose-100 transition-colors disabled:opacity-50 cursor-pointer">Tolak</button>
+                              className="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-xxs font-bold hover:bg-rose-100 transition-colors disabled:opacity-50 cursor-pointer">Tolak</button>
                           </>
                         )}
                         <button onClick={() => setSelectedPaper(paper)}
-                          className="px-3 py-1.5 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-[10px] font-bold hover:bg-slate-100 transition-colors cursor-pointer">Detail</button>
+                          className="px-3 py-1.5 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-xxs font-bold hover:bg-slate-100 transition-colors cursor-pointer">Detail</button>
                       </div>
                     </div>
                   );
@@ -413,7 +413,7 @@ export default function ReviewPaperPage() {
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(pg => (
                 <button key={pg} onClick={() => setPage(pg)}
                   className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                    page === pg ? "bg-[#1E293B] text-white border-[#1E293B]" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                    page === pg ? "bg-sisc-slate text-white border-sisc-slate" : "border-slate-200 text-slate-600 hover:bg-slate-50"
                   }`}>{pg}</button>
               ))}
               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
@@ -427,8 +427,12 @@ export default function ReviewPaperPage() {
 
       {/* DETAIL MODAL (slide-in) */}
       {selectedPaper && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-end bg-black/40 backdrop-blur-sm transition-opacity">
-          <div className="bg-white w-full max-w-5xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[110] flex items-center justify-end">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+            onClick={() => setSelectedPaper(null)} 
+          />
+          <div className="relative bg-white w-full max-w-5xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
               <div className="flex items-center gap-3">
@@ -436,7 +440,7 @@ export default function ReviewPaperPage() {
                   <X size={20} />
                 </button>
                 <div>
-                  <h2 className="text-lg font-bold text-[#1E293B]">Detail Paper</h2>
+                  <h2 className="text-lg font-bold text-sisc-slate">Detail Paper</h2>
                   <p className="text-xs text-slate-400">Review dan kelola submission paper</p>
                 </div>
               </div>
@@ -449,11 +453,11 @@ export default function ReviewPaperPage() {
                 {/* LEFT: Info */}
                 <div className="lg:col-span-2 p-6 space-y-6 border-r border-slate-100">
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Event</p>
+                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">Event</p>
                     <p className="font-bold text-slate-800 text-sm">{selectedPaper.eventJudul || "-"}</p>
                   </div>
                   <div className="space-y-1.5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                       <BookText size={12} /> Judul Penelitian
                     </p>
                     <p className="text-sm font-semibold text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
@@ -464,7 +468,7 @@ export default function ReviewPaperPage() {
                     <div className="grid grid-cols-2 gap-4">
                       {selectedPaper.track && (
                         <div className="space-y-1.5">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                             Track / Topik
                           </p>
                           <p className="text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -474,12 +478,12 @@ export default function ReviewPaperPage() {
                       )}
                       {selectedPaper.kataKunci && (
                         <div className="space-y-1.5">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                             Kata Kunci
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {selectedPaper.kataKunci.split(',').map((k, i) => (
-                              <span key={i} className="bg-slate-800 text-white px-2 py-1 rounded text-[11px] font-bold">
+                              <span key={i} className="bg-slate-800 text-white px-2 py-1 rounded text-micro font-bold">
                                 {k.trim()}
                               </span>
                             ))}
@@ -489,7 +493,7 @@ export default function ReviewPaperPage() {
                     </div>
                   )}
                   <div className="space-y-1.5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                       <User size={12} /> Daftar Penulis
                     </p>
                     <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
@@ -498,12 +502,12 @@ export default function ReviewPaperPage() {
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-bold text-slate-800">{author.nama}</span>
                             {author.isCorresponding && (
-                              <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
+                              <span className="bg-amber-100 text-amber-800 text-nano font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
                                 Penulis Utama
                               </span>
                             )}
                           </div>
-                          <div className="flex flex-col text-[11px] text-slate-500 mt-1">
+                          <div className="flex flex-col text-micro text-slate-500 mt-1">
                             <span>{author.email}</span>
                             <span>{author.afiliasi}</span>
                           </div>
@@ -512,7 +516,7 @@ export default function ReviewPaperPage() {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                       <User size={12} /> Disubmit Oleh
                     </p>
                     <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -526,7 +530,7 @@ export default function ReviewPaperPage() {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                       <Calendar size={12} /> Tanggal Submit
                     </p>
                     <p className="text-sm font-medium text-slate-700">{formatDate(selectedPaper.dibuatPada)}</p>
@@ -574,7 +578,7 @@ export default function ReviewPaperPage() {
                         <Eye size={16} className="text-slate-500" />
                         <h3 className="text-xs font-bold text-slate-800">Pratinjau Langsung Paper</h3>
                       </div>
-                      <span className="px-2 py-0.5 text-[9px] font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">PDF FILE</span>
+                      <span className="px-2 py-0.5 text-nano font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">PDF FILE</span>
                     </div>
                     <div className="flex-1 bg-slate-100 relative w-full">
                       <iframe src={`${selectedPaper.fileUrl}#toolbar=0&navpanes=0`} className="absolute inset-0 w-full h-full border-none" title="PDF Document Viewer" />
@@ -624,15 +628,19 @@ export default function ReviewPaperPage() {
 
       {/* REJECT MODAL */}
       {rejectPaper && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setRejectPaper(null)}>
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+            onClick={() => setRejectPaper(null)} 
+          />
+          <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
             <div className="p-6 space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
                   <MessageSquare size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[#1E293B] text-base">Tolak Paper</h3>
+                  <h3 className="font-bold text-sisc-slate text-base">Tolak Paper</h3>
                   <p className="text-xs text-slate-400 mt-0.5">
                     Berikan alasan penolakan untuk paper <span className="font-bold text-slate-600">&ldquo;{rejectPaper.judul}&rdquo;</span>
                   </p>

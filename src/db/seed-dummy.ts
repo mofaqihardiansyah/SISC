@@ -6,6 +6,7 @@ import {
   jadwalEvent, pendaftaran, peserta
 } from './schema';
 import { eq } from 'drizzle-orm';
+import { SEED } from '@/lib/constants';
 
 export async function seedDummy() {
   console.log("🚀 Seeding data dummy yang dirampingkan (profil, tag, pembicara, jadwal, bookmark, log)...");
@@ -16,7 +17,7 @@ export async function seedDummy() {
     userId: 2,
     namaInstansi: "Politeknik Negeri Semarang",
     deskripsiInstansi: "Politeknik Negeri Semarang (Polines) adalah perguruan tinggi vokasi negeri yang fokus pada pendidikan terapan.",
-    websiteUrl: "https://polines.ac.id",
+    websiteUrl: SEED.DEFAULT_WEBSITE,
   }).onConflictDoUpdate({
     target: profilPenyelenggara.userId,
     set: { namaInstansi: "Politeknik Negeri Semarang" }

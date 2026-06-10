@@ -75,7 +75,7 @@ const getBgColorClass = (nama: string) => {
 function StatusBadge({ status }: { status: StatusPendaftaran }) {
   if (status === "hadir") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-green-300 bg-green-50 text-green-600">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold tracking-wide border border-green-300 bg-green-50 text-green-600">
         <CheckCircle size={13} strokeWidth={2.5} />
         DISETUJUI
       </span>
@@ -83,7 +83,7 @@ function StatusBadge({ status }: { status: StatusPendaftaran }) {
   }
   if (status === "terdaftar") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-yellow-300 bg-yellow-50 text-yellow-600">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold tracking-wide border border-yellow-300 bg-yellow-50 text-yellow-600">
         <Clock size={13} strokeWidth={2.5} />
         MENUNGGU
       </span>
@@ -91,7 +91,7 @@ function StatusBadge({ status }: { status: StatusPendaftaran }) {
   }
   // dibatalkan
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border border-red-300 bg-red-50 text-red-500">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold tracking-wide border border-red-300 bg-red-50 text-red-500">
       <UserX size={13} strokeWidth={2.5} />
       DITOLAK
     </span>
@@ -202,14 +202,15 @@ function LampiranPopup({
 
   return (
     <Portal>
-      <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      >
-      <div
-        className="bg-white rounded-2xl overflow-hidden w-full max-w-2xl shadow-2xl animate-in fade-in zoom-in duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div 
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+          onClick={onClose} 
+        />
+        <div 
+          className="relative bg-white rounded-2xl overflow-hidden w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-300"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
@@ -221,7 +222,7 @@ function LampiranPopup({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1a2b4b] text-white text-xs font-medium rounded-lg hover:bg-[#243560] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1a2b4b] text-white text-xs font-medium rounded-lg hover:bg-sisc-med transition-colors"
             >
               <ExternalLink size={12} />
               Buka di Tab Baru
@@ -297,7 +298,7 @@ export default function InformasiPesertaClient() {
 
   const PER_PAGE = 10;
 
-  // ── Fetch data ──────────────────────────────────────────────
+  // â”€â”€ Fetch data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -327,7 +328,7 @@ export default function InformasiPesertaClient() {
     setPage(1);
   }, [search, filterStatus]);
 
-  // ── Update status ────────────────────────────────────────────
+  // â”€â”€ Update status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const updateStatus = async (pendaftaranId: number, newStatus: StatusPendaftaran) => {
     setActionLoading(pendaftaranId);
     try {
@@ -344,7 +345,7 @@ export default function InformasiPesertaClient() {
     }
   };
 
-  // ── Export Excel ───────────────────────────────────────────────
+  // â”€â”€ Export Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const exportExcel = async () => {
     setExporting(true);
     try {
@@ -378,7 +379,7 @@ export default function InformasiPesertaClient() {
     }
   };
 
-  // ── Pagination logic ─────────────────────────────────────────
+  // â”€â”€ Pagination logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const totalPages = Math.ceil(totalData / PER_PAGE);
   const startItem = totalData === 0 ? 0 : (page - 1) * PER_PAGE + 1;
   const endItem = Math.min(page * PER_PAGE, totalData);
@@ -416,7 +417,7 @@ export default function InformasiPesertaClient() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-[160px] text-slate-600 font-semibold cursor-pointer"
+          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-40 text-slate-600 font-semibold cursor-pointer"
         >
           <option value="semua">Semua Status</option>
           <option value="hadir">Terverifikasi</option>
@@ -540,7 +541,7 @@ export default function InformasiPesertaClient() {
                             Lihat File
                           </button>
                         ) : (
-                          <span className="text-gray-300 text-sm">—</span>
+                          <span className="text-gray-300 text-sm">â€”</span>
                         )}
                       </td>
 
@@ -577,7 +578,7 @@ export default function InformasiPesertaClient() {
         {totalData > 0 && (
           <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100 flex-wrap gap-3">
             <span className="text-xs text-slate-400 font-semibold">
-              Menampilkan <span className="text-slate-700">{startItem}</span> – <span className="text-slate-700">{endItem}</span> dari <span className="text-slate-700 font-bold">{totalData}</span> peserta
+              Menampilkan <span className="text-slate-700">{startItem}</span> â€“ <span className="text-slate-700">{endItem}</span> dari <span className="text-slate-700 font-bold">{totalData}</span> peserta
             </span>
             <div className="flex items-center gap-1">
               <button

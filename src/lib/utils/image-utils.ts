@@ -2,7 +2,9 @@
  * Normalizes an image path to be used with Next.js Image component.
  * Handles Windows-style backslashes and missing leading slashes.
  */
-export function normalizeImagePath(path: string | null | undefined, fallback: string = "/placeholder-banner.png"): string {
+import { ASSETS } from "@/lib/constants";
+
+export function normalizeImagePath(path: string | null | undefined, fallback: string = ASSETS.PLACEHOLDER_BANNER): string {
   if (!path || path.trim() === "") {
     return fallback;
   }

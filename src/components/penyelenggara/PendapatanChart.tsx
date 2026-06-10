@@ -5,6 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from "recharts";
+import { ERROR_MESSAGES } from "@/lib/constants";
 
 type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
@@ -30,7 +31,7 @@ export function PendapatanChart({ initialData, selectedEventId }: PendapatanChar
       try {
         setLoading(true);
         const res = await fetch(url.toString(), { signal: controller.signal });
-        if (!res.ok) throw new Error("Gagal mengambil data grafik pendapatan");
+        if (!res.ok) throw new Error(ERROR_MESSAGES.FETCH_PENDAPATAN);
         const json = await res.json();
         setData(json);
       } catch (error) {

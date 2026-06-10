@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { event } from "@/db/schema";
 import { slugify } from "@/lib/utils";
 import { inArray } from "drizzle-orm";
+import { SCRAPER } from "@/lib/constants";
 
 interface ScrapedEvent {
   judul: string;
@@ -14,18 +15,18 @@ interface ScrapedEvent {
 }
 
 export const seminarCrawler = new PlaywrightCrawler({
-  maxConcurrency: 2, // Menjaga penggunaan RAM tetap aman (cocok untuk RAM 8GB)
+  maxConcurrency: SCRAPER.MAX_CONCURRENCY, // Menjaga penggunaan RAM tetap aman (cocok untuk RAM 8GB)
   browserPoolOptions: {
     useFingerprints: true, // Membantu menghindari deteksi bot
   },
   // Waktu tunggu maksimal untuk tiap request
-  requestHandlerTimeoutSecs: 60,
+  requestHandlerTimeoutSecs: SCRAPER.TIMEOUT_SECONDS,
   
   async requestHandler({ page, request, log }) {
     log.info(`🕵️ Memproses: ${request.url}`);
 
     // Menunggu kartu event muncul
-    await page.waitForSelector('.col-md-4, .card', { timeout: 15000 });
+    await page.waitForSelector('.col-md-4, .card', { timeout: SCRAPER.WAIT_TIMEOUT_MS });
 
     const results = await page.evaluate((targetUrl) => {
       const cards = document.querySelectorAll('.col-md-4, .card');
@@ -51,7 +52,7 @@ export const seminarCrawler = new PlaywrightCrawler({
 
         if (titleEl && linkEl) {
           let link = linkEl.getAttribute('href') || "";
-          if (link.startsWith('/')) link = 'https://eventkampus.com' + link;
+          if (link.startsWith('/')) link = SCRAPER.BASE_URL + link;
 
           data.push({
             judul: titleEl.textContent?.trim() || "Tanpa Judul",

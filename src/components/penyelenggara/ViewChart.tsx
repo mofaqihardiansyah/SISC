@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { ERROR_MESSAGES } from "@/lib/constants";
 
 type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
@@ -49,7 +50,7 @@ export function ViewChart({ selectedEventId }: ViewChartProps) {
         );
 
         if (!res.ok) {
-          throw new Error("Gagal mengambil data grafik tayangan");
+          throw new Error(ERROR_MESSAGES.FETCH_TAYANGAN);
         }
 
         const json = await res.json();

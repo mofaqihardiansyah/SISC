@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import Navbar from "@/components/layout/Navbar";
 import NavbarWrapper from "@/components/layout/NavbarWrapper";
+import { SITE } from "@/lib/constants";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -16,8 +17,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "POLIVENTS",
-  description: "Sistem Informasi Seminar & Conference",
+  title: SITE.NAME,
+  description: SITE.TAGLINE,
 };
 
 export default function RootLayout({

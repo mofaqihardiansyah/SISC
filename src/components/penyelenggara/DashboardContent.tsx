@@ -150,7 +150,7 @@ export function DashboardContent({
                 {selectedEventId !== "all" && !isDropdownOpen && (
                   <button 
                     onClick={() => setSelectedEventId("all")}
-                    className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-md transition-colors"
+                    className="text-xxs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-md transition-colors"
                   >
                     RESET
                   </button>
@@ -178,7 +178,7 @@ export function DashboardContent({
                   </button>
                   
                   <div className="px-4 py-2">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Daftar Event</p>
+                    <p className="text-xxs font-bold text-gray-400 uppercase tracking-wider">Daftar Event</p>
                   </div>
 
                   {filteredEvents.length > 0 ? (
@@ -234,13 +234,13 @@ export function DashboardContent({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className={cn(
-                    "px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider",
+                    "px-2 py-0.5 rounded-md text-xxs font-bold uppercase tracking-wider",
                     selectedEvent.status === "published" ? "bg-green-50 text-green-600" : "bg-yellow-50 text-yellow-600"
                   )}>
                     {selectedEvent.status}
                   </span>
-                  <span className="text-[10px] font-bold text-gray-300 uppercase tracking-wider">•</span>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <span className="text-xxs font-bold text-gray-300 uppercase tracking-wider">â€¢</span>
+                  <span className="text-xxs font-bold text-gray-400 uppercase tracking-wider">
                     {selectedEvent.tipePlatform}
                   </span>
                 </div>
@@ -263,13 +263,13 @@ export function DashboardContent({
             </div>
 
             <div className="flex items-center gap-8 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-gray-50">
-              <div className="flex flex-col items-center min-w-[60px]">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Peserta</span>
+              <div className="flex flex-col items-center min-w-16">
+                <span className="text-xxs font-bold text-gray-400 uppercase tracking-wider mb-1">Peserta</span>
                 <span className="text-xl font-black text-gray-900">{stats.totalPeserta}</span>
               </div>
               <div className="w-px h-10 bg-gray-100 hidden md:block" />
-              <div className="flex flex-col items-center min-w-[80px]">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Harga</span>
+              <div className="flex flex-col items-center min-w-20">
+                <span className="text-xxs font-bold text-gray-400 uppercase tracking-wider mb-1">Harga</span>
                 <span className={cn(
                   "px-2.5 py-1 rounded-lg text-xs font-bold",
                   selectedEvent.harga === 0 ? "bg-green-50 text-green-600" : "bg-blue-50 text-blue-600"
@@ -333,7 +333,7 @@ export function DashboardContent({
             </h3>
             <Link 
               href="/penyelenggara/peserta"
-              className="text-[10px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors uppercase tracking-wider"
+              className="text-xxs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors uppercase tracking-wider"
             >
               Lihat Semua
               <ArrowRight className="w-3 h-3" />
@@ -357,14 +357,14 @@ export function DashboardContent({
                       <h4 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
                         {p.namaLengkap}
                       </h4>
-                      <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider line-clamp-1">
+                      <p className="text-xxs text-gray-400 font-medium uppercase tracking-wider line-clamp-1">
                         {p.eventJudul}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase">
+                    <p className="text-xxs font-bold text-gray-400 uppercase">
                       {p.dibuatPada
                         ? new Date(p.dibuatPada).toLocaleDateString("id-ID", {
                             day: "numeric",
@@ -394,7 +394,7 @@ export function DashboardContent({
             </h3>
             <Link 
               href="#"
-              className="text-[10px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors uppercase tracking-wider"
+              className="text-xxs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors uppercase tracking-wider"
             >
               Lihat Semua
               <ArrowRight className="w-3 h-3" />
@@ -417,7 +417,7 @@ export function DashboardContent({
                       <h4 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
                         {paper.judul}
                       </h4>
-                      <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider line-clamp-1">
+                      <p className="text-xxs text-gray-400 font-medium uppercase tracking-wider line-clamp-1">
                         {Array.isArray(paper.penulis) ? paper.penulis.map((p: { nama?: string }) => p?.nama || String(p)).join(", ") : String(paper.penulis || "Unknown")}
                       </p>
                     </div>
@@ -425,7 +425,7 @@ export function DashboardContent({
 
                   <div className="flex items-center gap-3 shrink-0">
                     <span className={cn(
-                      "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                      "px-2 py-0.5 rounded-full text-xxs font-bold uppercase",
                       paper.status === "accepted" ? "bg-green-50 text-green-600" : 
                       paper.status === "rejected" ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
                     )}>

@@ -16,8 +16,9 @@ import {
   statusOptions, statusLabel, getPlatformColor, getStatusColor,
   formatDateDisplay, formatPlatform, DEBOUNCE_MS, SEARCH_MIN_LENGTH,
 } from "@/constants/persetujuan";
+import Portal from "@/components/ui/Portal";
 
-/* ───────────── StatCards ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ StatCards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export function StatCards({
   pendingCount, approvedCount, rejectedCount,
@@ -33,7 +34,7 @@ export function StatCards({
   );
 }
 
-/* ───────────── FilterBar ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ FilterBar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export function FilterBar({
   searchQuery, statusFilter, showStatusDropdown,
@@ -155,7 +156,7 @@ export function FilterBar({
   );
 }
 
-/* ───────────── EventTable ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ EventTable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export function EventTable({
   events, openDropdownId, onPreview, onToggleDropdown, onStatusChange,
@@ -171,14 +172,14 @@ export function EventTable({
       <table className="w-full">
         <thead className="bg-slate-50 border-b border-slate-200/60">
           <tr>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">ID</th>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Nama Event</th>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Kategori</th>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Platform</th>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-right">Harga</th>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Tanggal Masuk</th>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Status</th>
-            <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Aksi</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">ID</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Nama Event</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Kategori</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Platform</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-right">Harga</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Tanggal Masuk</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Status</th>
+            <th className="text-xxs font-bold text-gray-400 uppercase tracking-wider px-6 py-3 text-left">Aksi</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -189,7 +190,7 @@ export function EventTable({
               </td>
               <td className="px-6 py-3.5">
                 <button onClick={() => onPreview(event)} className="text-left">
-                  <span className="font-semibold text-gray-900 text-[13px] hover:text-slate-700 transition-colors">
+                  <span className="font-semibold text-gray-900 text-sm2 hover:text-slate-700 transition-colors">
                     {event.judul}
                   </span>
                 </button>
@@ -198,7 +199,7 @@ export function EventTable({
                 <span className="text-xs text-gray-500">{event.kategori || "-"}</span>
               </td>
               <td className="px-6 py-3.5">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider whitespace-nowrap ${getPlatformColor(event.platform)}`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider whitespace-nowrap ${getPlatformColor(event.platform)}`}>
                   {formatPlatform(event.platform)}
                 </span>
               </td>
@@ -209,7 +210,7 @@ export function EventTable({
                 <span className="text-xs text-gray-500">{event.tanggalMasuk}</span>
               </td>
               <td className="px-6 py-3.5">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider whitespace-nowrap ${getStatusColor(event.status)}`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider whitespace-nowrap ${getStatusColor(event.status)}`}>
                   {statusLabel[event.status] || event.status}
                 </span>
               </td>
@@ -269,7 +270,7 @@ export function EventTable({
   );
 }
 
-/* ───────────── Pagination ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function getPageButtons(currentPage: number, totalPages: number): (number | "...")[] {
   const pages: (number | "...")[] = [];
@@ -297,7 +298,7 @@ export function Pagination({
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 gap-3">
       <span className="text-xs text-slate-400 font-semibold">
-        Menampilkan <span className="text-slate-700">{showFrom}</span> –{" "}
+        Menampilkan <span className="text-slate-700">{showFrom}</span> â€“{" "}
         <span className="text-slate-700">{showTo}</span> dari{" "}
         <span className="text-slate-700 font-bold">{totalItems}</span> event
       </span>
@@ -332,7 +333,7 @@ export function Pagination({
   );
 }
 
-/* ───────────── ReviewModal ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ReviewModal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
@@ -340,7 +341,7 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
       <div className="w-5 h-5 bg-white rounded-lg flex items-center justify-center border border-slate-100 text-slate-900 shrink-0">
         {icon}
       </div>
-      <span className="text-[10px] text-slate-400 font-semibold w-16 shrink-0">{label}</span>
+      <span className="text-xxs text-slate-400 font-semibold w-16 shrink-0">{label}</span>
       <span className="text-xs font-semibold text-slate-700 truncate">{value}</span>
     </div>
   );
@@ -374,20 +375,24 @@ export function ReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <Portal>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+      <div 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+        onClick={onClose} 
+      />
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
         <div className="bg-slate-900 px-5 py-2.5 flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">ID {event.id}</span>
-              <span className="text-[9px] font-bold text-slate-500">•</span>
+              <span className="text-nano font-bold text-slate-400 uppercase tracking-wider">ID {event.id}</span>
+              <span className="text-nano font-bold text-slate-500">â€¢</span>
               {event.jenisEvent && (
-                <><span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">{event.jenisEvent}</span><span className="text-[9px] font-bold text-slate-300">•</span></>
+                <><span className="text-nano font-bold text-slate-300 uppercase tracking-wider">{event.jenisEvent}</span><span className="text-nano font-bold text-slate-300">â€¢</span></>
               )}
-              <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">{formatPlatform(event.platform)}</span>
-              <span className="text-[9px] font-bold text-slate-300">•</span>
-              <span className={`text-[9px] font-bold uppercase tracking-wider ${event.status === "pending" ? "text-amber-300" : event.status === "published" ? "text-emerald-300" : "text-rose-300"}`}>
+              <span className="text-nano font-bold text-slate-300 uppercase tracking-wider">{formatPlatform(event.platform)}</span>
+              <span className="text-nano font-bold text-slate-300">â€¢</span>
+              <span className={`text-nano font-bold uppercase tracking-wider ${event.status === "pending" ? "text-amber-300" : event.status === "published" ? "text-emerald-300" : "text-rose-300"}`}>
                 {statusLabel[event.status]}
               </span>
             </div>
@@ -415,14 +420,14 @@ export function ReviewModal({
             ].map((item) => (
               <div key={item.label} className="bg-slate-50 rounded-xl p-1.5 border border-slate-100">
                 <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
-                <p className="text-[11px] font-bold text-slate-800 truncate">{item.value}</p>
+                <p className="text-micro font-bold text-slate-800 truncate">{item.value}</p>
               </div>
             ))}
           </div>
 
           {event.status === "rejected" && event.alasanPenolakan && (
             <div className="mb-2">
-              <h3 className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mb-1">Alasan Penolakan</h3>
+              <h3 className="text-xxs font-bold text-rose-600 uppercase tracking-wider mb-1">Alasan Penolakan</h3>
               <div className="bg-rose-50 rounded-xl p-2.5 border border-rose-200">
                 <p className="text-xs text-rose-700 font-medium">{event.alasanPenolakan}</p>
               </div>
@@ -430,7 +435,7 @@ export function ReviewModal({
           )}
 
           <div className="mb-2">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Deskripsi</h3>
+            <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Deskripsi</h3>
             <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-2.5 border border-slate-100 whitespace-pre-wrap">
               {event.deskripsi || "Tidak ada deskripsi."}
             </p>
@@ -438,7 +443,7 @@ export function ReviewModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
             <div className="space-y-1">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Waktu & Lokasi</h3>
+              <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Waktu & Lokasi</h3>
               <InfoRow icon={<Calendar size={12} />} label="Mulai" value={formatDateDisplay(event.tanggalMulai)} />
               <InfoRow icon={<Calendar size={12} />} label="Selesai" value={formatDateDisplay(event.tanggalSelesai)} />
               <InfoRow icon={<Clock size={12} />} label="Jam" value={`${event.jamMulai} - ${event.jamSelesai}`} />
@@ -446,7 +451,7 @@ export function ReviewModal({
               <InfoRow icon={<MapPin size={12} />} label="Lokasi" value={event.lokasi || "-"} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Detail Event</h3>
+              <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Detail Event</h3>
               <InfoRow icon={<Tag size={12} />} label="Kategori" value={event.kategori || "-"} />
               <InfoRow icon={<Monitor size={12} />} label="Platform" value={formatPlatform(event.platform)} />
               <InfoRow icon={<UsersIcon size={12} />} label="Kuota" value={event.kuota ? `${event.kuota.toLocaleString("id-ID")} orang` : "-"} />
@@ -457,21 +462,21 @@ export function ReviewModal({
 
           {event.pembicara && (
             <div className="mb-2">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Pembicara</h3>
+              <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Pembicara</h3>
               <div className="flex items-center gap-2.5 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
                 <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0">
                   {event.pembicara.charAt(0)}
                 </div>
                 <div>
                   <p className="text-xs font-bold text-slate-800">{event.pembicara}</p>
-                  <p className="text-[11px] text-slate-500">{event.peranPembicara || "-"}</p>
+                  <p className="text-micro text-slate-500">{event.peranPembicara || "-"}</p>
                 </div>
               </div>
             </div>
           )}
 
           <div className="mb-2">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Kontak Penyelenggara</h3>
+            <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Kontak Penyelenggara</h3>
             <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 space-y-1">
               <InfoRow icon={<Building2 size={14} />} label="Penyelenggara" value={event.penyelenggara || "-"} />
               <InfoRow icon={<Mail size={14} />} label="Email" value={event.kontakEmail || "-"} />
@@ -484,12 +489,12 @@ export function ReviewModal({
               <button onClick={handleApprove} disabled={actionLoading !== null}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold py-2.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-xs flex items-center justify-center gap-1.5"
               >
-                {actionLoading === "approve" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "✓ Setujui"}
+                {actionLoading === "approve" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "âœ“ Setujui"}
               </button>
               <button onClick={() => setShowRejectForm(true)} disabled={actionLoading !== null}
                 className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-2.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-xs flex items-center justify-center gap-1.5"
               >
-                ✗ Tolak
+                âœ— Tolak
               </button>
             </div>
           )}
@@ -517,10 +522,11 @@ export function ReviewModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 
-/* ───────────── ConfirmModal ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ConfirmModal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export function ConfirmModal({
   isOpen, onConfirm, onCancel,
@@ -529,9 +535,13 @@ export function ConfirmModal({
 }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
+    <Portal>
+    <div className="fixed inset-0 z-[110] grid place-items-center p-4">
+      <div
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+        onClick={onCancel} 
+      />
+      <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
         <h3 className="text-lg font-bold text-gray-900 mb-2">Konfirmasi</h3>
         <p className="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin mengubah status event ini?</p>
         <div className="flex items-center gap-3">
@@ -548,5 +558,6 @@ export function ConfirmModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }

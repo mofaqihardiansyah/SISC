@@ -25,7 +25,7 @@ export function BlockedOrganizerState({ title, description }: BlockedOrganizerSt
       <div className="mt-8">
         <Link 
           href="/penyelenggara/profil"
-          className="inline-flex items-center gap-2 bg-[#0E215D] hover:bg-[#1a3a8a] text-white px-5 py-3 rounded-xl font-bold text-xs shadow-md transition-colors"
+          className="inline-flex items-center gap-2 bg-sisc-navy hover:bg-sisc-hover text-white px-5 py-3 rounded-xl font-bold text-xs shadow-md transition-colors"
         >
           Lengkapi Dokumen Profil
           <ArrowRight className="w-3.5 h-3.5" />

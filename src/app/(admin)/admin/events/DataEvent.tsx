@@ -181,7 +181,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
               ${event.status === 'published' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : ''}
               ${event.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-100' : ''}
               ${event.status === 'rejected' ? 'bg-rose-50 text-rose-700 border-rose-100' : ''}
-              text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border inline-block
+              text-nano font-bold uppercase tracking-wider px-2 py-0.5 rounded border inline-block
             `}>
               {event.status === 'published' ? 'Disetujui' : event.status === 'pending' ? 'Menunggu' : 'Ditolak'}
             </span>
@@ -195,11 +195,11 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         <div className="space-y-3">
           {rows.map(({ label, value, icon: Icon }) => (
             <div key={label} className="flex justify-between items-start gap-4">
-              <span className="text-[11px] text-slate-400 font-medium shrink-0 w-40 flex items-center gap-1.5">
+              <span className="text-micro text-slate-400 font-medium shrink-0 w-40 flex items-center gap-1.5">
                 <Icon size={12} className="text-slate-300" />
                 {label}
               </span>
-              <span className="text-[11px] text-slate-700 text-right font-semibold">{value || "-"}</span>
+              <span className="text-micro text-slate-700 text-right font-semibold">{value || "-"}</span>
             </div>
           ))}
         </div>
@@ -210,20 +210,20 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         {/* Descriptions */}
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <AlignLeft size={12} /> Deskripsi Event
             </h4>
-            <div className="text-[11px] text-slate-600 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+            <div className="text-micro text-slate-600 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
               {event.deskripsi || 'Tidak ada deskripsi.'}
             </div>
           </div>
 
           {event.syaratDanKetentuan && (
             <div className="space-y-1.5">
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <ShieldCheck size={12} /> Syarat & Ketentuan
               </h4>
-              <div className="text-[11px] text-slate-600 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+              <div className="text-micro text-slate-600 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
                 {event.syaratDanKetentuan}
               </div>
             </div>
@@ -235,7 +235,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
 
   // ---- EDIT MODE ----
   const renderEditMode = () => {
-    const labelClasses = "text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5";
+    const labelClasses = "text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5";
 
     return (
       <div className="space-y-5">
@@ -248,12 +248,12 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1">
                 <ImageIcon size={28} strokeWidth={1} />
-                <p className="text-[10px] font-bold uppercase tracking-wider">No Poster</p>
+                <p className="text-xxs font-bold uppercase tracking-wider">No Poster</p>
               </div>
             )}
             <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-xs duration-300">
               <div className="w-4/5 space-y-2 text-center">
-                <label className="text-[10px] text-white font-bold uppercase tracking-wider block">Update URL Poster</label>
+                <label className="text-xxs text-white font-bold uppercase tracking-wider block">Update URL Poster</label>
                 <input
                   type="text"
                   name="bannerUrl"
@@ -270,7 +270,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         {/* Section: Klasifikasi */}
         <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
           <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
-          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Klasifikasi Event</h3>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-xxs">Klasifikasi Event</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -297,7 +297,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         {/* Section: Detail Umum */}
         <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
           <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
-          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Detail Umum</h3>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-xxs">Detail Umum</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
@@ -336,7 +336,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         {/* Section: Jadwal & Kuota */}
         <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
           <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
-          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Jadwal & Kuota</h3>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-xxs">Jadwal & Kuota</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -356,12 +356,12 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         {/* Section: Registrasi & Konten */}
         <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/60">
           <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
-          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Registrasi & Konten</h3>
+          <h3 className="font-bold text-slate-800 uppercase tracking-wider text-xxs">Registrasi & Konten</h3>
         </div>
         <div className="grid grid-cols-1 gap-4">
           {!formData.isEventPolines && (
             <div className="animate-in slide-in-from-top-2 duration-300">
-              <label className={cn("text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5")}><Globe size={12} /> Link Sumber / Web Sumber</label>
+              <label className={cn("text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5")}><Globe size={12} /> Link Sumber / Web Sumber</label>
               <input
                 type="text"
                 name="websiteSumber"
@@ -373,11 +373,11 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
             </div>
           )}
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><AlignLeft size={12} /> Deskripsi Lengkap Event</label>
+            <label className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><AlignLeft size={12} /> Deskripsi Lengkap Event</label>
             <textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
           </div>
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><ShieldCheck size={12} /> Syarat & Ketentuan</label>
+            <label className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><ShieldCheck size={12} /> Syarat & Ketentuan</label>
             <textarea name="syaratDanKetentuan" value={formData.syaratDanKetentuan || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
           </div>
         </div>
@@ -385,12 +385,12 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
     );
   };
 
-  return (
-    <Portal>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      return (
+      <Portal>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-300"
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
           onClick={onClose}
         ></div>
 
@@ -408,7 +408,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
               </h3>
               {/* Mode badge */}
               <span className={cn(
-                "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                "text-nano font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
                 mode === 'view' 
                   ? "bg-slate-50 text-slate-500 border-slate-200" 
                   : "bg-blue-50 text-blue-600 border-blue-200"
@@ -479,7 +479,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
             /* View Mode Footer - Moderation for pending events */
             event.status === 'pending' && (
               <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between shrink-0">
-                <span className="text-[11px] font-semibold text-slate-400">Moderasi Event ini:</span>
+                <span className="text-micro font-semibold text-slate-400">Moderasi Event ini:</span>
                 {!showRejectForm ? (
                   <div className="flex items-center gap-2">
                     <button
@@ -489,14 +489,14 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
                     >
                       {actionLoading === 'approve' ? (
                         <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : '✓ Setujui Event'}
+                      ) : 'âœ“ Setujui Event'}
                     </button>
                     <button
                       onClick={() => setShowRejectForm(true)}
                       disabled={actionLoading !== null}
                       className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-xs flex items-center gap-1.5 cursor-pointer shadow-sm hover:shadow"
                     >
-                      ✗ Tolak Event
+                      âœ— Tolak Event
                     </button>
                   </div>
                 ) : (

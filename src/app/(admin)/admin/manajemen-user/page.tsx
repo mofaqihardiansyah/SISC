@@ -8,8 +8,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Portal from "@/components/ui/Portal";
+import { PAGINATION } from "@/lib/constants";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type SortField = "namaLengkap" | "dibuatPada" | "role";
 type SortDir = "asc" | "desc";
 
@@ -47,7 +48,7 @@ interface Stats {
   suspended: number;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const AVATAR_COLORS = ["#f59e0b","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#ef4444","#22c55e","#f97316"];
 const getAvatarColor = (id: number) => AVATAR_COLORS[id % AVATAR_COLORS.length];
@@ -57,12 +58,12 @@ const formatDate = (iso: string | null) =>
 const formatDateTime = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-";
 
-const ROWS_PER_PAGE = 5;
+const ROWS_PER_PAGE = PAGINATION.ROWS_PER_PAGE;
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string; avatarUrl: string | null }; size?: "md" | "lg" }) {
-  const cls = size === "lg" ? "w-16 h-16 text-base" : "w-8 h-8 text-[10px]";
+  const cls = size === "lg" ? "w-16 h-16 text-base" : "w-8 h-8 text-xxs";
   const imgSize = size === "lg" ? 64 : 32;
   return user.avatarUrl ? (
     <Image src={user.avatarUrl} alt={user.namaLengkap} width={imgSize} height={imgSize} className={`${cls} rounded-full object-cover shrink-0`} />
@@ -75,9 +76,9 @@ function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string
 }
 
 function StatusBadge({ user }: { user: Pick<User, "isSuspended" | "isApproved" | "role"> }) {
-  if (user.isSuspended) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-rose-50 text-rose-700 border-rose-200/60 whitespace-nowrap">Ditangguhkan</span>;
-  if (user.role === "organizer" && !user.isApproved) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-amber-50 text-amber-700 border-amber-200/60 whitespace-nowrap">Menunggu</span>;
-  return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200/60 whitespace-nowrap">Aktif</span>;
+  if (user.isSuspended) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-rose-50 text-rose-700 border-rose-200/60 whitespace-nowrap">Ditangguhkan</span>;
+  if (user.role === "organizer" && !user.isApproved) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-amber-50 text-amber-700 border-amber-200/60 whitespace-nowrap">Menunggu</span>;
+  return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200/60 whitespace-nowrap">Aktif</span>;
 }
 
 function SortIcon({ field, sortBy, sortDir }: { field: SortField; sortBy: SortField; sortDir: SortDir }) {
@@ -103,7 +104,7 @@ function StatCard({ icon: Icon, label, value, sub, subColor, iconColor, iconBg, 
       ) : (
         <div className="text-lg font-semibold text-gray-500">{value.toLocaleString("id-ID")}</div>
       )}
-      <div className="text-[10px] font-medium flex items-center gap-1" style={{ color: subColor }}>
+      <div className="text-xxs font-medium flex items-center gap-1" style={{ color: subColor }}>
         {SubIcon && <SubIcon className="w-3 h-3" />}
         {sub}
       </div>
@@ -111,7 +112,7 @@ function StatCard({ icon: Icon, label, value, sub, subColor, iconColor, iconBg, 
   );
 }
 
-// ─── Detail Modal ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function DetailModal({ userId, onClose }: { userId: number; onClose: () => void }) {
   const [user, setUser] = useState<UserDetail | null>(null);
@@ -138,8 +139,12 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
 
   return (
     <Portal>
-      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] p-4">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div 
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+          onClick={onClose} 
+        />
+        <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <h3 className="text-sm font-bold text-gray-800">Detail Pengguna</h3>
@@ -170,8 +175,8 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
             <div className="space-y-3">
               {rows.map(({ label, value }) => (
                 <div key={label} className="flex justify-between items-start gap-4">
-                  <span className="text-[11px] text-gray-400 font-medium shrink-0 w-36">{label}</span>
-                  <span className="text-[11px] text-gray-700 text-right">{value || "-"}</span>
+                  <span className="text-micro text-gray-400 font-medium shrink-0 w-36">{label}</span>
+                  <span className="text-micro text-gray-700 text-right">{value || "-"}</span>
                 </div>
               ))}
             </div>
@@ -183,7 +188,7 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function ManajemenUserPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -209,7 +214,7 @@ export default function ManajemenUserPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [detailUserId, setDetailUserId] = useState<number | null>(null);
 
-  // ── Fetch stats ─────────────────────────────────────────────────────────────
+  // â”€â”€ Fetch stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -223,7 +228,7 @@ export default function ManajemenUserPage() {
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
-  // ── Fetch users ─────────────────────────────────────────────────────────────
+  // â”€â”€ Fetch users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -254,7 +259,7 @@ export default function ManajemenUserPage() {
     setSelectedRows([]);
   }, [fetchUsers]);
 
-  // ── Sort ────────────────────────────────────────────────────────────────────
+  // â”€â”€ Sort â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) setSortDir((d) => d === "asc" ? "desc" : "asc");
@@ -262,7 +267,7 @@ export default function ManajemenUserPage() {
     setCurrentPage(1);
   };
 
-  // ── Filter ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -276,7 +281,7 @@ export default function ManajemenUserPage() {
   }, [searchInput, tipeInput, search, tipe]);
 
 
-  // ── Selection ───────────────────────────────────────────────────────────────
+  // â”€â”€ Selection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const pageIds = users.map((u) => u.id);
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedRows.includes(id));
@@ -286,7 +291,7 @@ export default function ManajemenUserPage() {
   const toggleRow = (id: number) =>
     setSelectedRows((p) => p.includes(id) ? p.filter((r) => r !== id) : [...p, id]);
 
-  // ── Delete ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleDelete = async (id: number) => {
     setDeleteLoading(true);
@@ -311,7 +316,7 @@ export default function ManajemenUserPage() {
     finally { setDeleteLoading(false); }
   };
 
-  // ── Pagination ───────────────────────────────────────────────────────────────
+  // â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const getPageButtons = (): (number | string)[] => {
     if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -326,7 +331,7 @@ export default function ManajemenUserPage() {
   const showFrom = total === 0 ? 0 : (currentPage - 1) * ROWS_PER_PAGE + 1;
   const showTo = Math.min(currentPage * ROWS_PER_PAGE, total);
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   return (
     <div className="flex-1 p-6 bg-gray-50 min-h-screen overflow-y-auto">
@@ -374,8 +379,8 @@ export default function ManajemenUserPage() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 items-end mb-5">
-          <div className="flex-1 min-w-[180px]">
-            <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Cari Pengguna</label>
+          <div className="flex-1 min-w-44">
+            <label className="block text-xxs font-semibold text-gray-400 uppercase tracking-wider mb-1">Cari Pengguna</label>
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
               <input type="text" placeholder="Nama atau email..."
@@ -385,8 +390,8 @@ export default function ManajemenUserPage() {
               />
             </div>
           </div>
-          <div className="min-w-[140px]">
-            <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Peran</label>
+          <div className="min-w-36">
+            <label className="block text-xxs font-semibold text-gray-400 uppercase tracking-wider mb-1">Peran</label>
             <select value={tipeInput} onChange={(e) => setTipeInput(e.target.value)}
               className="w-full px-3 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:outline-none text-gray-700">
               <option>Semua Tipe</option>
@@ -411,14 +416,14 @@ export default function ManajemenUserPage() {
                   return (
                     <th key={field}
                       onClick={() => handleSort(field)}
-                      className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 select-none whitespace-nowrap">
+                      className="px-6 py-3 text-left text-xxs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 select-none whitespace-nowrap">
                       {labels[field]}
                       <SortIcon field={field} sortBy={sortBy} sortDir={sortDir} />
                     </th>
                   );
                 })}
                 {["Status", "Email", "Aksi"].map((h) => (
-                  <th key={h} className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-6 py-3 text-left text-xxs font-bold text-gray-400 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -446,13 +451,13 @@ export default function ManajemenUserPage() {
                         onClick={() => setDetailUserId(user.id)}>
                         <Avatar user={user} />
                         <div>
-                          <div className="font-semibold text-gray-800 text-[13px] hover:text-slate-700 transition-colors">{user.namaLengkap}</div>
-                          <div className="text-[10px] text-gray-400">{user.email}</div>
+                          <div className="font-semibold text-gray-800 text-sm2 hover:text-slate-700 transition-colors">{user.namaLengkap}</div>
+                          <div className="text-xxs text-gray-400">{user.email}</div>
                         </div>
                       </button>
                     </td>
                     <td className="px-6 py-3.5">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider whitespace-nowrap ${user.role === "organizer" ? "bg-indigo-50 text-indigo-700 border-indigo-200/60" : "bg-slate-50 text-slate-700 border-slate-200/60"}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xxs font-bold border tracking-wider whitespace-nowrap ${user.role === "organizer" ? "bg-indigo-50 text-indigo-700 border-indigo-200/60" : "bg-slate-50 text-slate-700 border-slate-200/60"}`}>
                         {user.role === "organizer" ? "Penyelenggara" : "Pengunjung"}
                       </span>
                     </td>
@@ -481,7 +486,7 @@ export default function ManajemenUserPage() {
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
           <span className="text-xs text-gray-400">
-            Menampilkan <b className="text-gray-600">{showFrom}</b> – <b className="text-gray-600">{showTo}</b> dari{" "}
+            Menampilkan <b className="text-gray-600">{showFrom}</b> â€“ <b className="text-gray-600">{showTo}</b> dari{" "}
             <b className="text-gray-600">{total.toLocaleString("id-ID")}</b> pengguna
           </span>
           <div className="flex gap-1 items-center">
@@ -515,8 +520,12 @@ export default function ManajemenUserPage() {
       {/* Single Delete Modal */}
       {deleteModal !== null && (
         <Portal>
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]">
-            <div className="bg-white rounded-2xl p-6 shadow-xl w-80">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => setDeleteModal(null)} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
             <h3 className="text-sm font-bold text-gray-800 mb-2">Hapus Pengguna</h3>
             <p className="text-xs text-gray-500 mb-5">Apakah kamu yakin ingin menghapus pengguna ini? Tindakan ini tidak bisa dibatalkan.</p>
             <div className="flex gap-2 justify-end">
@@ -536,9 +545,13 @@ export default function ManajemenUserPage() {
 
       {/* Bulk Delete Modal */}
       {bulkDeleteModal && (
-        <Portal>
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]">
-            <div className="bg-white rounded-2xl p-6 shadow-xl w-80">
+    <Portal>
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => setBulkDeleteModal(false)} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
             <h3 className="text-sm font-bold text-gray-800 mb-2">Hapus Massal</h3>
             <p className="text-xs text-gray-500 mb-5">
               Kamu akan menghapus <b>{selectedRows.length} pengguna</b> sekaligus. Tindakan ini tidak bisa dibatalkan.

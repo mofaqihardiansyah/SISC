@@ -1,3 +1,5 @@
+import { SITE } from "@/lib/constants";
+
 export default function Footer() {
   return (
     <footer className="bg-brand-dark text-white mt-16 py-12 px-4 sm:px-8 lg:px-16">
@@ -5,7 +7,7 @@ export default function Footer() {
 
         {/* Brand */}
         <div className="col-span-2 sm:col-span-1">
-          <h2 className="text-xl font-extrabold mb-3">POLIVENTS</h2>
+          <h2 className="text-xl font-extrabold mb-3">{SITE.NAME}</h2>
           <p className="text-sm text-gray-400 leading-relaxed">
             Hubungkan koneksi anda dan tambah wawasan anda melalui seminar dan conference
           </p>
@@ -32,7 +34,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="flex items-end justify-end col-span-2 sm:col-span-1">
-          <p className="text-sm text-gray-400">© 2026 POLIVENTS.</p>
+          <p className="text-sm text-gray-400">© {SITE.YEAR} {SITE.NAME}.</p>
         </div>
 
       </div>

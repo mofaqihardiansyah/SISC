@@ -25,7 +25,7 @@ function ActionButton({ status, onClick, onViewDetail }: { status: string; onCli
     return (
       <button
         onClick={onClick}
-        className="px-2.5 py-1 bg-primary hover:bg-primary/95 text-white rounded text-[10px] font-bold active:scale-[0.97] transition-all whitespace-nowrap shadow-sm"
+        className="px-2.5 py-1 bg-primary hover:bg-primary/95 text-white rounded text-xxs font-bold active:scale-[0.97] transition-all whitespace-nowrap shadow-sm"
       >
         {status === 'rejected' ? 'Submit Ulang' : 'Submit Paper'}
       </button>
@@ -34,7 +34,7 @@ function ActionButton({ status, onClick, onViewDetail }: { status: string; onCli
   return (
     <button
       onClick={onViewDetail}
-      className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-bold active:scale-[0.97] transition-all whitespace-nowrap"
+      className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded text-xxs font-bold active:scale-[0.97] transition-all whitespace-nowrap"
     >
       Detail Paper
     </button>
@@ -74,7 +74,7 @@ export function EventList({ events, onStartSubmit, onViewDetail }: EventListProp
                 <tr className="hover:bg-slate-50/25 transition-colors">
                   <td className="px-6 py-3.5 text-xs text-slate-400 tabular-nums">{index + 1}</td>
                   <td className="px-6 py-3.5">
-                    <span className="font-semibold text-slate-800 text-[13px]">{event.judul}</span>
+                    <span className="font-semibold text-slate-800 text-sm2">{event.judul}</span>
                   </td>
                   <td className="px-6 py-3.5 text-xs text-slate-500">{event.penyelenggara || '-'}</td>
                   <td className="px-6 py-3.5 text-xs text-slate-500 whitespace-nowrap">
@@ -95,7 +95,7 @@ export function EventList({ events, onStartSubmit, onViewDetail }: EventListProp
                           <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[11px] font-bold text-rose-800 uppercase tracking-tight">Alasan Penolakan / Revisi:</p>
+                          <p className="text-micro font-bold text-rose-800 uppercase tracking-tight">Alasan Penolakan / Revisi:</p>
                           <p className="text-xs text-rose-700 leading-relaxed font-medium">{event.rejectionReason}</p>
                         </div>
                       </div>
@@ -125,7 +125,7 @@ export function EventList({ events, onStartSubmit, onViewDetail }: EventListProp
             </div>
             {event.submissionStatus === 'rejected' && event.rejectionReason && (
               <div className="mt-3 bg-rose-50 border border-rose-100 rounded-lg p-2.5">
-                <p className="text-[10px] font-bold text-rose-800 uppercase tracking-tight mb-1">Alasan Penolakan:</p>
+                <p className="text-xxs font-bold text-rose-800 uppercase tracking-tight mb-1">Alasan Penolakan:</p>
                 <p className="text-xs text-rose-700 leading-relaxed font-medium">{event.rejectionReason}</p>
               </div>
             )}

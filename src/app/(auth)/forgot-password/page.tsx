@@ -68,13 +68,13 @@ export default function ForgotPasswordPage() {
               className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
               {...register('email')}
             />
-            {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{errors.email.message}</p>}
           </div>
 
           <div className="pt-2">
             <Button 
               type="submit" 
-              className="w-full bg-primary hover:bg-[#02336B] h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+              className="w-full bg-primary hover:bg-sisc-auth h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
               disabled={isSubmitting}
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

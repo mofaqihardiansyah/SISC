@@ -5,7 +5,7 @@ export default function Loading() {
     <div className="max-w-6xl w-full mx-auto animate-in fade-in duration-500">
       {/* Skeleton Filter Section */}
       <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 flex flex-wrap lg:flex-nowrap gap-4 items-end mb-10 shadow-sm">
-        <div className="flex-1 min-w-[200px] space-y-2">
+        <div className="flex-1 min-w-48 space-y-2">
           <div className="w-20 h-3 bg-slate-200 rounded animate-pulse"></div>
           <div className="w-full h-10 bg-slate-100 rounded-xl animate-pulse"></div>
         </div>

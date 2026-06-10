@@ -167,7 +167,7 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                   <tr key={kat.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-3.5 font-medium text-slate-800">{kat.nama}</td>
                     <td className="px-6 py-3.5">
-                      <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-mono text-[11px]">
+                      <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-mono text-micro">
                         {kat.slug}
                       </span>
                     </td>
@@ -201,11 +201,11 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
           </div>
 
           {/* Pagination Controls Kategori */}
-          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-[58px]">
-            <span className="text-[11px] text-slate-400 font-medium">
+          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-14">
+            <span className="text-micro text-slate-400 font-medium">
               {filteredKategori.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startKatIndex + 1}</strong> – <strong className="text-slate-600">{Math.min(startKatIndex + KATEGORI_PER_PAGE, filteredKategori.length)}</strong> dari <strong className="text-slate-600">{filteredKategori.length}</strong> kategori
+                  Menampilkan <strong className="text-slate-600">{startKatIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startKatIndex + KATEGORI_PER_PAGE, filteredKategori.length)}</strong> dari <strong className="text-slate-600">{filteredKategori.length}</strong> kategori
                 </>
               ) : (
                 "Tidak ada kategori ditemukan"
@@ -225,8 +225,8 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                 {Array.from({ length: totalKatPages }, (_, i) => i + 1).map((p) => {
                   if (totalKatPages > 5) {
                     if (p !== 1 && p !== totalKatPages && Math.abs(p - katPage) > 1) {
-                      if (p === 2 && katPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
-                      if (p === totalKatPages - 1 && katPage < totalKatPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
+                      if (p === 2 && katPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
+                      if (p === totalKatPages - 1 && katPage < totalKatPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
                       return null;
                     }
                   }
@@ -334,11 +334,11 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
           </div>
 
           {/* Pagination Controls Tag */}
-          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-[58px]">
-            <span className="text-[11px] text-slate-400 font-medium">
+          <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-14">
+            <span className="text-micro text-slate-400 font-medium">
               {filteredTags.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startIndex + 1}</strong> – <strong className="text-slate-600">{Math.min(startIndex + TAGS_PER_PAGE, filteredTags.length)}</strong> dari <strong className="text-slate-600">{filteredTags.length}</strong> tag
+                  Menampilkan <strong className="text-slate-600">{startIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startIndex + TAGS_PER_PAGE, filteredTags.length)}</strong> dari <strong className="text-slate-600">{filteredTags.length}</strong> tag
                 </>
               ) : (
                 "Tidak ada tag ditemukan"
@@ -358,8 +358,8 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
                 {Array.from({ length: totalTagPages }, (_, i) => i + 1).map((p) => {
                   if (totalTagPages > 5) {
                     if (p !== 1 && p !== totalTagPages && Math.abs(p - tagPage) > 1) {
-                      if (p === 2 && tagPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
-                      if (p === totalTagPages - 1 && tagPage < totalTagPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
+                      if (p === 2 && tagPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
+                      if (p === totalTagPages - 1 && tagPage < totalTagPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
                       return null;
                     }
                   }
@@ -398,8 +398,12 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
       {/* ================= POPUP MODALS ================= */}
       {modalType !== null && (
         <Portal>
-          <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-[9999] p-4 transition-all animate-fadeIn">
-          <div className="bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={handleCloseModal} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100 animate-in zoom-in-95 duration-300">
             
             {/* Modal Title */}
             <div className="flex justify-between items-center mb-4">
@@ -431,7 +435,7 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
               {/* Form inputs if not delete mode */}
               {modalType !== 'deleteKategori' && modalType !== 'deleteTag' ? (
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
                     Nama {modalType.toLowerCase().includes('kategori') ? 'Kategori' : 'Tag'}
                   </label>
                   <input 

@@ -3,6 +3,7 @@
 import { Search, Loader2 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { UI_TEXT } from "@/lib/constants";
 
 interface SuggestionEvent {
   id: number;
@@ -87,7 +88,7 @@ export default function SearchInput() {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder="Cari seminar atau konferensi"
+          placeholder={UI_TEXT.SEARCH_PLACEHOLDER}
           className="pl-10 pr-4 py-2 rounded-full text-sm text-black bg-white w-[300px] outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
           autoComplete="off"
         />

@@ -4,6 +4,7 @@ import { eq, ne, desc, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
 import { auth } from "@/auth";
+import { PAGINATION } from "@/lib/constants";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -41,7 +42,7 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   // Ambil event terkait
   const eventTerkait = await db.query.event.findMany({
     where: ne(event.id, eventId),
-    limit: 4,
+    limit: PAGINATION.RELATED_EVENTS_LIMIT,
     orderBy: [desc(event.jumlahTayangan)],
     with: {
       organizer: true,

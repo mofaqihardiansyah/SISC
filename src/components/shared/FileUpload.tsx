@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Upload, FileText, Check, Loader2, X, ImageIcon } from "lucide-react";
 import Image from "next/image";
+import { ERROR_MESSAGES, UI_TEXT } from "@/lib/constants";
 
 type UploadType = "avatar" | "document" | "banner";
 
@@ -57,7 +58,7 @@ export function FileUpload({ type, currentUrl, onSuccess, className, variant = "
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error || "Gagal mengupload file");
+        toast.error(data.error || ERROR_MESSAGES.UPLOAD_FILE);
         setPreview(currentUrl || null);
         return;
       }
@@ -66,7 +67,7 @@ export function FileUpload({ type, currentUrl, onSuccess, className, variant = "
       toast.success(`${TYPE_LABELS[type]} berhasil diunggah!`);
       onSuccess?.(data.url);
     } catch {
-      toast.error("Terjadi kesalahan saat mengupload");
+      toast.error(ERROR_MESSAGES.UPLOAD_ERROR);
       setPreview(currentUrl || null);
     } finally {
       setIsUploading(false);
@@ -116,19 +117,19 @@ export function FileUpload({ type, currentUrl, onSuccess, className, variant = "
           <div className="flex-1">
             {uploadedUrl ? (
               <div className="flex items-center text-xs font-bold text-green-600">
-                <Check className="w-3.5 h-3.5 mr-1.5" /> Dokumen Terunggah
+                <Check className="w-3.5 h-3.5 mr-1.5" /> {UI_TEXT.DOCUMENT_UPLOADED}
               </div>
             ) : (
-              <p className="text-xs font-medium text-slate-400">PDF, Maks 4MB</p>
+              <p className="text-xs font-medium text-slate-400">{UI_TEXT.FILE_HINT}</p>
             )}
           </div>
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={isUploading}
-            className="text-xs font-bold text-primary hover:text-[#02336B] cursor-pointer disabled:opacity-50"
+            className="text-xs font-bold text-primary hover:text-sisc-auth cursor-pointer disabled:opacity-50"
           >
-            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Pilih Berkas"}
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : UI_TEXT.SELECT_FILE}
           </button>
         </div>
       </div>
@@ -190,7 +191,7 @@ export function FileUpload({ type, currentUrl, onSuccess, className, variant = "
               <Upload className="w-8 h-8" />
             )}
             <span className="text-xs font-medium text-center px-2">
-              {type === "avatar" ? "Upload Foto" : "Klik atau seret file ke sini"}
+              {type === "avatar" ? "Upload Foto" : UI_TEXT.DROP_FILE_HERE}
             </span>
           </div>
         )}

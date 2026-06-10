@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { event, kategori } from "@/db/schema";
 import { eq, asc, isNull, ilike, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { PAGINATION } from "@/lib/constants";
 
 export type PendingEvent = {
   id: number;
@@ -146,7 +147,7 @@ function mapEvent(r: EventRow): PendingEvent {
   };
 }
 
-export async function getPendingEvents(page = 1, pageSize = 10) {
+export async function getPendingEvents(page = 1, pageSize = PAGINATION.PAGE_SIZE) {
   try {
     const offset = (page - 1) * pageSize;
 

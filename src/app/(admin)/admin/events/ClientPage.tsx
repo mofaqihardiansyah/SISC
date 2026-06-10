@@ -237,7 +237,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="space-y-1 mb-8">
-        <h1 className="text-3xl font-black text-[#0E215D] tracking-tight">Manajemen Event</h1>
+        <h1 className="text-3xl font-black text-sisc-navy tracking-tight">Manajemen Event</h1>
         <p className="text-slate-500 font-medium text-sm max-w-2xl">
           Kelola event yang didaftarkan oleh penyelenggara di platform.
         </p>
@@ -275,7 +275,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
             {/* Status Dropdown */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Verifikasi</label>
+              <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Verifikasi</label>
               <div className="relative">
                 <select 
                   value={statusTab}
@@ -293,7 +293,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
 
             {/* Type Filter */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Jenis Event</label>
+              <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Jenis Event</label>
               <div className="relative">
                 <select 
                   value={typeFilter}
@@ -310,7 +310,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
 
             {/* Target Penyelenggara Filter */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Target Peserta</label>
+              <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Target Peserta</label>
               <div className="relative">
                 <select 
                   value={targetFilter}
@@ -327,7 +327,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
 
             {/* Platform Filter */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Platform</label>
+              <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Platform</label>
               <div className="relative">
                 <select 
                   value={platformFilter}
@@ -345,7 +345,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
 
             {/* Price Filter */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Biaya</label>
+              <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Biaya</label>
               <div className="relative">
                 <select 
                   value={priceFilter}
@@ -362,7 +362,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
 
             {/* Sort Filter */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Urutkan</label>
+              <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Urutkan</label>
               <div className="relative">
                 <select 
                   value={sortBy}
@@ -382,7 +382,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
           {/* Action Row: Bulk Selection Actions */}
           {selectedRowIds.size > 0 && (
             <div className="flex justify-end pt-2 border-t border-slate-100/50 mt-1">
-              <div className="flex items-center gap-2 px-3 py-1 bg-rose-50 border border-rose-100 rounded-xl h-[34px]">
+              <div className="flex items-center gap-2 px-3 py-1 bg-rose-50 border border-rose-100 rounded-xl h-9">
                 <span className="text-xs font-bold text-rose-600">{selectedRowIds.size} dipilih</span>
                 <div className="h-4 w-px bg-rose-200 mx-1"></div>
                 <button 
@@ -399,7 +399,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200/60 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-200/60 text-xxs font-bold text-slate-400 uppercase tracking-wider">
                 <th className="px-3 py-2.5 w-10 text-center select-none">
                   <input 
                     type="checkbox" 
@@ -409,13 +409,13 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   />
                 </th>
                 <th className="px-3 py-2.5 w-10 text-center whitespace-nowrap select-none">#</th>
-                <th className="px-3 py-2.5 w-[25%] min-w-[220px] whitespace-nowrap select-none">Event</th>
-                <th className="px-3 py-2.5 w-[15%] min-w-[130px] whitespace-nowrap select-none">Penyelenggara</th>
-                <th className="px-3 py-2.5 w-[18%] min-w-[150px] whitespace-nowrap select-none">Waktu Pelaksanaan</th>
-                <th className="px-3 py-2.5 w-[12%] min-w-[110px] whitespace-nowrap select-none">Tipe & Harga</th>
-                <th className="px-3 py-2.5 w-[12%] min-w-[110px] whitespace-nowrap select-none">Kuota & Pendaftar</th>
-                <th className="px-3 py-2.5 w-[10%] min-w-[90px] text-center whitespace-nowrap select-none">Status</th>
-                <th className="px-3 py-2.5 w-[8%] min-w-[80px] text-center whitespace-nowrap select-none">Aksi</th>
+                <th className="px-3 py-2.5 w-[25%] min-w-56 whitespace-nowrap select-none">Event</th>
+                <th className="px-3 py-2.5 w-[15%] min-w-32 whitespace-nowrap select-none">Penyelenggara</th>
+                <th className="px-3 py-2.5 w-[18%] min-w-36 whitespace-nowrap select-none">Waktu Pelaksanaan</th>
+                <th className="px-3 py-2.5 w-[12%] min-w-28 whitespace-nowrap select-none">Tipe & Harga</th>
+                <th className="px-3 py-2.5 w-[12%] min-w-28 whitespace-nowrap select-none">Kuota & Pendaftar</th>
+                <th className="px-3 py-2.5 w-[10%] min-w-24 text-center whitespace-nowrap select-none">Status</th>
+                <th className="px-3 py-2.5 w-[8%] min-w-20 text-center whitespace-nowrap select-none">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200/60 text-xs text-slate-600">
@@ -469,14 +469,14 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                             </div>
                             <div className="flex flex-wrap gap-1 mt-1">
                               <span className={cn(
-                                "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase whitespace-nowrap",
+                                "inline-flex items-center px-1.5 py-0.5 rounded text-nano font-bold tracking-wider uppercase whitespace-nowrap",
                                 event.jenisEvent === 'conference'
                                   ? "bg-blue-50 text-blue-700 border border-blue-100/50"
                                   : "bg-indigo-50 text-indigo-700 border border-indigo-100/50"
                               )}>
                                 {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'}
                               </span>
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wider uppercase whitespace-nowrap bg-slate-50 text-slate-500 border border-slate-100">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-nano font-semibold tracking-wider uppercase whitespace-nowrap bg-slate-50 text-slate-500 border border-slate-100">
                                 {event.isEventPolines ? 'Polines' : 'Umum'}
                               </span>
                             </div>
@@ -487,7 +487,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       {/* Column 4: Penyelenggara */}
                       <td className="px-3 py-2.5">
                           <div className="flex items-center text-slate-700">
-                            <span className="font-medium text-xs truncate max-w-[150px]">{event.penyelenggara || 'Institusi Polines'}</span>
+                            <span className="font-medium text-xs truncate max-w-36">{event.penyelenggara || 'Institusi Polines'}</span>
                           </div>
                       </td>
    
@@ -497,7 +497,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                           <div className="text-xs font-bold text-slate-800 whitespace-nowrap">
                             {format(new Date(event.tanggalMulai), 'dd MMM yyyy', { locale: id })}
                           </div>
-                          <div className="text-[10px] text-slate-400 font-medium">
+                          <div className="text-xxs text-slate-400 font-medium">
                             {format(new Date(event.tanggalMulai), 'HH:mm', { locale: id })} WIB
                           </div>
                         </div>
@@ -508,7 +508,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                         <div className="flex flex-col gap-1">
                           <div>
                             <span className={cn(
-                              "inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border tracking-wider uppercase whitespace-nowrap",
+                              "inline-flex items-center px-2 py-0.5 rounded-full text-nano font-bold border tracking-wider uppercase whitespace-nowrap",
                               event.tipePlatform === 'offline' && "bg-blue-50 text-blue-700 border-blue-200/60",
                               event.tipePlatform === 'online' && "bg-purple-50 text-purple-700 border-purple-200/60",
                               event.tipePlatform === 'hybrid' && "bg-emerald-50 text-emerald-700 border-emerald-200/60",
@@ -530,8 +530,8 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       {/* Column 7: Kuota & Pendaftar Progress Bar */}
                       <td className="px-3 py-2.5">
                         <div className="flex flex-col gap-1 w-28">
-                          <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
-                            <span>{participantVal} / {kuotaVal > 0 ? kuotaVal : '∞'} Terdaftar</span>
+                          <div className="flex justify-between items-center text-xxs font-bold text-slate-500">
+                            <span>{participantVal} / {kuotaVal > 0 ? kuotaVal : 'âˆž'} Terdaftar</span>
                             {kuotaVal > 0 && <span>{percent}%</span>}
                           </div>
                           {kuotaVal > 0 && (
@@ -549,15 +549,15 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       <td className="px-3 py-2.5 text-center">
                         <div className="flex justify-center">
                           {event.status === 'pending' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 uppercase tracking-wider border border-amber-200/60">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-nano font-bold bg-amber-50 text-amber-700 uppercase tracking-wider border border-amber-200/60">
                               Menunggu
                             </span>
                           ) : event.status === 'published' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 uppercase tracking-wider border border-emerald-200/60">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-nano font-bold bg-emerald-50 text-emerald-700 uppercase tracking-wider border border-emerald-200/60">
                               Disetujui
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-700 uppercase tracking-wider border border-rose-200/60">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-nano font-bold bg-rose-50 text-rose-700 uppercase tracking-wider border border-rose-200/60">
                               Ditolak
                             </span>
                           )}
@@ -592,11 +592,11 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-[58px]">
-          <span className="text-[11px] text-slate-400 font-medium">
+        <div className="flex justify-between items-center p-4 border-t border-slate-100 bg-slate-50/20 mt-auto shrink-0 h-14">
+          <span className="text-micro text-slate-400 font-medium">
             {sortedEvents.length > 0 ? (
               <>
-                Menampilkan <strong className="text-slate-600">{startIdx + 1}</strong> – <strong className="text-slate-600">{Math.min(startIdx + EVENTS_PER_PAGE, sortedEvents.length)}</strong> dari <strong className="text-slate-600">{sortedEvents.length}</strong> event
+                Menampilkan <strong className="text-slate-600">{startIdx + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startIdx + EVENTS_PER_PAGE, sortedEvents.length)}</strong> dari <strong className="text-slate-600">{sortedEvents.length}</strong> event
               </>
             ) : (
               "Tidak ada data"
@@ -616,8 +616,8 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
                 if (totalPages > 5) {
                   if (p !== 1 && p !== totalPages && Math.abs(p - currentPage) > 1) {
-                    if (p === 2 && currentPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
-                    if (p === totalPages - 1 && currentPage < totalPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-[10px]">...</span>;
+                    if (p === 2 && currentPage > 3) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
+                    if (p === totalPages - 1 && currentPage < totalPages - 2) return <span key={p} className="text-slate-400 px-0.5 text-xxs">...</span>;
                     return null;
                   }
                 }

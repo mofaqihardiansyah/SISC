@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { UPLOAD_LIMITS } from "./src/lib/constants";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["inngest", "playwright"],
@@ -17,7 +18,7 @@ const nextConfig: NextConfig = {
   // Tambahkan baris kode di bawah ini untuk menaikkan limit upload Server Actions
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb", // Menaikkan limit menjadi 10 Megabytes agar ada margin untuk multipart form data
+      bodySizeLimit: UPLOAD_LIMITS.SERVER_ACTIONS_BODY_SIZE, // Menaikkan limit menjadi 10 Megabytes agar ada margin untuk multipart form data
     },
   },
 };

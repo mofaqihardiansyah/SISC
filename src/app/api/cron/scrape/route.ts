@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { db } from '@/db';
 import { event } from '@/db/schema';
 import { inArray } from 'drizzle-orm';
+import { SCRAPER } from '@/lib/constants';
 
 // Mengamankan API route ini agar tidak bisa ditembak sembarangan oleh user
 // Vercel Cron akan mengirimkan header rahasia
@@ -19,7 +20,7 @@ export async function GET() {
     console.log("🚀 Memulai proses Scraping Event...");
 
     // 1. Tentukan Website Target (Contoh: EventKampus)
-    const targetUrl = 'https://eventkampus.com/event/kategori/seminar'; 
+    const targetUrl = SCRAPER.DEFAULT_URL; 
     
     // Melakukan fetch ke website asli
     const response = await fetch(targetUrl, {
@@ -52,7 +53,7 @@ export async function GET() {
       
       // Rapikan link jika bentuknya relatif (/event/123)
       if (linkSumber && linkSumber.startsWith('/')) {
-        linkSumber = 'https://eventkampus.com' + linkSumber;
+        linkSumber = SCRAPER.BASE_URL + linkSumber;
       }
 
       if (judul && linkSumber && linkSumber.includes('event')) {
