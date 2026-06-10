@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { X, FileText, Send, UploadCloud, ChevronLeft, ChevronRight, Info, Plus, Check } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { submitNewPaper } from '@/actions/paper';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 type SubmissionFormProps = {
   selectedEvent: { id: number; judul: string } | undefined;
@@ -130,7 +132,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
         kataKunci: kataKunci.join(', '),
         track: track.trim() || undefined,
         penulis: authors,
-        fileUrl: dataUpload.url,
+        urlFile: dataUpload.url,
       });
 
       toast.success('Paper berhasil disubmit!');
@@ -158,12 +160,14 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
       {/* Header */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6">
         <div className="flex items-center gap-4">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onBack}
-            className="p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-slate-400 hover:text-slate-900 border border-transparent hover:border-slate-200"
+            aria-label="Kembali"
           >
             <ChevronLeft size={20} />
-          </button>
+          </Button>
           <div>
             <h2 className="text-xl font-bold text-slate-900">Pengiriman Paper Baru</h2>
             <p className="text-sm text-slate-500 mt-0.5">{selectedEvent?.judul}</p>
@@ -225,7 +229,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                     <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-slate-400" /> Track / Topik (Opsional)
                     </label>
-                    <input
+                    <Input
                       type="text"
                       list="topicsList"
                       value={track}
@@ -248,15 +252,15 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                         kataKunci.map((k, idx) => (
                           <span key={idx} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
                             {k}
-                            <button type="button" onClick={() => removeKeyword(idx)} className="text-primary hover:text-primary/70 transition-colors">
+                            <Button variant="ghost" size="icon-xs" type="button" onClick={() => removeKeyword(idx)} className="text-primary hover:text-primary/70" aria-label="Hapus kata kunci">
                               <X size={14} />
-                            </button>
+                            </Button>
                           </span>
                         ))
                       )}
                     </div>
                     <div className="relative">
-                      <input
+                      <Input
                         type="text"
                         list="topicsList"
                         placeholder="Pilih atau ketik kata kunci lalu tekan Enter..."
@@ -282,9 +286,9 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                     <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Daftar Penulis Terstruktur
                     </label>
-                    <button onClick={addEmptyAuthor} type="button" className="text-xs bg-slate-900 text-white px-3 py-1.5 rounded-xl flex items-center gap-1.5 hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md">
+                    <Button variant="default" size="sm" type="button" onClick={addEmptyAuthor}>
                       <Plus size={14} /> Tambah Penulis
-                    </button>
+                    </Button>
                   </div>
                   
                   {authors.length === 0 ? (
@@ -295,16 +299,16 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                     <div className="space-y-4">
                       {authors.map((author, idx) => (
                         <div key={idx} className="bg-slate-50 border border-slate-200 p-4 rounded-xl relative group">
-                          <button onClick={() => removeAuthor(idx)} type="button" className="absolute -top-2 -right-2 w-6 h-6 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 active:scale-90 shadow-sm hover:bg-rose-500 hover:text-white">
+                          <Button variant="destructive" size="icon-xs" type="button" onClick={() => removeAuthor(idx)} aria-label="Hapus penulis" className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100">
                             <X size={12} />
-                          </button>
+                          </Button>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" placeholder="Nama Lengkap" value={author.nama} onChange={(e) => updateAuthor(idx, 'nama', e.target.value)} className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary ${idx !== 0 ? 'md:col-span-2' : ''}`} />
+                            <Input type="text" placeholder="Nama Lengkap" value={author.nama} onChange={(e) => updateAuthor(idx, 'nama', e.target.value)} className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary ${idx !== 0 ? 'md:col-span-2' : ''}`} />
                             {idx === 0 && (
-                              <input type="email" placeholder="Email (misal: jhon@univ.edu)" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
+                              <Input type="email" placeholder="Email (misal: jhon@univ.edu)" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
                             )}
-                            <input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
+                            <Input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
                           </div>
                           
                           <div className="mt-4 flex items-center gap-2">
@@ -352,9 +356,9 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                             <p className="text-micro text-slate-500 font-medium">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                           </div>
                         </div>
-                        <button type="button" onClick={() => setFile(null)} className="p-2 hover:bg-rose-50 rounded-xl text-slate-400 hover:text-rose-500 transition-all duration-200 hover:scale-105 active:scale-95">
+                        <Button variant="ghost" size="icon-xs" type="button" onClick={() => setFile(null)} aria-label="Hapus file" className="text-slate-400 hover:text-rose-500">
                           <X size={18} />
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -391,27 +395,27 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
             {/* Actions Footer */}
             <div className="px-8 py-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
               {step > 1 ? (
-                <button onClick={() => setStep(step - 1)} disabled={uploading} className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-slate-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md">
+                <Button variant="outline" onClick={() => setStep(step - 1)} disabled={uploading}>
                   <ChevronLeft size={16} /> Kembali
-                </button>
+                </Button>
               ) : <div />}
               
               {step < 3 ? (
-                <button onClick={handleNextStep} className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md">
+                <Button variant="default" onClick={handleNextStep}>
                   Selanjutnya <ChevronRight size={16} />
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button
+                  variant="default"
                   onClick={handleSubmit}
                   disabled={uploading || !file || !coiAgreed}
-                  className="px-8 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] flex items-center gap-3 shadow-lg shadow-slate-900/20"
                 >
                   {uploading ? 'Memproses...' : (
                     <>
                       Kirim Paper <Send size={16} />
                     </>
                   )}
-                </button>
+                </Button>
               )}
             </div>
           </div>

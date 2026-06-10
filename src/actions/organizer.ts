@@ -16,7 +16,7 @@ export async function updateProfilAction(formData: FormData) {
       .set({
         namaInstansi: nama,
         deskripsiInstansi: deskripsi,
-        websiteUrl: website,
+        urlWebsite: website,
       })
       .where(eq(profilPenyelenggara.id, parseInt(id)));
 

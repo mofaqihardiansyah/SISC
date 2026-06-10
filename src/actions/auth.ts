@@ -76,11 +76,11 @@ interface RegisterValues {
   nomorTelepon?: string;
   tanggalLahir?: string;
   jenisKelamin?: string;
-  institution?: string;
+  institusi?: string;
   pekerjaan?: string;
   namaInstansi?: string;
   deskripsiInstansi?: string;
-  dokumenLegalitasUrl?: string;
+  urlDokumenLegalitas?: string;
 }
 
 export async function registerUser(values: RegisterValues, role: 'visitor' | 'organizer') {
@@ -106,7 +106,7 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
       nomorTelepon: values.nomorTelepon,
       tanggalLahir: values.tanggalLahir ? new Date(values.tanggalLahir) : null,
       jenisKelamin: values.jenisKelamin as 'Laki-laki' | 'Perempuan',
-      institution: values.institution || values.namaInstansi, // Use namaInstansi as fallback for organizer
+      institusi: values.institusi || values.namaInstansi, // Use namaInstansi as fallback for organizer
       pekerjaan: values.pekerjaan,
       password: hashedPassword,
       role: role,
@@ -118,18 +118,18 @@ export async function registerUser(values: RegisterValues, role: 'visitor' | 'or
         userId: newUser.id,
         namaInstansi: values.namaInstansi,
         deskripsiInstansi: values.deskripsiInstansi,
-        dokumenLegalitasUrl: values.dokumenLegalitasUrl || "",
+        urlDokumenLegalitas: values.urlDokumenLegalitas || "",
       });
     }
 
     // 5. Generate and save OTP
     const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const kedaluwarsaPada = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await db.insert(otpCodes).values({
       email: values.email,
       code: otp,
-      expiresAt: expiresAt,
+      kedaluwarsaPada: kedaluwarsaPada,
     });
 
     // 6. Send OTP (Background)
@@ -169,17 +169,17 @@ export async function verifyOtpAction(email: string, code: string) {
   // Jika berhasil, reset rate limit
   otpRateLimit.delete(email);
 
-  if (otpRecord.expiresAt < new Date()) {
+  if (otpRecord.kedaluwarsaPada < new Date()) {
     return { error: "Kode OTP salah." };
   }
 
-  if (otpRecord.expiresAt < new Date()) {
+  if (otpRecord.kedaluwarsaPada < new Date()) {
     return { error: "Kode OTP sudah kedaluwarsa." };
   }
 
   // Update user verification status
   await db.update(users)
-    .set({ emailVerified: new Date() })
+    .set({ emailTerverifikasi: new Date() })
     .where(eq(users.email, email));
 
   // Delete OTP code
@@ -194,12 +194,12 @@ export async function resendOtpAction(email: string) {
 
   // Generate and save new OTP
   const otp = generateOTP();
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const kedaluwarsaPada = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   await db.insert(otpCodes).values({
     email: email,
     code: otp,
-    expiresAt: expiresAt,
+    kedaluwarsaPada: kedaluwarsaPada,
   });
 
   // Send OTP (Background)
@@ -223,12 +223,12 @@ export async function requestPasswordReset(email: string) {
 
   // Generate and save new OTP
   const otp = generateOTP();
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const kedaluwarsaPada = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   await db.insert(otpCodes).values({
     email: email,
     code: otp,
-    expiresAt: expiresAt,
+    kedaluwarsaPada: kedaluwarsaPada,
   });
 
   // Send OTP (Background)
@@ -261,7 +261,7 @@ export async function verifyResetOtpAction(email: string, code: string) {
   }
 
   // Jangan reset rate limit di sini karena kita masih butuh otp valid untuk final step
-  if (otpRecord.expiresAt < new Date()) {
+  if (otpRecord.kedaluwarsaPada < new Date()) {
     return { error: "Kode OTP sudah kedaluwarsa." };
   }
 
@@ -295,7 +295,7 @@ export async function resetPassword(email: string, code: string, newPassword: st
   // Jika berhasil, reset rate limit
   otpRateLimit.delete(email);
 
-  if (otpRecord.expiresAt < new Date()) {
+  if (otpRecord.kedaluwarsaPada < new Date()) {
     return { error: "Kode OTP sudah kedaluwarsa." };
   }
 

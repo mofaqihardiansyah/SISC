@@ -26,6 +26,8 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import type { PenyelenggaraItem, StatusValidasi } from "@/types/penyelenggara";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const PAGE_SIZE = 6;
 
@@ -45,17 +47,17 @@ const formatDate = (iso: string | null) =>
 function StatusBadge({ status }: { status: StatusValidasi }) {
   const config: Record<StatusValidasi, { label: string; className: string; icon: ComponentType<{ className?: string }> }> = {
     approved: {
-      label: "DISETUJUI",
+      label: "Disetujui",
       className: "bg-emerald-50 text-emerald-700 border-emerald-200",
       icon: CheckCircle2,
     },
     pending: {
-      label: "MENUNGGU",
+      label: "Menunggu",
       className: "bg-amber-50 text-amber-700 border-amber-200",
       icon: Clock,
     },
     rejected: {
-      label: "DITOLAK",
+      label: "Ditolak",
       className: "bg-rose-50 text-rose-700 border-rose-200",
       icon: UserX,
     },
@@ -351,13 +353,14 @@ export function ValidasiAksesPenyelenggaraClient({
         <div className="flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-xs font-semibold text-rose-700 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-500" />
           <div className="flex-1">{errorMsg}</div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon-xs"
             onClick={() => setErrorMsg(null)}
-            className="text-rose-400 hover:text-rose-700 transition-colors p-1"
             aria-label="Tutup pesan error"
           >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       )}
       
@@ -366,13 +369,14 @@ export function ValidasiAksesPenyelenggaraClient({
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-xs font-semibold text-emerald-700 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
           <div className="flex-1">{successMsg}</div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon-xs"
             onClick={() => setSuccessMsg(null)}
-            className="text-emerald-400 hover:text-emerald-700 transition-colors p-1"
             aria-label="Tutup pesan sukses"
           >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -417,7 +421,7 @@ export function ValidasiAksesPenyelenggaraClient({
             {/* Search Input */}
             <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
+              <Input
                 type="text"
                 placeholder="Cari instansi, email..."
                 value={search}
@@ -428,16 +432,18 @@ export function ValidasiAksesPenyelenggaraClient({
                 className="w-full pl-9 pr-8 py-2 border border-slate-200 bg-white rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-100 hover:border-slate-300 transition-colors shadow-sm"
               />
               {search && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => {
                     setSearch("");
                     setCurrentPage(1);
                   }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2"
                   aria-label="Hapus pencarian"
                 >
                   <X className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               )}
             </div>
 
@@ -477,18 +483,15 @@ export function ValidasiAksesPenyelenggaraClient({
               ).map((tab) => {
                 const isActive = statusTab === tab.id;
                 return (
-                  <button
+                  <Button
                     key={tab.id}
+                    variant={isActive ? "default" : "outline"}
+                    size="sm"
                     onClick={() => {
                       setStatusTab(tab.id);
                       setCurrentPage(1);
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300 flex items-center gap-1.5 shadow-sm
-                      ${
-                        isActive
-                          ? tab.activeClass
-                          : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800"
-                      }`}
+                    className={isActive ? tab.activeClass : ""}
                   >
                     {tab.label}
                     <span
@@ -497,7 +500,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     >
                       {tab.count}
                     </span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -572,12 +575,13 @@ export function ValidasiAksesPenyelenggaraClient({
 
                       {/* Nama Organisasi */}
                       <td className="px-5 py-3">
-                        <button
+                        <Button
+                          variant="ghost"
                           onClick={() => setDetailItem(item)}
-                          className="text-left font-bold text-slate-800 text-sm2 hover:text-indigo-600 transition-colors group-hover/row:translate-x-0.5 transform duration-200"
+                          className="text-left font-bold text-slate-800 text-sm2 hover:text-indigo-600"
                         >
                           {item.namaOrganisasi}
-                        </button>
+                        </Button>
                       </td>
 
                       {/* Email */}
@@ -605,53 +609,57 @@ export function ValidasiAksesPenyelenggaraClient({
                           ) : (
                             <>
                               {/* Tombol Preview Detail */}
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => setDetailItem(item)}
-                                className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 text-slate-500 flex items-center justify-center border border-slate-200/50 shadow-sm transition-all hover:scale-105 active:scale-95"
-                                title="Preview Detail"
+                                aria-label="Preview Detail"
                               >
                                 <Eye className="w-4 h-4" />
-                              </button>
+                              </Button>
 
                               <div className="relative">
-                                <button
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setOpenMenuId(openMenuId === item.rawId ? null : item.rawId);
                                   }}
-                                  className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center border border-slate-200/50 shadow-sm transition-all hover:scale-105 active:scale-95"
-                                  title="Buka menu aksi"
+                                  aria-label="Buka menu aksi"
                                 >
                                   <MoreHorizontal className="w-4 h-4" />
-                                </button>
+                                </Button>
 
                                 {/* Dropdown Menu Portal */}
                                 {openMenuId === item.rawId && (
                                   <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-xl border border-slate-200/80 shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
                                     {item.status !== "approved" && (
-                                      <button
+                                      <Button
+                                        variant="ghost"
                                         onClick={() => {
                                           handleChangeStatus(item.rawId, "approved");
                                           setOpenMenuId(null);
                                         }}
-                                        className="w-full px-3.5 py-2 text-left text-emerald-600 hover:bg-emerald-50/50 font-bold text-xs flex items-center gap-2.5 transition-colors"
+                                        className="w-full justify-start text-xs font-bold text-emerald-600 hover:bg-emerald-50/50"
                                       >
                                         <Check className="w-3.5 h-3.5" />
                                         Setujui Akses
-                                      </button>
+                                      </Button>
                                     )}
 
                                     {item.status !== "rejected" && (
-                                      <button
+                                      <Button
+                                        variant="ghost"
                                         onClick={() => {
                                           handleChangeStatus(item.rawId, "rejected");
                                           setOpenMenuId(null);
                                         }}
-                                        className="w-full px-3.5 py-2 text-left text-rose-600 hover:bg-rose-50/50 font-bold text-xs flex items-center gap-2.5 transition-colors border-t border-slate-100 first:border-t-0"
+                                        className="w-full justify-start text-xs font-bold text-rose-600 hover:bg-rose-50/50"
                                       >
                                         <X className="w-3.5 h-3.5" />
                                         Tolak Akses
-                                      </button>
+                                      </Button>
                                     )}
                                   </div>
                                 )}
@@ -679,14 +687,15 @@ export function ValidasiAksesPenyelenggaraClient({
           </span>
           
           <div className="flex gap-1 items-center">
-            <button
+            <Button
+              variant="outline"
+              size="icon-xs"
               onClick={() => goPage(currentPage - 1)}
               disabled={currentPage === 1}
               aria-label="Halaman sebelumnya"
-              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
+            </Button>
 
             {getPageButtons().map((page, idx) =>
               page === "..." ? (
@@ -694,30 +703,27 @@ export function ValidasiAksesPenyelenggaraClient({
                   ...
                 </span>
               ) : (
-                <button
+                <Button
                   key={page}
+                  variant={page === currentPage ? "default" : "outline"}
+                  size="icon-xs"
                   onClick={() => goPage(page as number)}
                   aria-label={`Halaman ${page}`}
-                  className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center
-                    ${
-                      page === currentPage
-                        ? "bg-slate-900 text-white shadow-sm"
-                        : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"
-                    }`}
                 >
                   {page}
-                </button>
+                </Button>
               )
             )}
 
-            <button
+            <Button
+              variant="outline"
+              size="icon-xs"
               onClick={() => goPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               aria-label="Halaman berikutnya"
-              className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
             >
               <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -737,29 +743,32 @@ export function ValidasiAksesPenyelenggaraClient({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="success"
+              size="sm"
               onClick={() => handleBulkChangeStatus("approved")}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold rounded-xl transition-all shadow-sm hover:shadow active:scale-95 whitespace-nowrap"
             >
               <Check className="w-3.5 h-3.5" />
               Setujui
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={() => handleBulkChangeStatus("rejected")}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-micro font-bold rounded-xl transition-all shadow-sm hover:shadow active:scale-95 whitespace-nowrap"
             >
               <X className="w-3.5 h-3.5" />
               Tolak
-            </button>
+            </Button>
             
             <div className="w-px h-6 bg-slate-200 mx-1" />
 
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleClearSelection}
-              className="text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors px-2 py-1"
             >
               Batal
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -784,12 +793,15 @@ export function ValidasiAksesPenyelenggaraClient({
                   Tinjau Profil Lengkap
                 </h3>
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setDetailItem(null)}
-                className="w-8 h-8 rounded-xl hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all"
+                className="hover:bg-white/10 text-slate-300 hover:text-white"
+                aria-label="Tutup"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             {/* Modal Content Area (Scrollable) */}
@@ -828,7 +840,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none">
                       Dokumen Legalitas Penyelenggara
                     </h5>
-                    {detailItem.dokumenLegalitasUrl ? (
+                    {detailItem.urlDokumenLegalitas ? (
                       <div className="flex items-center justify-between p-4 bg-indigo-50/40 border border-indigo-100 rounded-2xl shadow-sm">
                         <div className="flex items-center gap-3">
                           <div className="p-2.5 bg-indigo-600 text-white rounded-xl shadow">
@@ -841,7 +853,7 @@ export function ValidasiAksesPenyelenggaraClient({
                         </div>
                         <div className="flex items-center gap-1.5">
                           <a
-                            href={detailItem.dokumenLegalitasUrl}
+                            href={detailItem.urlDokumenLegalitas}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Buka Dokumen di Tab Baru"
@@ -897,14 +909,14 @@ export function ValidasiAksesPenyelenggaraClient({
                       <Globe className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Website</span>
-                        {detailItem.websiteUrl ? (
+                        {detailItem.urlWebsite ? (
                           <a
-                            href={detailItem.websiteUrl.startsWith("http") ? detailItem.websiteUrl : `https://${detailItem.websiteUrl}`}
+                            href={detailItem.urlWebsite.startsWith("http") ? detailItem.urlWebsite : `https://${detailItem.urlWebsite}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1 mt-0.5"
                           >
-                            {detailItem.websiteUrl}
+                            {detailItem.urlWebsite}
                             <ExternalLink className="w-3 h-3" />
                           </a>
                         ) : (
@@ -943,43 +955,43 @@ export function ValidasiAksesPenyelenggaraClient({
                         {/* Jika pending, tampilkan kedua tombol */}
                         {detailItem.status === "pending" && (
                           <>
-                            <button
+                            <Button
+                              variant="success"
                               onClick={() => handleChangeStatus(detailItem.rawId, "approved")}
-                              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl shadow-sm transition-all duration-200 active:scale-95 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-100"
                             >
                               <Check className="w-3.5 h-3.5" />
                               Setujui Akses
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              variant="destructive"
                               onClick={() => handleChangeStatus(detailItem.rawId, "rejected")}
-                              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl shadow-sm transition-all duration-200 active:scale-95 bg-rose-600 hover:bg-rose-700 text-white shadow-rose-100"
                             >
                               <X className="w-3.5 h-3.5" />
                               Tolak Akses
-                            </button>
+                            </Button>
                           </>
                         )}
 
                         {/* Jika approved, hanya tampilkan tombol Tolak Akses */}
                         {detailItem.status === "approved" && (
-                          <button
+                          <Button
+                            variant="destructive"
                             onClick={() => handleChangeStatus(detailItem.rawId, "rejected")}
-                            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl shadow-sm transition-all duration-200 active:scale-95 bg-rose-600 hover:bg-rose-700 text-white shadow-rose-100"
                           >
                             <X className="w-3.5 h-3.5" />
                             Tolak Akses
-                          </button>
+                          </Button>
                         )}
 
                         {/* Jika rejected, hanya tampilkan tombol Setujui Akses */}
                         {detailItem.status === "rejected" && (
-                          <button
+                          <Button
+                            variant="success"
                             onClick={() => handleChangeStatus(detailItem.rawId, "approved")}
-                            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl shadow-sm transition-all duration-200 active:scale-95 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-100"
                           >
                             <Check className="w-3.5 h-3.5" />
                             Setujui Akses
-                          </button>
+                          </Button>
                         )}
                       </>
                     )}

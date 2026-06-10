@@ -1,10 +1,12 @@
 import { db } from "@/db";
-import { event, tayanganLog } from "@/db/schema";
-import { eq, ne, desc, sql } from "drizzle-orm";
+import { event } from "@/db/schema";
+import { eq, ne, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
-import { auth } from "@/auth";
+import ViewTracker from "@/components/event/ViewTracker";
 import { PAGINATION } from "@/lib/constants";
+
+export const revalidate = 300;
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -15,41 +17,37 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   const eventId = parseInt(id);
   if (isNaN(eventId)) notFound();
 
-  // Ambil data event beserta relasinya
-  const eventData = await db.query.event.findFirst({
-    where: eq(event.id, eventId),
-    with: {
-      kategori: true,
-      organizer: {
-        with: {
-          profilPenyelenggara: true,
+  const [eventData, eventTerkait] = await Promise.all([
+    db.query.event.findFirst({
+      where: eq(event.id, eventId),
+      with: {
+        kategori: true,
+        organizer: {
+          with: {
+            profilPenyelenggara: true,
+          },
+        },
+        kota: {
+          with: {
+            provinsi: true,
+          },
         },
       },
-      kota: {
-        with: {
-          provinsi: true,
-        },
+    }),
+
+    db.query.event.findMany({
+      where: ne(event.id, eventId),
+      limit: PAGINATION.RELATED_EVENTS_LIMIT,
+      orderBy: [desc(event.jumlahTayangan)],
+      with: {
+        organizer: true,
+        kategori: true,
+        kota: true,
       },
-    },
-  });
+    }),
+  ]);
 
   if (!eventData) notFound();
-
-  // Increment jumlah tayangan dan log
-  await db.update(event).set({ jumlahTayangan: sql`${event.jumlahTayangan} + 1` }).where(eq(event.id, eventId));
-  await db.insert(tayanganLog).values({ eventId, tanggal: new Date() });
-
-  // Ambil event terkait
-  const eventTerkait = await db.query.event.findMany({
-    where: ne(event.id, eventId),
-    limit: PAGINATION.RELATED_EVENTS_LIMIT,
-    orderBy: [desc(event.jumlahTayangan)],
-    with: {
-      organizer: true,
-      kategori: true,
-      kota: true,
-    },
-  });
 
   // Nama pembicara
   const namaPembicara = eventData.namaPembicara
@@ -85,9 +83,9 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     pembicara: namaPembicara,
     harga: eventData.harga,
     penyelenggara: namaPenyelenggara,
-    gambar: eventData.bannerUrl ?? null,
+    gambar: eventData.urlBanner ?? null,
     tipePlatform: eventData.tipePlatform ?? "offline",
-    isEventPolines: eventData.isEventPolines,
+    eventPolines: eventData.eventPolines,
     hasilScraping: eventData.hasilScraping,
     websiteSumber: eventData.websiteSumber,
     linkEksternal: eventData.linkEksternal,
@@ -120,16 +118,18 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
         : "TBA",
       price: ev.harga,
       category: ev.kategori?.nama ?? "Umum",
-      type: ev.isEventPolines ? "POLINES" : "UMUM" as "POLINES" | "UMUM",
-      imageUrl: ev.bannerUrl ?? "",
+      type: ev.eventPolines ? "POLINES" : "UMUM" as "POLINES" | "UMUM",
+      imageUrl: ev.urlBanner ?? "",
       tipePlatform: ev.tipePlatform ?? "offline",
       kotaNama: ev.kota?.nama ?? "-",
       kategoriNama: ev.kategori?.nama ?? "Umum",
     })),
   };
 
-  const session = await auth();
-  const isLoggedIn = !!session?.user;
-
-  return <DetailEvent event={eventFormatted} isLoggedIn={isLoggedIn} />;
+  return (
+    <>
+      <ViewTracker eventId={eventId} />
+      <DetailEvent event={eventFormatted} isLoggedIn={false} />
+    </>
+  );
 }

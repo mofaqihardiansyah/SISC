@@ -141,7 +141,7 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
   return (
     <div className="space-y-10 pb-10">
       <section>
-        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Validasi Pengajuan Baru</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Validasi Pengajuan Baru</h1>
         <p className="text-gray-500 mt-2 font-medium">Tinjau dan kelola pendaftaran event baru dari penyelenggara.</p>
       </section>
 

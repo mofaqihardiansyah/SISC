@@ -5,19 +5,19 @@ import Footer from "@/components/shared/Footer";
 import HeroSlider from "@/components/shared/HeroSlider";
 import KategoriCarousel from "@/components/shared/KategoriCarousel";
 import EventSection from "@/components/shared/EventSection";
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import AuthStatus from "@/components/shared/AuthStatus";
+
+export const revalidate = 60;
 
 export default async function BerandaPage() {
-  const [session, categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
-    auth(),
-    db.select().from(kategori),
+  const [categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
+    db.select().from(kategori).limit(20),
 
     db
       .select({
         id: event.id,
         judul: event.judul,
-        bannerUrl: event.bannerUrl,
+        urlBanner: event.urlBanner,
         tanggalMulai: event.tanggalMulai,
         detailLokasi: event.detailLokasi,
       })
@@ -30,7 +30,7 @@ export default async function BerandaPage() {
       .select({
         id: event.id,
         judul: event.judul,
-        bannerUrl: event.bannerUrl,
+        urlBanner: event.urlBanner,
         tanggalMulai: event.tanggalMulai,
         tipeHarga: event.tipeHarga,
         harga: event.harga,
@@ -42,14 +42,14 @@ export default async function BerandaPage() {
       .from(event)
       .leftJoin(kota, eq(event.kotaId, kota.id))
       .leftJoin(kategori, eq(event.kategoriId, kategori.id))
-      .where(and(eq(event.isEventPolines, true), isNull(event.dihapusPada), eq(event.status, 'published')))
+      .where(and(eq(event.eventPolines, true), isNull(event.dihapusPada), eq(event.status, 'published')))
       .limit(8),
 
     db
       .select({
         id: event.id,
         judul: event.judul,
-        bannerUrl: event.bannerUrl,
+        urlBanner: event.urlBanner,
         tanggalMulai: event.tanggalMulai,
         tipeHarga: event.tipeHarga,
         harga: event.harga,
@@ -61,22 +61,14 @@ export default async function BerandaPage() {
       .from(event)
       .leftJoin(kota, eq(event.kotaId, kota.id))
       .leftJoin(kategori, eq(event.kategoriId, kategori.id))
-      .where(and(eq(event.isEventPolines, false), isNull(event.dihapusPada), eq(event.status, 'published')))
+      .where(and(eq(event.eventPolines, false), isNull(event.dihapusPada), eq(event.status, 'published')))
       .limit(8),
   ]);
 
-  if (session?.user) {
-    const role = (session.user as { role?: string }).role;
-    if (role === 'admin') {
-      redirect('/admin/dashboard');
-    } else if (role === 'organizer') {
-      redirect('/penyelenggara');
-    }
-  }
-  
-  const isLoggedIn = !!session?.user;
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
+      <AuthStatus />
+
       {/* HERO */}
       <section className="px-4 sm:px-8 lg:px-16 mt-6 animate-in fade-in zoom-in-95 duration-1000">
         <HeroSlider events={heroEvents} />
@@ -95,7 +87,7 @@ export default async function BerandaPage() {
           type="POLINES"
           organizerLabel="Polines"
           emptyMessage="Belum ada event Polines saat ini."
-          isLoggedIn={isLoggedIn}
+          isLoggedIn={false}
         />
 
         {/* EVENT UMUM */}
@@ -106,7 +98,7 @@ export default async function BerandaPage() {
           type="UMUM"
           organizerLabel="Umum"
           emptyMessage="Belum ada event umum saat ini."
-          isLoggedIn={isLoggedIn}
+          isLoggedIn={false}
         />
       </main>
       <Footer />

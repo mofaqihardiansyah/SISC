@@ -74,7 +74,7 @@ export async function getUserEvents(
         status: pendaftaran.status,
         eventId: event.id,
         eventTitle: event.judul,
-        eventBannerUrl: event.bannerUrl,
+        eventBannerUrl: event.urlBanner,
         eventPenyelenggara: event.penyelenggara,
         eventDetailLokasi: event.detailLokasi,
         eventTanggalMulai: event.tanggalMulai,

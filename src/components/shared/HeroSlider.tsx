@@ -9,12 +9,13 @@ import { normalizeImagePath } from "@/lib/utils/image-utils";
 import { Calendar, MapPin } from "lucide-react";
 import { UI_TEXT } from "@/lib/constants";
 import { UI } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
 
 interface HeroSliderProps {
   events: {
     id: number;
     judul: string | null;
-    bannerUrl: string | null;
+    urlBanner: string | null;
     tanggalMulai: Date | null;
     detailLokasi: string | null;
   }[];
@@ -53,7 +54,7 @@ export default function HeroSlider({ events }: HeroSliderProps) {
           <SwiperSlide key={ev.id}>
             <div className="relative h-full w-full">
               <Image
-                src={normalizeImagePath(ev.bannerUrl)}
+                src={normalizeImagePath(ev.urlBanner)}
                 alt={ev.judul ?? ""}
                 fill
                 priority={index === 0}
@@ -69,9 +70,9 @@ export default function HeroSlider({ events }: HeroSliderProps) {
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-2">
                   <Link href={`/event/${ev.id}`}>
-                    <button className="bg-white text-slate-900 font-bold px-8 py-3 rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-lg transform hover:-translate-y-1">
+                    <Button variant="outline" size="lg" className="bg-white text-slate-900 font-bold px-8 py-3 rounded-xl hover:bg-blue-50 shadow-lg transform hover:-translate-y-1">
                       {UI_TEXT.REGISTER_NOW}
-                    </button>
+                    </Button>
                   </Link>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm sm:text-base font-medium opacity-90">
                     <div className="flex items-center gap-2">

@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
     <AuthLayout leftTitle="Kembalikan akses ke akun POLIVENTS Anda.">
       <div className="space-y-8">
         <div>
-          <h2 className="text-3xl font-heading font-black text-slate-900 mb-2 tracking-tight">
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
             Lupa Kata Sandi?
           </h2>
           <p className="text-slate-500 text-sm font-medium">

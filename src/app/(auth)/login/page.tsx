@@ -83,7 +83,7 @@ export default function LoginPage() {
     <AuthLayout leftTitle="Kelola acara dan tim anda dengan mudah.">
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-heading font-black text-slate-900 mb-1 tracking-tight">
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
             Selamat Datang
           </h2>
           <p className="text-slate-500 text-sm font-medium">
@@ -129,17 +129,20 @@ export default function LoginPage() {
                   disabled={isLoading}
                   {...register('password')}
                 />
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
                   ) : (
                     <Eye className="h-5 w-5" />
                   )}
-                </button>
+                </Button>
               </div>
               {errors.password && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{errors.password.message}</p>}
             </div>

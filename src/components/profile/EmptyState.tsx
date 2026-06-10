@@ -12,6 +12,7 @@ interface EmptyStateProps {
   action?: {
     label: string;
     href: string;
+    icon?: React.ReactNode;
   };
 }
 
@@ -31,8 +32,9 @@ export default function EmptyState({
       {action && (
         <Link
           href={action.href}
-          className="inline-block px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
         >
+          {action.icon}
           {action.label}
         </Link>
       )}

@@ -8,13 +8,13 @@ import { revalidatePath } from "next/cache";
 /**
  * Updates the banner URL of an event.
  * @param eventId The ID of the event to update.
- * @param bannerUrl The new banner URL (usually from Uploadthing).
+ * @param urlBanner The new banner URL (usually from Uploadthing).
  */
-export async function updateEventBanner(eventId: number, bannerUrl: string) {
+export async function updateEventBanner(eventId: number, urlBanner: string) {
   try {
     await db.update(event)
       .set({ 
-        bannerUrl,
+        urlBanner,
         diperbaruiPada: new Date()
       })
       .where(eq(event.id, eventId));

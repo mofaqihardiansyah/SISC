@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from '@/components/ui/input';
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -19,7 +20,7 @@ export default function SearchBar() {
   return (
     <form onSubmit={handleSearch} className="relative hidden md:block">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-      <input
+      <Input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}

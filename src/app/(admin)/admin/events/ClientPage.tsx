@@ -13,10 +13,12 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import DataEvent from './DataEvent';
 
 export type Event = {
@@ -26,12 +28,12 @@ export type Event = {
   tanggalMulai: Date;
   tanggalSelesai: Date | null;
   status: 'pending' | 'published' | 'rejected';
-  bannerUrl: string | null;
+  urlBanner: string | null;
   deskripsi: string | null;
   syaratDanKetentuan: string | null;
   detailLokasi: string | null;
   kuota: number | null;
-  isEventPolines: boolean;
+  eventPolines: boolean;
   jenisEvent: 'seminar' | 'conference' | null;
   tipePlatform: 'online' | 'offline' | 'hybrid' | null;
   tipeHarga: 'free' | 'paid' | null;
@@ -116,8 +118,8 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
       const matchesStatus = statusTab === 'all' || e.status === statusTab;
       
       const matchesTarget = targetFilter === 'all' || 
-        (targetFilter === 'polines' && e.isEventPolines) || 
-        (targetFilter === 'umum' && !e.isEventPolines);
+        (targetFilter === 'polines' && e.eventPolines) || 
+        (targetFilter === 'umum' && !e.eventPolines);
         
       const matchesPlatform = platformFilter === 'all' || e.tipePlatform === platformFilter;
       const matchesPrice = priceFilter === 'all' || e.tipeHarga === priceFilter;
@@ -237,7 +239,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="space-y-1 mb-8">
-        <h1 className="text-3xl font-black text-sisc-navy tracking-tight">Manajemen Event</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Manajemen Event</h1>
         <p className="text-slate-500 font-medium text-sm max-w-2xl">
           Kelola event yang didaftarkan oleh penyelenggara di platform.
         </p>
@@ -252,7 +254,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
           <div className="flex gap-2 items-center">
             <div className="flex-1 relative group">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors" size={15} />
-              <input 
+              <Input 
                 type="text" 
                 placeholder="Cari judul event, penyelenggara, atau kata kunci lainnya..." 
                 value={searchTerm}
@@ -261,13 +263,13 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
               />
             </div>
             {isFilterActive && (
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={handleResetFilters}
-                className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 border border-slate-200/60 shadow-xs"
               >
                 <RotateCcw size={13} /> Reset Filter
-              </button>
+              </Button>
             )}
           </div>
 
@@ -385,12 +387,14 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
               <div className="flex items-center gap-2 px-3 py-1 bg-rose-50 border border-rose-100 rounded-xl h-9">
                 <span className="text-xs font-bold text-rose-600">{selectedRowIds.size} dipilih</span>
                 <div className="h-4 w-px bg-rose-200 mx-1"></div>
-                <button 
+                <Button
+                  variant="ghost"
+                  size="xs"
                   onClick={handleBulkDelete}
-                  className="flex items-center gap-1 text-rose-600 hover:text-rose-700 font-bold text-xs transition-colors cursor-pointer"
+                  className="text-rose-600 hover:text-rose-700"
                 >
                   <Trash2 size={12} /> Hapus Massal
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -456,8 +460,8 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       <td className="px-3 py-2.5">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200/60 group-hover:border-slate-900/20 transition-all relative">
-                            {event.bannerUrl ? (
-                              <Image src={event.bannerUrl} alt={event.judul} fill className="object-cover" sizes="48px" />
+                            {event.urlBanner ? (
+                              <Image src={event.urlBanner} alt={event.judul} fill className="object-cover" sizes="48px" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
                               </div>
@@ -477,7 +481,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                                 {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'}
                               </span>
                               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-nano font-semibold tracking-wider uppercase whitespace-nowrap bg-slate-50 text-slate-500 border border-slate-100">
-                                {event.isEventPolines ? 'Polines' : 'Umum'}
+                                {event.eventPolines ? 'Polines' : 'Umum'}
                               </span>
                             </div>
                           </div>
@@ -567,20 +571,22 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       {/* Column 9: Aksi */}
                       <td className="px-3 py-2.5 text-right">
                         <div className="flex justify-end items-center gap-1.5">
-                          <button 
+                          <Button
+                            variant="secondary"
+                            size="icon"
                             onClick={() => openDetail(event)}
-                            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                            title="Lihat Detail"
+                            aria-label="Lihat Detail"
                           >
                             <Eye size={13} strokeWidth={2.5} />
-                          </button>
-                          <button 
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
                             onClick={() => handleDelete(event.id)}
-                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                            title="Hapus Event"
+                            aria-label="Hapus Event"
                           >
                             <Trash2 size={13} strokeWidth={2.5} />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -604,14 +610,15 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
           </span>
           {totalPages > 1 && (
             <div className="flex gap-1 items-center">
-              <button 
-                type="button"
+              <Button
+                variant="outline"
+                size="icon-xs"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
                 disabled={mounted ? (currentPage === 1) : false}
-                className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                aria-label="Halaman sebelumnya"
               >
-                <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
-              </button>
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </Button>
               
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
                 if (totalPages > 5) {
@@ -623,29 +630,26 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                 }
                 
                 return (
-                  <button 
-                    type="button"
-                    key={p} 
+                  <Button
+                    key={p}
+                    variant={currentPage === p ? "default" : "outline"}
+                    size="icon-xs"
                     onClick={() => setCurrentPage(p)}
-                    className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
-                      currentPage === p 
-                        ? "bg-slate-900 text-white shadow-sm shadow-slate-950/10" 
-                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
                   >
                     {p}
-                  </button>
+                  </Button>
                 );
               })}
               
-              <button 
-                type="button"
+              <Button
+                variant="outline"
+                size="icon-xs"
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
                 disabled={mounted ? (currentPage === totalPages) : false}
-                className="w-7 h-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                aria-label="Halaman berikutnya"
               >
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-              </button>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Button>
             </div>
           )}
         </div>

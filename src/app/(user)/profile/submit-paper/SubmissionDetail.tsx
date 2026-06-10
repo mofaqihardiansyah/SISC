@@ -216,7 +216,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
               <span className="font-medium truncate max-w-36" title={paper.judul}>Dokumen Paper (PDF)</span>
             </div>
             <a
-              href={paper.fileUrl}
+              href={paper.urlFile}
               download
               className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 font-bold transition-colors"
             >
@@ -243,7 +243,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
             {/* Viewer IFrame Body */}
             <div className="flex-1 bg-slate-100 relative w-full h-full">
               <iframe
-                src={`${paper.fileUrl}#toolbar=0&navpanes=0`}
+                src={`${paper.urlFile}#toolbar=0&navpanes=0`}
                 className="absolute inset-0 w-full h-full border-none"
                 title="PDF Document Viewer"
               />

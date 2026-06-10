@@ -49,7 +49,7 @@ export async function getDaftarEvent() {
 /**
  * Fungsi Server Action untuk memperbarui data event ke database berdasarkan ID.
  * Menggunakan eq() dari drizzle-orm untuk mencocokkan ID.
- * Memeriksa apakah penyelenggara telah disetujui (isApproved) terlebih dahulu.
+ * Memeriksa apakah penyelenggara telah disetujui (disetujui) terlebih dahulu.
  */
 export async function updateEventDatabase(id: number | string, data: Partial<typeof event.$inferInsert>) {
   try {
@@ -67,12 +67,12 @@ export async function updateEventDatabase(id: number | string, data: Partial<typ
 
     // Periksa apakah akun penyelenggara sudah disetujui oleh admin
     const [user] = await db
-      .select({ isApproved: users.isApproved })
+      .select({ disetujui: users.disetujui })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
 
-    if (!user?.isApproved) {
+    if (!user?.disetujui) {
       throw new Error("Akun Anda belum disetujui oleh Admin. Anda belum dapat mengelola event.");
     }
 

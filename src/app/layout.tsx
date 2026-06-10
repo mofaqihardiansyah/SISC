@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import Providers from "@/components/providers";
 import Navbar from "@/components/layout/Navbar";
 import NavbarWrapper from "@/components/layout/NavbarWrapper";
 import { SITE } from "@/lib/constants";
@@ -32,12 +33,14 @@ export default function RootLayout({
       className={`${montserrat.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-gray-50">
-        {/* Navbar GLOBAL */}
-        <NavbarWrapper>
-          <Navbar />
-        </NavbarWrapper>
+        <Providers>
+          {/* Navbar GLOBAL */}
+          <NavbarWrapper>
+            <Navbar />
+          </NavbarWrapper>
 
-        <main className="flex-1 flex flex-col">{children}</main>
+          <main className="flex-1 flex flex-col">{children}</main>
+        </Providers>
 
         <Toaster richColors position="top-right" />
       </body>

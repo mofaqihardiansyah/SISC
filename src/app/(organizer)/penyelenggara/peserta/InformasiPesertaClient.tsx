@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Portal from "@/components/ui/Portal";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 // ============================================================
 // TIPE DATA
@@ -34,7 +36,7 @@ interface PesertaData {
   dibuatPada: string;
   buktiPembayaran: string | null;
   namaEvent: string;
-  avatarUrl?: string | null;
+  urlAvatar?: string | null;
   peserta: {
     id: number;
     namaLengkap: string;
@@ -75,25 +77,24 @@ const getBgColorClass = (nama: string) => {
 function StatusBadge({ status }: { status: StatusPendaftaran }) {
   if (status === "hadir") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold tracking-wide border border-green-300 bg-green-50 text-green-600">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-semibold border border-green-300 bg-green-50 text-green-600">
         <CheckCircle size={13} strokeWidth={2.5} />
-        DISETUJUI
+        Disetujui
       </span>
     );
   }
   if (status === "terdaftar") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold tracking-wide border border-yellow-300 bg-yellow-50 text-yellow-600">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-semibold border border-yellow-300 bg-yellow-50 text-yellow-600">
         <Clock size={13} strokeWidth={2.5} />
-        MENUNGGU
+        Menunggu
       </span>
     );
   }
-  // dibatalkan
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold tracking-wide border border-red-300 bg-red-50 text-red-500">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-semibold border border-red-300 bg-red-50 text-red-500">
       <UserX size={13} strokeWidth={2.5} />
-      DITOLAK
+      Ditolak
     </span>
   );
 }
@@ -121,66 +122,72 @@ function ActionButtons({
   if (status === "terdaftar") {
     return (
       <div className="flex items-center gap-1.5">
-        <button
+        <Button
           onClick={onVerify}
           disabled={disabled}
-          title="Verifikasi"
-          className="w-7 h-7 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="success"
+          size="icon"
+          aria-label="Verifikasi"
         >
           <Check size={14} strokeWidth={2.5} />
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onTolak}
           disabled={disabled}
-          title="Tolak"
-          className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="destructive"
+          size="icon"
+          aria-label="Tolak"
         >
           <X size={14} strokeWidth={2.5} />
-        </button>
+        </Button>
       </div>
     );
   }
   if (status === "dibatalkan") {
     return (
       <div className="flex items-center gap-1.5">
-        <button
+        <Button
           onClick={onDetail}
           disabled={disabled}
-          title="Detail"
-          className="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="ghost"
+          size="icon"
+          aria-label="Detail"
         >
           <Info size={14} strokeWidth={2.5} />
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onEdit}
           disabled={disabled}
-          title="Pulihkan"
-          className="w-7 h-7 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="ghost"
+          size="icon"
+          aria-label="Pulihkan"
         >
           <RotateCcw size={14} strokeWidth={2.5} />
-        </button>
+        </Button>
       </div>
     );
   }
   // status === "hadir" (TERVERIFIKASI)
   return (
     <div className="flex items-center gap-1.5">
-      <button
+      <Button
         onClick={onEdit}
         disabled={disabled}
-        title="Ubah ke Menunggu"
-        className="text-gray-400 hover:text-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        variant="ghost"
+        size="icon"
+        aria-label="Ubah ke Menunggu"
       >
         <RotateCcw size={15} strokeWidth={2} />
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={onDelete}
         disabled={disabled}
-        title="Hapus/Tolak"
-        className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        variant="destructive"
+        size="icon"
+        aria-label="Hapus/Tolak"
       >
         <Trash2 size={15} strokeWidth={2} />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -197,8 +204,10 @@ function LampiranPopup({
   nama: string;
   onClose: () => void;
 }) {
-  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   const isPdf = /\.pdf$/i.test(url);
+  const hasImageExt = /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(url);
+  const isKnownImageHost = /picsum\.photos|unsplash\.com|images\.unsplash/i.test(url);
+  const isImage = hasImageExt || (isKnownImageHost && !isPdf);
 
   return (
     <Portal>
@@ -227,12 +236,14 @@ function LampiranPopup({
               <ExternalLink size={12} />
               Buka di Tab Baru
             </a>
-            <button
+            <Button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50 transition-colors cursor-pointer"
+              variant="ghost"
+              size="icon"
+              aria-label="Tutup"
             >
               <X size={15} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -398,7 +409,7 @@ export default function InformasiPesertaClient() {
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 font-heading">Data & Validasi Peserta</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Data & Validasi Peserta</h1>
         <p className="text-sm text-gray-500 mt-0.5">Validasi Peserta</p>
       </div>
 
@@ -406,7 +417,7 @@ export default function InformasiPesertaClient() {
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
+          <Input
             type="text"
             placeholder="Cari nama peserta, email, atau nomor telepon..."
             value={search}
@@ -434,18 +445,16 @@ export default function InformasiPesertaClient() {
             Daftar Peserta{" "}
             <span className="text-gray-400 font-normal">({totalData} Total)</span>
           </p>
-          <button
+          <Button
             onClick={exportExcel}
             disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            loading={exporting}
+            variant="outline"
+            size="sm"
           >
-            {exporting ? (
-              <Loader2 size={13} className="animate-spin" />
-            ) : (
-              <Download size={13} />
-            )}
-            {exporting ? "Mengekspor..." : "Export Excel"}
-          </button>
+            <Download size={13} />
+            Export Excel
+          </Button>
         </div>
 
         {/* Table */}
@@ -500,9 +509,9 @@ export default function InformasiPesertaClient() {
                       {/* Peserta & Event */}
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          {item.avatarUrl ? (
+                          {item.urlAvatar ? (
                             <Image
-                              src={item.avatarUrl}
+                              src={item.urlAvatar}
                               alt={nama}
                               width={36}
                               height={36}
@@ -531,15 +540,16 @@ export default function InformasiPesertaClient() {
                       {/* Lampiran */}
                       <td className="px-5 py-3.5">
                         {item.buktiPembayaran ? (
-                          <button
+                          <Button
                             onClick={() =>
                               setLampiran({ url: item.buktiPembayaran!, nama: nama })
                             }
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                            variant="outline"
+                            size="sm"
                           >
                             <Paperclip size={12} />
                             Lihat File
-                          </button>
+                          </Button>
                         ) : (
                           <span className="text-gray-300 text-sm">â€”</span>
                         )}
@@ -581,39 +591,41 @@ export default function InformasiPesertaClient() {
               Menampilkan <span className="text-slate-700">{startItem}</span> â€“ <span className="text-slate-700">{endItem}</span> dari <span className="text-slate-700 font-bold">{totalData}</span> peserta
             </span>
             <div className="flex items-center gap-1">
-              <button
+              <Button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
+                variant="ghost"
+                size="icon"
+                aria-label="Halaman sebelumnya"
               >
                 <ChevronLeft size={13} />
-              </button>
+              </Button>
               {getPageNumbers().map((pg, idx) =>
                 pg === "..." ? (
                   <span key={`dots-${idx}`} className="text-gray-400 px-1 text-xs font-semibold">
                     ...
                   </span>
                 ) : (
-                  <button
+                  <Button
                     key={pg}
                     onClick={() => setPage(pg as number)}
-                    className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
-                      page === pg
-                        ? "bg-slate-900 text-white shadow-sm"
-                        : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"
-                    }`}
+                    variant={page === pg ? "default" : "outline"}
+                    size="icon-xs"
+                    className={page === pg ? "" : "border-gray-200"}
                   >
                     {pg}
-                  </button>
+                  </Button>
                 )
               )}
-              <button
+              <Button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
+                variant="ghost"
+                size="icon"
+                aria-label="Halaman selanjutnya"
               >
                 <ChevronRight size={13} />
-              </button>
+              </Button>
             </div>
           </div>
         )}

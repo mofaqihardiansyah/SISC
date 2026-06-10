@@ -52,7 +52,7 @@ interface DetailEventProps {
     penyelenggara: string;
     gambar: string | null;
     tipePlatform: string;
-    isEventPolines: boolean | null;
+    eventPolines: boolean | null;
     hasilScraping: boolean | null;
     websiteSumber: string | null;
     linkEksternal: string | null;
@@ -181,7 +181,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
   let urlPendaftaran = `/registrasi-event/${event.id}`;
   let isExternalUrl = false;
 
-  if (event.isEventPolines) {
+  if (event.eventPolines) {
     urlPendaftaran = `/registrasi-event/${event.id}`;
   } else if (event.hasilScraping) {
     urlPendaftaran = event.websiteSumber || event.linkEksternal || "#";

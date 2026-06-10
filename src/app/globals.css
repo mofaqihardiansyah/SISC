@@ -55,6 +55,16 @@
 
   /* Custom Brand Colors */
   --color-brand-dark: #0F172B;
+  --color-brand-primary: #2563eb;
+  --color-brand-primary-hover: #1d4ed8;
+  --color-brand-accent: #7c3aed;
+  --color-brand-success: #16a34a;
+  --color-brand-warning: #d97706;
+  --color-brand-error: #dc2626;
+  --color-brand-surface: #f8fafc;
+  --color-brand-text-primary: #1e293b;
+  --color-brand-text-secondary: #64748b;
+  --color-brand-text-muted: #94a3b8;
   --color-sisc-navy: #0E215D;
   --color-sisc-slate: #1E293B;
   --color-sisc-dark: #1a2744;

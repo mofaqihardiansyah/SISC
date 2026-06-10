@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Input } from '@/components/ui/input';
 import { SubmissionForm } from './SubmissionForm';
 import { EventList } from './EventList';
 import { SubmissionDetail } from './SubmissionDetail';
@@ -86,7 +87,7 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
     <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
       {/* PAGE HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
           Submit Paper
         </h1>
         <p className="text-slate-500 mt-2">
@@ -98,7 +99,7 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
           <div className="space-y-6 animate-in fade-in duration-300">
             {/* Search & Filter */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <input
+              <Input
                 type="text"
                 placeholder="Cari conference atau penyelenggara..."
                 value={searchTerm}

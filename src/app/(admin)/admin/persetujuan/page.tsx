@@ -1,5 +1,7 @@
 import { getEventStats } from "@/actions/persetujuan-event";
 import { PersetujuanClient } from "./PersetujuanClient";
+export const dynamic = 'force-dynamic';
+
 
 export default async function PersetujuanEventPage() {
   const stats = await getEventStats();

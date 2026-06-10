@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Star, Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
 import { ERROR_MESSAGES } from '@/lib/constants';
 
 export default function HelpClient() {
@@ -124,7 +125,7 @@ export default function HelpClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Nama Anda</label>
-              <input
+              <Input
                 type="text"
                 value={formData.nama}
                 onChange={(e) => setFormData({...formData, nama: e.target.value})}
@@ -135,7 +136,7 @@ export default function HelpClient() {
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Email Anda</label>
-              <input
+              <Input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}

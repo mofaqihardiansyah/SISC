@@ -22,9 +22,9 @@ export async function GET(req: Request) {
 
       const [totalResult, suspendedResult, pendingResult, activeResult] = await Promise.all([
         db.select({ count: sql<number>`count(*)` }).from(users).where(baseWhere),
-        db.select({ count: sql<number>`count(*)` }).from(users).where(and(baseWhere, eq(users.isSuspended, true))),
-        db.select({ count: sql<number>`count(*)` }).from(users).where(and(baseWhere, eq(users.isApproved, false), eq(users.role, 'organizer'))),
-        db.select({ count: sql<number>`count(*)` }).from(users).where(and(baseWhere, sql`${users.lastActiveAt} >= ${thirtyDaysAgo}`)),
+        db.select({ count: sql<number>`count(*)` }).from(users).where(and(baseWhere, eq(users.diblokir, true))),
+        db.select({ count: sql<number>`count(*)` }).from(users).where(and(baseWhere, eq(users.disetujui, false), eq(users.role, 'organizer'))),
+        db.select({ count: sql<number>`count(*)` }).from(users).where(and(baseWhere, sql`${users.terakhirAktifPada} >= ${thirtyDaysAgo}`)),
       ]);
 
       return NextResponse.json({
@@ -44,16 +44,16 @@ export async function GET(req: Request) {
           namaLengkap: users.namaLengkap,
           email: users.email,
           role: users.role,
-          isSuspended: users.isSuspended,
-          isApproved: users.isApproved,
-          avatarUrl: users.avatarUrl,
+          diblokir: users.diblokir,
+          disetujui: users.disetujui,
+          urlAvatar: users.urlAvatar,
           nomorTelepon: users.nomorTelepon,
-          institution: users.institution,
+          institusi: users.institusi,
           pekerjaan: users.pekerjaan,
           jenisKelamin: users.jenisKelamin,
           tanggalLahir: users.tanggalLahir,
           dibuatPada: users.dibuatPada,
-          lastActiveAt: users.lastActiveAt,
+          terakhirAktifPada: users.terakhirAktifPada,
         })
         .from(users)
         .where(eq(users.id, Number(userId)))
@@ -71,8 +71,8 @@ export async function GET(req: Request) {
           namaOrganisasi: profilPenyelenggara.namaInstansi,
           email: users.email,
           noTelepon: users.nomorTelepon,
-          isApproved: users.isApproved,
-          isSuspended: users.isSuspended,
+          disetujui: users.disetujui,
+          diblokir: users.diblokir,
         })
         .from(users)
         .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
@@ -86,8 +86,8 @@ export async function GET(req: Request) {
         email: row.email ?? '-',
         noTelepon: row.noTelepon ?? '-',
         status:
-          row.isSuspended ? 'rejected' :
-          row.isApproved  ? 'approved' :
+          row.diblokir ? 'rejected' :
+          row.disetujui  ? 'approved' :
           'pending',
       }));
 
@@ -127,10 +127,10 @@ export async function GET(req: Request) {
         namaLengkap: users.namaLengkap,
         email: users.email,
         role: users.role,
-        isSuspended: users.isSuspended,
-        isApproved: users.isApproved,
+        diblokir: users.diblokir,
+        disetujui: users.disetujui,
         dibuatPada: users.dibuatPada,
-        avatarUrl: users.avatarUrl,
+        urlAvatar: users.urlAvatar,
       }).from(users).where(whereClause).orderBy(orderClause).limit(limit).offset(offset),
       db.select({ count: sql<number>`count(*)` }).from(users).where(whereClause),
     ]);
@@ -167,8 +167,8 @@ export async function PATCH(req: Request) {
     await db
       .update(users)
       .set({
-        isApproved: status === 'approved',
-        isSuspended: status === 'rejected',
+        disetujui: status === 'approved',
+        diblokir: status === 'rejected',
         diperbaruiPada: new Date(),
       })
       .where(and(eq(users.id, userId), eq(users.role, 'organizer')));

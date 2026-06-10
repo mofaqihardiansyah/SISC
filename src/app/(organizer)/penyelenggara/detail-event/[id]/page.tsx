@@ -7,6 +7,8 @@ import Header from "@/components/penyelenggara/detail-event/Header";
 import Sidebar from "@/components/penyelenggara/detail-event/Sidebar";
 import Content from "@/components/penyelenggara/detail-event/Content";
 import SetMainOverflow from "@/components/penyelenggara/detail-event/SetMainOverflow";
+export const dynamic = 'force-dynamic';
+
 
 type Props = {
   params: Promise<{ id: string }>;

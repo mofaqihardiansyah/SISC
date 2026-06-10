@@ -17,12 +17,12 @@ export default async function KelolaEventPage() {
   if (isNaN(userId)) redirect("/login");
 
   const [user] = await db
-    .select({ isApproved: users.isApproved })
+    .select({ disetujui: users.disetujui })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
 
-  if (!user?.isApproved) {
+  if (!user?.disetujui) {
     return (
       <BlockedOrganizerState 
         title="Kelola Event Terkunci" 

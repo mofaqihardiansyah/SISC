@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Upload, FileText, Check, Loader2, X, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { ERROR_MESSAGES, UI_TEXT } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
 
 type UploadType = "avatar" | "document" | "banner";
 
@@ -123,14 +124,16 @@ export function FileUpload({ type, currentUrl, onSuccess, className, variant = "
               <p className="text-xs font-medium text-slate-400">{UI_TEXT.FILE_HINT}</p>
             )}
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={isUploading}
-            className="text-xs font-bold text-primary hover:text-sisc-auth cursor-pointer disabled:opacity-50"
+            className="text-xs font-bold text-primary hover:text-sisc-auth"
           >
             {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : UI_TEXT.SELECT_FILE}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -174,13 +177,16 @@ export function FileUpload({ type, currentUrl, onSuccess, className, variant = "
               className="object-cover"
             />
             {!isUploading && (
-              <button
+              <Button
+                variant="destructive"
+                size="icon-xs"
                 type="button"
                 onClick={(e) => { e.stopPropagation(); clearFile(); }}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 z-10 hover:bg-red-600 transition-colors"
+                className="absolute top-2 right-2 z-10 rounded-full"
+                aria-label="Hapus file"
               >
                 <X className="w-3 h-3" />
-              </button>
+              </Button>
             )}
           </>
         ) : (

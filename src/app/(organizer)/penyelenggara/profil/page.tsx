@@ -3,6 +3,8 @@ import { db } from "@/db";
 import { profilPenyelenggara, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import ProfilForm from './profil-form';
+export const dynamic = 'force-dynamic';
+
 
 export default async function ProfilPenyelenggaraPage() {
   // 1. Menggabungkan tabel profil_penyelenggara dengan tabel users berdasarkan user_id
@@ -12,13 +14,13 @@ export default async function ProfilPenyelenggaraPage() {
       userId: profilPenyelenggara.userId,
       namaInstansi: profilPenyelenggara.namaInstansi,
       deskripsiInstansi: profilPenyelenggara.deskripsiInstansi,
-      websiteUrl: profilPenyelenggara.websiteUrl,
-      dokumenLegalitasUrl: profilPenyelenggara.dokumenLegalitasUrl,
+      urlWebsite: profilPenyelenggara.urlWebsite,
+      urlDokumenLegalitas: profilPenyelenggara.urlDokumenLegalitas,
       // Data dari tabel users:
       namaLengkap: users.namaLengkap,
       email: users.email,
       nomorTelepon: users.nomorTelepon,
-      avatarUrl: users.avatarUrl,
+      urlAvatar: users.urlAvatar,
     })
     .from(profilPenyelenggara)
     .innerJoin(users, eq(profilPenyelenggara.userId, users.id))
@@ -29,14 +31,14 @@ export default async function ProfilPenyelenggaraPage() {
   const dataProfil = rows[0];
 
   const initialData = {
-    avatarUrl: dataProfil?.avatarUrl || null,
+    urlAvatar: dataProfil?.urlAvatar || null,
     namaInstansi: dataProfil?.namaInstansi || null,
     deskripsiInstansi: dataProfil?.deskripsiInstansi || null,
-    websiteUrl: dataProfil?.websiteUrl || null,
+    urlWebsite: dataProfil?.urlWebsite || null,
     email: dataProfil?.email || null,
     nomorTelepon: dataProfil?.nomorTelepon || null,
-    dokumenLegalitasUrl: dataProfil?.dokumenLegalitasUrl || null,
-    isApproved: true,
+    urlDokumenLegalitas: dataProfil?.urlDokumenLegalitas || null,
+    disetujui: true,
   };
 
   return <ProfilForm initialData={initialData} />;

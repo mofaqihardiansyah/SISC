@@ -4,8 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
 import { UPLOAD_LIMITS } from '@/lib/constants';
+export const dynamic = 'force-dynamic';
+
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -14,8 +18,8 @@ export default function SettingsPage() {
     name: '',
     email: '',
     phone: '',
-    institution: '',
-    avatarUrl: '',
+    institusi: '',
+    urlAvatar: '',
   });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -38,8 +42,8 @@ export default function SettingsPage() {
           name: data.namaLengkap || '',
           email: data.email || '',
           phone: data.nomorTelepon || '',
-          institution: data.institution || '',
-          avatarUrl: data.avatarUrl || '',
+          institusi: data.institusi || '',
+          urlAvatar: data.urlAvatar || '',
         });
       });
   }, []);
@@ -75,7 +79,7 @@ export default function SettingsPage() {
       }
 
       const data = await res.json();
-      setFormData(prev => ({ ...prev, avatarUrl: data.url }));
+      setFormData(prev => ({ ...prev, urlAvatar: data.url }));
       toast.success('Foto profil berhasil diupload. Jangan lupa klik Simpan Perubahan.');
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan saat upload foto');
@@ -163,7 +167,7 @@ export default function SettingsPage() {
 
       {/* PAGE HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Pengaturan Akun</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pengaturan Akun</h1>
         <p className="text-slate-500 mt-2">
           Kelola informasi profil dan preferensi Anda
         </p>
@@ -179,7 +183,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-100 flex-shrink-0">
               <Image 
-                src={formData.avatarUrl || "/uploads/avatars/fotodummy.jpg"} 
+                src={formData.urlAvatar || "/uploads/avatars/fotodummy.jpg"} 
                 alt="Profile" 
                 width={96}
                 height={96}
@@ -195,14 +199,14 @@ export default function SettingsPage() {
                 accept="image/jpeg, image/png, image/webp"
                 onChange={handleFileChange}
               />
-              <button 
+              <Button
                 type="button"
+                variant="default"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
               >
                 {isUploading ? 'Mengupload...' : 'Ubah Foto Profil'}
-              </button>
+              </Button>
               <p className="text-xs text-slate-500 mt-1">
                 Format: JPG, PNG, WEBP. Maks: 2MB
               </p>
@@ -214,7 +218,7 @@ export default function SettingsPage() {
               <label className="text-sm font-semibold mb-2 block">
                 Nama Lengkap
               </label>
-              <input
+              <Input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -226,7 +230,7 @@ export default function SettingsPage() {
               <label className="text-sm font-semibold mb-2 block">
                 Email
               </label>
-              <input
+              <Input
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
@@ -238,7 +242,7 @@ export default function SettingsPage() {
               <label className="text-sm font-semibold mb-2 block">
                 Nomor Telepon
               </label>
-              <input
+              <Input
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
@@ -250,21 +254,22 @@ export default function SettingsPage() {
               <label className="text-sm font-semibold mb-2 block">
                 Institusi
               </label>
-              <input
-                name="institution"
-                value={formData.institution}
+              <Input
+                name="institusi"
+                value={formData.institusi}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border rounded-lg"
               />
             </div>
           </div>
 
-          <button
+          <Button
+            variant="default"
+            className="w-full"
             onClick={handleSave}
-            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
           >
             Simpan Perubahan
-          </button>
+          </Button>
         </div>
       </section>
 
@@ -276,56 +281,57 @@ export default function SettingsPage() {
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Saat Ini</label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 value={passLama}
                 onChange={(e) => setPassLama(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
                 placeholder="Masukkan kata sandi lama"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+              </Button>
             </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Baru</label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 value={passBaru}
                 onChange={(e) => setPassBaru(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
                 placeholder="Masukkan kata sandi baru"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+              </Button>
             </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Konfirmasi Kata Sandi Baru</label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 value={passKonfirm}
                 onChange={(e) => setPassKonfirm(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
                 placeholder="Ketik ulang kata sandi baru"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+              </Button>
             </div>
           </div>
           {errorPass && <p className="text-sm text-red-600">{errorPass}</p>}
-          <button
+          <Button
+            variant="default"
+            className="w-full"
             onClick={handleUpdatePassword}
             disabled={loadingPass}
-            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
           >
             {loadingPass ? 'Menyimpan...' : 'Perbarui Kata Sandi'}
-          </button>
+          </Button>
         </div>
       </section>
 
@@ -335,12 +341,13 @@ export default function SettingsPage() {
           Konfirmasi Penghapusan Akun
         </h2>
 
-        <button
+        <Button
+          variant="destructive"
+          className="w-full"
           onClick={() => setShowDeleteModal(true)}
-          className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
         >
           Hapus Akun
-        </button>
+        </Button>
 
         <p className="text-xs text-red-700 mt-2">
           Menghapus akun akan menghapus semua data secara permanen.
@@ -363,18 +370,20 @@ export default function SettingsPage() {
             </p>
 
             <div className="flex gap-3">
-              <button
+              <Button
+                variant="outline"
+                className="flex-1"
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 hover:bg-slate-200 active:scale-[0.98]"
               >
                 Batal
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
                 onClick={handleDelete}
-                className="flex-1 bg-rose-600 text-white py-2.5 rounded-xl font-bold text-sm transition-all duration-200 hover:bg-rose-700 active:scale-[0.98] shadow-sm"
               >
                 Ya, Hapus Akun
-              </button>
+              </Button>
             </div>
           </div>
         </div>

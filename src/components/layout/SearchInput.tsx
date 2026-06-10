@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from '@/components/ui/input';
 import { Search, Loader2 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
@@ -80,7 +81,7 @@ export default function SearchInput() {
     <div ref={wrapperRef} className="relative hidden md:block">
       <form onSubmit={handleSubmit} className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
+        <Input
           type="text"
           value={inputValue}
           onChange={(e) => {

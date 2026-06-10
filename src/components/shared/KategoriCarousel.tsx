@@ -2,12 +2,14 @@
 
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import EmptyState from "@/components/profile/EmptyState";
 
 type Kategori = {
   id: number;
   nama: string | null;
   slug: string | null;
-  iconUrl: string | null;
+  urlIkon: string | null;
 };
 
 const categoryColors: Record<string, string> = {
@@ -58,18 +60,25 @@ export default function KategoriCarousel({
     });
   };
 
+  if (categories.length === 0) {
+    return <EmptyState title="Belum ada kategori" description="Kategori event belum tersedia saat ini." />;
+  }
+
   return (
     <div className="relative group">
       {/* Tombol Prev */}
       {canPrev && (
-        <button
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => scroll("prev")}
-          className="absolute left-2 sm:-left-8 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/70 backdrop-blur-sm border border-black/40 shadow-sm flex items-center justify-center text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg transition-all duration-300"
+          className="absolute left-2 sm:-left-8 top-1/2 -translate-y-1/2 z-30 rounded-full bg-white/70 backdrop-blur-sm border-black/40 text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg shadow-sm"
+          aria-label="Sebelumnya"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </button>
+        </Button>
       )}
 
       {/* Track */}
@@ -92,16 +101,16 @@ export default function KategoriCarousel({
                 } flex items-center justify-center overflow-hidden`}
               >
                 {/* Background Icon */}
-                {cat.iconUrl && (
+                {cat.urlIkon && (
                   <div className="absolute -bottom-2 -right-2 opacity-20 select-none pointer-events-none w-12 h-12 relative">
-                    <Image src={cat.iconUrl} alt="" fill className="object-contain" sizes="48px" />
+                    <Image src={cat.urlIkon} alt="" fill className="object-contain" sizes="48px" />
                   </div>
                 )}
 
                 {/* Main Icon */}
-                {cat.iconUrl && (
+                {cat.urlIkon && (
                   <div className="relative z-10 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center p-2">
-                    <Image src={cat.iconUrl} alt={cat.nama ?? ""} width={28} height={28} className="object-contain" />
+                    <Image src={cat.urlIkon} alt={cat.nama ?? ""} width={28} height={28} className="object-contain" />
                   </div>
                 )}
               </div>
@@ -119,14 +128,17 @@ export default function KategoriCarousel({
 
       {/* Tombol Next */}
       {canNext && (
-        <button
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => scroll("next")}
-          className="absolute right-2 sm:-right-8 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/70 backdrop-blur-sm border border-black/40 shadow-sm flex items-center justify-center text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg transition-all duration-300"
+          className="absolute right-2 sm:-right-8 top-1/2 -translate-y-1/2 z-30 rounded-full bg-white/70 backdrop-blur-sm border-black/40 text-gray-700 opacity-70 hover:opacity-100 hover:border-black hover:bg-white hover:shadow-lg shadow-sm"
+          aria-label="Selanjutnya"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </button>
+        </Button>
       )}
     </div>
   );

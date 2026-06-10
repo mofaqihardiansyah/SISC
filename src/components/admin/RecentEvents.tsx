@@ -9,7 +9,7 @@ interface EventData {
   judul: string | null;
   detailLokasi: string | null;
   kuota: number | null;
-  bannerUrl: string | null;
+  urlBanner: string | null;
   status: string | null;
 }
 
@@ -33,7 +33,7 @@ export function RecentEvents({ events }: RecentEventProps) {
       <div className="space-y-6">
         {events.length > 0 ? events.map((event) => {
           const statusColor = event.status === 'published' ? 'bg-emerald-500' : 'bg-slate-300';
-          const banner = event.bannerUrl ? normalizeImagePath(event.bannerUrl) : null;
+          const banner = event.urlBanner ? normalizeImagePath(event.urlBanner) : null;
 
           return (
             <div key={event.id} className="flex items-center gap-4 group cursor-pointer">

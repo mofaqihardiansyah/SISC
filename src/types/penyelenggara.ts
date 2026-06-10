@@ -13,7 +13,7 @@ export interface PenyelenggaraItem {
   status: StatusValidasi;
   namaLengkap: string;
   deskripsiInstansi: string | null;
-  dokumenLegalitasUrl: string | null;
-  websiteUrl: string | null;
+  urlDokumenLegalitas: string | null;
+  urlWebsite: string | null;
   dibuatPada: string | null;
 }

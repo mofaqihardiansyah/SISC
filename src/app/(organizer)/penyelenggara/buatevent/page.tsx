@@ -7,6 +7,10 @@ import { Landmark, Wallet } from "lucide-react";
 import { createEvent, type MetodePembayaranInput } from "@/actions/create-event";
 import { BANK_LIST, E_WALLET_LIST } from "@/lib/constants";
 import { UPLOAD_LIMITS } from "@/lib/constants";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+export const dynamic = 'force-dynamic';
+
 
 declare global {
   interface Window {
@@ -47,14 +51,15 @@ function ConfirmDraftModal({ onYes, onNo, isPending }: {
           Apakah kamu ingin menyimpan data ini ke dalam draft sebelum membuat event baru?
         </p>
         <div className="flex gap-3 justify-end">
-          <button onClick={onNo} disabled={isPending}
-            className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm disabled:opacity-50">
+          <Button onClick={onNo} disabled={isPending}
+            variant="outline">
             Tidak, Buang
-          </button>
-          <button onClick={onYes} disabled={isPending}
-            className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm disabled:opacity-50">
-            {isPending ? "Menyimpan..." : "Ya, Simpan Draft"}
-          </button>
+          </Button>
+          <Button onClick={onYes} disabled={isPending}
+            loading={isPending}
+            variant="default">
+            Ya, Simpan Draft
+          </Button>
         </div>
       </div>
     </div>
@@ -82,13 +87,13 @@ function MetodePembayaranItem({
       {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold text-slate-700">Metode #{index + 1}</span>
-        <button type="button" onClick={() => onRemove(index)}
-          className="text-red-400 hover:text-red-600 transition-colors p-1 rounded-lg hover:bg-red-50">
+        <Button type="button" onClick={() => onRemove(index)}
+          variant="ghost" size="icon" aria-label="Hapus metode pembayaran">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
             <path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
           </svg>
-        </button>
+        </Button>
       </div>
 
       {/* Pilih jenis */}
@@ -96,7 +101,7 @@ function MetodePembayaranItem({
         <label className="block text-xs text-slate-500 mb-1">Jenis Pembayaran</label>
         <div className="flex gap-2 flex-wrap">
           {(["bank_transfer", "e_wallet"] as const).map((j) => (
-            <button key={j} type="button"
+            <Button key={j} type="button"
               onClick={() => onChange(index, {
                 ...item,
                 jenis: j,
@@ -105,17 +110,14 @@ function MetodePembayaranItem({
                 nomorAkun: "",
                 atasNama: "",
               })}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                item.jenis === j
-                  ? "bg-blue-600 text-white border-blue-600 shadow"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-blue-400"
-              }`}>
+              variant={item.jenis === j ? "default" : "outline"}
+              size="sm">
               {j === "bank_transfer" ? (
                 <><Landmark size={13} /> Bank Transfer</>
               ) : (
                 <><Wallet size={13} /> E-Wallet</>
               )}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -145,7 +147,7 @@ function MetodePembayaranItem({
             </div>
             {/* Input manual jika pilih "Lainnya" */}
             {isLainnya && (
-              <input
+              <Input
                 type="text"
                 value={item.namaPenyediaCustom ?? ""}
                 onChange={(e) => onChange(index, { ...item, namaPenyediaCustom: e.target.value })}
@@ -156,14 +158,14 @@ function MetodePembayaranItem({
           </div>
           <div>
             <label className="block text-xs text-slate-500 mb-1">Nomor Rekening</label>
-            <input type="text" value={item.nomorAkun ?? ""}
+            <Input type="text" value={item.nomorAkun ?? ""}
               onChange={(e) => onChange(index, { ...item, nomorAkun: e.target.value })}
               placeholder="Contoh: 1234567890"
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400" />
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs text-slate-500 mb-1">Atas Nama</label>
-            <input type="text" value={item.atasNama ?? ""}
+            <Input type="text" value={item.atasNama ?? ""}
               onChange={(e) => onChange(index, { ...item, atasNama: e.target.value })}
               placeholder="Contoh: Budi Santoso"
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400" />
@@ -196,7 +198,7 @@ function MetodePembayaranItem({
             </div>
             {/* Input manual jika pilih "Lainnya" */}
             {isLainnya && (
-              <input
+              <Input
                 type="text"
                 value={item.namaPenyediaCustom ?? ""}
                 onChange={(e) => onChange(index, { ...item, namaPenyediaCustom: e.target.value })}
@@ -207,14 +209,14 @@ function MetodePembayaranItem({
           </div>
           <div>
             <label className="block text-xs text-slate-500 mb-1">Nomor / Akun</label>
-            <input type="text" value={item.nomorAkun ?? ""}
+            <Input type="text" value={item.nomorAkun ?? ""}
               onChange={(e) => onChange(index, { ...item, nomorAkun: e.target.value })}
               placeholder="Contoh: 08123456789"
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400" />
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs text-slate-500 mb-1">Atas Nama</label>
-            <input type="text" value={item.atasNama ?? ""}
+            <Input type="text" value={item.atasNama ?? ""}
               onChange={(e) => onChange(index, { ...item, atasNama: e.target.value })}
               placeholder="Contoh: Budi Santoso"
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400" />
@@ -308,7 +310,7 @@ export default function BuatEventPage() {
     const formData = new FormData();
     formData.append("judul", eventTitle);
     formData.append("jenisEvent", eventType);
-    formData.append("isEventPolines", eventKind === "polines" ? "true" : "false");
+    formData.append("eventPolines", eventKind === "polines" ? "true" : "false");
     formData.append("tipePlatform", platform);
     formData.append("tipeHarga", tipeHarga);
     formData.append("harga", tipeHarga === "free" ? "0" : fee.replace(/\D/g, ""));
@@ -443,7 +445,7 @@ export default function BuatEventPage() {
           <SectionHeader icon={<InfoIcon />} title="Detail Umum" />
           <div className="mb-4">
             <label className="block text-sm text-gray-600 mb-1.5">Judul Event</label>
-            <input type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)}
+            <Input type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)}
               placeholder="Masukkan judul event yang menarik..."
               className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400" />
           </div>
@@ -461,13 +463,13 @@ export default function BuatEventPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm text-gray-600 mb-1.5">Lokasi</label>
-              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
+              <Input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
                 placeholder="Contoh: Jakarta, Bandung, Online Only"
                 className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400" />
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1.5">Pembicara (Opsional)</label>
-              <input type="text" value={speaker} onChange={(e) => setSpeaker(e.target.value)}
+              <Input type="text" value={speaker} onChange={(e) => setSpeaker(e.target.value)}
                 placeholder="Contoh: Pak Nakala"
                 className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400" />
             </div>
@@ -481,7 +483,7 @@ export default function BuatEventPage() {
             {tipeHarga === "paid" && (
               <div>
                 <label className="block text-sm text-gray-600 mb-1.5">Biaya</label>
-                <input type="number" value={fee} onChange={(e) => setFee(e.target.value)}
+                <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)}
                   placeholder="Contoh: 25000" min={0}
                   className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 placeholder-slate-400" />
               </div>
@@ -535,18 +537,18 @@ export default function BuatEventPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm text-gray-600 mb-1.5">Tanggal &amp; Waktu Mulai</label>
-              <input type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+              <Input type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-500 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1.5">Tanggal &amp; Waktu Selesai</label>
-              <input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+              <Input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-500 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1.5">Kuota Peserta</label>
-            <input type="number" value={quota} onChange={(e) => setQuota(e.target.value)} min={0}
+            <Input type="number" value={quota} onChange={(e) => setQuota(e.target.value)} min={0}
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
         </div>
@@ -566,26 +568,29 @@ export default function BuatEventPage() {
                 />
               ))}
             </div>
-            <button type="button" onClick={addMetodePembayaran}
-              className="mt-4 w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 rounded-xl py-3 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200">
+            <Button type="button" onClick={addMetodePembayaran}
+              variant="outline"
+              className="mt-4 w-full border-2 border-dashed">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               Tambah Metode Pembayaran
-            </button>
+            </Button>
           </div>
         )}
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 pb-8">
-          <button type="button" onClick={() => handleSubmit(true)} disabled={isPending || isSubmitting}
-            className="px-6 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md disabled:opacity-50">
-            {isPending || isSubmitting ? "Menyimpan..." : "Simpan Draft"}
-          </button>
-          <button type="button" onClick={() => handleSubmit(false)} disabled={isPending || isSubmitting}
-            className="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl disabled:opacity-50">
-            {isPending || isSubmitting ? "Mengajukan..." : "Ajukan Publikasi ke Admin"}
-          </button>
+          <Button type="button" onClick={() => handleSubmit(true)} disabled={isPending || isSubmitting}
+            loading={isPending || isSubmitting}
+            variant="outline">
+            Simpan Draft
+          </Button>
+          <Button type="button" onClick={() => handleSubmit(false)} disabled={isPending || isSubmitting}
+            loading={isPending || isSubmitting}
+            variant="default">
+            Ajukan Publikasi ke Admin
+          </Button>
         </div>
       </div>
     </div>
@@ -639,10 +644,9 @@ function RichTextarea({ value, onChange, placeholder }: {
           { title: "Numbered", label: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="10" y1="6" x2="21" y2="6" /><line x1="10" y1="12" x2="21" y2="12" /><line x1="10" y1="18" x2="21" y2="18" /><path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" /></svg>) },
           { title: "Link", label: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>) },
         ].map((btn) => (
-          <button key={btn.title} type="button" title={btn.title}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 text-sm transition-all duration-200">
+          <Button key={btn.title} type="button" variant="ghost" size="icon-xs" aria-label={btn.title}>
             {btn.label}
-          </button>
+          </Button>
         ))}
       </div>
       <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={5}

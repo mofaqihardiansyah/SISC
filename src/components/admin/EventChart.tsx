@@ -11,6 +11,7 @@ import {
   Line,
   ComposedChart
 } from 'recharts';
+import { Button } from '@/components/ui/button';
 
 interface ChartData {
   name: string;
@@ -44,9 +45,9 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
                 <p className="text-micro font-bold text-gray-500 uppercase">
-                  {item.dataKey === 'count' ? 'EVENT' : 
-                   item.dataKey === 'registrations' ? 'DAFTAR' :
-                   item.dataKey === 'revenue' ? 'REVENUE' : 'TREN'}
+                  {                   item.dataKey === 'count' ? 'Event' : 
+                   item.dataKey === 'registrations' ? 'Daftar' :
+                   item.dataKey === 'revenue' ? 'Revenue' : 'Tren'}
                 </p>
               </div>
               <p className="text-xs font-black text-gray-900">
@@ -102,53 +103,49 @@ export function EventChart({ data }: { data: ChartData[] }) {
         </div>
         
         <div className="grid grid-cols-2 gap-2">
-          <button 
+          <Button
+            variant={activeSeries.includes('count') ? 'default' : 'outline'}
+            size="sm"
             onClick={() => toggleSeries('count')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm border ${
-              activeSeries.includes('count')
-                ? 'bg-blue-600 border-blue-600 text-white' 
-                : 'bg-white border-gray-100 text-gray-500'
-            } ${!isShowAll && !activeSeries.includes('count') ? 'opacity-40 hover:opacity-100' : ''}`}
+            className={`rounded-full ${!isShowAll && !activeSeries.includes('count') ? 'opacity-40 hover:opacity-100' : ''}`}
+            style={activeSeries.includes('count') ? { backgroundColor: '#2563eb', borderColor: '#2563eb' } : {}}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('count') ? 'bg-white' : 'bg-blue-600'}`} />
-            <span className="text-xxs font-black tracking-wider">EVENT</span>
-          </button>
+            <span className="text-xxs font-black tracking-wider">Event</span>
+          </Button>
 
-          <button 
+          <Button
+            variant={activeSeries.includes('registrations') ? 'default' : 'outline'}
+            size="sm"
             onClick={() => toggleSeries('registrations')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm border ${
-              activeSeries.includes('registrations')
-                ? 'bg-emerald-500 border-emerald-500 text-white' 
-                : 'bg-white border-gray-100 text-gray-500'
-            } ${!isShowAll && !activeSeries.includes('registrations') ? 'opacity-40 hover:opacity-100' : ''}`}
+            className={`rounded-full ${!isShowAll && !activeSeries.includes('registrations') ? 'opacity-40 hover:opacity-100' : ''}`}
+            style={activeSeries.includes('registrations') ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {}}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('registrations') ? 'bg-white' : 'bg-emerald-500'}`} />
-            <span className="text-xxs font-black tracking-wider">DAFTAR</span>
-          </button>
+            <span className="text-xxs font-black tracking-wider">Daftar</span>
+          </Button>
 
-          <button 
+          <Button
+            variant={activeSeries.includes('revenue') ? 'default' : 'outline'}
+            size="sm"
             onClick={() => toggleSeries('revenue')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm border ${
-              activeSeries.includes('revenue')
-                ? 'bg-orange-500 border-orange-500 text-white' 
-                : 'bg-white border-gray-100 text-gray-500'
-            } ${!isShowAll && !activeSeries.includes('revenue') ? 'opacity-40 hover:opacity-100' : ''}`}
+            className={`rounded-full ${!isShowAll && !activeSeries.includes('revenue') ? 'opacity-40 hover:opacity-100' : ''}`}
+            style={activeSeries.includes('revenue') ? { backgroundColor: '#f59e0b', borderColor: '#f59e0b' } : {}}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('revenue') ? 'bg-white' : 'bg-orange-500'}`} />
-            <span className="text-xxs font-black tracking-wider">REVENUE</span>
-          </button>
+            <span className="text-xxs font-black tracking-wider">Revenue</span>
+          </Button>
 
-          <button 
+          <Button
+            variant={activeSeries.includes('trend') ? 'default' : 'outline'}
+            size="sm"
             onClick={() => toggleSeries('trend')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm border ${
-              activeSeries.includes('trend')
-                ? 'bg-slate-500 border-slate-500 text-white' 
-                : 'bg-white border-gray-100 text-gray-500'
-            } ${!isShowAll && !activeSeries.includes('trend') ? 'opacity-40 hover:opacity-100' : ''}`}
+            className={`rounded-full ${!isShowAll && !activeSeries.includes('trend') ? 'opacity-40 hover:opacity-100' : ''}`}
+            style={activeSeries.includes('trend') ? { backgroundColor: '#94a3b8', borderColor: '#94a3b8' } : {}}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${activeSeries.includes('trend') ? 'bg-white' : 'bg-slate-400'}`} />
-            <span className="text-xxs font-black tracking-wider">TREN</span>
-          </button>
+            <span className="text-xxs font-black tracking-wider">Tren</span>
+          </Button>
         </div>
       </div>
 

@@ -1,6 +1,8 @@
 import { getSubmissionData } from "@/actions/paper";
 import ClientPage from "./ClientPage";
 import { Suspense } from "react";
+export const dynamic = 'force-dynamic';
+
 
 export default async function Page() {
   const data = await getSubmissionData();

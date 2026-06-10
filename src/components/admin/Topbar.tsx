@@ -22,7 +22,7 @@ export async function Topbar({ title }: TopbarProps) {
   const user = dbUser ? {
     name: dbUser.namaLengkap || session?.user?.name || `Admin ${SITE.NAME}`,
     email: dbUser.email || session?.user?.email,
-    image: dbUser.avatarUrl || session?.user?.image,
+    image: dbUser.urlAvatar || session?.user?.image,
   } : session?.user;
 
   const menuItems = [

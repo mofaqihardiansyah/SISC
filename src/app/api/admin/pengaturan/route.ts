@@ -19,7 +19,7 @@ export async function GET() {
         id: true,
         namaLengkap: true,
         email: true,
-        avatarUrl: true,
+        urlAvatar: true,
       },
     });
 
@@ -42,7 +42,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
     }
 
-    const { namaLengkap, email, avatarUrl } = await req.json();
+    const { namaLengkap, email, urlAvatar } = await req.json();
 
     if (!namaLengkap || !email) {
       return NextResponse.json({ error: 'Nama dan email wajib diisi' }, { status: 400 });
@@ -50,7 +50,7 @@ export async function PATCH(req: NextRequest) {
 
     await db
       .update(users)
-      .set({ namaLengkap, email, avatarUrl, diperbaruiPada: new Date() })
+      .set({ namaLengkap, email, urlAvatar, diperbaruiPada: new Date() })
       .where(eq(users.email, session.user.email));
 
     return NextResponse.json({ message: 'Profil berhasil diperbarui' });

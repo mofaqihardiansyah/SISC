@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { pendaftaran, peserta, event } from "@/db/schema";
-import { eq, and, sql, ilike, or, desc, count } from "drizzle-orm";
+import { pendaftaran, peserta, event, users } from "@/db/schema";
+import { eq, and, ilike, or, desc, count } from "drizzle-orm";
 import { auth } from "@/auth";
 
 // ── GET: Ambil daftar peserta milik organizer yang login ──────
@@ -58,12 +58,12 @@ export async function GET(req: NextRequest) {
           nomorTelepon: peserta.nomorTelepon,
           jenisKelamin: peserta.jenisKelamin,
         },
-        pendaftarAvatar: sql<string>`users.avatar_url`,
+        pendaftarAvatar: users.urlAvatar,
       })
       .from(pendaftaran)
       .innerJoin(event, eq(pendaftaran.eventId, event.id))
       .leftJoin(peserta, eq(pendaftaran.id, peserta.pendaftaranId))
-      .leftJoin(sql`users`, eq(pendaftaran.userId, sql`users.id`))
+      .leftJoin(users, eq(pendaftaran.userId, users.id))
       .where(whereCondition)
       .orderBy(desc(pendaftaran.dibuatPada))
       .limit(perPage)
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
       dibuatPada: row.dibuatPada,
       buktiPembayaran: row.buktiPembayaran,
       namaEvent: row.namaEvent,
-      avatarUrl: row.pendaftarAvatar === "/uploads/avatars/fotodummy.jpg" ? null : row.pendaftarAvatar,
+      urlAvatar: row.pendaftarAvatar === "/uploads/avatars/fotodummy.jpg" ? null : row.pendaftarAvatar,
       peserta: row.peserta?.id ? row.peserta : null,
     }));
 
