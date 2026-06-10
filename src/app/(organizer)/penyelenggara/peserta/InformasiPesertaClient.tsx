@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import {
   Search,
   Download,
@@ -240,12 +241,16 @@ function LampiranPopup({
           style={{ minHeight: 320, maxHeight: "70vh", overflow: "auto" }}
         >
           {isImage ? (
-            <img
-              src={url}
-              alt={`Lampiran ${nama}`}
-              className="max-w-full rounded-xl shadow-md object-contain"
-              style={{ maxHeight: "60vh" }}
-            />
+            <div className="relative w-full rounded-xl shadow-md overflow-hidden" style={{ maxHeight: "60vh", minHeight: 200 }}>
+              <Image
+                src={url}
+                alt={`Lampiran ${nama}`}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 800px"
+                unoptimized
+              />
+            </div>
           ) : isPdf ? (
             <iframe
               src={url}
@@ -495,9 +500,11 @@ export default function InformasiPesertaClient() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           {item.avatarUrl ? (
-                            <img
+                            <Image
                               src={item.avatarUrl}
                               alt={nama}
+                              width={36}
+                              height={36}
                               className="w-9 h-9 rounded-full object-cover flex-shrink-0"
                             />
                           ) : (

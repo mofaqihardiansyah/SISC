@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Info, Image as ImageIcon, ClipboardList, Calendar, Link2 } from "lucide-react";
@@ -190,11 +191,13 @@ export default function Content({ event }: Props) {
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-slate-505">Banner Event</label>
             {event.bannerUrl ? (
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <img
+              <div className="border border-slate-200 rounded-xl overflow-hidden relative w-full h-[200px]">
+                <Image
                   src={event.bannerUrl}
                   alt={event.judul ?? "Banner"}
-                  className="w-full max-h-[200px] object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 800px"
                 />
               </div>
             ) : (

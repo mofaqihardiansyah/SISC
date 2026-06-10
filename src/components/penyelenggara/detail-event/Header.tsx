@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { MapPin, Calendar, Tag, Sparkles } from "lucide-react";
 import type { event } from "@/db/schema";
 import type { InferSelectModel } from "drizzle-orm";
@@ -64,12 +65,14 @@ export default function Header({ event }: Props) {
         </div>
 
         {/* KANAN — gambar lebih kecil */}
-        <div className="w-[200px] shrink-0">
+        <div className="w-[200px] h-[130px] shrink-0 relative">
           {event.bannerUrl ? (
-            <img
+            <Image
               src={event.bannerUrl}
-              alt={event.judul}
-              className="rounded-xl object-cover w-full h-[130px]"
+              alt={event.judul ?? "Banner"}
+              fill
+              className="rounded-xl object-cover"
+              sizes="200px"
             />
           ) : (
             <div className="rounded-xl w-full h-[130px] bg-white/10 flex flex-col items-center justify-center text-xs text-slate-300 gap-1.5">

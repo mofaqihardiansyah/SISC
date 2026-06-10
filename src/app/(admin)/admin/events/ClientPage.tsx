@@ -235,6 +235,14 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="space-y-1 mb-8">
+        <h1 className="text-3xl font-black text-[#0E215D] tracking-tight">Manajemen Event</h1>
+        <p className="text-slate-500 font-medium text-sm max-w-2xl">
+          Kelola event yang didaftarkan oleh penyelenggara di platform.
+        </p>
+      </div>
+
       {/* Unified Data Grid */}
       <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col">
         
