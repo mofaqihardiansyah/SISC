@@ -1,0 +1,231 @@
+
+> sisc@0.1.0 dev
+> cross-env NODE_OPTIONS='--max-old-space-size=2048' next dev
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.56.1:3000
+- Environments: .env
+✓ Ready in 1273ms
+- Experiments (use with caution):
+  · serverActions
+
+ GET / 200 in 3.4s (next.js: 433ms, proxy.ts: 866ms, application-code: 2.1s)
+ GET /api/auth/session 200 in 2.1s (next.js: 2.0s, application-code: 90ms)
+ GET /api/auth/session 200 in 78ms (next.js: 34ms, application-code: 43ms)
+ GET /admin/dashboard 200 in 1030ms (next.js: 418ms, proxy.ts: 105ms, application-code: 507ms)
+ GET /api/bookmark?eventId=17 200 in 3.4s (next.js: 3.1s, application-code: 289ms)
+ GET /api/bookmark?eventId=19 200 in 3.3s (next.js: 3.0s, application-code: 308ms)
+ GET /api/bookmark?eventId=1 200 in 3.4s (next.js: 3.1s, application-code: 345ms)
+ GET /api/bookmark?eventId=11 200 in 3.5s (next.js: 3.1s, application-code: 405ms)
+ GET /api/bookmark?eventId=16 200 in 3.5s (next.js: 3.1s, application-code: 406ms)
+ GET /api/bookmark?eventId=20 200 in 2.5s (next.js: 2.1s, application-code: 425ms)
+ GET /api/bookmark?eventId=5 200 in 225ms (next.js: 16ms, application-code: 209ms)
+ GET /api/bookmark?eventId=9 200 in 228ms (next.js: 50ms, application-code: 178ms)
+ GET /api/bookmark?eventId=18 200 in 241ms (next.js: 76ms, application-code: 164ms)
+ GET /api/bookmark?eventId=8 200 in 192ms (next.js: 48ms, application-code: 143ms)
+ GET /api/bookmark?eventId=24 200 in 172ms (next.js: 36ms, application-code: 136ms)
+ GET /api/bookmark?eventId=2 200 in 161ms (next.js: 13ms, application-code: 148ms)
+ GET /api/bookmark?eventId=7 200 in 129ms (next.js: 20ms, application-code: 109ms)
+ GET /api/bookmark?eventId=6 200 in 326ms (next.js: 30ms, application-code: 297ms)
+ GET /api/bookmark?eventId=13 200 in 319ms (next.js: 16ms, application-code: 303ms)
+ GET /api/bookmark?eventId=15 200 in 310ms (next.js: 16ms, application-code: 294ms)
+ GET /admin/dashboard 200 in 1005ms (next.js: 35ms, proxy.ts: 307ms, application-code: 662ms)
+ GET /admin/dashboard 200 in 2.1s (next.js: 26ms, proxy.ts: 44ms, application-code: 2000ms)
+ GET /api/auth/session 200 in 260ms (next.js: 84ms, application-code: 176ms)
+ GET /api/auth/session 200 in 51ms (next.js: 10ms, application-code: 41ms)
+ GET /admin/persetujuan 200 in 287ms (next.js: 180ms, proxy.ts: 18ms, application-code: 89ms)
+ POST /admin/persetujuan 200 in 158ms (next.js: 18ms, proxy.ts: 36ms, application-code: 104ms)
+  └─ ƒ getPendingEvents(1, 10) in 55ms src/actions/persetujuan-event.ts
+ POST /admin/persetujuan 200 in 84ms (next.js: 10ms, proxy.ts: 30ms, application-code: 44ms)
+  └─ ƒ getEventStats() in 5ms src/actions/persetujuan-event.ts
+ POST /admin/persetujuan 200 in 253ms (next.js: 118ms, proxy.ts: 70ms, application-code: 65ms)
+  └─ ƒ getPendingEvents(1, 10) in 27ms src/actions/persetujuan-event.ts
+ POST /admin/persetujuan 200 in 298ms (next.js: 197ms, proxy.ts: 52ms, application-code: 49ms)
+  └─ ƒ getEventStats() in 5ms src/actions/persetujuan-event.ts
+○ Compiling /admin/pengaturan ...
+ GET /admin/pengaturan 200 in 6.0s (next.js: 5.9s, proxy.ts: 37ms, application-code: 98ms)
+ GET /admin/pengaturan 200 in 238ms (next.js: 35ms, proxy.ts: 90ms, application-code: 113ms)
+ GET /api/admin/pengaturan 200 in 1775ms (next.js: 1653ms, application-code: 123ms)
+ GET /api/admin/pengaturan 200 in 46ms (next.js: 6ms, application-code: 40ms)
+○ Compiling /admin/events ...
+ GET /admin/events 200 in 4.5s (next.js: 4.1s, proxy.ts: 51ms, application-code: 411ms)
+ GET /admin/persetujuan 200 in 154ms (next.js: 7ms, proxy.ts: 19ms, application-code: 128ms)
+ POST /admin/persetujuan 200 in 107ms (next.js: 5ms, proxy.ts: 14ms, application-code: 88ms)
+  └─ ƒ getPendingEvents(1, 10) in 71ms src/actions/persetujuan-event.ts
+ POST /admin/persetujuan 200 in 33ms (next.js: 6ms, proxy.ts: 15ms, application-code: 13ms)
+  └─ ƒ getEventStats() in 2ms src/actions/persetujuan-event.ts
+ POST /admin/persetujuan 200 in 44ms (next.js: 7ms, proxy.ts: 13ms, application-code: 23ms)
+  └─ ƒ getPendingEvents(1, 10) in 11ms src/actions/persetujuan-event.ts
+ POST /admin/persetujuan 200 in 35ms (next.js: 5ms, proxy.ts: 13ms, application-code: 16ms)
+  └─ ƒ getEventStats() in 1ms src/actions/persetujuan-event.ts
+ GET /api/auth/csrf 200 in 45ms (next.js: 23ms, application-code: 22ms)
+ POST /api/auth/signout 200 in 25ms (next.js: 3ms, application-code: 22ms)
+ GET /login 200 in 279ms (next.js: 85ms, proxy.ts: 13ms, application-code: 180ms)
+ GET /api/auth/session 200 in 31ms (next.js: 12ms, application-code: 19ms)
+ GET /api/auth/session 200 in 43ms (next.js: 14ms, application-code: 28ms)
+ GET /api/auth/providers 200 in 28ms (next.js: 15ms, application-code: 12ms)
+ GET /api/auth/csrf 200 in 13ms (next.js: 4ms, application-code: 9ms)
+[AUTH] Login sukses: organizer@gmail.com
+ POST /api/auth/callback/credentials? 200 in 187ms (next.js: 6ms, application-code: 182ms)
+ GET /api/auth/session 200 in 15ms (next.js: 3ms, application-code: 12ms)
+ GET /api/auth/session 200 in 14ms (next.js: 3ms, application-code: 12ms)
+○ Compiling /penyelenggara ...
+ GET /penyelenggara 200 in 6.0s (next.js: 4.5s, proxy.ts: 23ms, application-code: 1501ms)
+ GET /api/auth/session 200 in 55ms (next.js: 28ms, application-code: 27ms)
+ GET /api/auth/session 200 in 74ms (next.js: 12ms, application-code: 63ms)
+ GET /api/organizer/grafik?filter=bulan-ini 200 in 2.6s (next.js: 2.5s, application-code: 146ms)
+ GET /api/organizer/grafik-tayangan?filter=bulan-ini 200 in 2.8s (next.js: 2.7s, application-code: 50ms)
+ GET /api/organizer/grafik-pendapatan?filter=bulan-ini 200 in 2.9s (next.js: 2.9s, application-code: 55ms)
+○ Compiling /penyelenggara/event ...
+ GET /penyelenggara/event 200 in 30.4s (next.js: 22.7s, proxy.ts: 682ms, application-code: 7.0s)
+○ Compiling /penyelenggara/peserta ...
+ GET /penyelenggara/peserta 200 in 12.1s (next.js: 11.4s, proxy.ts: 169ms, application-code: 511ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 3.4s (next.js: 2.2s, application-code: 1110ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 429ms (next.js: 7ms, application-code: 422ms)
+ GET /api/auth/session 200 in 463ms (next.js: 343ms, application-code: 120ms)
+ GET /api/auth/session 200 in 54ms (next.js: 8ms, application-code: 47ms)
+○ Compiling /penyelenggara/review-paper ...
+ GET /api/auth/session 200 in 654ms (next.js: 75ms, application-code: 579ms)
+ GET /api/auth/session 200 in 251ms (next.js: 62ms, application-code: 189ms)
+ GET /penyelenggara/review-paper 200 in 30.9s (next.js: 27.7s, proxy.ts: 84ms, application-code: 3.1s)
+ GET /api/auth/session 200 in 2.1s (next.js: 697ms, application-code: 1409ms)
+ GET /api/auth/session 200 in 431ms (next.js: 39ms, application-code: 392ms)
+ POST /penyelenggara/review-paper 200 in 1968ms (next.js: 117ms, proxy.ts: 1204ms, application-code: 647ms)
+  └─ ƒ getOrganizerPapers() in 435ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+ POST /penyelenggara/review-paper 200 in 208ms (next.js: 21ms, proxy.ts: 66ms, application-code: 121ms)
+  └─ ƒ getOrganizerPapers() in 48ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+○ Compiling /_not-found/page ...
+ GET /api/auth/session 200 in 667ms (next.js: 149ms, application-code: 518ms)
+ GET /api/auth/session 200 in 158ms (next.js: 18ms, application-code: 141ms)
+ GET /uploads/papers/paper-cyber-forensics.pdf 404 in 6.9s (next.js: 4.1s, proxy.ts: 275ms, application-code: 2.5s)
+ GET /api/auth/session 200 in 74ms (next.js: 37ms, application-code: 37ms)
+ GET /api/auth/session 200 in 132ms (next.js: 14ms, application-code: 118ms)
+ GET /api/auth/session 200 in 141ms (next.js: 40ms, application-code: 100ms)
+ POST /penyelenggara/review-paper 200 in 859ms (next.js: 60ms, proxy.ts: 150ms, application-code: 649ms)
+  └─ ƒ updatePaperStatus(2, "rejected", "Belum sesuai") in 312ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+○ Compiling /penyelenggara/profil ...
+ GET /penyelenggara/profil 200 in 7.2s (next.js: 6.6s, proxy.ts: 42ms, application-code: 560ms)
+ GET /api/auth/session 200 in 567ms (next.js: 280ms, application-code: 287ms)
+ GET /api/auth/session 200 in 33ms (next.js: 10ms, application-code: 23ms)
+ GET /penyelenggara/review-paper 200 in 167ms (next.js: 24ms, proxy.ts: 47ms, application-code: 95ms)
+ POST /penyelenggara/review-paper 200 in 357ms (next.js: 12ms, proxy.ts: 16ms, application-code: 328ms)
+  └─ ƒ getOrganizerPapers() in 307ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+ POST /penyelenggara/review-paper 200 in 152ms (next.js: 15ms, proxy.ts: 31ms, application-code: 106ms)
+  └─ ƒ getOrganizerPapers() in 92ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+ GET /penyelenggara/peserta 200 in 75ms (next.js: 15ms, proxy.ts: 11ms, application-code: 49ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 311ms (next.js: 8ms, application-code: 303ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 485ms (next.js: 17ms, application-code: 468ms)
+ GET /penyelenggara/peserta 200 in 684ms (next.js: 9ms, proxy.ts: 15ms, application-code: 660ms)
+ GET /api/auth/session 200 in 52ms (next.js: 17ms, application-code: 34ms)
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.56.1:3000
+- Environments: .env
+✓ Ready in 1133ms
+- Experiments (use with caution):
+  · serverActions
+
+ GET /penyelenggara/peserta 200 in 6.2s (next.js: 1553ms, proxy.ts: 2.1s, application-code: 2.6s)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 1197ms (next.js: 314ms, application-code: 882ms)
+ GET /api/auth/session 200 in 2.3s (next.js: 2.3s, application-code: 39ms)
+ GET /api/auth/session 200 in 39ms (next.js: 15ms, application-code: 24ms)
+ GET /penyelenggara/peserta 200 in 197ms (next.js: 8ms, proxy.ts: 19ms, application-code: 170ms)
+ GET /api/auth/session 200 in 52ms (next.js: 20ms, application-code: 31ms)
+ GET /api/auth/session 200 in 50ms (next.js: 6ms, application-code: 44ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 423ms (next.js: 7ms, application-code: 416ms)
+ GET /penyelenggara/profil 200 in 280ms (next.js: 52ms, proxy.ts: 13ms, application-code: 215ms)
+ GET /penyelenggara/review-paper 200 in 86ms (next.js: 41ms, proxy.ts: 12ms, application-code: 33ms)
+ POST /penyelenggara/review-paper 200 in 100ms (next.js: 5ms, proxy.ts: 26ms, application-code: 70ms)
+  └─ ƒ getOrganizerPapers() in 50ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+ POST /penyelenggara/review-paper 200 in 78ms (next.js: 6ms, proxy.ts: 16ms, application-code: 55ms)
+  └─ ƒ getOrganizerPapers() in 32ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+ GET /penyelenggara/peserta 200 in 61ms (next.js: 4ms, proxy.ts: 10ms, application-code: 47ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 285ms (next.js: 12ms, application-code: 273ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 500 in 496ms (next.js: 6ms, application-code: 491ms)
+ GET /penyelenggara/peserta 200 in 713ms (next.js: 20ms, proxy.ts: 72ms, application-code: 621ms)
+ GET /api/auth/session 200 in 124ms (next.js: 47ms, application-code: 77ms)
+ GET /api/auth/session 200 in 148ms (next.js: 15ms, application-code: 133ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 777ms (next.js: 312ms, application-code: 465ms)
+ GET /penyelenggara/profil 200 in 118ms (next.js: 7ms, proxy.ts: 16ms, application-code: 95ms)
+ GET /penyelenggara/peserta 200 in 75ms (next.js: 7ms, proxy.ts: 14ms, application-code: 54ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 122ms (next.js: 4ms, application-code: 118ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 88ms (next.js: 27ms, application-code: 61ms)
+○ Compiling /penyelenggara/bantuan ...
+ GET /penyelenggara/bantuan 200 in 4.8s (next.js: 4.7s, proxy.ts: 15ms, application-code: 35ms)
+ GET /penyelenggara/peserta 200 in 531ms (next.js: 37ms, proxy.ts: 99ms, application-code: 395ms)
+ GET /api/auth/session 200 in 137ms (next.js: 29ms, application-code: 107ms)
+ GET /api/auth/session 200 in 40ms (next.js: 10ms, application-code: 31ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 244ms (next.js: 15ms, application-code: 228ms)
+ GET /penyelenggara/peserta 200 in 171ms (next.js: 6ms, proxy.ts: 15ms, application-code: 150ms)
+ GET /api/auth/session 200 in 52ms (next.js: 16ms, application-code: 36ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 40ms (next.js: 5ms, application-code: 35ms)
+ GET /api/auth/session 200 in 24ms (next.js: 4ms, application-code: 20ms)
+ GET /penyelenggara/peserta 200 in 218ms (next.js: 4ms, proxy.ts: 13ms, application-code: 200ms)
+ GET /api/auth/session 200 in 36ms (next.js: 13ms, application-code: 23ms)
+ GET /api/auth/session 200 in 36ms (next.js: 3ms, application-code: 33ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 149ms (next.js: 5ms, application-code: 144ms)
+ GET /api/auth/session 200 in 38ms (next.js: 16ms, application-code: 22ms)
+ GET /api/auth/session 200 in 17ms (next.js: 4ms, application-code: 13ms)
+✓ Compiled in 821ms
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 474ms (next.js: 25ms, application-code: 449ms)
+ PATCH /api/organizer/peserta 200 in 154ms (next.js: 4ms, application-code: 149ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 43ms (next.js: 5ms, application-code: 38ms)
+ PATCH /api/organizer/peserta 200 in 36ms (next.js: 4ms, application-code: 32ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 31ms (next.js: 5ms, application-code: 26ms)
+ PATCH /api/organizer/peserta 200 in 33ms (next.js: 3ms, application-code: 30ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 21ms (next.js: 5ms, application-code: 17ms)
+ PATCH /api/organizer/peserta 200 in 23ms (next.js: 4ms, application-code: 19ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 30ms (next.js: 5ms, application-code: 24ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=99999 200 in 39ms (next.js: 4ms, application-code: 35ms)
+ GET /api/auth/session 200 in 207ms (next.js: 106ms, application-code: 100ms)
+ GET /api/auth/session 200 in 25ms (next.js: 8ms, application-code: 17ms)
+✓ Compiled in 246ms
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 265ms (next.js: 14ms, application-code: 251ms)
+ GET /api/auth/session 200 in 75ms (next.js: 27ms, application-code: 48ms)
+ GET /api/auth/session 200 in 29ms (next.js: 5ms, application-code: 23ms)
+ GET /penyelenggara/review-paper 200 in 127ms (next.js: 17ms, proxy.ts: 39ms, application-code: 71ms)
+ POST /penyelenggara/review-paper 200 in 248ms (next.js: 7ms, proxy.ts: 19ms, application-code: 223ms)
+  └─ ƒ getOrganizerPapers() in 199ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+ POST /penyelenggara/review-paper 200 in 82ms (next.js: 6ms, proxy.ts: 15ms, application-code: 61ms)
+  └─ ƒ getOrganizerPapers() in 45ms src/app/(organizer)/penyelenggara/review-paper/actions.ts
+ GET /penyelenggara/profil 200 in 58ms (next.js: 11ms, proxy.ts: 11ms, application-code: 36ms)
+ GET /penyelenggara/peserta 200 in 541ms (next.js: 267ms, proxy.ts: 16ms, application-code: 257ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 75ms (next.js: 5ms, application-code: 70ms)
+ GET /api/organizer/peserta?search=&status=semua&page=1&perPage=10 200 in 30ms (next.js: 4ms, application-code: 26ms)
+ GET /penyelenggara/event 200 in 136ms (next.js: 67ms, proxy.ts: 10ms, application-code: 59ms)
+ GET /penyelenggara 200 in 267ms (next.js: 51ms, proxy.ts: 12ms, application-code: 205ms)
+ GET /api/organizer/grafik-tayangan?filter=bulan-ini 200 in 276ms (next.js: 93ms, application-code: 183ms)
+ GET /api/organizer/grafik?filter=bulan-ini 200 in 374ms (next.js: 146ms, application-code: 228ms)
+ GET /api/organizer/grafik-pendapatan?filter=bulan-ini 200 in 386ms (next.js: 210ms, application-code: 176ms)
+ GET /api/organizer/grafik?filter=bulan-ini&eventId=24 200 in 74ms (next.js: 6ms, application-code: 68ms)
+ GET /api/organizer/grafik-pendapatan?filter=bulan-ini&eventId=24 200 in 89ms (next.js: 7ms, application-code: 82ms)
+ GET /api/organizer/grafik-tayangan?filter=bulan-ini&eventId=24 200 in 92ms (next.js: 13ms, application-code: 79ms)
+ GET /api/organizer/stats?eventId=24 200 in 2.6s (next.js: 2.5s, application-code: 85ms)
+○ Compiling /penyelenggara/detail-event/[id] ...
+ GET /penyelenggara/detail-event/24 200 in 6.3s (next.js: 5.6s, proxy.ts: 13ms, application-code: 761ms)
+✓ Compiled in 539ms
+✓ Compiled in 149ms
+✓ Compiled in 261ms
+ GET /api/auth/session 200 in 196ms (next.js: 79ms, application-code: 117ms)
+ GET /api/auth/session 200 in 27ms (next.js: 4ms, application-code: 22ms)
+✓ Compiled in 1231ms
+ GET /penyelenggara/detail-event/24 200 in 1493ms (next.js: 418ms, proxy.ts: 464ms, application-code: 611ms)
+ GET /penyelenggara/detail-event/24 200 in 419ms (next.js: 23ms, proxy.ts: 49ms, application-code: 347ms)
+ GET /api/auth/session 200 in 1110ms (next.js: 849ms, application-code: 261ms)
+ GET /api/auth/session 200 in 62ms (next.js: 8ms, application-code: 54ms)
+ GET /penyelenggara 200 in 246ms (next.js: 44ms, proxy.ts: 17ms, application-code: 185ms)
+ GET /api/organizer/grafik-tayangan?filter=bulan-ini 200 in 304ms (next.js: 80ms, application-code: 224ms)
+ GET /api/organizer/grafik?filter=bulan-ini 200 in 235ms (next.js: 32ms, application-code: 203ms)
+ GET /api/organizer/grafik-pendapatan?filter=bulan-ini 200 in 317ms (next.js: 65ms, application-code: 252ms)
+✓ Compiled in 257ms
+✓ Compiled in 834ms
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.56.1:3000
+- Environments: .env
+✓ Ready in 2.7s
+- Experiments (use with caution):
+  · serverActions
+
+ GET /penyelenggara 200 in 6.8s (next.js: 3.5s, proxy.ts: 936ms, application-code: 2.4s)
