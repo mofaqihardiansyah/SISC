@@ -1,0 +1,67 @@
+@startuml
+!theme plain
+skinparam rectangle {
+  BorderColor #333333
+  BackgroundColor #E8F4FD
+}
+skinparam circle {
+  BorderColor #0066cc
+  BackgroundColor #D6EAF8
+}
+skinparam database {
+  BorderColor #666666
+  BackgroundColor #FEF9E7
+}
+skinparam backgroundColor #FEFEFE
+
+title DFD Level 2 — P2: Kelola Event
+
+rectangle "ORGANIZER" as org
+
+circle "2.1\nBuat\nEvent" as p21
+circle "2.2\nKelola\nPembicara" as p22
+circle "2.3\nUpload\nLampiran" as p23
+circle "2.4\nKelola\nJadwal" as p24
+circle "2.5\nAjukan\nPublikasi" as p25
+
+database "D3\nWilayah" as d3
+database "D4\nKat & Tag" as d4
+database "D5\nEvent" as d5
+database "D7\nPembicara" as d7
+database "D8\nLamp &\nJadwal" as d8
+
+org --> p21 : detail event, kategori, kota, tag
+org --> p22 : nama, peran, foto pembicara
+org --> p23 : file lampiran
+org --> p24 : sesi jadwal (waktu, deskripsi)
+org --> p25 : submit event
+
+p21 --> d3 : baca kota/provinsi
+p21 --> d4 : baca kategori/tag
+p21 --> d5 : simpan event
+
+p22 --> d5 : baca event
+p22 --> d7 : simpan data pembicara
+
+p23 --> d5 : baca event
+p23 --> d8 : simpan file lampiran
+
+p24 --> d5 : baca event
+p24 --> d8 : simpan jadwal
+
+p25 --> d5 : update status → 'pending'
+
+d3 --> p21 : data kota, provinsi
+d4 --> p21 : data kategori, tag
+d5 --> p21 : organizer id
+d5 --> p22 : data event
+d5 --> p23 : data event
+d5 --> p24 : data event
+
+org <-- p21 : event tersimpan
+org <-- p22 : data pembicara
+org <-- p23 : lampiran terupload
+org <-- p24 : jadwal tersimpan
+org <-- p25 : status pengajuan
+
+@enduml

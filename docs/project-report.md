@@ -1,6 +1,6 @@
 # SISC Project Report
 
-> **Sistem Informasi Seminar & Conference (SISC)**  
+> **Sistem Informasi Seminar & Conference (SISC)**
 > Laporan Analisis Lengkap Proyek — Diperbarui: 10 Juni 2026
 
 ---
@@ -44,9 +44,10 @@
 | **Drizzle ORM** | 0.45.2 | Type-safe ORM |
 | **NextAuth.js** | 5.0.0-beta.31 | Autentikasi (Credentials + JWT) |
 | **Tailwind CSS** | 4.x | Utility-first CSS (via `@tailwindcss/postcss`) |
-| **shadcn/ui** | (via `shadcn` package) | Komponen UI berbasis Base UI |
+| **shadcn/ui** | (via `shadcn` package) | Komponen UI CLI |
+| **Base UI** | ^1.3.0 | Komponen UI library dari shadcn |
 
-### Dependencies Utama
+### Dependencies Utama (Production — 37 packages)
 
 ```json
 {
@@ -70,7 +71,10 @@
   "nodemailer": "^7.0.13",
   "inngest": "^4.4.0",
   "@crawlee/playwright": "^3.16.0",
-  "@vercel/blob": "^...",
+  "@vercel/blob": "^2.4.0",
+  "@hookform/resolvers": "^5.2.2",
+  "react-hook-form": "^7.74.0",
+  "react-phone-number-input": "^3.4.16",
   "xlsx": "^0.18.5"
 }
 ```
@@ -81,7 +85,11 @@
 
 ```
 SISC/
-├── drizzle/                       # Migrasi database
+├── docs/                          # Dokumentasi proyek
+│   ├── project-report.md
+│   ├── style-guide.md
+│   └── ux-ui-feedback-plan.md
+├── drizzle/                       # Migrasi database (6 file)
 │   ├── 0000_funny_sentinel.sql
 │   ├── 0001_ambitious_wraith.sql
 │   ├── 0002_parched_miss_america.sql
@@ -94,7 +102,18 @@ SISC/
 │   ├── auth.ts                    # Konfigurasi NextAuth
 │   ├── auth.config.ts             # Auth config (callbacks, authorized, JWT)
 │   ├── proxy.ts                   # Proxy/Middleware NextAuth (Next.js 16)
-│   ├── actions/                   # Server Actions
+│   ├── actions/                   # 11 Server Actions
+│   │   ├── admin-event.ts
+│   │   ├── auth.ts
+│   │   ├── categories-locations.ts
+│   │   ├── create-event.ts
+│   │   ├── organizer-event.ts
+│   │   ├── organizer-paper.ts
+│   │   ├── organizer.ts
+│   │   ├── paper.ts
+│   │   ├── persetujuan-event.ts
+│   │   ├── peserta.ts
+│   │   └── user-event.ts
 │   ├── app/                       # App Router pages
 │   │   ├── layout.tsx
 │   │   ├── page.tsx               # Homepage (ISR 60s)
@@ -103,29 +122,49 @@ SISC/
 │   │   ├── (auth)/                # Auth route group
 │   │   ├── (organizer)/           # Organizer route group
 │   │   ├── (user)/                # User/Profile route group
-│   │   ├── api/                   # API routes (15 route.ts)
+│   │   ├── api/                   # 15 route.ts
 │   │   ├── event/[id]             # Event detail (ISR 300s)
-│   │   └── ...
-│   ├── components/
+│   │   ├── jelajah/               # Browse events
+│   │   ├── registrasi-event/      # Event registration
+│   │   ├── bantuan/               # FAQ page
+│   │   └── eventku/               # My events (visitor)
+│   ├── components/                # 69 komponen (.tsx)
 │   │   ├── admin/                 # 5 komponen admin
 │   │   ├── auth/                  # 1 komponen auth
-│   │   ├── bantuan/               # 1 komponen bantuan
-│   │   ├── event/                 # 2 komponen event
-│   │   ├── feedback/              # 4 komponen feedback (BARU)
+│   │   ├── bantuan/               # 1 komponen (HelpClient)
+│   │   ├── event/                 # 3 komponen event
+│   │   ├── feedback/              # 4 komponen feedback
 │   │   ├── layout/                # 9 komponen layout
-│   │   ├── penyelenggara/         # 11 komponen organizer
-│   │   ├── profile/               # 8 komponen profile
-│   │   ├── shared/                # 9 komponen shared
+│   │   ├── penyelenggara/         # 9 komponen organizer
+│   │   │   └── detail-event/      # 4 komponen detail event
+│   │   ├── profile/               # 7 komponen profile
+│   │   ├── shared/                # 10 komponen shared
 │   │   └── ui/                    # 15 komponen UI (design system)
 │   ├── db/
 │   │   ├── index.ts               # DB connection
 │   │   ├── schema.ts              # 20 tabel (Indonesia naming)
+│   │   ├── seed.ts                # Runner seeder (unified)
 │   │   ├── seed-master.ts         # Reset + provinsi + kategori + users
 │   │   ├── seed-event.ts          # Events + tags + jadwal + log
-│   │   └── seed-demo.ts           # Bookmarks + pendaftaran + papers
-│   └── lib/
-│       ├── constants.ts
-│       └── utils.ts
+│   │   ├── seed-demo.ts           # Bookmarks + pendaftaran + papers
+│   │   └── fix-seq.ts             # Sequence fix utility
+│   ├── lib/                       # 11 file utilitas
+│   │   ├── api.ts
+│   │   ├── constants.ts
+│   │   ├── formatters.ts
+│   │   ├── route-config.ts
+│   │   ├── utils.ts
+│   │   ├── actions/
+│   │   │   ├── dashboard.ts
+│   │   │   └── event.ts
+│   │   ├── inngest/
+│   │   │   ├── client.ts
+│   │   │   └── functions.ts
+│   │   ├── scraper/
+│   │   │   └── engine.ts
+│   │   └── utils/
+│   │       └── image-utils.ts
+│   └── providers.tsx
 ├── docker-compose.yml
 ├── drizzle.config.ts
 ├── next.config.ts
@@ -246,6 +285,7 @@ transaksi ── peserta (1:N)
 | `/event/[id]` | `app/event/[id]/page.tsx` | ✅ 300s |
 | `/registrasi-event/[eventID]` | `app/registrasi-event/[eventID]/page.tsx` | ❌ |
 | `/bantuan` | `app/bantuan/page.tsx` | ❌ |
+| `/eventku` | `app/eventku/page.tsx` | ❌ |
 
 ### Admin Routes
 
@@ -307,11 +347,11 @@ transaksi ── peserta (1:N)
 |----------|-------|
 | `button.tsx` | Variant: default, outline, secondary, ghost, destructive, **success**, link; size: default, xs, sm, lg, icon; **loading** prop (spinner + auto-disable) |
 | `input.tsx` | Styled input dengan Base UI |
-| `form-field.tsx` | **BARU**: Wrapper label + required `*` + error message |
+| `form-field.tsx` | Wrapper label + required `*` + error message |
 | `badge.tsx` | Variant: default, secondary, destructive, outline, ghost, link |
 | `status-badge.tsx` | Status dengan warna (belum_submit, review, accepted, rejected) — sentence case |
-| `skeleton.tsx` | **BARU**: Loading placeholder |
-| `modal.tsx` | **BARU**: 3 variant (center, side, side-left), backdrop blur, animasi |
+| `skeleton.tsx` | Loading placeholder |
+| `modal.tsx` | 3 variant (center, side, side-left), backdrop blur, animasi |
 | `card.tsx` | Container card |
 | `table.tsx` | Styled table |
 | `tabs.tsx` | Tab component |
@@ -321,7 +361,7 @@ transaksi ── peserta (1:N)
 | `input-otp.tsx` | OTP input |
 | `label.tsx` | Label component |
 
-### Feedback Components (`src/components/feedback/`) — 4 files (BARU)
+### Feedback Components (`src/components/feedback/`) — 4 files
 
 | Komponen | Fitur |
 |----------|-------|
@@ -339,6 +379,8 @@ brand-surface, brand-text-primary, brand-text-secondary, brand-text-muted
 sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 ```
 
+Full Tailwind v4 theme with custom brand tokens, chart colors, sidebar colors, light/dark mode support, and `fadeInUp` page transition animation.
+
 ---
 
 ## 9. Migrasi Database (6 file)
@@ -354,10 +396,11 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 
 > **Catatan**: `0001_shocking_starfox.sql` (orphaned) telah dihapus. Kolom database telah di-rename ke Bahasa Indonesia via migrasi 0005.
 
-### Seed Data (3 file — digabung dari 10)
+### Seed Data (3 seed files + 1 unified runner)
 
 | File | Isi |
 |------|-----|
+| `seed.ts` | Unified runner — menjalankan seedMaster → seedEvent → seedDemo |
 | `seed-master.ts` | Reset database + provinsi + kategori & tags + kota + users |
 | `seed-event.ts` | 24 events + profil penyelenggara + tags + jadwal + log |
 | `seed-demo.ts` | Bookmarks + pendaftaran & peserta + paper submissions |
@@ -368,7 +411,7 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 
 ## 10. UX/UI Improvements
 
-### P1 — Feedback Fixes (SELESAI ✅)
+### P1 — Feedback Fixes (SELESAI)
 
 | Task | File | Pattern |
 |------|------|---------|
@@ -377,7 +420,7 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 | Feedback Admin Persetujuan | `ClientPage.tsx` | Toast approve/reject |
 | Feedback Organizer Edit Event | `KelolaEventClient.tsx` | Toast |
 
-### P2 — Design System (SELESAI ✅)
+### P2 — Design System (SELESAI)
 
 | Task | Detail |
 |------|--------|
@@ -394,7 +437,7 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 | Empty states | 5 file → `<EmptyState>` component |
 | All-caps → sentence case | Status badges, chart legends, filter labels |
 
-### P3 — Feedback Components (SELESAI ✅)
+### P3 — Feedback Components (SELESAI)
 
 | Komponen | File |
 |----------|------|
@@ -407,7 +450,7 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 
 ## 11. Temuan & Potensi Masalah
 
-### ✅ Sudah Diperbaiki
+### Sudah Diperbaiki
 1. **Duplikasi migrasi** — orphaned file dihapus, migrasi 0004 + 0005 dibuat
 2. **Proxy/Middleware** — `proxy.ts` aktif (Next.js 16)
 3. **Folder residual** — `SISC/` dihapus
@@ -416,7 +459,7 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 6. **Hardcoded credentials** — Fallback di `drizzle.config.ts` dihapus
 7. **README** — Diperbarui
 8. **Mixed naming** — Kolom database di-rename ke Indonesia (migrasi 0005)
-9. **Seed files** — 10 → 3 file
+9. **Seed files** — 10 → 3 file + 1 unified runner
 10. **ISR** — Halaman publik pakai ISR (60s/300s)
 11. **Feedback** — Semua action punya feedback (sonner toast)
 12. **Design system** — Design tokens, Button, Modal, Skeleton, FormField
@@ -429,12 +472,12 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 19. **Detail event page** — Back button, sidebar active indicator
 20. **API bug fix** — `/api/organizer/peserta` column name mismatch
 
-### ❌ Masih Perlu Perbaikan
+### Masih Perlu Perbaikan
 1. **Testing** — Belum ada unit/integration test
 2. **Error boundaries** — Belum ada `error.tsx` di route groups
 3. **Console.log di production code**
 4. **Date formatting inkonsisten** — Campuran `date-fns` dan `toLocaleDateString()`
-5. **`react-hot-toast`** — Masih terdaftar di package.json (meski sudah diganti sonner)
+5. **`react-hot-toast`** — Masih terdaftar di package.json (meski sudah diganti sonner) — meski tidak diimport, perlu dihapus
 6. **Hardcoded colors** — 25+ file masih pakai HEX langsung, belum pake design tokens
 
 ---
@@ -445,12 +488,14 @@ sisc-navy, sisc-slate, sisc-dark, sisc-med, sisc-light, sisc-auth, dll.
 |----------|:------:|
 | Halaman (page.tsx) | 34 |
 | API Routes (route.ts) | 15 |
-| Components (.tsx) | ~70 |
+| Components (.tsx) | 69 |
 | UI Components | 15 |
 | Feedback Components | 4 |
 | Database Tables | 20 |
 | Migration Files | 6 (active) |
-| Seed Files | 3 (digabung) |
+| Seed Files | 3 + 1 runner |
+| Server Actions (src/actions/) | 11 |
+| Lib Utilities (src/lib/) | 11 |
 | Total Estimasi LOC | ~12,000 |
 
 ---
@@ -472,7 +517,7 @@ feat: overhaul UI/UX design system + feedback patterns + ISR architecture
 - Tambah hamburger menu mobile, responsive admin layout (p-8 fix)
 - ISR: / (60s), /event/[id] (300s), Navbar client-side
 - Rename kolom DB ke Indonesia (migrasi 0005), fix API peserta bug
-- Gabung seed 10→3 file, ganti URL ke placeholder eksternal
+- Gabung seed 10 → 3 file + 1 runner, ganti URL ke placeholder eksternal
 - Fix all-caps text ke sentence case di status badges/charts/labels
 - Standarisasi empty states (5 pages), tambah back button detail event
 ```

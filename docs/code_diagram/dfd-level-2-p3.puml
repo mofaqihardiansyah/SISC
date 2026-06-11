@@ -1,0 +1,53 @@
+@startuml
+!theme plain
+skinparam rectangle {
+  BorderColor #333333
+  BackgroundColor #E8F4FD
+}
+skinparam circle {
+  BorderColor #0066cc
+  BackgroundColor #D6EAF8
+}
+skinparam database {
+  BorderColor #666666
+  BackgroundColor #FEF9E7
+}
+skinparam backgroundColor #FEFEFE
+
+title DFD Level 2 — P3: Pendaftaran & Pembayaran
+
+rectangle "VISITOR" as vis
+
+circle "3.1\nDaftar\nEvent" as p31
+circle "3.2\nUpload\nBukti Bayar" as p32
+circle "3.3\nInput\nPeserta" as p33
+
+database "D5\nEvent" as d5
+database "D6\nInfo Bayar" as d6
+database "D9\nPendaftaran" as d9
+database "D10\nPeserta" as d10
+
+vis --> p31 : pilih event, isi data diri
+vis --> p32 : upload file bukti transfer
+vis --> p33 : data peserta (nama, email, no telp, gender)
+
+p31 --> d5 : baca detail event (harga, kuota, dll)
+p31 --> d6 : baca info rekening/QRIS
+p31 --> d9 : simpan pendaftaran (status: terdaftar)
+
+p32 --> d9 : update bukti_pembayaran, status → menunggu_verifikasi
+
+p33 --> d9 : baca pendaftaran
+p33 --> d10 : simpan data peserta
+
+d5 --> p31 : detail event (judul, harga, kuota, tipe harga)
+d6 --> p31 : daftar rekening & QRIS aktif
+d9 --> p31 : kode pendaftaran
+d9 --> p32 : data pendaftaran
+d9 --> p33 : data pendaftaran
+
+vis <-- p31 : kode pendaftaran, info bayar
+vis <-- p32 : status upload
+vis <-- p33 : kode peserta
+
+@enduml

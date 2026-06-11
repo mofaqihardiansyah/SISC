@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+skinparam rectangle {
+  BorderColor #333333
+  BackgroundColor #E8F4FD
+}
+skinparam circle {
+  BorderColor #0066cc
+  BackgroundColor #D6EAF8
+}
+skinparam database {
+  BorderColor #666666
+  BackgroundColor #FEF9E7
+}
+skinparam backgroundColor #FEFEFE
+
+title DFD Level 2 — P4: Paper
+
+rectangle "VISITOR" as vis
+
+circle "4.1\nSubmit\nPaper" as p41
+circle "4.2\nReview\nPaper" as p42
+
+database "D5\nEvent" as d5
+database "D11\nPaper" as d11
+
+vis --> p41 : file paper (PDF), data penulis, judul, keyword, track
+
+p41 --> d5 : baca event
+p41 --> d11 : simpan paper + penulis (status: review)
+
+p42 --> d11 : update status (accepted/rejected) + komentar
+
+d5 --> p41 : detail event (terima paper?)
+d11 --> p41 : konfirmasi submit
+d11 --> p42 : data paper
+
+vis <-- p41 : status submit
+vis <-- p42 : status review + komentar
+
+@enduml

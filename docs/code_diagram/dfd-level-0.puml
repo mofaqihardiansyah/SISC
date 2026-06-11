@@ -1,0 +1,28 @@
+@startuml
+!theme plain
+skinparam rectangle {
+  BorderColor #333333
+  BackgroundColor #E8F4FD
+}
+skinparam circle {
+  BorderColor #0066cc
+  BackgroundColor #D6EAF8
+}
+title DFD Level 0 — Context Diagram SISC
+
+rectangle "VISITOR" as visitor
+rectangle "ORGANIZER" as organizer
+rectangle "ADMIN" as admin
+
+circle "SISTEM INFORMASI\nSEMINAR DAN\nCONFERENCE" as sistem
+
+visitor --> sistem : data registrasi/login\npendaftaran + bukti bayar\ndata peserta\nsubmit paper\nfavorit
+sistem --> visitor : info event\nstatus pendaftaran\nstatus paper
+
+organizer --> sistem : data event\npembicara\njadwal\nlampiran
+sistem --> organizer : status verifikasi\ndaftar pendaftar
+
+admin --> sistem : keputusan verif event\nverif pembayaran\nmanajemen user\nkelola info pembayaran
+sistem --> admin : log aktivitas\ndashboard
+
+@enduml

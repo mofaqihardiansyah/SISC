@@ -1,0 +1,55 @@
+@startuml
+!theme plain
+skinparam rectangle {
+  BorderColor #333333
+  BackgroundColor #E8F4FD
+}
+skinparam circle {
+  BorderColor #0066cc
+  BackgroundColor #D6EAF8
+}
+skinparam database {
+  BorderColor #666666
+  BackgroundColor #FEF9E7
+}
+skinparam backgroundColor #FEFEFE
+
+' ═══════════════════════════════════════════════════════════════════════
+' DFD LEVEL 2 — P1: KELOLA AKUN & OTENTIKASI
+' ═══════════════════════════════════════════════════════════════════════
+title DFD Level 2 — P1: Kelola Akun & Otentikasi
+
+rectangle "VISITOR" as v1
+
+circle "1.1\nRegistrasi" as p11
+circle "1.2\nVerifikasi\nEmail" as p12
+circle "1.3\nLogin" as p13
+circle "1.4\nEdit\nProfil" as p14
+circle "1.5\nKelola\nProfil Org" as p15
+
+database "D1\nUsers/OTP" as d1
+database "D2\nProfil Org" as d2
+
+v1 --> p11 : data registrasi (nama, email, password, dll)
+v1 --> p13 : email + password
+v1 --> p14 : data profil baru
+v1 --> p15 : data instansi, legalitas
+
+p11 --> d1 : simpan user baru
+p12 --> d1 : update email_terverifikasi
+p13 --> d1 : cek kredensial
+p14 --> d1 : update data user
+p15 --> d2 : simpan profil penyelenggara
+
+d1 --> p12 : kode OTP
+d1 --> p13 : data user
+d1 --> p14 : data user
+d1 --> p15 : user_id
+
+p11 --> v1 : status registrasi
+p12 --> v1 : status verifikasi
+p13 --> v1 : token session
+p14 --> v1 : status update
+p15 --> v1 : status
+
+@enduml

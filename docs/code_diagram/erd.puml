@@ -1,0 +1,273 @@
+@startuml
+!theme plain
+skinparam entityBorderColor #0066cc
+skinparam entityBorderThickness 2
+skinparam backgroundColor #FEFEFE
+
+title ERD — SISC (Sistem Informasi Seminar dan Conference)
+
+entity users {
+  * id : serial <<PK>>
+  --
+  namaLengkap : varchar(255)
+  * email : varchar(255) <<UQ>>
+  nomorTelepon : varchar(20)
+  institusi : varchar(255)
+  pekerjaan : varchar(255)
+  password : varchar(255)
+  emailTerverifikasi : timestamp
+  tanggalLahir : timestamp
+  jenisKelamin : jenis_kelamin
+  role : user_role
+  disetujui : boolean
+  diblokir : boolean
+  terakhirAktifPada : timestamp
+  urlAvatar : varchar(512)
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+  dihapusPada : timestamp
+}
+
+entity otpCodes {
+  * id : serial <<PK>>
+  --
+  * email : varchar
+  * code : varchar(6)
+  * kedaluwarsaPada : timestamp
+  dibuatPada : timestamp
+}
+
+entity profilPenyelenggara {
+  * id : serial <<PK>>
+  --
+  * userId : integer <<FK>> <<UQ>>
+  namaInstansi : varchar(255)
+  deskripsiInstansi : text
+  urlDokumenLegalitas : varchar(512)
+  urlWebsite : varchar(255)
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+}
+
+entity provinsi {
+  * id : serial <<PK>>
+  --
+  * nama : varchar(100) <<UQ>>
+}
+
+entity kota {
+  * id : serial <<PK>>
+  --
+  * provinsiId : integer <<FK>>
+  * nama : varchar(100)
+  <<UQ (provinsiId, nama)>>
+}
+
+entity kategori {
+  * id : serial <<PK>>
+  --
+  nama : varchar(100)
+  * slug : varchar(100) <<UQ>>
+  urlIkon : varchar(512)
+}
+
+entity tag {
+  * id : serial <<PK>>
+  --
+  * nama : varchar(100) <<UQ>>
+}
+
+entity eventTag {
+  * eventId : integer <<FK>> <<PK>>
+  * tagId : integer <<FK>> <<PK>>
+}
+
+entity event {
+  * id : serial <<PK>>
+  --
+  organizerId : integer <<FK>>
+  kategoriId : integer <<FK>>
+  kotaId : integer <<FK>>
+  * judul : varchar(255)
+  * slug : varchar(255) <<UQ>>
+  deskripsi : text
+  syaratDanKetentuan : text
+  urlBanner : varchar(512)
+  penyelenggara : varchar(255)
+  * tanggalMulai : timestamp
+  tanggalSelesai : timestamp
+  batasRegistrasi : timestamp
+  eventPolines : boolean
+  jenisEvent : jenis_event
+  tipePlatform : tipe_platform
+  tipeHarga : tipe_harga
+  harga : integer
+  detailLokasi : text
+  linkEksternal : varchar(512)
+  namaKontak : varchar(255)
+  emailKontak : varchar(255)
+  teleponKontak : varchar(20)
+  kuota : integer
+  maksTiketPerTransaksi : integer
+  satuAkunSatuTransaksi : boolean
+  status : event_status
+  hasilScraping : boolean
+  websiteSumber : varchar(255)
+  jumlahTayangan : integer
+  alasanPenolakan : text
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+  dihapusPada : timestamp
+}
+
+entity infoPembayaran {
+  * id : serial <<PK>>
+  --
+  * tipe : tipe_pembayaran
+  namaBank : varchar(100)
+  nomorRekening : varchar(50)
+  pemilikRekening : varchar(255)
+  urlGambarQris : varchar(512)
+  aktif : boolean
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+}
+
+entity pembicara {
+  * id : serial <<PK>>
+  --
+  * eventId : integer <<FK>>
+  * nama : varchar(255)
+  peran : varchar(100)
+  urlFoto : varchar(512)
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+}
+
+entity lampiranEvent {
+  * id : serial <<PK>>
+  --
+  eventId : integer <<FK>>
+  urlFile : varchar(512)
+  tipeFile : varchar(50)
+  urutan : integer
+  dibuatPada : timestamp
+}
+
+entity logAdmin {
+  * id : serial <<PK>>
+  --
+  adminId : integer <<FK>>
+  eventId : integer <<FK>>
+  aksi : varchar(100)
+  dataSebelumnya : jsonb
+  dibuatPada : timestamp
+}
+
+entity favorit {
+  * userId : integer <<FK>> <<PK>>
+  * eventId : integer <<FK>> <<PK>>
+  --
+  dibuatPada : timestamp
+}
+
+entity pendaftaran {
+  * id : serial <<PK>>
+  --
+  eventId : integer <<FK>>
+  userId : integer <<FK>>
+  * kodePendaftaran : varchar(50) <<UQ>>
+  status : pendaftaran_status
+  metodePembayaranId : integer <<FK>>
+  buktiPembayaran : text
+  totalHarga : integer
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+  dihapusPada : timestamp
+}
+
+entity peserta {
+  * id : serial <<PK>>
+  --
+  pendaftaranId : integer <<FK>>
+  userId : integer <<FK>>
+  * kodePeserta : varchar(50) <<UQ>>
+  namaLengkap : varchar(255)
+  email : varchar(255)
+  nomorTelepon : varchar(20)
+  jenisKelamin : jenis_kelamin
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+}
+
+entity paperSubmission {
+  * id : serial <<PK>>
+  --
+  * eventId : integer <<FK>>
+  * userId : integer <<FK>>
+  * judul : varchar(255)
+  kataKunci : varchar(255)
+  track : varchar(255)
+  * urlFile : varchar(512)
+  status : paper_status
+  komentarPenolakan : text
+  dibuatPada : timestamp
+  diperbaruiPada : timestamp
+}
+
+entity penulisPaper {
+  * id : serial <<PK>>
+  --
+  * paperSubmissionId : integer <<FK>>
+  * nama : varchar(255)
+  email : varchar(255)
+  institusi : varchar(255)
+  urutan : integer
+  dibuatPada : timestamp
+}
+
+entity jadwalEvent {
+  * id : serial <<PK>>
+  --
+  eventId : integer <<FK>>
+  waktuMulai : timestamp
+  waktuSelesai : timestamp
+  deskripsi : text
+  dibuatPada : timestamp
+}
+
+' ── RELATIONSHIPS ──────────────────────────────────────────────────────
+
+users ||..o{ profilPenyelenggara : "memiliki"
+users ||..o{ event : "menyelenggarakan"
+users ||..o{ pendaftaran : "mendaftar"
+users ||..o{ logAdmin : "mencatat"
+users ||..o{ paperSubmission : "mensubmit"
+users ||..o{ favorit : "menyukai"
+users ||..o{ peserta : "ikut sebagai"
+
+provinsi ||..o{ kota : "terdiri dari"
+
+kota ||..o{ event : "berlokasi"
+
+kategori ||..o{ event : "dikategorikan"
+
+tag ||..o{ eventTag : "digunakan di"
+eventTag }o..|| event : "pada"
+eventTag }o..|| tag : "tag"
+
+event ||..o{ pembicara : "diisi"
+event ||..o{ lampiranEvent : "melampirkan"
+event ||..o{ logAdmin : "diaudit"
+event ||..o{ pendaftaran : "didaftarkan"
+event ||..o{ jadwalEvent : "dijadwalkan"
+event ||..o{ paperSubmission : "menerima"
+event ||..o{ favorit : "difavoritkan"
+
+infoPembayaran ||..o{ pendaftaran : "digunakan"
+
+pendaftaran ||..o{ peserta : "berisi"
+
+paperSubmission ||..o{ penulisPaper : "ditulis oleh"
+
+@enduml

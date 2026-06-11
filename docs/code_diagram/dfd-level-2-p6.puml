@@ -1,0 +1,66 @@
+@startuml
+!theme plain
+skinparam rectangle {
+  BorderColor #333333
+  BackgroundColor #E8F4FD
+}
+skinparam circle {
+  BorderColor #0066cc
+  BackgroundColor #D6EAF8
+}
+skinparam database {
+  BorderColor #666666
+  BackgroundColor #FEF9E7
+}
+skinparam backgroundColor #FEFEFE
+
+title DFD Level 2 — P6: Admin & Verifikasi
+
+rectangle "ADMIN" as adm
+
+circle "6.1\nVerifikasi\nEvent" as p61
+circle "6.2\nVerifikasi\nPembayaran" as p62
+circle "6.3\nKelola\nUser" as p63
+circle "6.4\nKelola Info\nPembayaran" as p64
+circle "6.5\nLihat\nLog" as p65
+
+database "D1\nUsers" as d1
+database "D5\nEvent" as d5
+database "D6\nInfo Bayar" as d6
+database "D9\nPendaftaran" as d9
+database "D13\nLog Admin" as d13
+
+adm --> p61 : approve / reject + alasan
+adm --> p62 : verif bukti bayar
+adm --> p63 : blokir / approve user
+adm --> p64 : CRUD rekening bank & QRIS
+adm --> p65 : filter log
+
+p61 --> d5 : update status → published/rejected
+p61 --> d13 : catat aksi + data sebelumnya
+
+p62 --> d9 : update status → lunas
+p62 --> d13 : catat verifikasi pembayaran
+
+p63 --> d1 : update disetujui / diblokir
+p63 --> d13 : catat perubahan status user
+
+p64 --> d6 : simpan/update/hapus info pembayaran
+
+p65 --> d13 : baca log berdasarkan filter
+
+d5 --> p61 : daftar event pending + data
+d5 --> p62 : detail event
+d9 --> p62 : daftar pendaftaran menunggu verifikasi
+d9 --> p62 : detail + bukti bayar
+d1 --> p63 : data user
+d6 --> p64 : data info pembayaran
+d13 --> p65 : log aktivitas
+
+adm <-- p61 : status verifikasi
+adm <-- p62 : status pembayaran
+adm <-- p63 : status user
+adm <-- p64 : info pembayaran
+adm <-- p65 : log aktivitas
+
+@enduml

@@ -1,0 +1,132 @@
+@startuml
+!theme plain
+skinparam objectBorderColor #0066cc
+skinparam objectBorderThickness 2
+skinparam backgroundColor #FEFEFE
+
+title Object Diagram — SISC (Sistem Informasi Seminar dan Conference)
+caption "Snapshot: Pendaftaran event berbayar oleh visitor"
+
+' ── OBJECTS ────────────────────────────────────────────────────────────
+
+object ":users" as userBudi {
+  id = 10
+  namaLengkap = "Budi Santoso"
+  email = "budi@email.com"
+  role = "visitor"
+}
+
+object ":users" as userSiti {
+  id = 5
+  namaLengkap = "Siti Aisyah"
+  email = "siti@instansi.ac.id"
+  role = "organizer"
+}
+
+object ":profil_penyelenggara" as profil {
+  id = 1
+  userId = 5
+  namaInstansi = "Universitas Teknologi Indonesia"
+  urlWebsite = "https://uti.ac.id"
+}
+
+object ":event" as eventAI {
+  id = 101
+  organizerId = 5
+  kategoriId = 1
+  kotaId = 1
+  judul = "AI for Beginners"
+  slug = "ai-for-beginners"
+  jenisEvent = "seminar"
+  tipePlatform = "online"
+  tipeHarga = "paid"
+  harga = 150000
+  status = "published"
+  kuota = 100
+  tanggalMulai = "2026-07-15 09:00"
+}
+
+object ":kategori" as kategoriTek {
+  id = 1
+  nama = "Teknologi"
+  slug = "teknologi"
+}
+
+object ":kota" as kotaBdg {
+  id = 1
+  provinsiId = 1
+  nama = "Bandung"
+}
+
+object ":provinsi" as provJabar {
+  id = 1
+  nama = "Jawa Barat"
+}
+
+object ":tag" as tagAI {
+  id = 1
+  nama = "AI"
+}
+
+object ":tag" as tagML {
+  id = 2
+  nama = "Machine Learning"
+}
+
+object ":event_tag" as et1 {
+  eventId = 101
+  tagId = 1
+}
+
+object ":event_tag" as et2 {
+  eventId = 101
+  tagId = 2
+}
+
+object ":pendaftaran" as daftar {
+  id = 201
+  eventId = 101
+  userId = 10
+  kodePendaftaran = "REG-AI-001"
+  status = "terdaftar"
+  dibuatPada = "2026-06-10 14:30"
+}
+
+object ":transaksi" as tx {
+  id = 301
+  eventId = 101
+  userId = 10
+  kodeTransaksi = "TRX-AI-001"
+  status = "lunas"
+  totalHarga = 150000
+  dibuatPada = "2026-06-10 14:35"
+}
+
+object ":peserta" as peserta1 {
+  id = 401
+  pendaftaranId = 201
+  transaksiId = 301
+  kodePeserta = "PTC-AI-001"
+  namaLengkap = "Budi Santoso"
+  email = "budi@email.com"
+}
+
+' ── LINKS (RELATIONS) ───────────────────────────────────────────────────
+
+userSiti --> profil : "memiliki"
+userSiti --> eventAI : "menyelenggarakan"
+eventAI --> kategoriTek : "termasuk"
+eventAI --> kotaBdg : "berlokasi"
+kotaBdg --> provJabar : "bagian dari"
+tagAI --> et1 : "digunakan di"
+tagML --> et2 : "digunakan di"
+et1 --> eventAI : "pada event"
+et2 --> eventAI : "pada event"
+userBudi --> daftar : "mendaftar"
+daftar --> eventAI : "untuk"
+userBudi --> tx : "membayar"
+tx --> eventAI : "pembayaran"
+daftar --> peserta1 : "menghasilkan"
+tx --> peserta1 : "menghasilkan"
+
+@enduml

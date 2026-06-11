@@ -5,10 +5,6 @@ import { event, users } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/auth";
 
-/**
- * Fungsi Server Action untuk mengambil daftar event khusus milik penyelenggara yang sedang login.
- * Data diambil langsung dari tabel 'event' PostgreSQL.
- */
 export async function getDaftarEvent() {
   try {
     const session = await auth();

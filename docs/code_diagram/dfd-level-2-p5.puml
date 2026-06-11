@@ -1,0 +1,36 @@
+@startuml
+!theme plain
+skinparam rectangle {
+  BorderColor #333333
+  BackgroundColor #E8F4FD
+}
+skinparam circle {
+  BorderColor #0066cc
+  BackgroundColor #D6EAF8
+}
+skinparam database {
+  BorderColor #666666
+  BackgroundColor #FEF9E7
+}
+skinparam backgroundColor #FEFEFE
+
+title DFD Level 2 — P5: Favorit
+
+rectangle "VISITOR" as vis
+
+circle "5.1\nTambah\nFavorit" as p51
+circle "5.2\nHapus\nFavorit" as p52
+
+database "D12\nFavorit" as d12
+
+vis --> p51 : pilih event untuk difavoritkan
+vis --> p52 : pilih event untuk dihapus
+
+p51 --> d12 : simpan (userId, eventId)
+p52 --> d12 : hapus (userId, eventId)
+
+d12 --> p51 : status
+d12 --> p52 : status
+d12 --> vis : daftar favorit
+
+@enduml
