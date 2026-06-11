@@ -8,8 +8,8 @@ async function seedReset() {
   console.log("🧹 Membersihkan seluruh database...");
   const tables = [
     'event', 'kota', 'kategori', 'provinsi', 'users', 'profil_penyelenggara',
-    'otp_codes', 'tag', 'event_tag', 'lampiran_event', 'bookmark',
-    'pendaftaran', 'peserta', 'paper_submission', 'log_admin', 'jadwal_event'
+    'otp_codes', 'tag', 'event_tag', 'lampiran_event', 'favorit',
+    'pendaftaran', 'peserta', 'paper_submission', 'penulis_paper', 'log_admin', 'jadwal_event', 'pembicara', 'info_pembayaran'
   ];
   for (const table of tables) {
     await db.execute(sql.raw(`TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE`));

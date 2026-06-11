@@ -1,30 +1,30 @@
 import 'dotenv/config';
 import { db } from './index';
-import { users, bookmark, pendaftaran, peserta, paperSubmission } from './schema';
+import { users, favorit, pendaftaran, peserta, paperSubmission } from './schema';
 import { eq } from 'drizzle-orm';
 
 async function seedBookmarks() {
-  console.log("📦 Seeding bookmarks...");
-  const bookmarkData = [
-    // seed-dummy bookmarks
+  console.log("📦 Seeding favorit...");
+  const favoritData = [
+    // seed-dummy favorit
     { userId: 3, eventId: 1 }, { userId: 3, eventId: 17 },
     { userId: 4, eventId: 1 }, { userId: 4, eventId: 14 },
   ];
-  for (const b of bookmarkData) {
-    await db.insert(bookmark).values(b).onConflictDoNothing();
+  for (const b of favoritData) {
+    await db.insert(favorit).values(b).onConflictDoNothing();
   }
 
-  // seed-profile-demo bookmarks (visitor user)
+  // seed-profile-demo favorit (visitor user)
   const visitor = await db.query.users.findFirst({
     where: eq(users.email, "visitor@gmail.com")
   });
   if (visitor) {
     for (const eventId of [1, 3, 8]) {
-      await db.insert(bookmark).values({ userId: visitor.id, eventId }).onConflictDoNothing();
+      await db.insert(favorit).values({ userId: visitor.id, eventId }).onConflictDoNothing();
     }
   }
 
-  console.log("✅ Bookmarks seeded!");
+  console.log("✅ Favorit seeded!");
 }
 
 async function seedRegistrations() {

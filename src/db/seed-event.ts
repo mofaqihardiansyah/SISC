@@ -1,5 +1,6 @@
 import { db } from "./index";
-import { event, profilPenyelenggara, tag, eventTag, jadwalEvent, logAdmin } from "./schema";
+import { event, profilPenyelenggara, tag, eventTag, jadwalEvent, logAdmin, pembicara, infoPembayaran } from "./schema";
+import { eq } from "drizzle-orm";
 import { SEED } from "@/lib/constants";
 
 function slug(text: string) {
@@ -356,28 +357,12 @@ async function seedEventsTable() {
   console.log("🚀 Seeding 24 events...");
   for (const e of eventsData) {
     const s = slug(e.judul);
-    const isPaid = e.tipeHarga === "paid";
-    const paymentInfo = isPaid ? {
-      namaBank: "Bank Mandiri",
-      nomorRekening: "132-000-1234-567",
-      pemilikRekening: "Panitia POLIVENTS",
-      namaBankAlternatif: "E-Wallet (Dana / ShopeePay)",
-      nomorRekeningAlternatif: "0812-3456-7890",
-      pemilikRekeningAlternatif: "POLIVENTS Internal"
-    } : {
-      namaBank: null as string | null,
-      nomorRekening: null as string | null,
-      pemilikRekening: null as string | null,
-      namaBankAlternatif: null as string | null,
-      nomorRekeningAlternatif: null as string | null,
-      pemilikRekeningAlternatif: null as string | null,
-    };
-
+    
+    const { namaPembicara, peranPembicara, urlFotoPembicara, ...eventDataRaw } = e;
     const linkEksternal = 'linkEksternal' in e ? e.linkEksternal : null;
 
     const values = {
-      ...e,
-      ...paymentInfo,
+      ...eventDataRaw,
       linkEksternal,
       slug: s,
       satuAkunSatuTransaksi: false,
@@ -396,13 +381,17 @@ async function seedEventsTable() {
         jenisEvent: e.jenisEvent,
         kategoriId: e.kategoriId,
         jumlahTayangan: e.jumlahTayangan,
-        namaPembicara: e.namaPembicara,
-        peranPembicara: e.peranPembicara,
-        urlFotoPembicara: e.urlFotoPembicara,
         linkEksternal,
-        ...paymentInfo,
         dibuatPada: new Date(),
       }
+    });
+
+    await db.delete(pembicara).where(eq(pembicara.eventId, e.id));
+    await db.insert(pembicara).values({
+      eventId: e.id,
+      nama: namaPembicara,
+      peran: peranPembicara,
+      urlFoto: urlFotoPembicara,
     });
   }
   console.log("✅ 24 events seeded!");
@@ -410,6 +399,23 @@ async function seedEventsTable() {
 
 async function seedAuxiliary() {
   console.log("🚀 Seeding auxiliary event data...");
+
+  // Info Pembayaran (global)
+  await db.delete(infoPembayaran);
+  await db.insert(infoPembayaran).values([
+    {
+      id: 1,
+      tipe: 'bank_transfer',
+      namaBank: 'Bank Mandiri',
+      nomorRekening: '132-000-1234-567',
+      pemilikRekening: 'Panitia POLIVENTS',
+    },
+    {
+      id: 2,
+      tipe: 'qris',
+      urlGambarQris: 'https://picsum.photos/seed/qris/400/400',
+    }
+  ]);
 
   // Profil Penyelenggara
   await db.insert(profilPenyelenggara).values({
