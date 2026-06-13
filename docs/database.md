@@ -29,7 +29,7 @@ export default defineConfig({
 
 ---
 
-## Enums (8)
+## Enums (9)
 
 | Enum | Values |
 |------|--------|
@@ -39,12 +39,13 @@ export default defineConfig({
 | `tipe_harga` | `free`, `paid` |
 | `paper_status` | `review`, `accepted`, `rejected` |
 | `user_role` | `admin`, `organizer`, `visitor` |
-| `pendaftaran_status` | `terdaftar`, `dibatalkan`, `hadir` |
+| `pendaftaran_status` | `terdaftar`, `menunggu_verifikasi`, `lunas`, `dibatalkan`, `hadir` |
 | `jenis_kelamin` | `Laki-laki`, `Perempuan` |
+| `tipe_pembayaran` | `bank_transfer`, `qris` |
 
 ---
 
-## Tabel (20)
+## Tabel (19)
 
 ### 1. `users`
 | Kolom | Tipe | Keterangan |
@@ -72,13 +73,13 @@ export default defineConfig({
 OTP untuk verifikasi email. Field: `email`, `code` (6 digit), `kedaluwarsa_pada`, `dibuat_pada`.
 
 ### 3. `profil_penyelenggara`
-Profil organizer. Field: `user_id` (unique FK → users), `nama_instansi`, `deskripsi_instansi`, `url_dokumen_legalitas`, `url_website`.
+Profil organizer. Field: `user_id` (unique FK → users), `nama_instansi`, `deskripsi_instansi`, `url_dokumen_legalitas`, `url_website`, `dibuat_pada`, `diperbarui_pada`.
 
 ### 4. `provinsi`
 Field: `id`, `nama` (unique). Data awal: 38 provinsi Indonesia.
 
 ### 5. `kota`
-Field: `id`, `provinsi_id` (FK → provinsi), `nama`.
+Field: `id`, `provinsi_id` (FK → provinsi), `nama`. Unique index pada `(provinsi_id, nama)`.
 
 ### 6. `kategori`
 Field: `id`, `nama`, `slug` (unique), `url_ikon`. Digunakan untuk kategorisasi event.
@@ -89,8 +90,8 @@ Field: `id`, `nama` (unique). Tag untuk event.
 ### 8. `event_tag`
 Relasi M:N antara event dan tag. Composite PK: (`event_id`, `tag_id`).
 
-### 9. `event` — Tabel utama (35 kolom)
-Menyimpan seluruh data event termasuk detail pembayaran:
+### 9. `event`
+Tabel utama menyimpan seluruh data event:
 
 | Kolom | Tipe | Keterangan |
 |-------|------|------------|
@@ -114,50 +115,90 @@ Menyimpan seluruh data event termasuk detail pembayaran:
 | detail_lokasi | text | |
 | link_eksternal | varchar(512) | |
 | nama_kontak, email_kontak, telepon_kontak | | Kontak person |
-| kuota, maks_tiket_per_transaksi | integer | |
+| kuota | integer | |
+| maks_tiket_per_transaksi | integer | |
 | satu_akun_satu_transaksi | boolean | |
 | status | enum | draft / pending / published / rejected |
 | hasil_scraping | boolean | Dari EventKampus |
+| website_sumber | varchar(255) | |
 | jumlah_tayangan | integer | View counter |
 | alasan_penolakan | text | |
-| nama_pembicara, peran_pembicara, url_foto_pembicara | | Speaker info |
-| nama_bank, nomor_rekening, pemilik_rekening | | Bank payment |
-| nama_bank_alternatif, nomor_rekening_alternatif, pemilik_rekening_alternatif | | Bank alternatif |
-| nama_ewallet, nomor_ewallet, pemilik_ewallet | | E-Wallet payment |
-| url_gambar_qris | varchar(512) | QRIS payment |
+| dibuat_pada, diperbarui_pada, dihapus_pada | timestamp | Soft delete |
 
-### 10. `lampiran_event`
-Lampiran file event. Field: `event_id` (FK), `url_file`, `tipe_file`.
+Index: `organizer_idx`, `kategori_idx`, `status_idx`.
 
-### 11. `bookmark`
-Bookmark event oleh user. Unique index on (`user_id`, `event_id`).
+### 10. `info_pembayaran`
+Info pembayaran global (bukan per-event). Ditampilkan ke visitor saat bayar.
 
-### 12. `log_admin`
-Log aktivitas admin. Field: `admin_id`, `event_id`, `aksi`, `data_sebelumnya` (jsonb).
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| id | serial PK | |
+| tipe | enum | bank_transfer / qris |
+| nama_bank | varchar(100) | Untuk bank |
+| nomor_rekening | varchar(50) | Untuk bank |
+| pemilik_rekening | varchar(255) | Untuk bank |
+| url_gambar_qris | varchar(512) | Untuk QRIS |
+| aktif | boolean | Enable/disable |
+| dibuat_pada | timestamp | |
+| diperbarui_pada | timestamp | |
 
-### 13. `pendaftaran`
-Pendaftaran event. Field: `event_id`, `user_id`, `kode_pendaftaran` (unique), `status` (terdaftar/dibatalkan/hadir), `bukti_pembayaran`.
+### 11. `pembicara`
+Data pembicara per event (1 event bisa >1 pembicara).
 
-### 14. `transaksi`
-Transaksi pembayaran. Field: `event_id`, `user_id`, `kode_transaksi` (unique), `status`, `total_harga`.
+Field: `event_id` (FK → event, not null), `nama` (not null), `peran`, `url_foto`, `dibuat_pada`, `diperbarui_pada`.
 
-### 15. `peserta`
-Data peserta per pendaftaran/transaksi. Field: `pendaftaran_id`, `transaksi_id`, `kode_peserta` (unique), `nama_lengkap`, `email`, `nomor_telepon`, `jenis_kelamin`.
+### 12. `lampiran_event`
+Lampiran file event. Field: `event_id` (FK), `url_file`, `tipe_file`, `urutan` (integer), `dibuat_pada`.
 
-### 16. `paper_submission`
-Submit paper. Field: `event_id`, `user_id`, `judul`, `kata_kunci`, `track`, `penulis` (jsonb), `url_file`, `status` (review/accepted/rejected), `komentar_penolakan`.
+### 13. `log_admin`
+Log aktivitas admin. Field: `admin_id` (FK → users), `event_id` (FK → event), `aksi`, `data_sebelumnya` (jsonb), `dibuat_pada`.
 
-### 17. `jadwal_event`
-Jadwal acara event. Field: `event_id`, `waktu_mulai`, `waktu_selesai`, `deskripsi`.
+### 14. `favorit`
+Favorit event oleh user. Composite PK: (`user_id`, `event_id`). Field: `dibuat_pada`.
 
-### 18. `pemberitahuan`
-Notifikasi sistem. Field: `tag`, `isi`.
+### 15. `pendaftaran`
+Mencakup registrasi + pembayaran (gabungan dari pendaftaran & transaksi lama).
 
-### 19. `favorit`
-Favorit event. Composite PK: (`user_id`, `event_id`).
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| id | serial PK | |
+| event_id | FK → event | |
+| user_id | FK → users | |
+| kode_pendaftaran | varchar(50) unique | |
+| status | enum | terdaftar / menunggu_verifikasi / lunas / dibatalkan / hadir |
+| metode_pembayaran_id | FK → info_pembayaran | Nullable, metode bayar yang dipilih |
+| bukti_pembayaran | text | URL file bukti transfer |
+| total_harga | integer | |
+| dibuat_pada | timestamp | |
+| diperbarui_pada | timestamp | |
+| dihapus_pada | timestamp | Soft delete |
 
-### 20. `tayangan_log`
-Log tayangan per event per hari. Index on (`event_id`, `tanggal`).
+### 16. `peserta`
+Data peserta per pendaftaran (1 pendaftaran bisa >1 peserta).
+
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| id | serial PK | |
+| pendaftaran_id | FK → pendaftaran | |
+| user_id | FK → users | Nullable, referensi ke user terdaftar |
+| kode_peserta | varchar(50) unique | |
+| nama_lengkap | varchar(255) | Override jika peserta bukan user itu sendiri |
+| email | varchar(255) | |
+| nomor_telepon | varchar(20) | |
+| jenis_kelamin | enum | |
+| dibuat_pada | timestamp | |
+| diperbarui_pada | timestamp | |
+
+### 17. `paper_submission`
+Submit paper ke event. Field: `event_id` (FK, not null), `user_id` (FK, not null), `judul` (not null), `kata_kunci`, `track`, `url_file` (not null), `status` (review/accepted/rejected), `komentar_penolakan`, `dibuat_pada`, `diperbarui_pada`.
+
+### 18. `penulis_paper`
+Data penulis per paper submission (1 paper bisa >1 penulis).
+
+Field: `paper_submission_id` (FK, not null), `nama` (not null), `email`, `institusi`, `urutan` (integer), `dibuat_pada`.
+
+### 19. `jadwal_event`
+Jadwal acara event. Field: `event_id` (FK), `waktu_mulai`, `waktu_selesai`, `deskripsi`, `dibuat_pada`.
 
 ---
 
@@ -165,51 +206,45 @@ Log tayangan per event per hari. Index on (`event_id`, `tanggal`).
 
 ```
 users ──┬── profil_penyelenggara (1:1)
-         ├── event (1:N, organizerId)
-         ├── bookmark (1:N)
-         ├── log_admin (1:N)
-         ├── pendaftaran (1:N)
-         ├── transaksi (1:N)
-         ├── paper_submission (1:N)
-event ──┬── event_tag (M:N via tag)
-         ├── lampiran_event (1:N)
-         ├── bookmark (1:N)
-         ├── log_admin (1:N)
-         ├── pendaftaran (1:N)
-         ├── transaksi (1:N)
-         ├── jadwal_event (1:N)
-         ├── paper_submission (1:N)
-         ├── favorit (1:N)
-         ├── tayangan_log (1:N)
-kategori ── event (1:N)
-kota ── event (1:N)
-provinsi ── kota (1:N)
+        ├── event (1:N, organizer_id)
+        ├── log_admin (1:N, admin_id)
+        ├── pendaftaran (1:N)
+        ├── paper_submission (1:N)
+        ├── favorit (1:N)
+        └── peserta (1:N, opsional)
+
+event ──┬── event_tag → tag (M:N)
+        ├── pembicara (1:N)
+        ├── lampiran_event (1:N)
+        ├── jadwal_event (1:N)
+        ├── log_admin (1:N)
+        ├── pendaftaran (1:N)
+        ├── paper_submission (1:N)
+        └── favorit (1:N)
+
+info_pembayaran ── pendaftaran (1:N, metode_pembayaran_id)
+
 pendaftaran ── peserta (1:N)
-transaksi ── peserta (1:N)
+
+paper_submission ── penulis_paper (1:N)
+
+provinsi ── kota (1:N)
+kota ── event (1:N)
+kategori ── event (1:N)
 ```
 
 ---
 
-## Migrasi (6 file)
+## Tabel Standalone (tanpa FK)
 
-| File | Deskripsi |
-|------|-----------|
-| `0000_funny_sentinel.sql` | Initial schema: 15 tabel + 8 enums |
-| `0001_ambitious_wraith.sql` | Alter users: tambah pekerjaan, is_approved, dll |
-| `0002_parched_miss_america.sql` | Alter event_status: tambah 'draft' |
-| `0003_add_kata_kunci_track.sql` | Buat tabel favorit, pemberitahuan, transaksi |
-| `0004_add_tayangan_log.sql` | Buat tabel tayangan_log |
-| `0005_rename_columns_ke_indonesia.sql` | Rename semua kolom ke Bahasa Indonesia |
+| Tabel | Keterangan |
+|-------|-----------|
+| `otp_codes` | Kode OTP verifikasi email (relasi via email string) |
+| `info_pembayaran` | Info pembayaran global (di-FK dari pendaftaran) |
 
----
+## Tabel Junction (Composite PK)
 
-## Seed Data
-
-| File | Isi |
-|------|-----|
-| `seed.ts` | Unified runner: seedMaster → seedEvent → seedDemo |
-| `seed-master.ts` | Reset DB + 38 provinsi + kategori + tags + users |
-| `seed-event.ts` | 24 events + profil penyelenggara + tags + jadwal + log |
-| `seed-demo.ts` | Bookmarks + pendaftaran & peserta + paper submissions |
-
-Semua URL file menggunakan placeholder eksternal (picsum.photos, W3C sample PDF).
+| Tabel | Kolom PK | Relasi |
+|-------|----------|--------|
+| `event_tag` | (`event_id`, `tag_id`) | M:N antara event dan tag |
+| `favorit` | (`user_id`, `event_id`) | M:N antara user dan event |
