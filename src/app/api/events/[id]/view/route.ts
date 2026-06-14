@@ -1,45 +1,32 @@
 import { db } from "@/db";
-import { event, tayanganLog } from "@/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { event } from "@/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-
 export async function POST(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> } // 👈 1. Bungkus tipe data params dengan Promise
 ) {
-  const resolvedParams = await params;
-  const eventId = Number(resolvedParams.id);
+  try {
+    // 👈 2. Lakukan await pada params sebelum membaca properti id
+    const resolvedParams = await params; 
+    const eventId = parseInt(resolvedParams.id);
 
-  if (isNaN(eventId)) {
-    return NextResponse.json(
-      { error: "ID event tidak valid" },
-      { status: 400 }
-    );
-  }
+    if (isNaN(eventId)) {
+      return NextResponse.json({ error: "ID Event tidak valid" }, { status: 400 });
+    }
 
-  await db.transaction(async (tx) => {
-    await tx
+    // Naikkan jumlah tayangan langsung di kolom jumlahTayangan tabel event
+    await db
       .update(event)
       .set({
         jumlahTayangan: sql`${event.jumlahTayangan} + 1`,
       })
-      .where(
-        and(
-          eq(event.id, eventId),
-          eq(event.status, "published")
-        )
-      );
+      .where(eq(event.id, eventId));
 
-    await tx.insert(tayanganLog).values({
-      eventId,
-      tanggal: new Date(),
-    });
-  });
-
-  return NextResponse.json({
-    success: true,
-    message: "Tayangan berhasil dicatat",
-  });
+    return NextResponse.json({ success: true, message: "Jumlah tayangan berhasil diperbarui" });
+  } catch (error) {
+    console.error("Error updating view count:", error);
+    return NextResponse.json({ error: "Gagal memperbarui tayangan" }, { status: 500 });
+  }
 }

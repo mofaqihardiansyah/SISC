@@ -62,6 +62,7 @@ interface DetailEventProps {
     eventTerkait: EventTerkait[];
   };
   isLoggedIn: boolean;
+  isRegistered?: boolean;
 }
 
 const formatRupiah = (angka: number | null) => {
@@ -122,7 +123,7 @@ function parseDeskripsi(deskripsi: string | null) {
   };
 }
 
-export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
+export default function DetailEvent({ event, isLoggedIn, isRegistered }: DetailEventProps) {
   const [activeSection, setActiveSection] = useState<SectionId>("deskripsi");
 
   const sectionRefs = useRef<Record<SectionId, HTMLElement | null>>({
@@ -192,6 +193,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
   }
 
   const renderTombolDaftar = () => {
+    // 1. Kondisi jika Event Eksternal / Hasil Scraping
     if (isExternalUrl) {
       return (
         <a
@@ -205,12 +207,37 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
       );
     }
 
+    // 2. Kondisi jika User Belum Login
+    if (!isLoggedIn) {
+      return (
+        <a
+          href={urlPendaftaran}
+          className="block w-full p-3 bg-sisc-dark hover:bg-sisc-med text-white rounded-lg text-base2 font-bold text-center transition-colors mb-4"
+        >
+          {UI_TEXT.LOGIN_TO_REGISTER}
+        </a>
+      );
+    }
+
+    // 3. Kondisi jika User Sudah Login dan Sudah Pernah Terdaftar di Event Ini
+    if (isRegistered) {
+      return (
+        <button
+          disabled
+          className="w-full p-3 bg-gray-300 text-gray-500 rounded-lg text-base2 font-bold text-center cursor-not-allowed mb-4 border border-gray-200"
+        >
+          Anda Sudah Terdaftar
+        </button>
+      );
+    }
+
+    // 4. Kondisi jika User Sudah Login dan Belum Terdaftar
     return (
       <a
         href={urlPendaftaran}
-        className="block w-full p-3 bg-sisc-dark hover:bg-sisc-med text-white rounded-lg text-base2 font-bold text-center transition-colors mb-4"
+        className="block w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-base2 font-bold text-center transition-colors mb-4 shadow-sm"
       >
-        {isLoggedIn ? UI_TEXT.REGISTER : UI_TEXT.LOGIN_TO_REGISTER}
+        {UI_TEXT.REGISTER}
       </a>
     );
   };
@@ -403,7 +430,7 @@ export default function DetailEvent({ event, isLoggedIn }: DetailEventProps) {
                 </div>
 
                 <p className="text-sm2 text-gray-500 mb-4">
-                  {event.loket.length} kategori pendaftaran â€“ harga mulai
+                  {event.loket.length} kategori pendaftaran – harga mulai
                   dari {formatRupiah(event.harga)}
                 </p>
 

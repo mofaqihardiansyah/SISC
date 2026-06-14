@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { bookmark } from '@/db/schema';
+import { favorit } from '@/db/schema'; // 👈 1. Diubah dari bookmark menjadi favorit
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
@@ -11,10 +11,11 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const eventId = Number(searchParams.get('eventId'));
 
+  // 👈 2. Query disesuaikan menggunakan tabel favorit dan camelCase (userId -> userId, eventId -> eventId)
   const existing = await db
     .select()
-    .from(bookmark)
-    .where(and(eq(bookmark.userId, Number(session.user.id)), eq(bookmark.eventId, eventId)))
+    .from(favorit)
+    .where(and(eq(favorit.userId, Number(session.user.id)), eq(favorit.eventId, eventId)))
     .limit(1);
 
   return NextResponse.json({ bookmarked: existing.length > 0 });
@@ -29,19 +30,22 @@ export async function POST(req: Request) {
   const { eventId } = await req.json();
   const userId = Number(session.user.id);
 
+  // 👈 3. Pengecekan status menggunakan tabel favorit
   const existing = await db
     .select()
-    .from(bookmark)
-    .where(and(eq(bookmark.userId, userId), eq(bookmark.eventId, eventId)))
+    .from(favorit)
+    .where(and(eq(favorit.userId, userId), eq(favorit.eventId, eventId)))
     .limit(1);
 
   if (existing.length > 0) {
+    // Jika sudah ada di favorit, lakukan hapus (un-favorit)
     await db
-      .delete(bookmark)
-      .where(and(eq(bookmark.userId, userId), eq(bookmark.eventId, eventId)));
+      .delete(favorit)
+      .where(and(eq(favorit.userId, userId), eq(favorit.eventId, eventId)));
     return NextResponse.json({ bookmarked: false });
   } else {
-    await db.insert(bookmark).values({ userId, eventId });
+    // Jika belum ada, masukkan data baru ke tabel favorit
+    await db.insert(favorit).values({ userId, eventId });
     return NextResponse.json({ bookmarked: true });
   }
 }
