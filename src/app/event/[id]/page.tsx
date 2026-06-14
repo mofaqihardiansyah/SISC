@@ -1,10 +1,11 @@
 import { db } from "@/db";
-import { event } from "@/db/schema";
-import { eq, ne, desc } from "drizzle-orm";
+import { event, pendaftaran } from "@/db/schema"; 
+import { eq, ne, desc, and } from "drizzle-orm"; 
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
 import ViewTracker from "@/components/event/ViewTracker";
 import { PAGINATION } from "@/lib/constants";
+import { auth } from "@/auth"; 
 
 export const revalidate = 300;
 
@@ -17,11 +18,18 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   const eventId = parseInt(id);
   if (isNaN(eventId)) notFound();
 
-  const [eventData, eventTerkait] = await Promise.all([
+  // 1. Ambil session user yang sedang login saat ini
+  const session = await auth();
+  const userId = session?.user?.id ? parseInt(session.user.id) : null;
+  const isLoggedIn = !!userId;
+
+  // 2. Ambil data event, event terkait, dan status pendaftaran user secara paralel
+  const [eventData, eventTerkait, dataPendaftaran] = await Promise.all([
     db.query.event.findFirst({
       where: eq(event.id, eventId),
       with: {
         kategori: true,
+        pembicara: true, // 👈 Mengambil data pembicara dari tabel relasi baru
         organizer: {
           with: {
             profilPenyelenggara: true,
@@ -45,14 +53,29 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
         kota: true,
       },
     }),
+
+    // Cek apakah user ini sudah terdaftar di event ini (hanya jika sudah login)
+    userId
+      ? db.query.pendaftaran.findFirst({
+          where: and(
+            eq(pendaftaran.eventId, eventId),
+            eq(pendaftaran.userId, userId),
+            ne(pendaftaran.status, "dibatalkan") 
+          ),
+        })
+      : null,
   ]);
 
   if (!eventData) notFound();
 
-  // Nama pembicara
-  const namaPembicara = eventData.namaPembicara
-    ? `${eventData.namaPembicara}${
-        eventData.peranPembicara ? ` (${eventData.peranPembicara})` : ""
+  // Tentukan apakah user sudah terdaftar atau belum
+  const isRegistered = !!dataPendaftaran;
+
+  // 👈 Memformat nama pembicara menggunakan array relasi tabel pembicara yang baru
+  const pembicaraUtama = eventData.pembicara?.[0];
+  const namaPembicara = pembicaraUtama
+    ? `${pembicaraUtama.nama}${
+        pembicaraUtama.peran ? ` (${pembicaraUtama.peran})` : ""
       }`
     : null;
 
@@ -118,7 +141,7 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
         : "TBA",
       price: ev.harga,
       category: ev.kategori?.nama ?? "Umum",
-      type: ev.eventPolines ? "POLINES" : "UMUM" as "POLINES" | "UMUM",
+      type: ev.eventPolines ? "POLINES" : ("UMUM" as "POLINES" | "UMUM"),
       imageUrl: ev.urlBanner ?? "",
       tipePlatform: ev.tipePlatform ?? "offline",
       kotaNama: ev.kota?.nama ?? "-",
@@ -129,7 +152,11 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   return (
     <>
       <ViewTracker eventId={eventId} />
-      <DetailEvent event={eventFormatted} isLoggedIn={false} />
+      <DetailEvent 
+        event={eventFormatted} 
+        isLoggedIn={isLoggedIn} 
+        isRegistered={isRegistered} 
+      />
     </>
   );
 }
