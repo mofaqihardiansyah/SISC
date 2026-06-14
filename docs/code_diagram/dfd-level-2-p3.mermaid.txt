@@ -1,0 +1,33 @@
+flowchart TD
+    %% Entitas Eksternal
+    Visitor["Pengguna (Visitor)"]
+
+    %% Data Stores (Satu Datastore = Satu Tabel)
+    D2_1[("D2.1\nevent")]
+    D3_1[("D3.1\ninfo_pembayaran")]
+    D3_2[("D3.2\npendaftaran")]
+    D3_3[("D3.3\npeserta")]
+
+    %% Proses Detail
+    P3_1(("3.1\nRegistrasi\nTiket Event"))
+    P3_2(("3.2\nProses\nPembayaran"))
+    P3_3(("3.3\nManajemen\nData Peserta"))
+
+    %% 3.1 Registrasi Tiket
+    Visitor -->|"Permintaan Pendaftaran"| P3_1
+    D2_1 -.->|"Info Kuota & Harga"| P3_1
+    P3_1 -->|"Data Pendaftaran Awal"| D3_2
+    P3_1 -->|"Kode Pendaftaran"| Visitor
+
+    %% 3.2 Pembayaran
+    Visitor -->|"Bukti Pembayaran"| P3_2
+    D3_1 -.->|"Daftar Metode Pembayaran"| P3_2
+    D3_2 -.->|"Data Tagihan"| P3_2
+    P3_2 -->|"Pembaruan Status Lunas"| D3_2
+    P3_2 -->|"Tiket (E-Ticket)"| Visitor
+
+    %% 3.3 Peserta
+    Visitor -->|"Detail Identitas Peserta"| P3_3
+    D3_2 -.->|"Referensi Pendaftaran"| P3_3
+    P3_3 -->|"Data Peserta Baru"| D3_3
+    P3_3 -->|"Kode Peserta"| Visitor

@@ -4,7 +4,7 @@
 erDiagram
     %% 1. USERS
     users {
-        serial id PK
+        int id PK
         varchar nama_lengkap
         varchar email UK
         varchar nomor_telepon
@@ -26,7 +26,7 @@ erDiagram
 
     %% 2. OTP CODES
     otp_codes {
-        serial id PK
+        int id PK
         varchar email
         varchar code
         timestamp kedaluwarsa_pada
@@ -35,8 +35,8 @@ erDiagram
 
     %% 3. PROFIL PENYELENGGARA
     profil_penyelenggara {
-        serial id PK
-        integer user_id FK
+        int id PK
+        int user_id FK, UK
         varchar nama_instansi
         text deskripsi_instansi
         varchar url_dokumen_legalitas
@@ -47,20 +47,20 @@ erDiagram
 
     %% 4. PROVINSI
     provinsi {
-        serial id PK
+        int id PK
         varchar nama UK
     }
 
     %% 5. KOTA
     kota {
-        serial id PK
-        integer provinsi_id FK
+        int id PK
+        int provinsi_id FK
         varchar nama
     }
 
     %% 6. KATEGORI
     kategori {
-        serial id PK
+        int id PK
         varchar nama
         varchar slug UK
         varchar url_ikon
@@ -68,22 +68,22 @@ erDiagram
 
     %% 7. TAG
     tag {
-        serial id PK
+        int id PK
         varchar nama UK
     }
 
     %% 8. EVENT TAG (junction)
     event_tag {
-        integer event_id FK
-        integer tag_id FK
+        int event_id PK, FK
+        int tag_id PK, FK
     }
 
     %% 9. EVENT
     event {
-        serial id PK
-        integer organizer_id FK
-        integer kategori_id FK
-        integer kota_id FK
+        int id PK
+        int organizer_id FK
+        int kategori_id FK
+        int kota_id FK
         varchar judul
         varchar slug UK
         text deskripsi
@@ -97,19 +97,19 @@ erDiagram
         enum jenis_event
         enum tipe_platform
         enum tipe_harga
-        integer harga
+        int harga
         text detail_lokasi
         varchar link_eksternal
         varchar nama_kontak
         varchar email_kontak
         varchar telepon_kontak
-        integer kuota
-        integer maks_tiket_per_transaksi
+        int kuota
+        int maks_tiket_per_transaksi
         boolean satu_akun_satu_transaksi
         enum status
         boolean hasil_scraping
         varchar website_sumber
-        integer jumlah_tayangan
+        int jumlah_tayangan
         text alasan_penolakan
         timestamp dibuat_pada
         timestamp diperbarui_pada
@@ -118,7 +118,7 @@ erDiagram
 
     %% 10. INFO PEMBAYARAN (global)
     info_pembayaran {
-        serial id PK
+        int id PK
         enum tipe
         varchar nama_bank
         varchar nomor_rekening
@@ -131,8 +131,8 @@ erDiagram
 
     %% 11. PEMBICARA
     pembicara {
-        serial id PK
-        integer event_id FK
+        int id PK
+        int event_id FK
         varchar nama
         varchar peran
         varchar url_foto
@@ -142,19 +142,19 @@ erDiagram
 
     %% 12. LAMPIRAN EVENT
     lampiran_event {
-        serial id PK
-        integer event_id FK
+        int id PK
+        int event_id FK
         varchar url_file
         varchar tipe_file
-        integer urutan
+        int urutan
         timestamp dibuat_pada
     }
 
     %% 13. LOG ADMIN
     log_admin {
-        serial id PK
-        integer admin_id FK
-        integer event_id FK
+        int id PK
+        int admin_id FK
+        int event_id FK
         varchar aksi
         jsonb data_sebelumnya
         timestamp dibuat_pada
@@ -162,21 +162,21 @@ erDiagram
 
     %% 14. FAVORIT
     favorit {
-        integer user_id FK
-        integer event_id FK
+        int user_id PK, FK
+        int event_id PK, FK
         timestamp dibuat_pada
     }
 
     %% 15. PENDAFTARAN
     pendaftaran {
-        serial id PK
-        integer event_id FK
-        integer user_id FK
+        int id PK
+        int event_id FK
+        int user_id FK
         varchar kode_pendaftaran UK
         enum status
-        integer metode_pembayaran_id FK
+        int metode_pembayaran_id FK
         text bukti_pembayaran
-        integer total_harga
+        int total_harga
         timestamp dibuat_pada
         timestamp diperbarui_pada
         timestamp dihapus_pada
@@ -184,9 +184,9 @@ erDiagram
 
     %% 16. PESERTA
     peserta {
-        serial id PK
-        integer pendaftaran_id FK
-        integer user_id FK
+        int id PK
+        int pendaftaran_id FK
+        int user_id FK
         varchar kode_peserta UK
         varchar nama_lengkap
         varchar email
@@ -198,9 +198,9 @@ erDiagram
 
     %% 17. PAPER SUBMISSION
     paper_submission {
-        serial id PK
-        integer event_id FK
-        integer user_id FK
+        int id PK
+        int event_id FK
+        int user_id FK
         varchar judul
         varchar kata_kunci
         varchar track
@@ -213,19 +213,19 @@ erDiagram
 
     %% 18. PENULIS PAPER
     penulis_paper {
-        serial id PK
-        integer paper_submission_id FK
+        int id PK
+        int paper_submission_id FK
         varchar nama
         varchar email
         varchar institusi
-        integer urutan
+        int urutan
         timestamp dibuat_pada
     }
 
     %% 19. JADWAL EVENT
     jadwal_event {
-        serial id PK
-        integer event_id FK
+        int id PK
+        int event_id FK
         timestamp waktu_mulai
         timestamp waktu_selesai
         text deskripsi
@@ -234,32 +234,35 @@ erDiagram
 
     %% ── RELATIONS ──
 
-    users ||--o| profil_penyelenggara : "1:1"
-    users ||--o{ event : "1:N (organizer)"
-    users ||--o{ log_admin : "1:N (admin)"
-    users ||--o{ pendaftaran : "1:N"
-    users ||--o{ paper_submission : "1:N"
-    users ||--o{ favorit : "1:N"
-    users ||--o{ peserta : "1:N (opsional)"
+    users ||--o| profil_penyelenggara : "memiliki"
+    users ||--o{ event : "mengorganisir"
+    users ||--o{ log_admin : "melakukan"
+    users ||--o{ pendaftaran : "mendaftar"
+    users ||--o{ peserta : "menjadi_peserta"
+    users ||--o{ paper_submission : "mensubmit"
+    users ||--o{ favorit : "menyimpan"
 
-    provinsi ||--o{ kota : "1:N"
-    kategori ||--o{ event : "1:N"
-    kota ||--o{ event : "1:N"
+    provinsi ||--o{ kota : "memiliki"
+    kota ||--o{ event : "menjadi_lokasi"
 
-    event_tag }o--|| event : "N:1"
-    event_tag }o--|| tag : "N:1"
+    kategori ||--o{ event : "mengkategorikan"
 
-    event ||--o{ pembicara : "1:N"
-    event ||--o{ lampiran_event : "1:N"
-    event ||--o{ jadwal_event : "1:N"
-    event ||--o{ log_admin : "1:N"
-    event ||--o{ pendaftaran : "1:N"
-    event ||--o{ paper_submission : "1:N"
-    event ||--o{ favorit : "1:N"
+    tag ||--o{ event_tag : "memiliki"
+    event ||--o{ event_tag : "ditandai"
 
-    info_pembayaran ||--o{ pendaftaran : "1:N"
-    pendaftaran ||--o{ peserta : "1:N"
-    paper_submission ||--o{ penulis_paper : "1:N"
+    event ||--o{ pembicara : "memiliki"
+    event ||--o{ lampiran_event : "memiliki"
+    event ||--o{ log_admin : "tercatat"
+    event ||--o{ favorit : "disukai"
+    event ||--o{ pendaftaran : "menerima"
+    event ||--o{ jadwal_event : "memiliki"
+    event ||--o{ paper_submission : "menerima"
+
+    info_pembayaran ||--o{ pendaftaran : "metode_untuk"
+
+    pendaftaran ||--o{ peserta : "mencakup"
+
+    paper_submission ||--o{ penulis_paper : "ditulis_oleh"
 ```
 
 ---

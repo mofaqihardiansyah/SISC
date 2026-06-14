@@ -1,0 +1,17 @@
+flowchart TD
+    %% Entitas Eksternal
+    Visitor["Pengguna (Visitor)"]
+
+    %% Data Stores (Satu Datastore = Satu Tabel)
+    D2_1[("D2.1\nevent")]
+    D5_1[("D5.1\nfavorit")]
+
+    %% Proses Detail
+    P5_1(("5.1\nPengelolaan\nDaftar Favorit"))
+
+    %% 5.1 Kelola Favorit
+    Visitor -->|"Instruksi Simpan/Hapus"| P5_1
+    D2_1 -.->|"Referensi Event"| P5_1
+    P5_1 -->|"Data Relasi Favorit"| D5_1
+    D5_1 -.->|"Daftar Event Tersimpan"| P5_1
+    P5_1 -->|"Koleksi Event Favorit"| Visitor

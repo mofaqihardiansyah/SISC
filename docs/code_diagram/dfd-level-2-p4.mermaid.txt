@@ -1,0 +1,26 @@
+flowchart TD
+    %% Entitas Eksternal
+    Visitor["Pengguna (Visitor)"]
+    Organizer["Penyelenggara (Organizer)"]
+
+    %% Data Stores (Satu Datastore = Satu Tabel)
+    D2_1[("D2.1\nevent")]
+    D4_1[("D4.1\npaper_submission")]
+    D4_2[("D4.2\npenulis_paper")]
+
+    %% Proses Detail
+    P4_1(("4.1\nPenyerahan\nPaper (Submit)"))
+    P4_2(("4.2\nProses\nReview Paper"))
+
+    %% 4.1 Penyerahan Paper
+    Visitor -->|"File Paper & Data Penulis"| P4_1
+    D2_1 -.->|"Info Call for Paper"| P4_1
+    P4_1 -->|"Data Submission"| D4_1
+    P4_1 -->|"Data Penulis"| D4_2
+    P4_1 -->|"Tanda Terima Submission"| Visitor
+
+    %% 4.2 Review Paper
+    Organizer -->|"Keputusan & Komentar Review"| P4_2
+    D4_1 -.->|"Daftar Paper Masuk"| P4_2
+    P4_2 -->|"Pembaruan Status Paper"| D4_1
+    P4_2 -->|"Status & Komentar"| Visitor

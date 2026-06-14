@@ -1,0 +1,53 @@
+flowchart TD
+    %% Entitas Eksternal
+    Visitor["Pengguna (Visitor)"]
+    Organizer["Penyelenggara (Organizer)"]
+    Admin["Admin"]
+
+    %% Data Stores
+    D1[("D1\nUsers & Profil")]
+    D2[("D2\nEvents & Master Data")]
+    D3[("D3\nPendaftaran & Peserta")]
+    D4[("D4\nPaper Submissions")]
+
+    %% Proses Utama
+    P1(("1.0\nManajemen\nAkun & Autentikasi"))
+    P2(("2.0\nManajemen\nEvent"))
+    P3(("3.0\nPendaftaran\n& Pembayaran"))
+    P4(("4.0\nManajemen\nPaper"))
+    P5(("5.0\nManajemen\nFavorit"))
+    P6(("6.0\nVerifikasi\n& Administrasi"))
+
+    %% P1: Akun
+    Visitor -->|"Registrasi"| P1
+    Organizer -->|"Registrasi & Profil"| P1
+    P1 -->|"Simpan Data User"| D1
+    P1 -->|"Kode OTP"| Visitor
+    
+    %% P2: Event
+    Organizer -->|"Data Event, Pembicara,\nLampiran, Jadwal"| P2
+    P2 -->|"Simpan Data Event"| D2
+    D2 -->|"Katalog Event"| Visitor
+    
+    %% P3: Pendaftaran
+    Visitor -->|"Data Peserta &\nBukti Pembayaran"| P3
+    D2 -.->|"Info Harga & Kuota"| P3
+    P3 -->|"Simpan Pendaftaran"| D3
+    P3 -->|"Tiket/Status"| Visitor
+    
+    %% P4: Paper
+    Visitor -->|"File & Data Paper"| P4
+    P4 -->|"Simpan Paper"| D4
+    D4 -.->|"Daftar Paper"| Organizer
+    Organizer -->|"Hasil Review"| P4
+    P4 -->|"Status Paper"| Visitor
+    
+    %% P5: Favorit
+    Visitor -->|"Aksi Favorit"| P5
+    P5 -->|"Simpan Relasi Favorit"| D2
+    
+    %% P6: Admin
+    Admin -->|"Aksi Verifikasi,\nManajemen Master Data"| P6
+    D2 -.->|"Daftar Event Pending"| P6
+    P6 -->|"Update Status Event"| D2
+    P6 -->|"Simpan Log Aktivitas"| D1

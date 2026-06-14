@@ -1,0 +1,44 @@
+flowchart TD
+    %% Entitas Eksternal
+    Visitor["Pengguna (Visitor)"]
+    Organizer["Penyelenggara (Organizer)"]
+
+    %% Data Stores (Sesuai Tabel Database)
+    D1_1[("D1.1\nusers")]
+    D1_2[("D1.2\nprofil_penyelenggara")]
+    D1_3[("D1.3\notp_codes")]
+
+    %% Proses Detail (Level 2 dari P1)
+    P1_1(("1.1\nPendaftaran\nAkun Baru"))
+    P1_2(("1.2\nVerifikasi\nEmail"))
+    P1_3(("1.3\nAutentikasi\n(Login)"))
+    P1_4(("1.4\nPengelolaan\nProfil"))
+
+    %% 1.1 Pendaftaran Akun
+    Visitor -->|"Data Diri"| P1_1
+    Organizer -->|"Data Diri"| P1_1
+    P1_1 -->|"Data User Baru"| D1_1
+    P1_1 -->|"Data Histori OTP"| D1_3
+    P1_1 -->|"Pesan Berisi Kode OTP"| Visitor
+    P1_1 -->|"Pesan Berisi Kode OTP"| Organizer
+
+    %% 1.2 Verifikasi Email
+    Visitor -->|"Kode OTP"| P1_2
+    Organizer -->|"Kode OTP"| P1_2
+    D1_3 -.->|"Status Kecocokan OTP"| P1_2
+    P1_2 -->|"Status Terverifikasi"| D1_1
+
+    %% 1.3 Autentikasi (Login)
+    Visitor -->|"Kredensial Login"| P1_3
+    Organizer -->|"Kredensial Login"| P1_3
+    D1_1 -.->|"Status Kecocokan Kredensial"| P1_3
+    P1_3 -->|"Token/Sesi Akses"| Visitor
+    P1_3 -->|"Token/Sesi Akses"| Organizer
+
+    %% 1.4 Pengelolaan Profil
+    Organizer -->|"Data Instansi\nDokumen Legalitas"| P1_4
+    Visitor -->|"Data Diri Revisi"| P1_4
+    P1_4 -->|"Data Profil Penyelenggara"| D1_2
+    P1_4 -->|"Data User Revisi"| D1_1
+    D1_1 -.->|"Data User Terkini"| P1_4
+    D1_2 -.->|"Data Profil Terkini"| P1_4

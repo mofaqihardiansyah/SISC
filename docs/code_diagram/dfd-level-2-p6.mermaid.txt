@@ -1,0 +1,37 @@
+flowchart TD
+    %% Entitas Eksternal
+    Admin["Admin"]
+
+    %% Data Stores (Satu Datastore = Satu Tabel)
+    D1_1[("D1.1\nusers")]
+    D2_1[("D2.1\nevent")]
+    D6_1[("D6.1\nlog_admin")]
+    D6_2[("D6.2\nkategori")]
+    D6_3[("D6.3\nprovinsi")]
+    D6_4[("D6.4\nkota")]
+    D6_5[("D6.5\ninfo_pembayaran")]
+
+    %% Proses Detail
+    P6_1(("6.1\nVerifikasi\nEvent Baru"))
+    P6_2(("6.2\nManajemen\nPengguna"))
+    P6_3(("6.3\nManajemen\nMaster Data"))
+
+    %% 6.1 Verifikasi Event
+    Admin -->|"Keputusan Verifikasi (Published/Rejected)"| P6_1
+    D2_1 -.->|"Daftar Event Pending"| P6_1
+    P6_1 -->|"Perubahan Status Event"| D2_1
+    P6_1 -->|"Catatan Keputusan"| D6_1
+
+    %% 6.2 Manajemen Pengguna
+    Admin -->|"Aksi Blokir / Setuju User"| P6_2
+    D1_1 -.->|"Daftar User"| P6_2
+    P6_2 -->|"Pembaruan Status User"| D1_1
+    P6_2 -->|"Catatan Aksi"| D6_1
+
+    %% 6.3 Manajemen Master Data
+    Admin -->|"Data Kategori / Lokasi / Pembayaran Baru"| P6_3
+    P6_3 -->|"Pembaruan Kategori"| D6_2
+    P6_3 -->|"Pembaruan Provinsi"| D6_3
+    P6_3 -->|"Pembaruan Kota"| D6_4
+    P6_3 -->|"Pembaruan Info Pembayaran"| D6_5
+    P6_3 -->|"Catatan Modifikasi"| D6_1
