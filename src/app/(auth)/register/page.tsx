@@ -193,7 +193,7 @@ export default function RegisterPage() {
                 {visitorForm.formState.errors.email && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.email.message}</p>}
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">No. HP</Label>
                   <Controller
@@ -213,7 +213,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Tanggal Lahir</Label>
                   <Input 
@@ -237,7 +237,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Institusi / Asal Instansi</Label>
                   <Input 
@@ -304,7 +304,7 @@ export default function RegisterPage() {
           <TabsContent value="organizer">
             <form onSubmit={organizerForm.handleSubmit(onOrganizerSubmit)} className="space-y-4" autoComplete="off">
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Institusi</Label>
                   <Input 
@@ -324,7 +324,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Alamat Email</Label>
                   <Input 
@@ -355,7 +355,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Kata Sandi</Label>
                   <div className="relative">

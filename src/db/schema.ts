@@ -183,9 +183,9 @@ export const favorit = pgTable('favorit', {
   userId: integer('user_id').notNull().references(() => users.id),
   eventId: integer('event_id').notNull().references(() => event.id),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
-}, (t) => [
-  primaryKey({ columns: [t.userId, t.eventId] })
-]);
+}, (t) => ({
+  pk: primaryKey({ columns: [t.userId, t.eventId] })
+}));
 
 // 15. PENDAFTARAN (mencakup registrasi + pembayaran)
 export const pendaftaran = pgTable('pendaftaran', {
@@ -233,13 +233,14 @@ export const paperSubmission = pgTable('paper_submission', {
 
 // 18. PENULIS PAPER
 export const penulisPaper = pgTable('penulis_paper', {
-  id: serial('id').primaryKey(),
-  paperSubmissionId: integer('paper_submission_id').notNull().references(() => paperSubmission.id),
-  nama: varchar('nama', { length: 255 }).notNull(),
-  email: varchar('email', { length: 255 }),
-  institusi: varchar('institusi', { length: 255 }),
-  urutan: integer('urutan').default(0),
-  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  id: serial('id').primaryKey(),
+  paperSubmissionId: integer('paper_submission_id').notNull().references(() => paperSubmission.id),
+  nama: varchar('nama', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }),
+  institusi: varchar('institusi', { length: 255 }),
+  isCorresponding: boolean('is_corresponding').default(false),
+  urutan: integer('urutan').default(0),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 
 // 19. JADWAL EVENT

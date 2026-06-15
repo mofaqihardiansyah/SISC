@@ -88,7 +88,9 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
       if (!target.closest("[data-status-dropdown]")) {
         setShowStatusDropdown(false);
       }
-      setOpenDropdownId(null);
+      if (!target.closest("[data-action-dropdown]")) {
+        setOpenDropdownId(null);
+      }
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);

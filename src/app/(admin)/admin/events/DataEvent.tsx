@@ -141,7 +141,6 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
   const inputClasses = "w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-100 text-slate-700 font-medium";
   const selectClasses = cn(inputClasses, "appearance-none cursor-pointer");
 
-  // ---- VIEW MODE ----
   const renderViewMode = () => {
     const rows = [
       { label: 'Penyelenggara', value: event.penyelenggara || '-', icon: Building2 },

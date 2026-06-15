@@ -32,11 +32,11 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
       </div>
 
       {/* Sisi Kanan - Form Area */}
-      <div className="w-full md:w-[55%] lg:w-1/2 min-h-screen bg-white flex flex-col p-6 md:p-12 lg:p-16 xl:p-24 overflow-y-auto">
-        <div className="w-full max-w-md mx-auto my-auto flex flex-col justify-center animate-in fade-in slide-in-from-right-8 duration-700">
+      <div className="w-full md:w-[55%] lg:w-1/2 min-h-screen bg-white flex flex-col px-6 py-8 md:px-12 md:py-12 lg:px-16 lg:py-16 xl:px-20 overflow-y-auto">
+        <div className="w-full max-w-md mx-auto flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-700">
           
           {/* Logo untuk Mobile & Desktop di Form */}
-          <div className="flex items-center justify-center md:justify-start mb-6 md:mb-8">
+          <div className="flex items-center justify-center md:justify-start mb-10">
             <Image 
               src="/logo_sementara.png" 
               alt="POLIVENTS" 
@@ -47,11 +47,14 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
             />
           </div>
           
-          {children}
+          {/* Main Form Content */}
+          <div className="w-full">
+            {children}
+          </div>
 
           {/* Footer Form */}
-          <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-micro font-medium">
-            <p>Â© 2026 POLIVENTS.</p>
+          <div className="mt-auto pt-8 pb-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-micro font-medium">
+            <p>© 2026 POLIVENTS.</p>
             <div className="flex gap-4">
               <a href="#" className="hover:text-slate-600 transition-colors">Ketentuan</a>
               <a href="#" className="hover:text-slate-600 transition-colors">Kebijakan Privasi</a>

@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'picsum.photos',
       },
+      {
+        protocol: 'https',
+        hostname: 'fciofv2srwuutfhq.public.blob.vercel-storage.com',
+      },
     ],
   },
   // Tambahkan baris kode di bawah ini untuk menaikkan limit upload Server Actions

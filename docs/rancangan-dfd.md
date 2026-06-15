@@ -8,7 +8,7 @@
 | **Organizer** | Mengelola event, pembicara, jadwal, lampiran, lihat pendaftar |
 | **Admin** | Verifikasi event, verifikasi pembayaran, kelola user, info pembayaran, lihat log |
 
-## 2. Data Store (19 tabel → 14 store)
+## 2. Data Store (21 tabel → 15 store)
 
 | Kode Store | Nama | Berisi dari tabel |
 |---|---|---|
@@ -25,6 +25,7 @@
 | D11 | Paper | paper_submission, penulis_paper |
 | D12 | Favorit | favorit |
 | D13 | Log Admin | log_admin |
+| D14 | Scraping | raw_scraped_data, log_scraping |
 
 ## 3. Level 0 — Context Diagram
 

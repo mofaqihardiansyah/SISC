@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { event, kategori } from "@/db/schema";
-import { eq, asc, isNull, ilike, count, sql } from "drizzle-orm";
+import { eq, asc, desc, isNull, ilike, count, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { PAGINATION } from "@/lib/constants";
 
@@ -157,7 +157,7 @@ export async function getPendingEvents(page = 1, pageSize = PAGINATION.PAGE_SIZE
         .from(event)
         .leftJoin(kategori, eq(event.kategoriId, kategori.id))
         .where(baseWhere)
-        .orderBy(asc(event.dibuatPada))
+        .orderBy(desc(event.dibuatPada))
         .limit(pageSize)
         .offset(offset),
       db

@@ -56,7 +56,7 @@ SISC/
 │   │   └── bantuan/                # 1 help component
 │   ├── db/                         # Database layer
 │   │   ├── index.ts                # Koneksi PostgreSQL
-│   │   ├── schema.ts               # 20 tabel + 8 enums + relations
+│   │   ├── schema.ts               # 21 tabel + 10 enums + relations
 │   │   ├── seed.ts                 # Unified seed runner
 │   │   ├── seed-master.ts          # Master data seed
 │   │   ├── seed-event.ts           # Events seed

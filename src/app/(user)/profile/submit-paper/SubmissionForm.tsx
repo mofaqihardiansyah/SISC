@@ -152,7 +152,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
   const steps = [
     { num: 1, title: 'Metadata Paper' },
     { num: 2, title: 'Data Penulis' },
-    { num: 3, title: 'Dokumen & Deklarasi' }
+    { num: 3, title: 'Dokumen' }
   ];
 
   return (
@@ -372,7 +372,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                       className="mt-1 border-amber-300 rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer"
                     />
                     <label htmlFor="coi" className="text-xs text-amber-900 font-medium leading-relaxed cursor-pointer">
-                      <strong>Deklarasi Integritas Akademik:</strong> Dengan mencentang kotak ini, saya menyatakan bahwa karya tulis ini murni hasil pemikiran orisinal saya (dan tim penulis), bebas dari segala bentuk plagiarisme, belum pernah dipublikasikan, dan tidak sedang dalam proses review di konferensi atau jurnal lain.
+                      <strong>Pernyataan Integritas Akademik:</strong> Dengan mencentang kotak ini, saya menyatakan bahwa karya tulis ini murni hasil pemikiran orisinal saya (dan tim penulis), bebas dari segala bentuk plagiarisme, belum pernah dipublikasikan, dan tidak sedang dalam proses review di konferensi atau jurnal lain.
                     </label>
                   </div>
                   
@@ -447,7 +447,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                 <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold">3</span>
                 <div>
                   <strong className="text-white block mb-0.5">Kepatuhan Etik</strong>
-                  Form tidak dapat dikirim sebelum Anda menyetujui Deklarasi Integritas Akademik pada langkah akhir.
+                  Form tidak dapat dikirim sebelum Anda menyetujui pernyataan Integritas Akademik pada langkah akhir.
                 </div>
               </li>
             </ul>

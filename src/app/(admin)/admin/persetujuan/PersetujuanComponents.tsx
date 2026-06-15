@@ -19,8 +19,6 @@ import {
 import Portal from "@/components/ui/Portal";
 import { Button } from "@/components/ui/button";
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ StatCards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-
 export function StatCards({
   pendingCount, approvedCount, rejectedCount,
 }: {
@@ -34,8 +32,6 @@ export function StatCards({
     </section>
   );
 }
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ FilterBar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export function FilterBar({
   searchQuery, statusFilter, showStatusDropdown,
@@ -160,8 +156,6 @@ export function FilterBar({
   );
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ EventTable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-
 export function EventTable({
   events, openDropdownId, onPreview, onToggleDropdown, onStatusChange,
 }: {
@@ -226,7 +220,7 @@ export function EventTable({
                   >
                     <Eye size={16} />
                   </Button>
-                  <div className="relative">
+                  <div className="relative" data-action-dropdown>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -273,8 +267,6 @@ export function EventTable({
     </div>
   );
 }
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function getPageButtons(currentPage: number, totalPages: number): (number | "...")[] {
   const pages: (number | "...")[] = [];
@@ -326,8 +318,6 @@ export function Pagination({
     </div>
   );
 }
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ReviewModal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
@@ -511,8 +501,6 @@ export function ReviewModal({
     </Portal>
   );
 }
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ConfirmModal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export function ConfirmModal({
   isOpen, onConfirm, onCancel,

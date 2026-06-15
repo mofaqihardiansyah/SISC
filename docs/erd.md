@@ -218,6 +218,7 @@ erDiagram
         varchar nama
         varchar email
         varchar institusi
+        boolean is_corresponding
         int urutan
         timestamp dibuat_pada
     }
@@ -230,6 +231,28 @@ erDiagram
         timestamp waktu_selesai
         text deskripsi
         timestamp dibuat_pada
+    }
+
+    %% 20. RAW SCRAPED DATA
+    raw_scraped_data {
+        int id PK
+        varchar sumber
+        varchar url_target
+        jsonb data
+        boolean status_integrasi
+        timestamp dibuat_pada
+    }
+
+    %% 21. LOG SCRAPING
+    log_scraping {
+        int id PK
+        varchar target_url
+        varchar sumber
+        enum status
+        int jumlah_data
+        text error_message
+        timestamp mulai_pada
+        timestamp selesai_pada
     }
 
     %% ── RELATIONS ──

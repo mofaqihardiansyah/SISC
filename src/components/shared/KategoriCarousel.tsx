@@ -4,6 +4,29 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import EmptyState from "@/components/profile/EmptyState";
+import {
+  Monitor, Calculator, Wrench, Briefcase, Stethoscope, Languages,
+  Palette, Scale, Leaf, GraduationCap, Search, Brain, Book, Tag
+} from "lucide-react";
+
+function CategoryIcon({ slug, size, className }: { slug: string; size: number; className?: string }) {
+  switch (slug) {
+    case "teknologi": return <Monitor size={size} className={className} />;
+    case "sains-matematika": return <Calculator size={size} className={className} />;
+    case "teknik-rekayasa": return <Wrench size={size} className={className} />;
+    case "bisnis-ekonomi": return <Briefcase size={size} className={className} />;
+    case "kesehatan-medis": return <Stethoscope size={size} className={className} />;
+    case "bahasa-sastra": return <Languages size={size} className={className} />;
+    case "seni-budaya": return <Palette size={size} className={className} />;
+    case "sosial-hukum": return <Scale size={size} className={className} />;
+    case "pertanian-lingkungan": return <Leaf size={size} className={className} />;
+    case "pendidikan": return <GraduationCap size={size} className={className} />;
+    case "riset-publikasi": return <Search size={size} className={className} />;
+    case "psikologi": return <Brain size={size} className={className} />;
+    case "filsafat-agama": return <Book size={size} className={className} />;
+    default: return <Tag size={size} className={className} />;
+  }
+}
 
 type Kategori = {
   id: number;
@@ -13,15 +36,19 @@ type Kategori = {
 };
 
 const categoryColors: Record<string, string> = {
-  "teknologi-informasi": "bg-orange-500",
-  "bisnis-ekonomi": "bg-blue-600",
-  "kreatif-desain": "bg-purple-500",
-  "sains-akademik": "bg-indigo-500",
-  "kesehatan-medis": "bg-green-500",
-  "sosial-humaniora": "bg-teal-500",
-  "seni-musik-budaya": "bg-rose-500",
-  "hiburan-gaya-hidup": "bg-yellow-500",
-  "olahraga-kebugaran": "bg-sky-500",
+  "teknologi": "bg-blue-600",
+  "sains-matematika": "bg-indigo-500",
+  "teknik-rekayasa": "bg-cyan-600",
+  "bisnis-ekonomi": "bg-emerald-600",
+  "kesehatan-medis": "bg-rose-500",
+  "bahasa-sastra": "bg-amber-500",
+  "seni-budaya": "bg-fuchsia-500",
+  "sosial-hukum": "bg-slate-600",
+  "pertanian-lingkungan": "bg-lime-600",
+  "pendidikan": "bg-sky-500",
+  "riset-publikasi": "bg-violet-600",
+  "psikologi": "bg-pink-500",
+  "filsafat-agama": "bg-orange-500",
   umum: "bg-gray-500",
 };
 
@@ -101,18 +128,14 @@ export default function KategoriCarousel({
                 } flex items-center justify-center overflow-hidden`}
               >
                 {/* Background Icon */}
-                {cat.urlIkon && (
-                  <div className="absolute -bottom-2 -right-2 opacity-20 select-none pointer-events-none w-12 h-12 relative">
-                    <Image src={cat.urlIkon} alt="" fill className="object-contain" sizes="48px" />
-                  </div>
-                )}
+                <div className="absolute -bottom-4 -right-4 opacity-20 select-none pointer-events-none">
+                  <CategoryIcon slug={cat.slug ?? ""} size={80} className="text-white" />
+                </div>
 
                 {/* Main Icon */}
-                {cat.urlIkon && (
-                  <div className="relative z-10 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center p-2">
-                    <Image src={cat.urlIkon} alt={cat.nama ?? ""} width={28} height={28} className="object-contain" />
-                  </div>
-                )}
+                <div className="relative z-10 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center p-2 shadow-sm backdrop-blur-sm">
+                  <CategoryIcon slug={cat.slug ?? ""} size={28} className="text-white" />
+                </div>
               </div>
 
               {/* Label */}

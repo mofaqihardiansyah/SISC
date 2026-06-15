@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, pendaftaran, users, peserta } from "@/db/schema";
+import { event, pendaftaran, users, peserta, pembicara } from "@/db/schema";
 import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -116,7 +116,9 @@ export async function updateEventStatus(id: number, status: "pending" | "publish
 export async function deleteEvent(id: number) {
   try {
     // Hard delete for now, or use soft delete if dihapusPada is preferred
-    await db.delete(event).where(eq(event.id, id));
+    // Delete related pembicara entries to satisfy FK constraint
+await db.delete(pembicara).where(eq(pembicara.eventId, id));
+await db.delete(event).where(eq(event.id, id));
     
     revalidatePath("/admin/events");
     return { success: true, message: "Event berhasil dihapus" };

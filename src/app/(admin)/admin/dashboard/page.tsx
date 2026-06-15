@@ -11,8 +11,6 @@ import {
 } from 'lucide-react';
 import { getDashboardStats, getRecentEvents, getMonthlyGrowth } from '@/lib/actions/dashboard';
 export const dynamic = 'force-dynamic';
-
-
 export default async function DashboardPage() {
   const [stats, recentEvents, chartData] = await Promise.all([
     getDashboardStats(),
@@ -24,8 +22,8 @@ export default async function DashboardPage() {
     <div className="pt-10 space-y-10 pb-10">
       {/* Welcome Section */}
       <section>
-        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Gambaran Umum Sistem</h1>
-        <p className="text-gray-500 mt-2 font-medium">Lihat status acara dan kinerja platform secara langsung.</p>
+        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Dashboard</h1>
+        <p className="text-gray-500 mt-2 font-medium">Lihat status acara dan kinerja platform.</p>
       </section>
 
       {/* Stats Grid - Adjusted to 5 columns for more detailed overview */}

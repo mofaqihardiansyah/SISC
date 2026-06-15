@@ -35,7 +35,6 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
     const idEvent = Number(eventId);
     const idUser = Number(session.user.id);
 
-    // Optimasi 1: Jalankan pengecekan event dan status pendaftaran secara paralel (Promise.all)
     const [dataEvent, existing] = await Promise.all([
       db.query.event.findFirst({
         where: eq(event.id, idEvent),
@@ -53,7 +52,6 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
       return { success: false, error: "Anda sudah terdaftar di event ini" };
     }
 
-    // Optimasi 2: Gunakan Database Transaction agar proses insert atomic
     await db.transaction(async (tx) => {
       // 1. Buat data pendaftaran terlebih dahulu
       const kodePendaftaran = `REG-${idEvent}-${idUser}-${Date.now()}`;

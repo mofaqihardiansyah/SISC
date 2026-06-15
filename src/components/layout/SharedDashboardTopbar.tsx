@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
 import SharedDashboardUserMenu, { UserMenuItem } from './SharedDashboardUserMenu';
 
 interface SharedDashboardTopbarProps {
@@ -16,61 +15,25 @@ interface SharedDashboardTopbarProps {
   children?: React.ReactNode;
 }
 
-const ROUTE_TITLES: Record<string, string> = {
-  '/admin': 'Dashboard Admin',
-  '/admin/dashboard': 'Dashboard Admin',
-  '/admin/manajemen-user': 'Manajemen User',
-  '/admin/persetujuan': 'Persetujuan Event',
-  '/admin/categories': 'Master Kategori & Tag',
-  '/admin/events': 'Kelola Semua Event',
-  '/admin/locations': 'Master Wilayah',
-  '/admin/penyelenggara': 'Validasi Penyelenggara',
-  '/admin/pengaturan': 'Pengaturan Admin',
-  '/penyelenggara': 'Dashboard Penyelenggara',
-  '/penyelenggara/peserta': 'Data Peserta',
-  '/penyelenggara/profil': 'Profil Penyelenggara',
-  '/penyelenggara/bantuan': 'Pusat Bantuan',
-  '/penyelenggara/event': 'Kelola Event',
-  '/penyelenggara/buatevent': 'Buat Event Baru',
-  '/profile/dashboard': 'Dashboard Tiket',
-  '/profile/submit-paper': 'Submit Paper',
-  '/profile/settings': 'Pengaturan Akun',
-  '/profile/help': 'Pusat Bantuan',
-  '/profile/eventku': 'Event Saya',
-  '/profile/event-favorit': 'Event Favorit',
-};
+import { useSidebar } from './SidebarContext';
 
-export function SharedDashboardTopbar({ title, user, roleTitle, menuItems, children }: SharedDashboardTopbarProps) {
-  const pathname = usePathname() || '';
+export function SharedDashboardTopbar({ user, roleTitle, menuItems, children }: SharedDashboardTopbarProps) {
+  const { toggleSidebar } = useSidebar();
   
-  let dynamicTitle = ROUTE_TITLES[pathname];
-  
-  if (!dynamicTitle) {
-    if (pathname.startsWith('/penyelenggara/detail-event/')) {
-      dynamicTitle = 'Detail Event';
-    } else {
-      const lastSegment = pathname.split('/').pop() || '';
-      if (!lastSegment || /^\d+$/.test(lastSegment)) {
-        // If last segment is empty or a number (like dynamic id), try using the parent folder name
-        const segments = pathname.split('/').filter(Boolean);
-        if (segments.length >= 2) {
-          const parentSegment = segments[segments.length - 2];
-          dynamicTitle = parentSegment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        }
-      } else {
-        dynamicTitle = lastSegment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-      }
-    }
-  }
-
-  if (!dynamicTitle) {
-    dynamicTitle = 'Dashboard';
-  }
-
   return (
-    <header className="h-14 bg-white border-b border-gray-100 pl-16 pr-4 md:px-8 flex items-center justify-between relative shadow-sm shrink-0">
-      <div className="min-w-0 pr-4">
-        <h2 className="text-lg md:text-xl font-bold font-heading text-gray-900 truncate">{title || dynamicTitle}</h2>
+    <header className="h-14 bg-white border-b border-gray-100 px-4 md:px-8 flex items-center justify-between relative shadow-sm shrink-0">
+      <div className="flex items-center gap-4">
+        {/* Sidebar toggle button */}
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          className="text-gray-600 hover:text-gray-900 p-2"
+          aria-label="Toggle Sidebar"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6h16M4 10h16M4 14h16" stroke="currentColor" strokeWidth="2"/>
+          </svg>
+        </button>
       </div>
 
       <div className="flex items-center gap-3 md:gap-6">

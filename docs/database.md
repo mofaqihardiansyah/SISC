@@ -29,7 +29,7 @@ export default defineConfig({
 
 ---
 
-## Enums (9)
+## Enums (10)
 
 | Enum | Values |
 |------|--------|
@@ -46,7 +46,7 @@ export default defineConfig({
 
 ---
 
-## Tabel (19)
+## Tabel (21)
 
 ### 1. `users`
 | Kolom | Tipe | Keterangan |
@@ -196,10 +196,16 @@ Submit paper ke event. Field: `event_id` (FK, not null), `user_id` (FK, not null
 ### 18. `penulis_paper`
 Data penulis per paper submission (1 paper bisa >1 penulis).
 
-Field: `paper_submission_id` (FK, not null), `nama` (not null), `email`, `institusi`, `urutan` (integer), `dibuat_pada`.
+Field: `paper_submission_id` (FK, not null), `nama` (not null), `email`, `institusi`, `is_corresponding` (boolean), `urutan` (integer), `dibuat_pada`.
 
 ### 19. `jadwal_event`
 Jadwal acara event. Field: `event_id` (FK), `waktu_mulai`, `waktu_selesai`, `deskripsi`, `dibuat_pada`.
+
+### 20. `raw_scraped_data`
+Data mentah hasil scraping. Field: `id` (PK), `sumber` (not null), `url_target`, `data` (jsonb, not null), `status_integrasi` (boolean), `dibuat_pada`.
+
+### 21. `log_scraping`
+Log proses scraping. Field: `id` (PK), `target_url`, `sumber`, `status` (pending/processing/success/failed), `jumlah_data`, `error_message`, `mulai_pada`, `selesai_pada`.
 
 ---
 
