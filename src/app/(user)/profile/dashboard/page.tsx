@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { Activity, Megaphone, MapPin, Calendar, Bookmark, History } from 'lucide-react';
 import { db } from '@/db'; 
 import { auth } from '@/auth';
-import { event, bookmark, pendaftaran } from '@/db/schema'; 
+import { event, favorit, pendaftaran } from '@/db/schema'; 
 import { desc, eq, type InferSelectModel } from 'drizzle-orm';
 export const dynamic = 'force-dynamic';
 
 
 type EventRow = InferSelectModel<typeof event>;
-type BookmarkRow = InferSelectModel<typeof bookmark>;
+type BookmarkRow = InferSelectModel<typeof favorit>;
 type PendaftaranRow = InferSelectModel<typeof pendaftaran>;
 
 function StatsCard({ label, value, bg, renderIcon }: { 
@@ -45,7 +45,7 @@ export default async function UserDashboard() {
 
   try {
     userBookmarks = userId
-      ? await db.select().from(bookmark).where(eq(bookmark.userId, userId))
+      ? await db.select().from(favorit).where(eq(favorit.userId, userId))
       : [];
 
     userRegistrations = userId

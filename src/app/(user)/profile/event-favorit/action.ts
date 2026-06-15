@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db"; 
-import { event, bookmark, kota, kategori } from "@/db/schema";
+import { event, favorit, kota, kategori } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { auth } from "@/auth";
 
@@ -26,13 +26,13 @@ export async function getEvents() {
         eventPolines: event.eventPolines,
         tipePlatform: event.tipePlatform,
       })
-      .from(bookmark)
-      .innerJoin(event, eq(bookmark.eventId, event.id))
+      .from(favorit)
+      .innerJoin(event, eq(favorit.eventId, event.id))
       .leftJoin(kota, eq(event.kotaId, kota.id))
       .leftJoin(kategori, eq(event.kategoriId, kategori.id))
       .where(
         and(
-          eq(bookmark.userId, userId),
+          eq(favorit.userId, userId),
           isNull(event.dihapusPada),
           eq(event.status, 'published')
         )

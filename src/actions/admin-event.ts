@@ -127,7 +127,7 @@ export async function deleteEvent(id: number) {
 }
 
 export async function updateEvent(id: number, data: Record<string, unknown>) {
-  console.log("[updateEvent] Request for ID:", id, "Data:", data);
+  if (process.env.NODE_ENV !== 'production') console.log("[updateEvent] Request for ID:", id, "Data:", data);
   try {
     if (!id) throw new Error("ID event tidak ditemukan");
 
@@ -171,7 +171,7 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
       }
     });
 
-    console.log("[updateEvent] Sanitized Data to update:", sanitizedData);
+    if (process.env.NODE_ENV !== 'production') console.log("[updateEvent] Sanitized Data to update:", sanitizedData);
 
     // Use a simpler update call to avoid complex object serialization issues
     await db
@@ -182,7 +182,7 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
       })
       .where(eq(event.id, id));
 
-    console.log("[updateEvent] Database update successful for ID:", id);
+    if (process.env.NODE_ENV !== 'production') console.log("[updateEvent] Database update successful for ID:", id);
 
     revalidatePath("/admin/events");
     

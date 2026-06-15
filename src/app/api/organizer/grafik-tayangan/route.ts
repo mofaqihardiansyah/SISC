@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { event, tayanganLog } from "@/db/schema";
+import { event } from "@/db/schema";
 import { eq, and, gte, lte, sql, count } from "drizzle-orm";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
@@ -77,8 +77,8 @@ export async function GET(req: Request) {
 
   const conditions = [
     eq(event.organizerId, userId),
-    gte(tayanganLog.tanggal, awal),
-    lte(tayanganLog.tanggal, akhir),
+    gte(event.tanggalMulai, awal),
+    lte(event.tanggalSelesai, akhir),
   ];
 
   if (eventId && eventId !== "all") {
@@ -87,14 +87,13 @@ export async function GET(req: Request) {
 
   const rawData = await db
     .select({
-      tanggal: sql<string>`TO_CHAR(${tayanganLog.tanggal}, ${fmt})`,
-      jumlah: count(),
+      tanggal: sql<string>`TO_CHAR(${event.tanggalMulai}, ${fmt})`,
+      jumlah: count(event.id),
     })
-    .from(tayanganLog)
-    .innerJoin(event, eq(tayanganLog.eventId, event.id))
+    .from(event)
     .where(and(...conditions))
-    .groupBy(sql`TO_CHAR(${tayanganLog.tanggal}, ${fmt})`)
-    .orderBy(sql`TO_CHAR(${tayanganLog.tanggal}, ${fmt})`);
+    .groupBy(sql`TO_CHAR(${event.tanggalMulai}, ${fmt})`)
+    .orderBy(sql`TO_CHAR(${event.tanggalMulai}, ${fmt})`);
 
   const dataMap = Object.fromEntries(
     rawData.map((r) => [r.tanggal, Number(r.jumlah ?? 0)])

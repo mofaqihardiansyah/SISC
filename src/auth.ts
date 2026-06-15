@@ -24,31 +24,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const user = userList[0];
 
           if (!user || !user.password) {
-            console.log(`[AUTH] Login ditolak: User tidak ditemukan (${email})`);
+            if (process.env.NODE_ENV !== 'production') console.log(`[AUTH] Login ditolak: User tidak ditemukan (${email})`);
             return null;
           }
 
           // Cek jika akun ditangguhkan (Suspended)
           if (user.diblokir) {
-            console.log(`[AUTH] Login ditolak: Akun ditangguhkan (${email})`);
+            if (process.env.NODE_ENV !== 'production') console.log(`[AUTH] Login ditolak: Akun ditangguhkan (${email})`);
             throw new Error("Akun Anda telah ditangguhkan. Silakan hubungi admin.");
           }
 
           // Pastikan email sudah terverifikasi
           if (!user.emailTerverifikasi && user.role !== 'admin') {
-            console.log(`[AUTH] Login ditolak: Email belum diverifikasi (${email})`);
+            if (process.env.NODE_ENV !== 'production') console.log(`[AUTH] Login ditolak: Email belum diverifikasi (${email})`);
             return null;
           }
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
           if (passwordsMatch) {
-            console.log(`[AUTH] Login sukses: ${email}`);
+            if (process.env.NODE_ENV !== 'production') console.log(`[AUTH] Login sukses: ${email}`);
             return { id: user.id.toString(), email: user.email ?? "", name: user.namaLengkap ?? "", role: user.role ?? undefined, image: user.urlAvatar ?? undefined };
           } else {
-            console.log(`[AUTH] Login ditolak: Password salah (${email})`);
+            if (process.env.NODE_ENV !== 'production') console.log(`[AUTH] Login ditolak: Password salah (${email})`);
           }
         } else {
-          console.log("[AUTH] Login ditolak: Parsing credentials gagal", parsedCredentials.error);
+          if (process.env.NODE_ENV !== 'production') console.log("[AUTH] Login ditolak: Parsing credentials gagal", parsedCredentials.error);
         }
         return null;
       },

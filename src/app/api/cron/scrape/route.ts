@@ -93,7 +93,7 @@ export async function GET() {
     // 5. Simpan ke Database
     if (newDataToInsert.length > 0) {
       await db.insert(event).values(newDataToInsert);
-      console.log(`✅ Berhasil menyimpan ${newDataToInsert.length} event baru!`);
+      if (process.env.NODE_ENV !== 'production') console.log(`✅ Berhasil menyimpan ${newDataToInsert.length} event baru!`);
     } else {
       console.log(`⚠️ Semua ${scrapedData.length} event yang di-scrape sudah ada di database (Skip).`);
     }

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, users, peserta, pendaftaran, transaksi } from "@/db/schema";
+import { event, users, peserta, pendaftaran } from "@/db/schema";
 import { count, eq, and, gte, sql } from "drizzle-orm";
 import { MONTHS_ID } from "@/lib/constants";
 import { PAGINATION } from "@/lib/constants";
@@ -103,15 +103,15 @@ export async function getMonthlyGrowth() {
       .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'Mon')`, sql`EXTRACT(MONTH FROM ${pendaftaran.dibuatPada})`)
       .orderBy(sql`EXTRACT(MONTH FROM ${pendaftaran.dibuatPada})`);
 
-    // 3. Data Pendapatan per Bulan
-    const revenueData = await db
-      .select({
-        month: sql<string>`TO_CHAR(${transaksi.dibuatPada}, 'Mon')`,
-        total: sql<number>`SUM(${transaksi.totalHarga})`,
-      })
-      .from(transaksi)
-      .where(and(gte(transaksi.dibuatPada, twelveMonthsAgo), eq(transaksi.status, 'success')))
-      .groupBy(sql`TO_CHAR(${transaksi.dibuatPada}, 'Mon')`);
+    // 3. Data Pendapatan per Bulan (Diubah: tabel transaksi tidak ada di schema.ts)
+    // const revenueData = await db
+    //   .select({
+    //     month: sql<string>`TO_CHAR(${transaksi.dibuatPada}, 'Mon')`,
+    //     total: sql<number>`SUM(${transaksi.totalHarga})`,
+    //   })
+    //   .from(transaksi)
+    //   .where(and(gte(transaksi.dibuatPada, twelveMonthsAgo), eq(transaksi.status, 'success')))
+    //   .groupBy(sql`TO_CHAR(${transaksi.dibuatPada}, 'Mon')`);
 
     // Format data untuk Recharts - Mulai dari JAN sampai DES
     const monthNames = [...MONTHS_ID];
@@ -135,16 +135,16 @@ export async function getMonthlyGrowth() {
         return map[dbMonth] === mName || dbMonth === mName;
       });
 
-      const foundRev = revenueData.find((item: { month: string; total: number }) => {
-        const dbMonth = item.month?.toUpperCase();
-        return map[dbMonth] === mName || dbMonth === mName;
-      });
+      // const foundRev = revenueData.find((item: { month: string; total: number }) => {
+      //   const dbMonth = item.month?.toUpperCase();
+      //   return map[dbMonth] === mName || dbMonth === mName;
+      // });
       
       fullYear.push({
         name: mName,
         count: foundEvent ? Math.round(Number(foundEvent.count)) : 0,
         registrations: foundReg ? Math.round(Number(foundReg.count)) : 0,
-        revenue: foundRev ? Math.round(Number(foundRev.total)) : 0,
+        revenue: 0, // foundRev ? Math.round(Number(foundRev.total)) : 0,
         trend: foundEvent ? Math.round(Number(foundEvent.count) * PAGINATION.TREND_MULTIPLIER) : 0,
       });
     }

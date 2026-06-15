@@ -24,7 +24,7 @@ function generateOTP() {
 
 // Helper to send email using Nodemailer
 async function sendOTPEmail(email: string, code: string) {
-  console.log(`[DEV] Sending OTP ${code} to ${email}`);
+  if (process.env.NODE_ENV !== 'production') console.log(`[DEV] Sending OTP ${code} to ${email}`);
   
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn("EMAIL_USER or EMAIL_PASS is not set in environment variables. Email will not be sent.");
@@ -63,7 +63,7 @@ async function sendOTPEmail(email: string, code: string) {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent: " + info.response);
+    if (process.env.NODE_ENV !== 'production') console.log("Email sent: " + info.response);
   } catch (error) {
     console.error("Error sending email:", error);
   }
