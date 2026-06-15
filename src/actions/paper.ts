@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { paperSubmission, pendaftaran, event, users, profilPenyelenggara } from "@/db/schema";
+import { paperSubmission, pendaftaran, event, users, profilPenyelenggara, penulisPaper } from "@/db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
@@ -67,7 +67,17 @@ export async function getSubmissionData() {
         judul: paperSubmission.judul,
         kataKunci: paperSubmission.kataKunci,
         track: paperSubmission.track,
-        penulis: paperSubmission.penulis,
+        penulis: sql<{ nama: string; email: string; afiliasi: string; isCorresponding: boolean }[]>`COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'nama', p.nama,
+              'email', COALESCE(p.email, ''),
+              'afiliasi', COALESCE(p.institusi, ''),
+              'isCorresponding', p.is_corresponding
+            )
+          ) FROM penulis_paper p WHERE p.paper_submission_id = paper_submission.id),
+          '[]'::json
+        )`,
         urlFile: paperSubmission.urlFile,
         status: paperSubmission.status,
         komentarPenolakan: paperSubmission.komentarPenolakan,
@@ -104,6 +114,8 @@ export async function submitNewPaper(data: z.infer<typeof paperSchema>) {
     }
     const validatedData = result.data;
 
+    const { penulis, ...paperData } = validatedData;
+
     // Check for existing submission for this event by this user
     const existing = await db
       .select()
@@ -125,15 +137,42 @@ export async function submitNewPaper(data: z.infer<typeof paperSchema>) {
       await db
         .update(paperSubmission)
         .set({
-          ...validatedData,
+          ...paperData,
           status: 'review',
           komentarPenolakan: null,
           dibuatPada: new Date(),
         })
         .where(eq(paperSubmission.id, existing[0].id));
+
+      await db.delete(penulisPaper).where(eq(penulisPaper.paperSubmissionId, existing[0].id));
+      if (penulis && penulis.length > 0) {
+        await db.insert(penulisPaper).values(
+          penulis.map((p, index) => ({
+            paperSubmissionId: existing[0].id,
+            nama: p.nama,
+            email: p.email,
+            institusi: p.afiliasi,
+            isCorresponding: p.isCorresponding,
+            urutan: index + 1
+          }))
+        );
+      }
     } else {
       // New submission
-      await db.insert(paperSubmission).values({ ...validatedData, userId });
+      const [newSubmission] = await db.insert(paperSubmission).values({ ...paperData, userId }).returning({ id: paperSubmission.id });
+
+      if (penulis && penulis.length > 0) {
+        await db.insert(penulisPaper).values(
+          penulis.map((p, index) => ({
+            paperSubmissionId: newSubmission.id,
+            nama: p.nama,
+            email: p.email,
+            institusi: p.afiliasi,
+            isCorresponding: p.isCorresponding,
+            urutan: index + 1
+          }))
+        );
+      }
     }
 
     revalidatePath('/profile/submit-paper');

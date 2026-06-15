@@ -33,12 +33,15 @@ interface DataEvent {
   harga?: number | string | null;
   tipeHarga?: string | null;
   jenisEvent?: string | null;
-  namaBank?: string | null;
-  nomorRekening?: string | null;
-  pemilikRekening?: string | null;
-  namaBankAlternatif?: string | null;
-  nomorRekeningAlternatif?: string | null;
-  pemilikRekeningAlternatif?: string | null;
+}
+
+interface PaymentMethod {
+  id: number;
+  tipe: string;
+  namaBank: string | null;
+  nomorRekening: string | null;
+  pemilikRekening: string | null;
+  urlGambarQris: string | null;
 }
 
 interface CurrentUser {
@@ -52,6 +55,7 @@ interface FormRegistrasiProps {
   eventId: string;
   dataEvent: DataEvent;
   currentUser: CurrentUser; 
+  paymentMethods: PaymentMethod[];
 }
 
 const registrationSchema = z.object({
@@ -63,7 +67,7 @@ const registrationSchema = z.object({
 
 type RegistrationValues = z.infer<typeof registrationSchema>;
 
-export default function FormRegistrasi({ eventId, dataEvent, currentUser }: FormRegistrasiProps) {
+export default function FormRegistrasi({ eventId, dataEvent, currentUser, paymentMethods }: FormRegistrasiProps) {
   const router = useRouter();
   const [buktiPembayaran, setBuktiPembayaran] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -305,18 +309,13 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser }: Form
                 </ul>
                 <hr className="border-primary/20 my-2" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="p-4 bg-white rounded-lg border shadow-sm hover:border-primary/50 transition-colors">
-                    <span className="text-xs font-bold text-gray-400 block uppercase tracking-wider">{dataEvent.namaBank || "Bank Transfer"}</span>
-                    <strong className="text-xl text-gray-800 font-mono tracking-wider block mt-1">{dataEvent.nomorRekening || "-"}</strong>
-                    <span className="text-sm text-gray-500 block mt-1">a.n. <span className="font-semibold text-gray-700">{dataEvent.pemilikRekening || "-"}</span></span>
-                  </div>
-                  {(dataEvent.namaBankAlternatif || dataEvent.nomorRekeningAlternatif) && (
-                    <div className="p-4 bg-white rounded-lg border shadow-sm hover:border-primary/50 transition-colors">
-                      <span className="text-xs font-bold text-gray-400 block uppercase tracking-wider">{dataEvent.namaBankAlternatif || "Pembayaran Alternatif"}</span>
-                      <strong className="text-xl text-gray-800 font-mono tracking-wider block mt-1">{dataEvent.nomorRekeningAlternatif || "-"}</strong>
-                      <span className="text-sm text-gray-500 block mt-1">a.n. <span className="font-semibold text-gray-700">{dataEvent.pemilikRekeningAlternatif || "-"}</span></span>
+                  {paymentMethods && paymentMethods.map((pm) => (
+                    <div key={pm.id} className="p-4 bg-white rounded-lg border shadow-sm hover:border-primary/50 transition-colors">
+                      <span className="text-xs font-bold text-gray-400 block uppercase tracking-wider">{pm.namaBank || pm.tipe.replace('_', ' ')}</span>
+                      <strong className="text-xl text-gray-800 font-mono tracking-wider block mt-1">{pm.nomorRekening || "-"}</strong>
+                      <span className="text-sm text-gray-500 block mt-1">a.n. <span className="font-semibold text-gray-700">{pm.pemilikRekening || "-"}</span></span>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
             </div>

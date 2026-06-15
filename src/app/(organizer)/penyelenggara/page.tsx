@@ -152,7 +152,7 @@ export default async function PenyelenggaraDashboard() {
     .select({
       id: paperSubmission.id,
       judul: paperSubmission.judul,
-      penulis: paperSubmission.penulis,
+      penulis: sql<string>`COALESCE((SELECT string_agg(nama, ', ') FROM penulis_paper WHERE paper_submission_id = paper_submission.id), 'Unknown')`,
       status: paperSubmission.status,
       eventJudul: event.judul,
       dibuatPada: paperSubmission.dibuatPada,

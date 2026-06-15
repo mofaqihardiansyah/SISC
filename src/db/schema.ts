@@ -10,6 +10,7 @@ export const userRoleEnum = pgEnum('user_role', ['admin', 'organizer', 'visitor'
 export const pendaftaranStatusEnum = pgEnum('pendaftaran_status', ['terdaftar', 'menunggu_verifikasi', 'lunas', 'dibatalkan', 'hadir']);
 export const jenisKelaminEnum = pgEnum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
 export const tipePembayaranEnum = pgEnum('tipe_pembayaran', ['bank_transfer', 'qris']);
+export const logScrapingStatusEnum = pgEnum('log_scraping_status', ['pending', 'processing', 'success', 'failed']);
 
 // 1. USERS
 export const users = pgTable('users', {
@@ -243,12 +244,34 @@ export const penulisPaper = pgTable('penulis_paper', {
 
 // 19. JADWAL EVENT
 export const jadwalEvent = pgTable('jadwal_event', {
-  id: serial('id').primaryKey(),
-  eventId: integer('event_id').references(() => event.id),
-  waktuMulai: timestamp('waktu_mulai'),
-  waktuSelesai: timestamp('waktu_selesai'),
-  deskripsi: text('deskripsi'),
-  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').references(() => event.id),
+  waktuMulai: timestamp('waktu_mulai'),
+  waktuSelesai: timestamp('waktu_selesai'),
+  deskripsi: text('deskripsi'),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+});
+
+// 20. RAW SCRAPED DATA
+export const rawScrapedData = pgTable('raw_scraped_data', {
+  id: serial('id').primaryKey(),
+  sumber: varchar('sumber', { length: 255 }).notNull(),
+  urlTarget: varchar('url_target', { length: 512 }),
+  data: jsonb('data').notNull(),
+  statusIntegrasi: boolean('status_integrasi').default(false),
+  dibuatPada: timestamp('dibuat_pada').defaultNow(),
+});
+
+// 21. LOG SCRAPING
+export const logScraping = pgTable('log_scraping', {
+  id: serial('id').primaryKey(),
+  targetUrl: varchar('target_url', { length: 512 }),
+  sumber: varchar('sumber', { length: 255 }),
+  status: logScrapingStatusEnum('status').default('pending'),
+  jumlahData: integer('jumlah_data').default(0),
+  errorMessage: text('error_message'),
+  mulaiPada: timestamp('mulai_pada').defaultNow(),
+  selesaiPada: timestamp('selesai_pada'),
 });
 
 // ── RELATIONS ─────────────────────────────────────────────────────

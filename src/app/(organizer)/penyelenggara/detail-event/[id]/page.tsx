@@ -26,6 +26,7 @@ export default async function DetailEventPage({ params }: Props) {
           provinsi: true,
         },
       },
+      pembicara: true,
     },
   });
 

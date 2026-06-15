@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { paperSubmission, event, users } from "@/db/schema";
-import { eq, desc, inArray } from "drizzle-orm";
+import { eq, desc, inArray, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -43,7 +43,7 @@ export async function getOrganizerPapers() {
     .select({
       id: paperSubmission.id,
       judul: paperSubmission.judul,
-      penulis: paperSubmission.penulis,
+      penulis: sql<string>`COALESCE((SELECT string_agg(nama, ', ') FROM penulis_paper WHERE paper_submission_id = paper_submission.id), 'Unknown')`,
       urlFile: paperSubmission.urlFile,
       status: paperSubmission.status,
       komentarPenolakan: paperSubmission.komentarPenolakan,

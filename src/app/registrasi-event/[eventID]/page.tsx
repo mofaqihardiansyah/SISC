@@ -4,7 +4,7 @@ import { eq, and } from "drizzle-orm";
 import FormRegistrasi from './FormRegistrasi';
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { event, pendaftaran, users } from "@/db/schema";
+import { event, pendaftaran, users, infoPembayaran } from "@/db/schema";
 
 export default async function RegistrasiEventPage({ 
   params 
@@ -27,8 +27,8 @@ export default async function RegistrasiEventPage({
   // 2. Await params untuk mengambil eventID dari URL
   const { eventID } = await params;
 
-  // 3. Ambil data event & data user secara paralel
-  const [dataEvent, userData] = await Promise.all([
+  // 3. Ambil data event, data user, dan info pembayaran secara paralel
+  const [dataEvent, userData, paymentMethods] = await Promise.all([
     db.query.event.findFirst({
       where: eq(event.id, Number(eventID)),
       with: {
@@ -37,7 +37,8 @@ export default async function RegistrasiEventPage({
     }),
     db.query.users.findFirst({
       where: eq(users.id, Number(session.user.id)),
-    })
+    }),
+    db.select().from(infoPembayaran).where(eq(infoPembayaran.aktif, true))
   ]);
 
   if (!dataEvent) {
@@ -85,13 +86,8 @@ export default async function RegistrasiEventPage({
             harga: dataEvent.harga,
             tipeHarga: dataEvent.tipeHarga,
             jenisEvent: dataEvent.jenisEvent,
-            namaBank: dataEvent.namaBank,
-            nomorRekening: dataEvent.nomorRekening,
-            pemilikRekening: dataEvent.pemilikRekening,
-            namaBankAlternatif: dataEvent.namaBankAlternatif,
-            nomorRekeningAlternatif: dataEvent.nomorRekeningAlternatif,
-            pemilikRekeningAlternatif: dataEvent.pemilikRekeningAlternatif,
           }} 
+          paymentMethods={paymentMethods}
           currentUser={{
             name: userData?.namaLengkap,
             email: userData?.email,

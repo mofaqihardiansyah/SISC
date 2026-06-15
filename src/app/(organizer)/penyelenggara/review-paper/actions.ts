@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { paperSubmission, event, users } from "@/db/schema";
-import { eq, desc, inArray } from "drizzle-orm";
+import { eq, desc, inArray, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -61,7 +61,17 @@ export async function getOrganizerPapers(): Promise<PapersResult> {
       judul: paperSubmission.judul,
       kataKunci: paperSubmission.kataKunci,
       track: paperSubmission.track,
-      penulis: paperSubmission.penulis,
+      penulis: sql<{ nama: string; email: string; afiliasi: string; isCorresponding: boolean }[]>`COALESCE(
+        (SELECT json_agg(
+          json_build_object(
+            'nama', p.nama,
+            'email', COALESCE(p.email, ''),
+            'afiliasi', COALESCE(p.institusi, ''),
+            'isCorresponding', p.is_corresponding
+          )
+        ) FROM penulis_paper p WHERE p.paper_submission_id = paper_submission.id),
+        '[]'::json
+      )`,
       urlFile: paperSubmission.urlFile,
       status: paperSubmission.status,
       komentarPenolakan: paperSubmission.komentarPenolakan,

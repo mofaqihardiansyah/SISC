@@ -42,6 +42,7 @@ export default defineConfig({
 | `pendaftaran_status` | `terdaftar`, `menunggu_verifikasi`, `lunas`, `dibatalkan`, `hadir` |
 | `jenis_kelamin` | `Laki-laki`, `Perempuan` |
 | `tipe_pembayaran` | `bank_transfer`, `qris` |
+| `log_scraping_status` | `pending`, `processing`, `success`, `failed` |
 
 ---
 

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { db } from './index';
-import { users, favorit, pendaftaran, peserta, paperSubmission } from './schema';
+import { users, favorit, pendaftaran, peserta, paperSubmission, penulisPaper } from './schema';
 import { eq } from 'drizzle-orm';
 
 async function seedBookmarks() {
@@ -136,15 +136,25 @@ async function seedPapers() {
   await db.delete(paperSubmission).where(eq(paperSubmission.userId, visitor.id));
 
   for (const p of papers) {
-    await db.insert(paperSubmission).values({
+    const [inserted] = await db.insert(paperSubmission).values({
       userId: visitor.id,
       eventId: p.eventId,
       judul: p.judul,
-      penulis: p.penulis,
       urlFile: p.urlFile,
       status: p.status,
       komentarPenolakan: p.komentarPenolakan,
-    });
+    }).returning({ id: paperSubmission.id });
+
+    const penulisList = p.penulis.split(',').map(s => s.trim());
+    for (let i = 0; i < penulisList.length; i++) {
+      await db.insert(penulisPaper).values({
+        paperSubmissionId: inserted.id,
+        nama: penulisList[i],
+        email: `penulis${i+1}@example.com`,
+        institusi: "Politeknik Negeri Semarang",
+        urutan: i + 1
+      });
+    }
   }
 
   console.log("✅ Paper submissions seeded!");

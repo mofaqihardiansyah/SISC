@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { event, kategori } from "@/db/schema";
-import { eq, asc, isNull, ilike, count } from "drizzle-orm";
+import { eq, asc, isNull, ilike, count, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { PAGINATION } from "@/lib/constants";
 
@@ -59,8 +59,8 @@ const baseEventSelect = {
   kontakTelepon: event.teleponKontak,
   linkEksternal: event.linkEksternal,
   jenisEvent: event.jenisEvent,
-  pembicara: event.namaPembicara,
-  peranPembicara: event.peranPembicara,
+  pembicara: sql<string>`(SELECT string_agg(nama, ', ') FROM pembicara WHERE event_id = event.id)`,
+  peranPembicara: sql<string>`(SELECT string_agg(peran, ', ') FROM pembicara WHERE event_id = event.id)`,
   syaratKetentuan: event.syaratDanKetentuan,
   alasanPenolakan: event.alasanPenolakan,
   urlBanner: event.urlBanner,

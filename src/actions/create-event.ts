@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event } from "@/db/schema";
+import { event, pembicara } from "@/db/schema";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
@@ -68,19 +68,7 @@ export async function createEvent(formData: FormData) {
   }
 
   // ── Proses metode pembayaran ──────────────────────────────────────
-  const bankTransfers = metodePembayaranList.filter((m) => m.jenis === "bank_transfer");
-  const eWallets = metodePembayaranList.filter((m) => m.jenis === "e_wallet");
-
-  const namaBank = bankTransfers[0]?.namaPenyedia || null;
-  const nomorRekening = bankTransfers[0]?.nomorAkun || null;
-  const pemilikRekening = bankTransfers[0]?.atasNama || null;
-  const namaBankAlternatif = bankTransfers[1]?.namaPenyedia || null;
-  const nomorRekeningAlternatif = bankTransfers[1]?.nomorAkun || null;
-  const pemilikRekeningAlternatif = bankTransfers[1]?.atasNama || null;
-
-  const namaEwallet = eWallets[0]?.namaPenyedia || null;
-  const nomorEwallet = eWallets[0]?.nomorAkun || null;
-  const pemilikEwallet = eWallets[0]?.atasNama || null;
+  // Pembayaran sekarang dikelola secara global di info_pembayaran
 
   // ── Generate slug ─────────────────────────────────────────────────
   const baseSlug = judul
@@ -92,7 +80,7 @@ export async function createEvent(formData: FormData) {
 
   // ── Insert ke database ────────────────────────────────────────────
   try {
-    await db.insert(event).values({
+    const [newEvent] = await db.insert(event).values({
       organizerId: userId,
       judul,
       slug,
@@ -102,7 +90,6 @@ export async function createEvent(formData: FormData) {
       tipeHarga,
       harga,
       detailLokasi,
-      namaPembicara,
       deskripsi,
       syaratDanKetentuan,
       tanggalMulai,
@@ -112,17 +99,14 @@ export async function createEvent(formData: FormData) {
       kategoriId,
       urlBanner,
       status: isDraft ? "draft" : "pending",
-      namaBank,
-      nomorRekening,
-      pemilikRekening,
-      namaBankAlternatif,
-      nomorRekeningAlternatif,
-      pemilikRekeningAlternatif,
-      namaEwallet,
-      nomorEwallet,
-      pemilikEwallet,
-      // urlGambarQris dihapus — tidak diisi
-    });
+    }).returning({ id: event.id });
+
+    if (namaPembicara) {
+      await db.insert(pembicara).values({
+        eventId: newEvent.id,
+        nama: namaPembicara,
+      });
+    }
 
     return { success: true };
   } catch (err) {

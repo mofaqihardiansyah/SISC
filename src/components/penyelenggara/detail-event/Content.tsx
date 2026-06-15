@@ -9,8 +9,7 @@ type EventType = {
   deskripsi: string | null;
   syaratDanKetentuan: string | null;
   urlBanner: string | null;
-  namaPembicara: string | null;
-  peranPembicara: string | null;
+  pembicara?: { nama: string; peran: string | null }[] | null;
   tanggalMulai: Date | null;
   tanggalSelesai: Date | null;
   detailLokasi: string | null;
@@ -76,8 +75,6 @@ function SectionCard({
     </div>
   );
 }
-
-// â”€â”€ main component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function Content({ event }: Props) {
   const jenisLabel =
@@ -159,8 +156,8 @@ export default function Content({ event }: Props) {
             <ReadonlyField
               label="Pembicara (Opsional)"
               value={
-                event.namaPembicara
-                  ? `${event.namaPembicara}${event.peranPembicara ? ` (${event.peranPembicara})` : ""}`
+                event.pembicara && event.pembicara.length > 0
+                  ? event.pembicara.map(p => `${p.nama}${p.peran ? ` (${p.peran})` : ""}`).join(", ")
                   : null
               }
               placeholder="Contoh: Pak Nakala"

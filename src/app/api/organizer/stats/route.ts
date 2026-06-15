@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { event, pendaftaran, peserta, paperSubmission } from "@/db/schema";
-import { count, eq, and, sum, desc } from "drizzle-orm";
+import { count, eq, and, sum, desc, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
     .select({
       id: paperSubmission.id,
       judul: paperSubmission.judul,
-      penulis: paperSubmission.penulis,
+      penulis: sql<string>`COALESCE((SELECT string_agg(nama, ', ') FROM penulis_paper WHERE paper_submission_id = paper_submission.id), 'Unknown')`,
       status: paperSubmission.status,
       eventJudul: event.judul,
       dibuatPada: paperSubmission.dibuatPada,
