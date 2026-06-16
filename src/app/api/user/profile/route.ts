@@ -8,17 +8,19 @@ import bcrypt from 'bcryptjs';
 // GET USER
 export async function GET(req: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const userIdParam = searchParams.get('userId');
-    let userId: number;
+    let userId = Number(session.user.id);
 
-    if (!userIdParam) {
-      const session = await auth();
-      if (!session?.user?.id) {
-        return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    if (userIdParam && userIdParam !== session.user.id) {
+      if (session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Akses ditolak' }, { status: 403 });
       }
-      userId = Number(session.user.id);
-    } else {
       userId = Number(userIdParam);
     }
 
@@ -44,17 +46,19 @@ export async function GET(req: Request) {
 // UPDATE USER ATAU PASSWORD
 export async function PUT(req: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const userIdParam = searchParams.get('userId');
-    let userId: number;
+    let userId = Number(session.user.id);
 
-    if (!userIdParam) {
-      const session = await auth();
-      if (!session?.user?.id) {
-        return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    if (userIdParam && userIdParam !== session.user.id) {
+      if (session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Akses ditolak' }, { status: 403 });
       }
-      userId = Number(session.user.id);
-    } else {
       userId = Number(userIdParam);
     }
 
@@ -114,17 +118,19 @@ export async function PUT(req: Request) {
 // DELETE USER (SOFT DELETE)
 export async function DELETE(req: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const userIdParam = searchParams.get('userId');
-    let userId: number;
+    let userId = Number(session.user.id);
 
-    if (!userIdParam) {
-      const session = await auth();
-      if (!session?.user?.id) {
-        return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    if (userIdParam && userIdParam !== session.user.id) {
+      if (session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Akses ditolak' }, { status: 403 });
       }
-      userId = Number(session.user.id);
-    } else {
       userId = Number(userIdParam);
     }
 

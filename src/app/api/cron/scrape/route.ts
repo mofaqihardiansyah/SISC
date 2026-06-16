@@ -7,15 +7,15 @@ import { SCRAPER } from '@/lib/constants';
 
 // Mengamankan API route ini agar tidak bisa ditembak sembarangan oleh user
 // Vercel Cron akan mengirimkan header rahasia
-// const CRON_SECRET = process.env.CRON_SECRET;
+const CRON_SECRET = process.env.CRON_SECRET;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // PROTEKSI: Aktifkan baris di bawah saat deploy ke production
-    // const authHeader = request.headers.get('authorization');
-    // if (authHeader !== `Bearer ${CRON_SECRET}`) {
-    //   return new Response('Unauthorized', { status: 401 });
-    // }
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${CRON_SECRET}`) {
+      return new Response('Unauthorized', { status: 401 });
+    }
 
     console.log("🚀 Memulai proses Scraping Event...");
 

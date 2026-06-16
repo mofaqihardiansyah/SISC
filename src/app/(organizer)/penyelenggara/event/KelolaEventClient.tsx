@@ -83,19 +83,19 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     deskripsi: ""
   });
 
-  const STATUS_UI_MAP: Record<string, string> = {
+  const STATUS_UI_MAP = React.useMemo<Record<string, string>>(() => ({
     draft: STATUS_LABEL.draft ?? "Draft",
     published: "Dipublikasi",
     rejected: STATUS_LABEL.rejected ?? "Ditolak",
     pending: STATUS_LABEL.pending ?? "Menunggu",
-  };
+  }), []);
 
-  const formatDbData = (rawData: RawEventData[]) => {
+  const formatDbData = React.useCallback((rawData: RawEventData[]) => {
     if (!rawData || rawData.length === 0) return [];
     
     return rawData.map((ev) => {
       const rawStatus = ev.status?.toLowerCase() || "draft";
-      let uiStatus = STATUS_UI_MAP[rawStatus] || "Draft";
+      const uiStatus = STATUS_UI_MAP[rawStatus] || "Draft";
 
       const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
       const tglString = ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', options) : "Belum diatur";
@@ -116,7 +116,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         deskripsi: ev.deskripsi || ""
       };
     });
-  };
+  }, [STATUS_UI_MAP]);
 
   const [dbEvents, setDbEvents] = useState<EventData[]>(() => 
     formatDbData(initialEvents).sort((a, b) => b.id - a.id)
@@ -138,7 +138,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
   useEffect(() => {
     setDbEvents(formatDbData(initialEvents).sort((a, b) => b.id - a.id));
-  }, [initialEvents]);
+  }, [initialEvents, formatDbData]);
 
   // Hitung data statistik riil
   const totalEventsCount = dbEvents.length;

@@ -12,6 +12,9 @@ export async function GET() {
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
     }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+    }
 
     const admin = await db.query.users.findFirst({
       where: eq(users.email, session.user.email),
@@ -41,6 +44,9 @@ export async function PATCH(req: NextRequest) {
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
     }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+    }
 
     const { namaLengkap, email, urlAvatar } = await req.json();
 
@@ -66,6 +72,9 @@ export async function PUT(req: NextRequest) {
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
     }
 
     const { passLama, passBaru, passKonfirm } = await req.json();

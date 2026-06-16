@@ -15,7 +15,6 @@ import {
   Loader2,
   Users,
   Clock,
-  UserX,
   AlertCircle,
   CheckCircle2,
   Calendar,
@@ -52,14 +51,9 @@ function StatusBadge({ status }: { status: StatusValidasi }) {
       icon: CheckCircle2,
     },
     pending: {
-      label: "Menunggu",
+      label: "Belum Disetujui",
       className: "bg-amber-50 text-amber-700 border-amber-200",
       icon: Clock,
-    },
-    rejected: {
-      label: "Ditolak",
-      className: "bg-rose-50 text-rose-700 border-rose-200",
-      icon: UserX,
     },
   };
   const { label, className, icon: Icon } = config[status];
@@ -127,8 +121,7 @@ export function ValidasiAksesPenyelenggaraClient({
     const total = data.length;
     const pending = data.filter((d) => d.status === "pending").length;
     const approved = data.filter((d) => d.status === "approved").length;
-    const rejected = data.filter((d) => d.status === "rejected").length;
-    return { total, pending, approved, rejected };
+    return { total, pending, approved };
   }, [data]);
 
   // â”€â”€â”€ Filter & Sort Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -314,7 +307,7 @@ export function ValidasiAksesPenyelenggaraClient({
     if (selectedIds.length === 0) return;
     
     const count = selectedIds.length;
-    const actionText = status === "approved" ? "menyetujui" : "menolak";
+    const actionText = status === "approved" ? "menyetujui" : "mencabut persetujuan";
     const confirm = window.confirm(`Apakah Anda yakin ingin ${actionText} akses untuk ${count} penyelenggara terpilih secara massal?`);
     if (!confirm) return;
 
@@ -476,9 +469,8 @@ export function ValidasiAksesPenyelenggaraClient({
               {(
                 [
                   { id: "all", label: "Semua", count: stats.total, activeClass: "bg-gray-800 text-white border-gray-800" },
-                  { id: "pending", label: "Menunggu", count: stats.pending, activeClass: "bg-amber-600 text-white border-amber-600" },
+                  { id: "pending", label: "Belum Disetujui", count: stats.pending, activeClass: "bg-amber-600 text-white border-amber-600" },
                   { id: "approved", label: "Disetujui", count: stats.approved, activeClass: "bg-emerald-600 text-white border-emerald-600" },
-                  { id: "rejected", label: "Ditolak", count: stats.rejected, activeClass: "bg-rose-600 text-white border-rose-600" },
                 ] as const
               ).map((tab) => {
                 const isActive = statusTab === tab.id;
@@ -648,17 +640,17 @@ export function ValidasiAksesPenyelenggaraClient({
                                       </Button>
                                     )}
 
-                                    {item.status !== "rejected" && (
+                                    {item.status !== "pending" && (
                                       <Button
                                         variant="ghost"
                                         onClick={() => {
-                                          handleChangeStatus(item.rawId, "rejected");
+                                          handleChangeStatus(item.rawId, "pending");
                                           setOpenMenuId(null);
                                         }}
-                                        className="w-full justify-start text-xs font-bold text-rose-600 hover:bg-rose-50/50"
+                                        className="w-full justify-start text-xs font-bold text-amber-600 hover:bg-amber-50/50"
                                       >
                                         <X className="w-3.5 h-3.5" />
-                                        Tolak Akses
+                                        Cabut Persetujuan
                                       </Button>
                                     )}
                                   </div>
@@ -752,12 +744,12 @@ export function ValidasiAksesPenyelenggaraClient({
               Setujui
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               size="sm"
-              onClick={() => handleBulkChangeStatus("rejected")}
+              onClick={() => handleBulkChangeStatus("pending")}
             >
               <X className="w-3.5 h-3.5" />
-              Tolak
+              Cabut
             </Button>
             
             <div className="w-px h-6 bg-slate-200 mx-1" />
@@ -952,45 +944,23 @@ export function ValidasiAksesPenyelenggaraClient({
                       </div>
                     ) : (
                       <>
-                        {/* Jika pending, tampilkan kedua tombol */}
                         {detailItem.status === "pending" && (
-                          <>
-                            <Button
-                              variant="success"
-                              onClick={() => handleChangeStatus(detailItem.rawId, "approved")}
-                            >
-                              <Check className="w-3.5 h-3.5" />
-                              Setujui Akses
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              onClick={() => handleChangeStatus(detailItem.rawId, "rejected")}
-                            >
-                              <X className="w-3.5 h-3.5" />
-                              Tolak Akses
-                            </Button>
-                          </>
-                        )}
-
-                        {/* Jika approved, hanya tampilkan tombol Tolak Akses */}
-                        {detailItem.status === "approved" && (
-                          <Button
-                            variant="destructive"
-                            onClick={() => handleChangeStatus(detailItem.rawId, "rejected")}
-                          >
-                            <X className="w-3.5 h-3.5" />
-                            Tolak Akses
-                          </Button>
-                        )}
-
-                        {/* Jika rejected, hanya tampilkan tombol Setujui Akses */}
-                        {detailItem.status === "rejected" && (
                           <Button
                             variant="success"
                             onClick={() => handleChangeStatus(detailItem.rawId, "approved")}
                           >
                             <Check className="w-3.5 h-3.5" />
                             Setujui Akses
+                          </Button>
+                        )}
+
+                        {detailItem.status === "approved" && (
+                          <Button
+                            variant="outline"
+                            onClick={() => handleChangeStatus(detailItem.rawId, "pending")}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            Cabut Persetujuan
                           </Button>
                         )}
                       </>

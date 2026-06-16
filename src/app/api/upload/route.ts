@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Tipe upload tidak valid. Gunakan: ${validTypes}` }, { status: 400 });
     }
 
-    if (!session?.user?.id && type !== 'document') {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
     }
 

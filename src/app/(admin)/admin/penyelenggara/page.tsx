@@ -16,7 +16,6 @@ async function fetchPenyelenggara(): Promise<PenyelenggaraItem[]> {
       email: users.email,
       noTelepon: users.nomorTelepon,
       disetujui: users.disetujui,
-      diblokir: users.diblokir,
       namaLengkap: users.namaLengkap,
       deskripsiInstansi: profilPenyelenggara.deskripsiInstansi,
       urlDokumenLegalitas: profilPenyelenggara.urlDokumenLegalitas,
@@ -34,10 +33,7 @@ async function fetchPenyelenggara(): Promise<PenyelenggaraItem[]> {
     namaOrganisasi: row.namaOrganisasi ?? '-',
     email: row.email ?? '-',
     noTelepon: row.noTelepon ?? '-',
-    status:
-      row.diblokir ? 'rejected' :
-      row.disetujui  ? 'approved' :
-      'pending',
+    status: row.disetujui ? 'approved' as const : 'pending' as const,
     namaLengkap: row.namaLengkap ?? '-',
     deskripsiInstansi: row.deskripsiInstansi ?? null,
     urlDokumenLegalitas: row.urlDokumenLegalitas ?? null,

@@ -1,12 +1,17 @@
 "use server";
 
 import { db } from "@/db";
-import { event, pendaftaran, users, peserta, pembicara } from "@/db/schema";
+import { event, pendaftaran, users, peserta } from "@/db/schema";
 import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 
 export async function getAdminEvents(search?: string, type?: string) {
   try {
+    const session = await auth();
+    if (session?.user?.role !== 'admin') {
+      return { success: false, data: [], error: "Unauthorized" };
+    }
     const conditions = [];
     
     if (search && search.trim()) {
@@ -48,6 +53,10 @@ export async function getAdminEvents(search?: string, type?: string) {
 
 export async function getAdminEventStats() {
   try {
+    const session = await auth();
+    if (session?.user?.role !== 'admin') {
+      return { success: false, error: "Unauthorized" };
+    }
     const total = await db.select({ count: sql<number>`count(*)` }).from(event);
     
     const seminar = await db
@@ -96,6 +105,10 @@ export async function getAdminEventStats() {
 
 export async function updateEventStatus(id: number, status: "pending" | "published" | "rejected", reason?: string) {
   try {
+    const session = await auth();
+    if (session?.user?.role !== 'admin') {
+      return { success: false, error: "Unauthorized" };
+    }
     await db
       .update(event)
       .set({ 
@@ -115,10 +128,13 @@ export async function updateEventStatus(id: number, status: "pending" | "publish
 
 export async function deleteEvent(id: number) {
   try {
-    // Hard delete for now, or use soft delete if dihapusPada is preferred
-    // Delete related pembicara entries to satisfy FK constraint
-await db.delete(pembicara).where(eq(pembicara.eventId, id));
-await db.delete(event).where(eq(event.id, id));
+    const session = await auth();
+    if (session?.user?.role !== 'admin') {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // Soft delete to avoid foreign key constraints errors
+    await db.update(event).set({ dihapusPada: new Date() }).where(eq(event.id, id));
     
     revalidatePath("/admin/events");
     return { success: true, message: "Event berhasil dihapus" };
@@ -129,8 +145,13 @@ await db.delete(event).where(eq(event.id, id));
 }
 
 export async function updateEvent(id: number, data: Record<string, unknown>) {
-  if (process.env.NODE_ENV !== 'production') console.log("[updateEvent] Request for ID:", id, "Data:", data);
   try {
+    const session = await auth();
+    if (session?.user?.role !== 'admin') {
+      return { success: false, error: "Unauthorized" };
+    }
+    if (process.env.NODE_ENV !== 'production') console.log("[updateEvent] Request for ID:", id, "Data:", data);
+
     if (!id) throw new Error("ID event tidak ditemukan");
 
     // Sanitize data: only allow valid columns and ensure numbers are numbers
@@ -209,6 +230,10 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
 
 export async function getAdminParticipants() {
   try {
+    const session = await auth();
+    if (session?.user?.role !== 'admin') {
+      return { success: false, error: "Unauthorized" };
+    }
     const results = await db
       .select({
         id: pendaftaran.id,

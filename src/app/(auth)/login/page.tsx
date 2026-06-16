@@ -51,7 +51,13 @@ export default function LoginPage() {
       }
 
       if (result?.error) {
-        setGlobalError('Email atau kata sandi salah');
+        if (result.error.includes('BLOCKED')) {
+          setGlobalError('Akun Anda telah ditangguhkan. Silakan hubungi admin.');
+        } else if (result.error.includes('UNVERIFIED')) {
+          setGlobalError('Email belum diverifikasi. Silakan cek email Anda.');
+        } else {
+          setGlobalError('Email atau kata sandi salah');
+        }
         return;
       }
 

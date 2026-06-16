@@ -1,8 +1,4 @@
-// Status validasi penyelenggara
-// - pending  : belum ada keputusan admin (default saat daftar)
-// - approved : admin menyetujui akses
-// - rejected : admin menolak akses
-export type StatusValidasi = "approved" | "pending" | "rejected";
+export type StatusValidasi = "approved" | "pending";
 
 export interface PenyelenggaraItem {
   id: string;       // ID tampilan, misal "00001"

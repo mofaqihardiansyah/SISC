@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { peserta, pendaftaran, event } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import * as z from "zod";
 
@@ -35,18 +35,31 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
     const idEvent = Number(eventId);
     const idUser = Number(session.user.id);
 
-    const [dataEvent, existing] = await Promise.all([
+    const [dataEvent, existing, pesertaCountResult] = await Promise.all([
       db.query.event.findFirst({
         where: eq(event.id, idEvent),
       }),
       db.select()
         .from(pendaftaran)
         .where(and(eq(pendaftaran.eventId, idEvent), eq(pendaftaran.userId, idUser)))
-        .limit(1)
+        .limit(1),
+      db.select({ count: sql<number>`count(*)` })
+        .from(pendaftaran)
+        .where(eq(pendaftaran.eventId, idEvent))
     ]);
 
     if (!dataEvent) {
       return { success: false, error: "Event tidak ditemukan" };
+    }
+    if (dataEvent.status !== "published") {
+      return { success: false, error: "Event ini belum dipublikasikan" };
+    }
+    if (dataEvent.batasRegistrasi && new Date() > dataEvent.batasRegistrasi) {
+      return { success: false, error: "Batas waktu registrasi telah berakhir" };
+    }
+    const currentPesertaCount = Number(pesertaCountResult[0]?.count || 0);
+    if (dataEvent.kuota && currentPesertaCount >= dataEvent.kuota) {
+      return { success: false, error: "Mohon maaf, kuota peserta telah penuh" };
     }
     if (existing.length > 0) {
       return { success: false, error: "Anda sudah terdaftar di event ini" };

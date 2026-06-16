@@ -11,6 +11,9 @@ export async function GET(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
     }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+    }
 
     const { searchParams } = new URL(req.url);
 
@@ -72,7 +75,6 @@ export async function GET(req: Request) {
           email: users.email,
           noTelepon: users.nomorTelepon,
           disetujui: users.disetujui,
-          diblokir: users.diblokir,
         })
         .from(users)
         .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
@@ -85,10 +87,7 @@ export async function GET(req: Request) {
         namaOrganisasi: row.namaOrganisasi ?? '-',
         email: row.email ?? '-',
         noTelepon: row.noTelepon ?? '-',
-        status:
-          row.diblokir ? 'rejected' :
-          row.disetujui  ? 'approved' :
-          'pending',
+        status: row.disetujui ? 'approved' : 'pending',
       }));
 
       return NextResponse.json({ success: true, data });
@@ -156,11 +155,14 @@ export async function PATCH(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
     }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+    }
 
     const body = await req.json();
-    const { userId, status } = body as { userId: number; status: 'approved' | 'rejected' };
+    const { userId, status } = body as { userId: number; status: 'approved' | 'pending' };
 
-    if (!userId || !['approved', 'rejected'].includes(status)) {
+    if (!userId || !['approved', 'pending'].includes(status)) {
       return NextResponse.json({ error: 'Input tidak valid.' }, { status: 400 });
     }
 
@@ -168,7 +170,6 @@ export async function PATCH(req: Request) {
       .update(users)
       .set({
         disetujui: status === 'approved',
-        diblokir: status === 'rejected',
         diperbaruiPada: new Date(),
       })
       .where(and(eq(users.id, userId), eq(users.role, 'organizer')));
@@ -185,6 +186,9 @@ export async function DELETE(req: Request) {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
+    }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);

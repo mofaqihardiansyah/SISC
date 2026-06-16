@@ -28,16 +28,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          // Cek jika akun ditangguhkan (Suspended)
           if (user.diblokir) {
             if (process.env.NODE_ENV !== 'production') console.log(`[AUTH] Login ditolak: Akun ditangguhkan (${email})`);
-            throw new Error("Akun Anda telah ditangguhkan. Silakan hubungi admin.");
+            throw new Error("BLOCKED");
           }
 
-          // Pastikan email sudah terverifikasi
           if (!user.emailTerverifikasi && user.role !== 'admin') {
             if (process.env.NODE_ENV !== 'production') console.log(`[AUTH] Login ditolak: Email belum diverifikasi (${email})`);
-            return null;
+            throw new Error("UNVERIFIED");
           }
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
