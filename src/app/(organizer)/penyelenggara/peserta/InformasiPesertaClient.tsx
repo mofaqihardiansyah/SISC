@@ -23,6 +23,7 @@ import * as XLSX from "xlsx";
 import Portal from "@/components/ui/Portal";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from "sonner";
 
 // ============================================================
 // TIPE DATA
@@ -211,7 +212,7 @@ function LampiranPopup({
 
   return (
     <Portal>
-      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
         <div 
           className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
           onClick={onClose} 
@@ -306,6 +307,7 @@ export default function InformasiPesertaClient() {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [lampiran, setLampiran] = useState<{ url: string; nama: string } | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [rejectModal, setRejectModal] = useState<{ pendaftaranId: number | null, reason: string }>({ pendaftaranId: null, reason: "" });
 
   const PER_PAGE = 10;
 
@@ -339,18 +341,30 @@ export default function InformasiPesertaClient() {
     setPage(1);
   }, [search, filterStatus]);
 
-  // â”€â”€ Update status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const updateStatus = async (pendaftaranId: number, newStatus: StatusPendaftaran) => {
+  // ── Update status ──────────────────────────────────────────────
+  const updateStatus = async (pendaftaranId: number, newStatus: StatusPendaftaran, alasanPenolakan?: string) => {
     setActionLoading(pendaftaranId);
     try {
-      await fetch("/api/organizer/peserta", {
+      const body: { pendaftaranId: number; status: StatusPendaftaran; alasanPenolakan?: string } = { pendaftaranId, status: newStatus };
+      if (alasanPenolakan) {
+        body.alasanPenolakan = alasanPenolakan;
+      }
+
+      const res = await fetch("/api/organizer/peserta", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pendaftaranId, status: newStatus }),
+        body: JSON.stringify(body),
       });
-      await fetchData();
+
+      if (res.ok) {
+        toast.success(`Status berhasil diperbarui.`);
+        await fetchData();
+      } else {
+        toast.error("Gagal memperbarui status.");
+      }
     } catch (err) {
       console.error(err);
+      toast.error("Terjadi kesalahan jaringan.");
     } finally {
       setActionLoading(null);
     }
@@ -515,11 +529,11 @@ export default function InformasiPesertaClient() {
                               alt={nama}
                               width={36}
                               height={36}
-                              className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                              className="w-9 h-9 rounded-full object-cover shrink-0"
                             />
                           ) : (
                             <div
-                              className={`w-9 h-9 rounded-full ${warnaBg} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}
+                              className={`w-9 h-9 rounded-full ${warnaBg} flex items-center justify-center text-white text-xs font-bold shrink-0`}
                             >
                               {inisial}
                             </div>
@@ -565,13 +579,13 @@ export default function InformasiPesertaClient() {
                         <ActionButtons
                           status={item.status}
                           onVerify={() => updateStatus(item.pendaftaranId, "hadir")}
-                          onTolak={() => updateStatus(item.pendaftaranId, "dibatalkan")}
+                          onTolak={() => setRejectModal({ pendaftaranId: item.pendaftaranId, reason: "" })}
                           onEdit={() => updateStatus(item.pendaftaranId, "terdaftar")}
-                          onDelete={() => updateStatus(item.pendaftaranId, "dibatalkan")}
+                          onDelete={() => setRejectModal({ pendaftaranId: item.pendaftaranId, reason: "" })}
                           onDetail={() =>
                             item.buktiPembayaran
                               ? setLampiran({ url: item.buktiPembayaran, nama: nama })
-                              : alert("Bukti pembayaran tidak tersedia.")
+                              : toast.error("Bukti pembayaran tidak tersedia.")
                           }
                           disabled={isActionLoading}
                         />
@@ -638,6 +652,50 @@ export default function InformasiPesertaClient() {
           nama={lampiran.nama}
           onClose={() => setLampiran(null)}
         />
+      )}
+
+      {/* Reject Reason Modal */}
+      {rejectModal.pendaftaranId !== null && (
+        <Portal>
+          <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => setRejectModal({ pendaftaranId: null, reason: "" })} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
+              <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Pendaftaran Peserta</h3>
+              <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar peserta dapat mengetahuinya (misal: Bukti pembayaran tidak valid).</p>
+              
+              <textarea
+                value={rejectModal.reason}
+                onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
+                placeholder="Misal: Bukti pembayaran buram / kurang jelas..."
+                rows={3}
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none mb-5"
+              />
+
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setRejectModal({ pendaftaranId: null, reason: "" })}>
+                  Batal
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => {
+                    if (!rejectModal.reason.trim()) {
+                      toast.error("Alasan penolakan tidak boleh kosong.");
+                      return;
+                    }
+                    updateStatus(rejectModal.pendaftaranId!, "dibatalkan", rejectModal.reason);
+                    setRejectModal({ pendaftaranId: null, reason: "" });
+                  }}
+                >
+                  Kirim Penolakan
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

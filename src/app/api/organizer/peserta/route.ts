@@ -107,7 +107,7 @@ export async function PATCH(req: NextRequest) {
 
     const organizerId = parseInt(session.user.id);
     const body = await req.json();
-    const { pendaftaranId, status } = body;
+    const { pendaftaranId, status, alasanPenolakan } = body;
 
     if (!pendaftaranId || !status) {
       return NextResponse.json({ error: "pendaftaranId dan status wajib diisi" }, { status: 400 });
@@ -129,12 +129,18 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const updateData: { status: "terdaftar" | "hadir" | "dibatalkan"; diperbaruiPada: Date; alasanPenolakan?: string } = {
+      status: status as "terdaftar" | "hadir" | "dibatalkan",
+      diperbaruiPada: new Date(),
+    };
+
+    if (alasanPenolakan !== undefined) {
+      updateData.alasanPenolakan = alasanPenolakan;
+    }
+
     await db
       .update(pendaftaran)
-      .set({
-        status: status as "terdaftar" | "hadir" | "dibatalkan",
-        diperbaruiPada: new Date(),
-      })
+      .set(updateData)
       .where(eq(pendaftaran.id, pendaftaranId));
 
     return NextResponse.json({ success: true });

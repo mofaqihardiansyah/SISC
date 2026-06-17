@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { registerUser } from '@/actions/auth';
 import { FileUpload } from '@/components/shared/FileUpload';
-import { FileText, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { FileText, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
@@ -63,6 +63,7 @@ export default function RegisterPage() {
   const [showVisitorPassword, setShowVisitorPassword] = React.useState(false);
   const [showOrganizerPassword, setShowOrganizerPassword] = React.useState(false);
   const [globalError, setGlobalError] = React.useState<string | null>(null);
+  const [showDokumenInfo, setShowDokumenInfo] = React.useState(false);
 
 
   const visitorPasswordValue = useWatch({ control: visitorForm.control, name: 'password', defaultValue: '' });
@@ -174,7 +175,7 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Lengkap</Label>
                 <Input 
-                  placeholder="Nama Pengunjung" 
+                  placeholder="Masukkan nama lengkap (min. 3 karakter)" 
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('namaLengkap')}
                 />
@@ -229,7 +230,7 @@ export default function RegisterPage() {
                     className="flex h-12 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium ring-offset-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 transition-all"
                     {...visitorForm.register('jenisKelamin')}
                   >
-                    <option value="">Pilih Kelamin</option>
+                    <option value="">Pilih jenis kelamin</option>
                     <option value="Laki-laki">Laki-laki</option>
                     <option value="Perempuan">Perempuan</option>
                   </select>
@@ -241,7 +242,7 @@ export default function RegisterPage() {
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Institusi / Asal Instansi</Label>
                   <Input 
-                    placeholder="Nama Sekolah/Kampus/Perusahaan"
+                    placeholder="Nama sekolah, kampus, atau perusahaan"
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('institusi')}
                   />
@@ -264,7 +265,7 @@ export default function RegisterPage() {
                   <Input 
                     type={showVisitorPassword ? "text" : "password"} 
                     autoComplete="new-password"
-                    placeholder="Minimal 8 Karakter (Huruf & Angka)" 
+                    placeholder="Minimal 8 karakter (huruf, angka, & simbol)" 
                     className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('password')}
                   />
@@ -308,7 +309,7 @@ export default function RegisterPage() {
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Institusi</Label>
                   <Input 
-                    placeholder="Nama Institusi" 
+                    placeholder="Nama lembaga, yayasan, atau perusahaan" 
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('namaInstansi')}
                   />
@@ -318,7 +319,7 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Deskripsi Institusi</Label>
                 <Input 
-                  placeholder="Deskripsi Singkat Institusi" 
+                  placeholder="Deskripsikan institusi Anda (min. 10 karakter)" 
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...organizerForm.register('deskripsiInstansi')}
                 />
@@ -362,7 +363,7 @@ export default function RegisterPage() {
                     <Input 
                       type={showOrganizerPassword ? "text" : "password"} 
                       autoComplete="new-password"
-                      placeholder="Minimal 8 Karakter (Huruf & Angka)" 
+                      placeholder="Minimal 8 karakter (huruf, angka, & simbol)" 
                       className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                       {...organizerForm.register('password')}
                     />
@@ -392,7 +393,40 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700 ml-0.5">Dokumen Legalitas (PDF)</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-sm font-semibold text-slate-700 ml-0.5">Dokumen Legalitas (PDF)</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowDokumenInfo(!showDokumenInfo)}
+                    className="text-slate-400 hover:text-primary transition-colors cursor-pointer"
+                    aria-label="Informasi dokumen legalitas"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
+                </div>
+                {showDokumenInfo && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 space-y-2">
+                    <p className="font-semibold">Apa itu Dokumen Legalitas?</p>
+                    <p>
+                      Dokumen resmi yang membuktikan keabsahan institusi/organisasi Anda sebagai penyelenggara event. Dokumen ini digunakan admin untuk memverifikasi akun Anda.
+                    </p>
+                    <p className="font-semibold mt-1">Contoh dokumen sesuai jenis penyelenggara:</p>
+                    <ul className="list-disc list-inside space-y-0.5 ml-1">
+                      <li><span className="font-semibold">Perguruan Tinggi / Sekolah:</span> Surat Keterangan resmi dari institusi (berkop surat & bertanda tangan pejabat berwenang)</li>
+                      <li><span className="font-semibold">Organisasi Kemahasiswaan (BEM, HMJ, UKM):</span> SK Pengurus yang disahkan pihak kampus atau Surat Rekomendasi dari bagian Kemahasiswaan</li>
+                      <li><span className="font-semibold">Perusahaan / Instansi:</span> NIB (Nomor Induk Berusaha), SIUP, atau Akta Pendirian</li>
+                      <li><span className="font-semibold">Komunitas / Yayasan / Organisasi:</span> Akta Notaris, SK Kemenkumham, atau Surat Keterangan Terdaftar (SKT)</li>
+                      <li><span className="font-semibold">Lembaga Pemerintah:</span> Surat Tugas atau SK resmi dari instansi</li>
+                    </ul>
+                    <div className="border-t border-blue-200 pt-2 mt-2">
+                      <p className="font-semibold">Ketentuan dokumen:</p>
+                      <ul className="list-disc list-inside space-y-0.5 ml-1">
+                        <li>Wajib format PDF, maksimal 20MB</li>
+                        <li>Dokumen harus masih berlaku dan jelas terbaca</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
                 <FileUpload
                   type="document"
                   variant="button"

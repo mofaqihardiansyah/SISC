@@ -7,7 +7,10 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { verifyOtpAction, resendOtpAction } from '@/actions/auth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Timer } from 'lucide-react';
+
+const OTP_EXPIRY_SECONDS = 10 * 60;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 function VerifyContent() {
   const router = useRouter();
@@ -16,6 +19,31 @@ function VerifyContent() {
   const [otp, setOtp] = React.useState('');
   const [isVerifying, setIsVerifying] = React.useState(false);
   const [isResending, setIsResending] = React.useState(false);
+
+  const [expirySeconds, setExpirySeconds] = React.useState(OTP_EXPIRY_SECONDS);
+  const [resendCooldown, setResendCooldown] = React.useState(0);
+
+  React.useEffect(() => {
+    if (expirySeconds <= 0) return;
+    const interval = setInterval(() => {
+      setExpirySeconds((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expirySeconds]);
+
+  React.useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const handleVerify = async () => {
     if (otp.length !== 6) {
@@ -47,8 +75,13 @@ function VerifyContent() {
       return;
     }
 
+    setExpirySeconds(OTP_EXPIRY_SECONDS);
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    setOtp('');
     toast.success('Kode OTP baru telah dikirim ke email anda.');
   };
+
+  const isExpired = expirySeconds <= 0;
 
   return (
     <AuthLayout leftTitle="Amankan akun anda dengan kode verifikasi.">
@@ -68,6 +101,7 @@ function VerifyContent() {
             value={otp} 
             onChange={setOtp}
             className="gap-3"
+            disabled={isExpired}
           >
             <InputOTPGroup className="gap-3">
               {[0, 1, 2, 3, 4, 5].map((index) => (
@@ -80,11 +114,20 @@ function VerifyContent() {
             </InputOTPGroup>
           </InputOTP>
 
+          <div className={`flex items-center gap-2 text-sm font-semibold ${isExpired ? 'text-red-500' : expirySeconds <= 60 ? 'text-amber-500' : 'text-slate-500'}`}>
+            <Timer className="w-4 h-4" />
+            {isExpired ? (
+              <span>Kode OTP telah kedaluwarsa. Silakan kirim ulang.</span>
+            ) : (
+              <span>Kode berlaku dalam {formatTime(expirySeconds)}</span>
+            )}
+          </div>
+
           <div className="w-full space-y-4">
             <Button 
               onClick={handleVerify}
               className="w-full bg-primary hover:bg-primary/90 h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
-              disabled={isVerifying || otp.length !== 6}
+              disabled={isVerifying || otp.length !== 6 || isExpired}
             >
               {isVerifying ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               {isVerifying ? 'Memverifikasi...' : 'Verifikasi Kode'}
@@ -96,10 +139,14 @@ function VerifyContent() {
                 <Button 
                   variant="link"
                   onClick={handleResend}
-                  disabled={isResending}
+                  disabled={isResending || resendCooldown > 0}
                   className="font-bold"
                 >
-                  {isResending ? 'Mengirim...' : 'Kirim Ulang Kode'}
+                  {isResending
+                    ? 'Mengirim...'
+                    : resendCooldown > 0
+                      ? `Kirim Ulang (${resendCooldown}d)`
+                      : 'Kirim Ulang Kode'}
                 </Button>
               </p>
             </div>

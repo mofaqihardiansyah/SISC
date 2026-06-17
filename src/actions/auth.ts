@@ -170,10 +170,6 @@ export async function verifyOtpAction(email: string, code: string) {
   otpRateLimit.delete(email);
 
   if (otpRecord.kedaluwarsaPada < new Date()) {
-    return { error: "Kode OTP salah." };
-  }
-
-  if (otpRecord.kedaluwarsaPada < new Date()) {
     return { error: "Kode OTP sudah kedaluwarsa." };
   }
 

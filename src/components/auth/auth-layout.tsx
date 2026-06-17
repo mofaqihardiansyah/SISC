@@ -8,8 +8,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row overflow-hidden bg-white font-inter">
-      {/* Sisi Kiri - Fullscreen Image with Minimalist Glass Overlay */}
+    <div className="h-[100dvh] w-full flex flex-col md:flex-row overflow-hidden bg-white font-inter">
       <div 
         className="hidden md:flex md:w-[45%] lg:w-1/2 p-12 lg:p-16 flex-col justify-center relative overflow-hidden animate-in fade-in duration-1000 slide-in-from-left-8" 
         style={{ 
@@ -32,15 +31,15 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
       </div>
 
       {/* Sisi Kanan - Form Area */}
-      <div className="w-full md:w-[55%] lg:w-1/2 min-h-screen bg-white flex flex-col px-6 py-8 md:px-12 md:py-12 lg:px-16 lg:py-16 xl:px-20 overflow-y-auto">
+      <div className="w-full md:w-[55%] lg:w-1/2 h-full bg-white flex flex-col px-6 py-8 md:px-12 md:py-12 lg:px-16 lg:py-16 xl:px-20 overflow-y-auto">
         <div className="w-full max-w-md mx-auto flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-700">
           
           {/* Logo untuk Mobile & Desktop di Form */}
-          <div className="flex items-center justify-center md:justify-start mb-10">
+          <div className="flex items-center justify-center md:justify-start -mb-4">
             <Image 
               src="/logo_sementara.png" 
               alt="POLIVENTS" 
-              width={180} 
+              width={170} 
               height={55} 
               className="object-contain mix-blend-multiply brightness-[1.08] contrast-[1.15]"
               priority
@@ -48,7 +47,7 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
           </div>
           
           {/* Main Form Content */}
-          <div className="w-full">
+          <div className="w-full -mt-4 md:-mt-8">
             {children}
           </div>
 

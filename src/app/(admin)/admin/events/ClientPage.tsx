@@ -19,6 +19,7 @@ import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Portal from '@/components/ui/Portal';
 import DataEvent from './DataEvent';
 
 export type Event = {
@@ -89,6 +90,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
   
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, type: 'single' | 'bulk' | null, eventId: number | null }>({ isOpen: false, type: null, eventId: null });
 
   const isFilterActive = useMemo(() => {
     return searchTerm !== '' || 
@@ -147,8 +149,10 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
   const paginatedEvents = sortedEvents.slice(startIdx, startIdx + EVENTS_PER_PAGE);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus event ini?')) return;
+    setConfirmModal({ isOpen: true, type: 'single', eventId: id });
+  };
 
+  const executeDelete = async (id: number) => {
     try {
       const res = await deleteEvent(id);
       if (res.success) {
@@ -164,8 +168,10 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
   };
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Apakah Anda yakin ingin menghapus ${selectedRowIds.size} event terpilih?`)) return;
+    setConfirmModal({ isOpen: true, type: 'bulk', eventId: null });
+  };
 
+  const executeBulkDelete = async () => {
     const idsArray = Array.from(selectedRowIds);
     let successCount = 0;
 
@@ -191,6 +197,15 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
       console.error(err);
       toast.error('Terjadi kesalahan saat menghapus massal');
     }
+  };
+
+  const handleConfirmExecute = () => {
+    if (confirmModal.type === 'single' && confirmModal.eventId) {
+      executeDelete(confirmModal.eventId);
+    } else if (confirmModal.type === 'bulk') {
+      executeBulkDelete();
+    }
+    setConfirmModal({ isOpen: false, type: null, eventId: null });
   };
 
   const handleStatusUpdate = async (id: number, status: 'published' | 'rejected', reason?: string) => {
@@ -664,6 +679,38 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
           onUpdateStatus={handleStatusUpdate}
           onEditSuccess={handleEditSuccess}
         />
+      )}
+
+      {/* Confirm Modal */}
+      {confirmModal.isOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => setConfirmModal({ isOpen: false, type: null, eventId: null })} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
+              <h3 className="text-sm font-bold text-gray-800 mb-2">Konfirmasi Hapus</h3>
+              <p className="text-xs text-gray-500 mb-5">
+                {confirmModal.type === 'bulk' 
+                  ? `Apakah Anda yakin ingin menghapus ${selectedRowIds.size} event terpilih secara massal? Aksi ini tidak dapat dibatalkan.`
+                  : `Apakah Anda yakin ingin menghapus event ini? Aksi ini tidak dapat dibatalkan.`}
+              </p>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setConfirmModal({ isOpen: false, type: null, eventId: null })}>
+                  Batal
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={handleConfirmExecute}
+                >
+                  Ya, Hapus
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

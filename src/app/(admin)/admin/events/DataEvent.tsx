@@ -82,7 +82,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
 
   const handleRejectAction = async () => {
     if (!rejectReason.trim()) {
-      alert('Alasan penolakan tidak boleh kosong.');
+      toast.error('Alasan penolakan tidak boleh kosong.');
       return;
     }
     setActionLoading('reject');

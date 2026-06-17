@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useTransition, useEffect, ComponentType } from "react";
 import Portal from "@/components/ui/Portal";
+import { toast } from "sonner";
 import {
   Search,
   ChevronLeft, 
@@ -55,6 +56,11 @@ function StatusBadge({ status }: { status: StatusValidasi }) {
       className: "bg-amber-50 text-amber-700 border-amber-200",
       icon: Clock,
     },
+    rejected: {
+      label: "Ditolak",
+      className: "bg-rose-50 text-rose-700 border-rose-200",
+      icon: X,
+    },
   };
   const { label, className, icon: Icon } = config[status];
   return (
@@ -85,6 +91,10 @@ export function ValidasiAksesPenyelenggaraClient({
   
   // Detail Drawer States
   const [detailItem, setDetailItem] = useState<PenyelenggaraItem | null>(null);
+  
+  // Modals States
+  const [rejectModal, setRejectModal] = useState<{ id: number | null, reason: string }>({ id: null, reason: "" });
+  const [bulkConfirmModal, setBulkConfirmModal] = useState<{ isOpen: boolean, action: StatusValidasi | null }>({ isOpen: false, action: null });
   
   // Loading & Feedback states
   const [loadingId, setLoadingId] = useState<number | null>(null);
@@ -121,7 +131,8 @@ export function ValidasiAksesPenyelenggaraClient({
     const total = data.length;
     const pending = data.filter((d) => d.status === "pending").length;
     const approved = data.filter((d) => d.status === "approved").length;
-    return { total, pending, approved };
+    const rejected = data.filter((d) => d.status === "rejected").length;
+    return { total, pending, approved, rejected };
   }, [data]);
 
   // â”€â”€â”€ Filter & Sort Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -229,17 +240,17 @@ export function ValidasiAksesPenyelenggaraClient({
 
   // â”€â”€â”€ Update Status via API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  const handleChangeStatus = (rawId: number, status: StatusValidasi, skipToast = false) => {
+  const handleChangeStatus = (rawId: number, status: StatusValidasi, skipToast = false, alasanPenolakan?: string) => {
     const prevStatus = data.find((d) => d.rawId === rawId)?.status;
 
     // Optimistic UI update
     setData((prev) =>
-      prev.map((item) => (item.rawId === rawId ? { ...item, status } : item))
+      prev.map((item) => (item.rawId === rawId ? { ...item, status, ...(alasanPenolakan !== undefined ? { alasanPenolakan } : {}) } : item))
     );
     
     // Update active drawer if it matches the item
     if (detailItem && detailItem.rawId === rawId) {
-      setDetailItem((prev) => (prev ? { ...prev, status } : null));
+      setDetailItem((prev) => (prev ? { ...prev, status, ...(alasanPenolakan !== undefined ? { alasanPenolakan } : {}) } : null));
     }
 
     setLoadingId(rawId);
@@ -248,10 +259,15 @@ export function ValidasiAksesPenyelenggaraClient({
     return new Promise<boolean>((resolve) => {
       startTransition(async () => {
         try {
+          const body: { userId: number; status: StatusValidasi; alasanPenolakan?: string } = { userId: rawId, status };
+          if (alasanPenolakan) {
+            body.alasanPenolakan = alasanPenolakan;
+          }
+          
           const res = await fetch("/api/admin/users", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: rawId, status }),
+            body: JSON.stringify(body),
           });
 
           const result = await res.json();
@@ -303,14 +319,17 @@ export function ValidasiAksesPenyelenggaraClient({
 
   // â”€â”€â”€ Bulk Action Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  const handleBulkChangeStatus = async (status: StatusValidasi) => {
+  const handleBulkChangeStatus = (status: StatusValidasi) => {
     if (selectedIds.length === 0) return;
-    
-    const count = selectedIds.length;
-    const actionText = status === "approved" ? "menyetujui" : "mencabut persetujuan";
-    const confirm = window.confirm(`Apakah Anda yakin ingin ${actionText} akses untuk ${count} penyelenggara terpilih secara massal?`);
-    if (!confirm) return;
+    setBulkConfirmModal({ isOpen: true, action: status });
+  };
 
+  const executeBulkStatus = async () => {
+    if (!bulkConfirmModal.action || selectedIds.length === 0) return;
+    const status = bulkConfirmModal.action;
+    const count = selectedIds.length;
+
+    setBulkConfirmModal({ isOpen: false, action: null });
     setBulkLoading(true);
     setBulkProgress({ current: 0, total: count });
     setErrorMsg(null);
@@ -332,9 +351,9 @@ export function ValidasiAksesPenyelenggaraClient({
     setSelectedIds([]);
     
     if (successes === count) {
-      setSuccessMsg(`Berhasil memperbarui status ${successes} penyelenggara secara massal.`);
+      toast.success(`Aksi massal berhasil. ${successes} data diperbarui.`);
     } else {
-      setErrorMsg(`Selesai memproses. ${successes} berhasil diperbarui, ${count - successes} gagal.`);
+      toast.error(`Aksi massal selesai. Berhasil: ${successes}, Gagal: ${count - successes}`);
     }
   };
 
@@ -375,7 +394,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
       {/* â”€â”€ Bulk Actions Progress Overlay â”€â”€ */}
       {bulkLoading && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" />
           <div className="relative bg-white rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm w-full text-center border border-slate-100 animate-in zoom-in-95 duration-300">
             <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
@@ -471,6 +490,7 @@ export function ValidasiAksesPenyelenggaraClient({
                   { id: "all", label: "Semua", count: stats.total, activeClass: "bg-gray-800 text-white border-gray-800" },
                   { id: "pending", label: "Belum Disetujui", count: stats.pending, activeClass: "bg-amber-600 text-white border-amber-600" },
                   { id: "approved", label: "Disetujui", count: stats.approved, activeClass: "bg-emerald-600 text-white border-emerald-600" },
+                  { id: "rejected", label: "Ditolak", count: stats.rejected, activeClass: "bg-rose-600 text-white border-rose-600" },
                 ] as const
               ).map((tab) => {
                 const isActive = statusTab === tab.id;
@@ -649,8 +669,22 @@ export function ValidasiAksesPenyelenggaraClient({
                                         }}
                                         className="w-full justify-start text-xs font-bold text-amber-600 hover:bg-amber-50/50"
                                       >
-                                        <X className="w-3.5 h-3.5" />
+                                        <Clock className="w-3.5 h-3.5" />
                                         Cabut Persetujuan
+                                      </Button>
+                                    )}
+
+                                    {item.status !== "rejected" && (
+                                      <Button
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setRejectModal({ id: item.rawId, reason: item.alasanPenolakan || "" });
+                                          setOpenMenuId(null);
+                                        }}
+                                        className="w-full justify-start text-xs font-bold text-rose-600 hover:bg-rose-50/50"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                        Tolak Akses
                                       </Button>
                                     )}
                                   </div>
@@ -748,8 +782,16 @@ export function ValidasiAksesPenyelenggaraClient({
               size="sm"
               onClick={() => handleBulkChangeStatus("pending")}
             >
-              <X className="w-3.5 h-3.5" />
+              <Clock className="w-3.5 h-3.5" />
               Cabut
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => handleBulkChangeStatus("rejected")}
+            >
+              <X className="w-3.5 h-3.5" />
+              Tolak
             </Button>
             
             <div className="w-px h-6 bg-slate-200 mx-1" />
@@ -768,7 +810,7 @@ export function ValidasiAksesPenyelenggaraClient({
       {/* â”€â”€ Premium Detail Modal â”€â”€ */}
       {detailItem !== null && (
         <Portal>
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <div 
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
               onClick={() => setDetailItem(null)} 
@@ -944,7 +986,7 @@ export function ValidasiAksesPenyelenggaraClient({
                       </div>
                     ) : (
                       <>
-                        {detailItem.status === "pending" && (
+                        {detailItem.status !== "approved" && (
                           <Button
                             variant="success"
                             onClick={() => handleChangeStatus(detailItem.rawId, "approved")}
@@ -954,13 +996,26 @@ export function ValidasiAksesPenyelenggaraClient({
                           </Button>
                         )}
 
-                        {detailItem.status === "approved" && (
+                        {detailItem.status !== "pending" && (
                           <Button
                             variant="outline"
                             onClick={() => handleChangeStatus(detailItem.rawId, "pending")}
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <Clock className="w-3.5 h-3.5" />
                             Cabut Persetujuan
+                          </Button>
+                        )}
+
+                        {detailItem.status !== "rejected" && (
+                          <Button
+                            variant="destructive"
+                            onClick={() => {
+                              setDetailItem(null);
+                              setRejectModal({ id: detailItem.rawId, reason: detailItem.alasanPenolakan || "" });
+                            }}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            Tolak Akses
                           </Button>
                         )}
                       </>
@@ -971,6 +1026,80 @@ export function ValidasiAksesPenyelenggaraClient({
             </div>
         </Portal>
       )}
+      {/* ── Reject Reason Modal ── */}
+      {rejectModal.id !== null && (
+        <Portal>
+          <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => setRejectModal({ id: null, reason: "" })} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
+              <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Akses Penyelenggara</h3>
+              <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar penyelenggara dapat memperbaikinya.</p>
+              
+              <textarea
+                value={rejectModal.reason}
+                onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
+                placeholder="Misal: Dokumen legalitas kurang jelas..."
+                rows={3}
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none mb-5"
+              />
+
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setRejectModal({ id: null, reason: "" })}>
+                  Batal
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => {
+                    if (!rejectModal.reason.trim()) {
+                      toast.error("Alasan penolakan tidak boleh kosong.");
+                      return;
+                    }
+                    handleChangeStatus(rejectModal.id!, "rejected", false, rejectModal.reason);
+                    setRejectModal({ id: null, reason: "" });
+                  }}
+                >
+                  Kirim Penolakan
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* ── Bulk Confirm Modal ── */}
+      {bulkConfirmModal.isOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
+            <div 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+              onClick={() => setBulkConfirmModal({ isOpen: false, action: null })} 
+            />
+            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
+              <h3 className="text-sm font-bold text-gray-800 mb-2">Konfirmasi Aksi Massal</h3>
+              <p className="text-xs text-gray-500 mb-5">
+                Apakah Anda yakin ingin {bulkConfirmModal.action === "approved" ? "menyetujui" : bulkConfirmModal.action === "rejected" ? "menolak" : "mencabut persetujuan"} akses untuk <span className="font-bold text-gray-800">{selectedIds.length}</span> penyelenggara terpilih secara massal?
+              </p>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setBulkConfirmModal({ isOpen: false, action: null })}>
+                  Batal
+                </Button>
+                <Button 
+                  variant={bulkConfirmModal.action === "approved" ? "success" : bulkConfirmModal.action === "rejected" ? "destructive" : "default"} 
+                  size="sm" 
+                  onClick={executeBulkStatus}
+                >
+                  Ya, Lanjutkan
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
     </div>
   );
 }

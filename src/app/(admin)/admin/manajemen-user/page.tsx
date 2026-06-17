@@ -11,6 +11,7 @@ import Portal from "@/components/ui/Portal";
 import { PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 export const dynamic = 'force-dynamic';
 
 
@@ -304,7 +305,8 @@ export default function ManajemenUserPage() {
       if (!res.ok) throw new Error();
       setDeleteModal(null);
       fetchUsers(); fetchStats();
-    } catch { alert("Gagal menghapus pengguna."); }
+      toast.success("Pengguna berhasil dihapus.");
+    } catch { toast.error("Gagal menghapus pengguna."); }
     finally { setDeleteLoading(false); }
   };
 
@@ -316,7 +318,8 @@ export default function ManajemenUserPage() {
       setSelectedRows([]);
       setBulkDeleteModal(false);
       fetchUsers(); fetchStats();
-    } catch { alert("Gagal menghapus pengguna."); }
+      toast.success("Pengguna berhasil dihapus secara massal.");
+    } catch { toast.error("Gagal menghapus pengguna."); }
     finally { setDeleteLoading(false); }
   };
 

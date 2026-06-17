@@ -1,4 +1,4 @@
-export type StatusValidasi = "approved" | "pending";
+export type StatusValidasi = "approved" | "pending" | "rejected";
 
 export interface PenyelenggaraItem {
   id: string;       // ID tampilan, misal "00001"
@@ -7,6 +7,7 @@ export interface PenyelenggaraItem {
   email: string;
   noTelepon: string;
   status: StatusValidasi;
+  alasanPenolakan?: string | null;
   namaLengkap: string;
   deskripsiInstansi: string | null;
   urlDokumenLegalitas: string | null;

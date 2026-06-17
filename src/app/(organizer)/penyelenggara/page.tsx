@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { event, peserta, pendaftaran, users, paperSubmission } from "@/db/schema";
+import { event, peserta, pendaftaran, users, paperSubmission, profilPenyelenggara } from "@/db/schema";
 import { count, eq, and, gte, sql, sum, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -15,12 +15,17 @@ export default async function PenyelenggaraDashboard() {
   if (isNaN(userId)) redirect("/login");
 
   const [dbUser] = await db
-    .select({ disetujui: users.disetujui })
+    .select({
+      disetujui: users.disetujui,
+      alasanPenolakan: profilPenyelenggara.alasanPenolakan
+    })
     .from(users)
+    .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
     .where(eq(users.id, userId))
     .limit(1);
 
   const disetujui = dbUser?.disetujui || false;
+  const alasanPenolakan = dbUser?.alasanPenolakan || null;
 
   // Get all events for the filter dropdown
   const allEvents = await db
@@ -174,6 +179,7 @@ export default async function PenyelenggaraDashboard() {
       initialGrafikData={grafikData}
       initialGrafikPendapatan={grafikPendapatan}
       disetujui={disetujui}
+      alasanPenolakan={alasanPenolakan}
       recentParticipants={recentParticipants}
       recentPapers={recentPapers}
     />

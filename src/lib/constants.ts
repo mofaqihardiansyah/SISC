@@ -193,7 +193,7 @@ export const UI_TEXT = {
   REGISTER_NOW: "Daftar Sekarang",
   DROP_FILE_HERE: "Klik atau seret file ke sini",
   FILE_UPLOADED: "Dokumen Terunggah",
-  FILE_HINT: "PDF, Maks 4MB",
+  FILE_HINT: "PDF, Maks 20MB",
   SELECT_FILE: "Pilih Berkas",
   VISIT_WEBSITE: "Kunjungi Website",
   REGISTER: "Daftar",

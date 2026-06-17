@@ -12,8 +12,11 @@ import * as z from 'zod';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { resetPassword, verifyResetOtpAction, requestPasswordReset } from '@/actions/auth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Timer } from 'lucide-react';
 import { signIn } from 'next-auth/react';
+
+const OTP_EXPIRY_SECONDS = 10 * 60;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'Password minimal 6 karakter'),
@@ -33,6 +36,31 @@ function ResetPasswordContent() {
   const [otp, setOtp] = useState('');
   const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
   const [isResending, setIsResending] = useState(false);
+
+  const [expirySeconds, setExpirySeconds] = React.useState(OTP_EXPIRY_SECONDS);
+  const [resendCooldown, setResendCooldown] = React.useState(0);
+
+  React.useEffect(() => {
+    if (expirySeconds <= 0 || step === 2) return;
+    const interval = setInterval(() => {
+      setExpirySeconds((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expirySeconds, step]);
+
+  React.useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const {
     register,
@@ -71,6 +99,9 @@ function ResetPasswordContent() {
       if (result.error) {
         toast.error(result.error);
       } else {
+        setExpirySeconds(OTP_EXPIRY_SECONDS);
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
+        setOtp('');
         toast.success('Kode OTP baru telah dikirim ke email anda.');
       }
     } catch {
@@ -96,7 +127,7 @@ function ResetPasswordContent() {
       });
       
       if (signInResult?.ok) {
-        window.location.href = '/'; // Redirect to dashboard / home
+        window.location.href = '/';
       } else {
         window.location.href = '/login';
       }
@@ -104,6 +135,8 @@ function ResetPasswordContent() {
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
   };
+
+  const isExpired = expirySeconds <= 0;
 
   return (
     <AuthLayout leftTitle="Buat kata sandi baru untuk akun Anda.">
@@ -128,6 +161,7 @@ function ResetPasswordContent() {
                 value={otp} 
                 onChange={setOtp}
                 className="gap-3"
+                disabled={isExpired}
               >
                 <InputOTPGroup className="gap-3 w-full justify-between">
                   {[0, 1, 2, 3, 4, 5].map((index) => (
@@ -141,10 +175,19 @@ function ResetPasswordContent() {
               </InputOTP>
             </div>
 
+            <div className={`flex items-center justify-center gap-2 text-sm font-semibold ${isExpired ? 'text-red-500' : expirySeconds <= 60 ? 'text-amber-500' : 'text-slate-500'}`}>
+              <Timer className="w-4 h-4" />
+              {isExpired ? (
+                <span>Kode OTP telah kedaluwarsa. Silakan kirim ulang.</span>
+              ) : (
+                <span>Kode berlaku dalam {formatTime(expirySeconds)}</span>
+              )}
+            </div>
+
             <Button 
               onClick={handleVerifyOTP}
               className="w-full bg-primary hover:bg-sisc-auth h-12 text-white font-bold rounded-lg shadow-none transition-all active:scale-[0.98] cursor-pointer"
-              disabled={isVerifyingOTP || otp.length !== 6}
+              disabled={isVerifyingOTP || otp.length !== 6 || isExpired}
             >
               {isVerifyingOTP ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               {isVerifyingOTP ? 'Memverifikasi...' : 'Verifikasi Kode'}
@@ -156,10 +199,14 @@ function ResetPasswordContent() {
                 <Button 
                   variant="link"
                   onClick={handleResend}
-                  disabled={isResending}
+                  disabled={isResending || resendCooldown > 0}
                   className="font-bold"
                 >
-                  {isResending ? 'Mengirim...' : 'Kirim Ulang Kode'}
+                  {isResending
+                    ? 'Mengirim...'
+                    : resendCooldown > 0
+                      ? `Kirim Ulang (${resendCooldown}d)`
+                      : 'Kirim Ulang Kode'}
                 </Button>
               </p>
             </div>

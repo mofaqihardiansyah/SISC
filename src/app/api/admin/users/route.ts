@@ -75,6 +75,7 @@ export async function GET(req: Request) {
           email: users.email,
           noTelepon: users.nomorTelepon,
           disetujui: users.disetujui,
+          alasanPenolakan: profilPenyelenggara.alasanPenolakan,
         })
         .from(users)
         .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
@@ -87,7 +88,8 @@ export async function GET(req: Request) {
         namaOrganisasi: row.namaOrganisasi ?? '-',
         email: row.email ?? '-',
         noTelepon: row.noTelepon ?? '-',
-        status: row.disetujui ? 'approved' : 'pending',
+        alasanPenolakan: row.alasanPenolakan,
+        status: row.disetujui ? 'approved' : (row.alasanPenolakan ? 'rejected' : 'pending'),
       }));
 
       return NextResponse.json({ success: true, data });
@@ -147,7 +149,7 @@ export async function GET(req: Request) {
 }
 
 // ── PATCH — update status validasi penyelenggara ───────────────────────────
-// Body: { userId: number, status: "approved" | "rejected" }
+// Body: { userId: number, status: "approved" | "pending" | "rejected", alasanPenolakan?: string }
 
 export async function PATCH(req: Request) {
   try {
@@ -160,19 +162,34 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { userId, status } = body as { userId: number; status: 'approved' | 'pending' };
+    const { userId, status, alasanPenolakan } = body as { userId: number; status: 'approved' | 'pending' | 'rejected'; alasanPenolakan?: string };
 
-    if (!userId || !['approved', 'pending'].includes(status)) {
+    if (!userId || !['approved', 'pending', 'rejected'].includes(status)) {
       return NextResponse.json({ error: 'Input tidak valid.' }, { status: 400 });
     }
 
-    await db
-      .update(users)
-      .set({
-        disetujui: status === 'approved',
-        diperbaruiPada: new Date(),
-      })
-      .where(and(eq(users.id, userId), eq(users.role, 'organizer')));
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({
+          disetujui: status === 'approved',
+          diperbaruiPada: new Date(),
+        })
+        .where(and(eq(users.id, userId), eq(users.role, 'organizer')));
+
+      // Update alasan penolakan in profilPenyelenggara
+      if (status === 'rejected') {
+        await tx
+          .update(profilPenyelenggara)
+          .set({ alasanPenolakan: alasanPenolakan || null })
+          .where(eq(profilPenyelenggara.userId, userId));
+      } else if (status === 'approved' || status === 'pending') {
+        await tx
+          .update(profilPenyelenggara)
+          .set({ alasanPenolakan: null })
+          .where(eq(profilPenyelenggara.userId, userId));
+      }
+    });
 
     return NextResponse.json({ success: true, message: 'Status berhasil diperbarui.' });
   } catch (error) {

@@ -5,7 +5,7 @@ import { StatCard } from "@/components/penyelenggara/StatCard";
 import { EventChart } from "@/components/penyelenggara/EventChart";
 import { ViewChart } from "@/components/penyelenggara/ViewChart";
 import { PendapatanChart } from "@/components/penyelenggara/PendapatanChart";
-import { Users, Eye, Coins, Clock, Ticket, Search, ChevronDown, Check, FileText, User, ArrowRight } from "lucide-react";
+import { Users, Eye, Coins, Clock, Ticket, Search, ChevronDown, Check, FileText, User, ArrowRight, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,7 @@ interface DashboardContentProps {
   initialGrafikData: { tanggal: string; jumlah: number }[];
   initialGrafikPendapatan: { tanggal: string; jumlah: number }[];
   disetujui: boolean;
+  alasanPenolakan?: string | null;
   recentParticipants: { id: number; namaLengkap: string | null; email: string | null; eventJudul: string | null; dibuatPada: Date | null }[];
   recentPapers: { id: number; judul: string | null; penulis: unknown; status: string | null; eventJudul: string | null; dibuatPada: Date | null }[];
 }
@@ -39,6 +40,7 @@ export function DashboardContent({
   initialGrafikData,
   initialGrafikPendapatan,
   disetujui,
+  alasanPenolakan,
   recentParticipants: initialParticipants,
   recentPapers: initialPapers,
 }: DashboardContentProps) {
@@ -107,7 +109,32 @@ export function DashboardContent({
 
   return (
     <div className="space-y-8">
-      {!disetujui && (
+      {!disetujui && alasanPenolakan && (
+        <div className="bg-rose-50 border border-rose-200/80 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0">
+              <X className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-rose-800">
+                Pengajuan Akses Penyelenggara Ditolak
+              </h3>
+              <div className="text-sm text-rose-700/80 mt-1 leading-relaxed bg-rose-100/50 p-3 rounded-xl border border-rose-200/50 mt-3 font-medium">
+                <span className="font-bold">Alasan Penolakan:</span> {alasanPenolakan}
+              </div>
+              <p className="text-xs text-rose-600/80 mt-3 font-medium">
+                Silakan perbaiki profil dan dokumen legalitas di menu{" "}
+                <Link href="/penyelenggara/profil" className="underline hover:text-rose-800 font-bold transition-colors">
+                  Profil Akun
+                </Link>{" "}
+                sesuai alasan penolakan untuk ditinjau kembali.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!disetujui && !alasanPenolakan && (
         <div className="bg-amber-50 border border-amber-200/80 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex gap-4">
             <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0 animate-pulse">

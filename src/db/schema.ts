@@ -51,6 +51,7 @@ export const profilPenyelenggara = pgTable('profil_penyelenggara', {
   deskripsiInstansi: text('deskripsi_instansi'),
   urlDokumenLegalitas: varchar('url_dokumen_legalitas', { length: 512 }),
   urlWebsite: varchar('url_website', { length: 255 }),
+  alasanPenolakan: text('alasan_penolakan'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
 });
@@ -197,6 +198,7 @@ export const pendaftaran = pgTable('pendaftaran', {
   metodePembayaranId: integer('metode_pembayaran_id').references(() => infoPembayaran.id),
   buktiPembayaran: text('bukti_pembayaran'),
   totalHarga: integer('total_harga').default(0),
+  alasanPenolakan: text('alasan_penolakan'),
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
   diperbaruiPada: timestamp('diperbarui_pada'),
   dihapusPada: timestamp('dihapus_pada'),

@@ -30,6 +30,12 @@ const ACCEPT_MAP: Record<UploadType, string> = {
   banner: "image/jpeg,image/png,image/webp",
 };
 
+const MAX_SIZE_MAP: Record<UploadType, number> = {
+  avatar: 10 * 1024 * 1024,
+  document: 20 * 1024 * 1024,
+  banner: 20 * 1024 * 1024,
+};
+
 export function FileUpload({ type, currentUrl, onSuccess, className, variant = "dropzone" }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentUrl || null);
@@ -38,7 +44,19 @@ export function FileUpload({ type, currentUrl, onSuccess, className, variant = "
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
-    // Preview untuk gambar
+    const allowedTypes = ACCEPT_MAP[type].split(",");
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(`Tipe file tidak diizinkan. Hanya: ${allowedTypes.join(", ")}`);
+      return;
+    }
+
+    const maxSize = MAX_SIZE_MAP[type];
+    if (file.size > maxSize) {
+      const maxMB = maxSize / (1024 * 1024);
+      toast.error(`Ukuran file maksimal ${maxMB}MB`);
+      return;
+    }
+
     if (type !== "document" && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (e) => setPreview(e.target?.result as string);
