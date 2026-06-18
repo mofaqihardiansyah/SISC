@@ -26,7 +26,7 @@ import { id as idLocale } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { updateEvent } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
-import Portal from "@/components/ui/Portal";
+import { Modal } from "@/components/ui/modal";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { Event } from './ClientPage';
@@ -387,17 +387,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
   };
 
       return (
-      <Portal>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
-          onClick={onClose}
-        ></div>
-
-        {/* Modal Content */}
-        <div className={cn(
-          "relative w-full bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300",
+      <Modal open={isOpen} onClose={onClose} className={cn(
           mode === 'edit' ? 'max-w-3xl' : 'max-w-xl'
         )}>
 
@@ -525,8 +515,6 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
               </div>
             )
           )}
-        </div>
-      </div>
-    </Portal>
+    </Modal>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useTransition, useEffect, ComponentType } from "react";
-import Portal from "@/components/ui/Portal";
+import { Modal } from "@/components/ui/modal";
+import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { toast } from "sonner";
 import {
   Search,
@@ -808,297 +809,212 @@ export function ValidasiAksesPenyelenggaraClient({
       )}
 
       {/* â”€â”€ Premium Detail Modal â”€â”€ */}
-      {detailItem !== null && (
-        <Portal>
-          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setDetailItem(null)} 
-            />
-            <div className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[95vh]">
-                
-            {/* Modal Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-sisc-navy text-white">
+      <Modal open={detailItem !== null} onClose={() => setDetailItem(null)} className="max-w-2xl">
+        {detailItem && (<>
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex flex-col items-center text-center relative overflow-hidden mb-6">
+              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-full mb-3 shadow-inner relative z-10">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <h4 className="text-sm font-extrabold text-slate-800 leading-snug relative z-10">
+                {detailItem.namaOrganisasi}
+              </h4>
+              <p className="text-xxs text-slate-400 font-bold uppercase tracking-wider mt-1 relative z-10">
+                Instansi Penyelenggara
+              </p>
+              <div className="mt-4 relative z-10">
+                <StatusBadge status={detailItem.status} />
+              </div>
+            </div>
+
+            {/* Deskripsi Instansi */}
+            <div className="space-y-2 mb-6">
+              <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none">
+                Tentang / Deskripsi
+              </h5>
+              <div className="bg-white border border-slate-100 p-4 rounded-2xl text-xs text-slate-600 leading-relaxed min-h-20">
+                {detailItem.deskripsiInstansi || "Tidak ada deskripsi profil instansi yang ditulis oleh penyelenggara."}
+              </div>
+            </div>
+
+            {/* Legal Document Attachment */}
+            <div className="space-y-2 mb-6">
+              <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none">
+                Dokumen Legalitas Penyelenggara
+              </h5>
+              {detailItem.urlDokumenLegalitas ? (
+                <div className="flex items-center justify-between p-4 bg-indigo-50/40 border border-indigo-100 rounded-2xl shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-indigo-600 text-white rounded-xl shadow">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h6 className="text-xs font-bold text-slate-800">Berkas Dokumen Legalitas</h6>
+                      <p className="text-xxs text-slate-400 font-semibold">Dokumen pendukung verifikasi (.pdf/.jpg)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <a
+                      href={detailItem.urlDokumenLegalitas}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Buka Dokumen di Tab Baru"
+                      className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 text-indigo-600 flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 p-4 bg-amber-50/50 border border-amber-200/50 rounded-2xl text-xs font-medium text-amber-700">
+                  <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                  Penyelenggara belum mengunggah dokumen legalitas.
+                </div>
+              )}
+            </div>
+
+            {/* Profile Details Rows */}
+            <div className="space-y-3 mb-6">
+              <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-3">
+                Informasi Narahubung & Detail
+              </h5>
+
+              <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
+                <Users className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Nama Penyelenggara</span>
+                  <span className="text-xs font-semibold text-slate-700">{detailItem.namaOrganisasi}</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
+                <Mail className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Email Akun</span>
+                  <span className="text-xs font-semibold text-slate-700 select-all">{detailItem.email}</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
+                <Phone className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Nomor Telepon</span>
+                  <span className="text-xs font-semibold text-slate-700 select-all">{detailItem.noTelepon}</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
+                <Globe className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Website</span>
+                  {detailItem.urlWebsite ? (
+                    <a
+                      href={detailItem.urlWebsite.startsWith("http") ? detailItem.urlWebsite : `https://${detailItem.urlWebsite}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1 mt-0.5"
+                    >
+                      {detailItem.urlWebsite}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <span className="text-xs text-slate-500 font-semibold">-</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
+                <Calendar className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Tanggal Pendaftaran</span>
+                  <span className="text-xs font-semibold text-slate-700">{formatDate(detailItem.dibuatPada)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-100">
+              <div className="text-xxs font-semibold text-slate-400">
+                ID Transaksi: #{detailItem.rawId}
+              </div>
               <div className="flex items-center gap-2">
-                <span className="bg-white/10 text-white font-mono text-xxs font-extrabold px-2 py-1 rounded-md border border-white/20">
-                  ID: {detailItem.id}
-                </span>
-                <h3 className="text-sm font-extrabold text-white" id="slide-over-title">
-                  Tinjau Profil Lengkap
-                </h3>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setDetailItem(null)}
-                className="hover:bg-white/10 text-slate-300 hover:text-white"
-                aria-label="Tutup"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Modal Content Area (Scrollable) */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  
-                  {/* Instansi Title Card */}
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex flex-col items-center text-center relative overflow-hidden">
-                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-full mb-3 shadow-inner relative z-10">
-                      <Building2 className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-sm font-extrabold text-slate-800 leading-snug relative z-10">
-                      {detailItem.namaOrganisasi}
-                    </h4>
-                    <p className="text-xxs text-slate-400 font-bold uppercase tracking-wider mt-1 relative z-10">
-                      Instansi Penyelenggara
-                    </p>
-                    
-                    {/* Status badge in detail card */}
-                    <div className="mt-4 relative z-10">
-                      <StatusBadge status={detailItem.status} />
-                    </div>
+                {loadingId === detailItem.rawId ? (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 px-4 py-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Mengupdate...
                   </div>
-
-                  {/* Deskripsi Instansi */}
-                  <div className="space-y-2">
-                    <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none">
-                      Tentang / Deskripsi
-                    </h5>
-                    <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-inner-sm text-xs text-slate-600 leading-relaxed min-h-20">
-                      {detailItem.deskripsiInstansi || "Tidak ada deskripsi profil instansi yang ditulis oleh penyelenggara."}
-                    </div>
-                  </div>
-
-                  {/* Legal Document Attachment */}
-                  <div className="space-y-2">
-                    <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none">
-                      Dokumen Legalitas Penyelenggara
-                    </h5>
-                    {detailItem.urlDokumenLegalitas ? (
-                      <div className="flex items-center justify-between p-4 bg-indigo-50/40 border border-indigo-100 rounded-2xl shadow-sm">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 bg-indigo-600 text-white rounded-xl shadow">
-                            <FileText className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <h6 className="text-xs font-bold text-slate-800">Berkas Dokumen Legalitas</h6>
-                            <p className="text-xxs text-slate-400 font-semibold">Dokumen pendukung verifikasi (.pdf/.jpg)</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <a
-                            href={detailItem.urlDokumenLegalitas}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Buka Dokumen di Tab Baru"
-                            className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 text-indigo-600 flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 p-4 bg-amber-50/50 border border-amber-200/50 rounded-2xl text-xs font-medium text-amber-700">
-                        <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                        Penyelenggara belum mengunggah dokumen legalitas.
-                      </div>
+                ) : (
+                  <>
+                    {detailItem.status !== "approved" && (
+                      <Button variant="success" onClick={() => handleChangeStatus(detailItem.rawId, "approved")}>
+                        <Check className="w-3.5 h-3.5" />
+                        Setujui Akses
+                      </Button>
                     )}
-                  </div>
-
-                  {/* Profile Details Rows */}
-                  <div className="space-y-3 pt-2">
-                    <h5 className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-3">
-                      Informasi Narahubung & Detail
-                    </h5>
-
-                    {/* Penanggung Jawab */}
-                    <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
-                      <Users className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Nama Penyelenggara</span>
-                        <span className="text-xs font-semibold text-slate-700">{detailItem.namaOrganisasi}</span>
-                      </div>
-                    </div>
-
-                    {/* Email */}
-                    <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
-                      <Mail className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Email Akun</span>
-                        <span className="text-xs font-semibold text-slate-700 select-all">{detailItem.email}</span>
-                      </div>
-                    </div>
-
-                    {/* No Telepon */}
-                    <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
-                      <Phone className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Nomor Telepon</span>
-                        <span className="text-xs font-semibold text-slate-700 select-all">{detailItem.noTelepon}</span>
-                      </div>
-                    </div>
-
-                    {/* Website Instansi */}
-                    <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
-                      <Globe className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Website</span>
-                        {detailItem.urlWebsite ? (
-                          <a
-                            href={detailItem.urlWebsite.startsWith("http") ? detailItem.urlWebsite : `https://${detailItem.urlWebsite}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1 mt-0.5"
-                          >
-                            {detailItem.urlWebsite}
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        ) : (
-                          <span className="text-xs text-slate-500 font-semibold">-</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Tanggal Registrasi */}
-                    <div className="flex items-start gap-4 p-2.5 hover:bg-slate-50 rounded-xl transition-colors">
-                      <Calendar className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <span className="block text-xxs text-slate-400 font-bold uppercase tracking-wider">Tanggal Pendaftaran</span>
-                        <span className="text-xs font-semibold text-slate-700">{formatDate(detailItem.dibuatPada)}</span>
-                      </div>
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* Drawer Footer Actions */}
-                <div className="p-6 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between gap-3">
-                  <div className="text-xxs font-semibold text-slate-400">
-                    ID Transaksi: #{detailItem.rawId}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {loadingId === detailItem.rawId ? (
-                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 px-4 py-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Mengupdate...
-                      </div>
-                    ) : (
-                      <>
-                        {detailItem.status !== "approved" && (
-                          <Button
-                            variant="success"
-                            onClick={() => handleChangeStatus(detailItem.rawId, "approved")}
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                            Setujui Akses
-                          </Button>
-                        )}
-
-                        {detailItem.status !== "pending" && (
-                          <Button
-                            variant="outline"
-                            onClick={() => handleChangeStatus(detailItem.rawId, "pending")}
-                          >
-                            <Clock className="w-3.5 h-3.5" />
-                            Cabut Persetujuan
-                          </Button>
-                        )}
-
-                        {detailItem.status !== "rejected" && (
-                          <Button
-                            variant="destructive"
-                            onClick={() => {
-                              setDetailItem(null);
-                              setRejectModal({ id: detailItem.rawId, reason: detailItem.alasanPenolakan || "" });
-                            }}
-                          >
-                            <X className="w-3.5 h-3.5" />
-                            Tolak Akses
-                          </Button>
-                        )}
-                      </>
+                    {detailItem.status !== "pending" && (
+                      <Button variant="outline" onClick={() => handleChangeStatus(detailItem.rawId, "pending")}>
+                        <Clock className="w-3.5 h-3.5" />
+                        Cabut Persetujuan
+                      </Button>
                     )}
-                  </div>
-                </div>
+                    {detailItem.status !== "rejected" && (
+                      <Button variant="destructive" onClick={() => { setDetailItem(null); setRejectModal({ id: detailItem.rawId, reason: detailItem.alasanPenolakan || "" }); }}>
+                        <X className="w-3.5 h-3.5" />
+                        Tolak Akses
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
-        </Portal>
-      )}
+          </>
+        )}
+      </Modal>
       {/* ── Reject Reason Modal ── */}
       {rejectModal.id !== null && (
-        <Portal>
-          <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setRejectModal({ id: null, reason: "" })} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
-              <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Akses Penyelenggara</h3>
-              <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar penyelenggara dapat memperbaikinya.</p>
-              
-              <textarea
-                value={rejectModal.reason}
-                onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
-                placeholder="Misal: Dokumen legalitas kurang jelas..."
-                rows={3}
-                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none mb-5"
-              />
+        <Modal open onClose={() => setRejectModal({ id: null, reason: "" })} className="max-w-sm">
+          <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Akses Penyelenggara</h3>
+          <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar penyelenggara dapat memperbaikinya.</p>
+          
+          <textarea
+            value={rejectModal.reason}
+            onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
+            placeholder="Misal: Dokumen legalitas kurang jelas..."
+            rows={3}
+            className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none mb-5"
+          />
 
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm" onClick={() => setRejectModal({ id: null, reason: "" })}>
-                  Batal
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onClick={() => {
-                    if (!rejectModal.reason.trim()) {
-                      toast.error("Alasan penolakan tidak boleh kosong.");
-                      return;
-                    }
-                    handleChangeStatus(rejectModal.id!, "rejected", false, rejectModal.reason);
-                    setRejectModal({ id: null, reason: "" });
-                  }}
-                >
-                  Kirim Penolakan
-                </Button>
-              </div>
-            </div>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" size="sm" onClick={() => setRejectModal({ id: null, reason: "" })}>
+              Batal
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={() => {
+                if (!rejectModal.reason.trim()) {
+                  toast.error("Alasan penolakan tidak boleh kosong.");
+                  return;
+                }
+                handleChangeStatus(rejectModal.id!, "rejected", false, rejectModal.reason);
+                setRejectModal({ id: null, reason: "" });
+              }}
+            >
+              Kirim Penolakan
+            </Button>
           </div>
-        </Portal>
+        </Modal>
       )}
 
       {/* ── Bulk Confirm Modal ── */}
-      {bulkConfirmModal.isOpen && (
-        <Portal>
-          <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setBulkConfirmModal({ isOpen: false, action: null })} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
-              <h3 className="text-sm font-bold text-gray-800 mb-2">Konfirmasi Aksi Massal</h3>
-              <p className="text-xs text-gray-500 mb-5">
-                Apakah Anda yakin ingin {bulkConfirmModal.action === "approved" ? "menyetujui" : bulkConfirmModal.action === "rejected" ? "menolak" : "mencabut persetujuan"} akses untuk <span className="font-bold text-gray-800">{selectedIds.length}</span> penyelenggara terpilih secara massal?
-              </p>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm" onClick={() => setBulkConfirmModal({ isOpen: false, action: null })}>
-                  Batal
-                </Button>
-                <Button 
-                  variant={bulkConfirmModal.action === "approved" ? "success" : bulkConfirmModal.action === "rejected" ? "destructive" : "default"} 
-                  size="sm" 
-                  onClick={executeBulkStatus}
-                >
-                  Ya, Lanjutkan
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
+      <ConfirmationModal
+        open={bulkConfirmModal.isOpen}
+        title="Konfirmasi Aksi Massal"
+        message={`Apakah Anda yakin ingin ${bulkConfirmModal.action === "approved" ? "menyetujui" : bulkConfirmModal.action === "rejected" ? "menolak" : "mencabut persetujuan"} akses untuk ${selectedIds.length} penyelenggara terpilih secara massal?`}
+        confirmLabel="Ya, Lanjutkan"
+        variant={bulkConfirmModal.action === "approved" ? "warning" : "danger"}
+        onConfirm={executeBulkStatus}
+        onCancel={() => setBulkConfirmModal({ isOpen: false, action: null })}
+      />
 
     </div>
   );

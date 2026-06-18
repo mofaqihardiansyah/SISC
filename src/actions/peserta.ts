@@ -73,7 +73,7 @@ export async function daftarEvent(formData: RegistrationData, eventId: number) {
         eventId: idEvent,
         userId: idUser,
         kodePendaftaran: kodePendaftaran,
-        status: 'terdaftar',
+        status: 'menunggu_verifikasi',
         buktiPembayaran: validData.bukti_pembayaran,
         dibuatPada: new Date(),
       }).returning({ id: pendaftaran.id });

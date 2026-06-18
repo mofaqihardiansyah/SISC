@@ -13,7 +13,7 @@ type SubmissionFormProps = {
   onSuccess: () => void;
 };
 
-type AuthorInput = { nama: string; email: string; afiliasi: string; isCorresponding: boolean };
+type AuthorInput = { namaDepan: string; namaBelakang: string; email: string; afiliasi: string; isCorresponding: boolean };
 
 export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionFormProps) {
   const [step, setStep] = useState(1);
@@ -53,7 +53,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
   };
 
   const addEmptyAuthor = () => {
-    setAuthors([...authors, { nama: '', email: '', afiliasi: '', isCorresponding: authors.length === 0 }]);
+    setAuthors([...authors, { namaDepan: '', namaBelakang: '', email: '', afiliasi: '', isCorresponding: authors.length === 0 }]);
   };
 
   const updateAuthor = (index: number, field: keyof AuthorInput, value: string | boolean) => {
@@ -91,8 +91,12 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
       setStep(2);
     } else if (step === 2) {
       if (authors.length === 0) return toast.error('Tambahkan minimal 1 penulis');
-      const incomplete = authors.some((a, idx) => !a.nama.trim() || (idx === 0 && !a.email.trim()) || !a.afiliasi.trim());
-      if (incomplete) return toast.error('Lengkapi semua data penulis (Nama, Email Penulis Pertama, Afiliasi)');
+      const incomplete = authors.some((a) => !a.namaDepan.trim() || !a.namaBelakang.trim() || (a.isCorresponding && !a.email.trim()) || !a.afiliasi.trim());
+      if (incomplete) return toast.error('Lengkapi semua data penulis (Nama Depan, Nama Belakang, Email untuk Penulis Utama, Afiliasi)');
+      
+      const invalidEmail = authors.some((a) => a.isCorresponding && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email.trim()));
+      if (invalidEmail) return toast.error('Masukkan format email yang valid untuk Penulis Utama');
+
       setStep(3);
     }
   };
@@ -131,7 +135,12 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
         judul: paperTitle.trim(),
         kataKunci: kataKunci.join(', '),
         track: track.trim() || undefined,
-        penulis: authors,
+        penulis: authors.map(a => ({
+          nama: `${a.namaDepan} ${a.namaBelakang}`.trim(),
+          email: a.email,
+          afiliasi: a.afiliasi,
+          isCorresponding: a.isCorresponding
+        })),
         urlFile: dataUpload.url,
       });
 
@@ -303,13 +312,14 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                             <X size={12} />
                           </Button>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input type="text" placeholder="Nama Lengkap" value={author.nama} onChange={(e) => updateAuthor(idx, 'nama', e.target.value)} className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary ${idx !== 0 ? 'md:col-span-2' : ''}`} />
-                            {idx === 0 && (
-                              <Input type="email" placeholder="Email (misal: jhon@univ.edu)" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
-                            )}
-                            <Input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
-                          </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <Input type="text" placeholder="Nama Depan" value={author.namaDepan} onChange={(e) => updateAuthor(idx, 'namaDepan', e.target.value)} className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary`} />
+                              <Input type="text" placeholder="Nama Belakang" value={author.namaBelakang} onChange={(e) => updateAuthor(idx, 'namaBelakang', e.target.value)} className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary`} />
+                              {author.isCorresponding && (
+                                <Input type="email" placeholder="Email (misal: jhon@univ.edu)" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
+                              )}
+                              <Input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
+                            </div>
                           
                           <div className="mt-4 flex items-center gap-2">
                             <input 

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, MapPin, Navigation, Loader2, X, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import Portal from '@/components/ui/Portal';
+import { Plus, Edit2, Trash2, MapPin, Navigation, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Modal } from "@/components/ui/modal";
+import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { 
   addProvinsiAction, editProvinsiAction, deleteProvinsiAction,
   addKotaAction, editKotaAction, deleteKotaAction 
@@ -426,118 +427,94 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
 
       </div>
 
-      {/* ================= POPUP MODALS ================= */}
-      {modalType !== null && (
-        <Portal>
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={handleCloseModal} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100 animate-in zoom-in-95 duration-300">
-            
-            {/* Modal Title */}
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-sm font-bold text-slate-800">
-                {modalType === 'addProvinsi' && 'Tambah Provinsi Baru'}
-                {modalType === 'editProvinsi' && 'Ubah Provinsi'}
-                {modalType === 'deleteProvinsi' && 'Hapus Provinsi'}
-                {modalType === 'addKota' && 'Tambah Kota Baru'}
-                {modalType === 'editKota' && 'Ubah Kota'}
-                {modalType === 'deleteKota' && 'Hapus Kota'}
-              </h3>
-              <Button 
-                onClick={handleCloseModal}
-                disabled={loading}
-                variant="ghost"
-                size="icon"
-                aria-label="Tutup"
-              >
-                <X size={16} />
-              </Button>
+      {/* ================= FORM MODALS (Add/Edit) ================= */}
+      {(modalType !== null && modalType !== 'deleteProvinsi' && modalType !== 'deleteKota') && (
+        <Modal open={true} onClose={handleCloseModal} title={
+          modalType === 'addProvinsi' ? 'Tambah Provinsi Baru' :
+          modalType === 'editProvinsi' ? 'Ubah Provinsi' :
+          modalType === 'addKota' ? 'Tambah Kota Baru' : 'Ubah Kota'
+        }>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {errorMsg && (
+              <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-xl text-xs font-medium">
+                {errorMsg}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {modalType && modalType.toLowerCase().includes('kota') && (
+                <div>
+                  <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Pilih Provinsi
+                  </label>
+                  <select
+                    value={selectedProvinsiId || ''}
+                    onChange={(e) => setSelectedProvinsiId(parseInt(e.target.value))}
+                    disabled={loading}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-700 font-semibold"
+                  >
+                    {initialProvinsi.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.nama}
+                      </option>
+                    ))}
+                    {initialProvinsi.length === 0 && (
+                      <option value="">Belum ada provinsi (tambah provinsi dahulu)</option>
+                    )}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  Nama {modalType && modalType.toLowerCase().includes('provinsi') ? 'Provinsi' : 'Kota'}
+                </label>
+                <Input 
+                  type="text" 
+                  value={inputNama}
+                  onChange={(e) => setInputNama(e.target.value)}
+                  placeholder={modalType && modalType.toLowerCase().includes('provinsi') ? 'contoh: Jawa Tengah' : 'contoh: Semarang'}
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-700 font-medium"
+                  autoFocus
+                />
+              </div>
             </div>
 
-            {/* Modal Body / Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {errorMsg && (
-                <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-xl text-xs font-medium">
-                  {errorMsg}
-                </div>
-              )}
+            <div className="flex gap-2 justify-end pt-2">
+              <Button 
+                type="button"
+                onClick={handleCloseModal}
+                disabled={loading}
+                variant="outline"
+              >
+                Batal
+              </Button>
+              <Button 
+                type="submit"
+                disabled={loading || (modalType && modalType.toLowerCase().includes('kota') && selectedProvinsiId === null)}
+                loading={loading}
+                variant="default"
+              >
+                Simpan
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
-              {/* Form inputs if not delete mode */}
-              {modalType !== 'deleteProvinsi' && modalType !== 'deleteKota' ? (
-                <div className="space-y-3">
-                  {/* Select Provinsi (only for Kota form) */}
-                  {modalType.toLowerCase().includes('kota') && (
-                    <div>
-                      <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                        Pilih Provinsi
-                      </label>
-                      <select
-                        value={selectedProvinsiId || ''}
-                        onChange={(e) => setSelectedProvinsiId(parseInt(e.target.value))}
-                        disabled={loading}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-700 font-semibold"
-                      >
-                        {initialProvinsi.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nama}
-                          </option>
-                        ))}
-                        {initialProvinsi.length === 0 && (
-                          <option value="">Belum ada provinsi (tambah provinsi dahulu)</option>
-                        )}
-                      </select>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                      Nama {modalType.toLowerCase().includes('provinsi') ? 'Provinsi' : 'Kota'}
-                    </label>
-                    <Input 
-                      type="text" 
-                      value={inputNama}
-                      onChange={(e) => setInputNama(e.target.value)}
-                      placeholder={modalType.toLowerCase().includes('provinsi') ? 'contoh: Jawa Tengah' : 'contoh: Semarang'}
-                      disabled={loading}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-700 font-medium"
-                      autoFocus
-                    />
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Apakah Anda yakin ingin menghapus {modalType === 'deleteProvinsi' ? 'provinsi' : 'kota'}{" "}
-                  <strong className="text-slate-800">&quot;{inputNama}&quot;</strong>? Tindakan ini tidak bisa dibatalkan.
-                </p>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 justify-end pt-2">
-                <Button 
-                  type="button"
-                  onClick={handleCloseModal}
-                  disabled={loading}
-                  variant="outline"
-                >
-                  Batal
-                </Button>
-                <Button 
-                  type="submit"
-                  disabled={loading || (modalType.toLowerCase().includes('kota') && selectedProvinsiId === null)}
-                  loading={loading}
-                  variant={modalType.startsWith('delete') ? 'destructive' : 'default'}
-                >
-                  {modalType.startsWith('delete') ? 'Hapus' : 'Simpan'}
-                </Button>
-              </div>
-            </form>
-
-          </div>
-          </div>
-        </Portal>
+      {/* ================= DELETE CONFIRMATION MODALS ================= */}
+      {(modalType === 'deleteProvinsi' || modalType === 'deleteKota') && (
+        <ConfirmationModal
+          open={true}
+          title={modalType === 'deleteProvinsi' ? 'Hapus Provinsi' : 'Hapus Kota'}
+          message={`Apakah Anda yakin ingin menghapus ${modalType === 'deleteProvinsi' ? 'provinsi' : 'kota'} "${inputNama}"? Tindakan ini tidak bisa dibatalkan.`}
+          confirmLabel="Hapus"
+          variant="danger"
+          loading={loading}
+          onConfirm={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
+          onCancel={handleCloseModal}
+        />
       )}
     </div>
   );

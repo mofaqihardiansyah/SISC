@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { StatCard } from '@/components/admin/StatCard';
-import { FileCheck, CheckCircle, Users, X, Calendar, MapPin, Users as UsersIcon, Wallet, Building2, Phone, Mail, Globe, Clock, Tag, Monitor, ClipboardList, Laptop, Film, BookOpen, Briefcase, HeartPulse, Trophy, Music, Utensils } from 'lucide-react';
+import { FileCheck, CheckCircle, Users, Calendar, MapPin, Users as UsersIcon, Wallet, Building2, Phone, Mail, Globe, Clock, Tag, Monitor, ClipboardList, Laptop, Film, BookOpen, Briefcase, HeartPulse, Trophy, Music, Utensils } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Modal } from '@/components/ui/modal';
 import { approveEvent, rejectEvent, getPendingEvents } from '../../../../actions/persetujuan-event';
 import type { PendingEvent } from '../../../../actions/persetujuan-event';
-import Portal from '@/components/ui/Portal';
 import { toast } from 'sonner';
 
 function EventCategoryIcon({ emoji, className = "w-5 h-5 text-slate-500" }: { emoji: string; className?: string }) {
@@ -105,177 +105,156 @@ function ReviewModal({
   };
 
   return (
-    <Portal>
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={onClose} 
-      />
+    <Modal open onClose={onClose} className="max-w-2xl">
+      <div className="flex items-center gap-2 mb-1 flex-wrap">
+        {event.jenisEvent && (
+          <>
+            <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider">{event.jenisEvent}</span>
+            <span className="text-xxs font-bold text-slate-300">&bull;</span>
+          </>
+        )}
+        <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider">{event.platform || '-'}</span>
+        <span className="text-xxs font-bold text-slate-300">&bull;</span>
+        <span className={`text-xxs font-bold uppercase tracking-wider ${
+          event.status === 'pending' ? 'text-amber-600' :
+          event.status === 'published' ? 'text-emerald-600' : 'text-rose-600'
+        }`}>
+          {statusLabel[event.status]}
+        </span>
+      </div>
+      <p className="text-sm text-slate-500 mb-4">oleh {event.penyelenggara || '-'}</p>
 
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
-        {/* Header */}
-        <div className="bg-slate-900 px-6 py-5 flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              {event.jenisEvent && (
-                <>
-                  <span className="text-xxs font-bold text-slate-300 uppercase tracking-wider">{event.jenisEvent}</span>
-                  <span className="text-xxs font-bold text-slate-300">â€¢</span>
-                </>
-              )}
-              <span className="text-xxs font-bold text-slate-300 uppercase tracking-wider">{event.platform || '-'}</span>
-              <span className="text-xxs font-bold text-slate-300">â€¢</span>
-              <span className={`text-xxs font-bold uppercase tracking-wider ${
-                event.status === 'pending' ? 'text-amber-300' :
-                event.status === 'published' ? 'text-emerald-300' : 'text-rose-300'
-              }`}>
-                {statusLabel[event.status]}
-              </span>
-            </div>
-            <h2 className="text-lg font-bold text-white truncate">{event.judul}</h2>
-            <p className="text-sm text-slate-300">oleh {event.penyelenggara || '-'}</p>
+      {/* Summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+        {[
+          { label: 'Kategori', value: event.kategori || '-' },
+          { label: 'Tanggal', value: formatDateDisplay(event.tanggalMulai) },
+          { label: 'Jam', value: `${event.jamMulai} - ${event.jamSelesai}` },
+          { label: 'Harga', value: event.harga },
+        ].map((item) => (
+          <div key={item.label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <p className="text-nano font-bold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
+            <p className="text-xs font-bold text-slate-800 truncate">{item.value}</p>
           </div>
-          <button onClick={onClose} className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 ml-4">
-            <X size={18} />
-          </button>
+        ))}
+      </div>
+
+      {/* Alasan Penolakan */}
+      {event.status === 'rejected' && event.alasanPenolakan && (
+        <div className="mb-5">
+          <h3 className="text-xs font-bold text-rose-600 uppercase tracking-wider mb-2">Alasan Penolakan</h3>
+          <div className="bg-rose-50 rounded-xl p-4 border border-rose-200">
+            <p className="text-sm text-rose-700 font-medium">{event.alasanPenolakan}</p>
+          </div>
         </div>
+      )}
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {/* Summary */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-            {[
-              { label: 'Kategori', value: event.kategori || '-' },
-              { label: 'Tanggal', value: formatDateDisplay(event.tanggalMulai) },
-              { label: 'Jam', value: `${event.jamMulai} - ${event.jamSelesai}` },
-              { label: 'Harga', value: event.harga },
-            ].map((item) => (
-              <div key={item.label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <p className="text-nano font-bold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
-                <p className="text-xs font-bold text-slate-800 truncate">{item.value}</p>
-              </div>
-            ))}
-          </div>
+      {/* Deskripsi */}
+      <div className="mb-5">
+        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Deskripsi</h3>
+        <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100 whitespace-pre-wrap">
+          {event.deskripsi || 'Tidak ada deskripsi.'}
+        </p>
+      </div>
 
-          {/* Alasan Penolakan */}
-          {event.status === 'rejected' && event.alasanPenolakan && (
-            <div className="mb-5">
-              <h3 className="text-xs font-bold text-rose-600 uppercase tracking-wider mb-2">Alasan Penolakan</h3>
-              <div className="bg-rose-50 rounded-xl p-4 border border-rose-200">
-                <p className="text-sm text-rose-700 font-medium">{event.alasanPenolakan}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Deskripsi */}
-          <div className="mb-5">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Deskripsi</h3>
-            <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100 whitespace-pre-wrap">
-              {event.deskripsi || 'Tidak ada deskripsi.'}
-            </p>
-          </div>
-
-          {/* Detail Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-            <div className="space-y-2">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Waktu & Lokasi</h3>
-              <InfoRow icon={<Calendar size={14} />} label="Mulai" value={formatDateDisplay(event.tanggalMulai)} />
-              <InfoRow icon={<Calendar size={14} />} label="Selesai" value={formatDateDisplay(event.tanggalSelesai)} />
-              <InfoRow icon={<Clock size={14} />} label="Jam" value={`${event.jamMulai} - ${event.jamSelesai}`} />
-              <InfoRow icon={<Clock size={14} />} label="Batas Daftar" value={formatDateDisplay(event.batasRegistrasi)} />
-              <InfoRow icon={<MapPin size={14} />} label="Lokasi" value={event.lokasi || '-'} />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Detail Event</h3>
-              <InfoRow icon={<Tag size={14} />} label="Kategori" value={event.kategori || '-'} />
-              <InfoRow icon={<Monitor size={14} />} label="Platform" value={event.platform || '-'} />
-              <InfoRow icon={<UsersIcon size={14} />} label="Kuota" value={event.kuota ? `${event.kuota.toLocaleString('id-ID')} orang` : '-'} />
-              <InfoRow icon={<Wallet size={14} />} label="Harga" value={event.harga} />
-              <InfoRow icon={<Globe size={14} />} label="Link" value={event.linkEksternal || '-'} />
-            </div>
-          </div>
-
-          {/* Pembicara */}
-          {event.pembicara && (
-            <div className="mb-5">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pembicara</h3>
-              <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white text-sm font-bold shrink-0">
-                  {event.pembicara.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-800">{event.pembicara}</p>
-                  <p className="text-xs text-slate-500">{event.peranPembicara || '-'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Kontak */}
-          <div className="mb-5">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kontak Penyelenggara</h3>
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2">
-              <InfoRow icon={<Building2 size={14} />} label="Penyelenggara" value={event.penyelenggara || '-'} />
-              <InfoRow icon={<Mail size={14} />} label="Email" value={event.kontakEmail || '-'} />
-              <InfoRow icon={<Phone size={14} />} label="Telepon" value={event.kontakTelepon || '-'} />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          {event.status === 'pending' && !showRejectForm && (
-            <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-              <button
-                onClick={handleApproveAction}
-                disabled={actionLoading !== null}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
-              >
-                {actionLoading === 'approve' ? (
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : 'âœ“ Setujui'}
-              </button>
-              <button
-                onClick={() => setShowRejectForm(true)}
-                disabled={actionLoading !== null}
-                className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
-              >
-                âœ— Tolak
-              </button>
-            </div>
-          )}
-
-          {event.status === 'pending' && showRejectForm && (
-            <div className="pt-4 border-t border-slate-100 space-y-3">
-              <textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Alasan penolakan..."
-                rows={2}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
-              />
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleRejectAction}
-                  disabled={actionLoading !== null}
-                  className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
-                >
-                  {actionLoading === 'reject' ? (
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : 'Konfirmasi Tolak'}
-                </button>
-                <button
-                  onClick={() => { setShowRejectForm(false); setRejectReason(''); }}
-                  disabled={actionLoading !== null}
-                  className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
-                >
-                  Batal
-                </button>
-              </div>
-            </div>
-          )}
+      {/* Detail Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Waktu & Lokasi</h3>
+          <InfoRow icon={<Calendar size={14} />} label="Mulai" value={formatDateDisplay(event.tanggalMulai)} />
+          <InfoRow icon={<Calendar size={14} />} label="Selesai" value={formatDateDisplay(event.tanggalSelesai)} />
+          <InfoRow icon={<Clock size={14} />} label="Jam" value={`${event.jamMulai} - ${event.jamSelesai}`} />
+          <InfoRow icon={<Clock size={14} />} label="Batas Daftar" value={formatDateDisplay(event.batasRegistrasi)} />
+          <InfoRow icon={<MapPin size={14} />} label="Lokasi" value={event.lokasi || '-'} />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Detail Event</h3>
+          <InfoRow icon={<Tag size={14} />} label="Kategori" value={event.kategori || '-'} />
+          <InfoRow icon={<Monitor size={14} />} label="Platform" value={event.platform || '-'} />
+          <InfoRow icon={<UsersIcon size={14} />} label="Kuota" value={event.kuota ? `${event.kuota.toLocaleString('id-ID')} orang` : '-'} />
+          <InfoRow icon={<Wallet size={14} />} label="Harga" value={event.harga} />
+          <InfoRow icon={<Globe size={14} />} label="Link" value={event.linkEksternal || '-'} />
         </div>
       </div>
-    </div>
-    </Portal>
+
+      {/* Pembicara */}
+      {event.pembicara && (
+        <div className="mb-5">
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pembicara</h3>
+          <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white text-sm font-bold shrink-0">
+              {event.pembicara.charAt(0)}
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-800">{event.pembicara}</p>
+              <p className="text-xs text-slate-500">{event.peranPembicara || '-'}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Kontak */}
+      <div className="mb-5">
+        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kontak Penyelenggara</h3>
+        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2">
+          <InfoRow icon={<Building2 size={14} />} label="Penyelenggara" value={event.penyelenggara || '-'} />
+          <InfoRow icon={<Mail size={14} />} label="Email" value={event.kontakEmail || '-'} />
+          <InfoRow icon={<Phone size={14} />} label="Telepon" value={event.kontakTelepon || '-'} />
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      {event.status === 'pending' && !showRejectForm && (
+        <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+          <button
+            onClick={handleApproveAction}
+            disabled={actionLoading !== null}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
+          >
+            {actionLoading === 'approve' ? (
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : '\u2713 Setujui'}
+          </button>
+          <button
+            onClick={() => setShowRejectForm(true)}
+            disabled={actionLoading !== null}
+            className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
+          >
+            \u2717 Tolak
+          </button>
+        </div>
+      )}
+
+      {event.status === 'pending' && showRejectForm && (
+        <div className="pt-4 border-t border-slate-100 space-y-3">
+          <textarea
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            placeholder="Alasan penolakan..."
+            rows={2}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
+          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleRejectAction}
+              disabled={actionLoading !== null}
+              className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
+            >
+              {actionLoading === 'reject' ? (
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : 'Konfirmasi Tolak'}
+            </button>
+            <button
+              onClick={() => { setShowRejectForm(false); setRejectReason(''); }}
+              disabled={actionLoading !== null}
+              className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
+    </Modal>
   );
 }
 

@@ -3,33 +3,74 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Star, Plus } from 'lucide-react';
+import { Star, Plus, Send } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function BantuanPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [formData, setFormData] = useState({
+    nama: '',
+    email: '',
+    subjek: '',
+    pesan: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.nama || !formData.email || !formData.subjek || !formData.pesan) {
+      toast.error("Harap lengkapi semua form!");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await res.json();
+      if (res.ok) {
+        toast.success("Pesan berhasil dikirim!");
+        setFormData({ nama: '', email: '', subjek: '', pesan: '' });
+      } else {
+        toast.error(result.error || "Gagal mengirim pesan");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Terjadi kesalahan jaringan saat mengirim pesan.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const faqs = [
     {
       id: 1,
       question: 'Bagaimana cara mendaftar event?',
-      answer:
-        'Untuk mendaftar event, navigasi ke halaman event yang ingin Anda ikuti, kemudian klik tombol "Daftar" atau "Beli Tiket". Ikuti proses pembayaran (jika ada) dan Anda akan menerima tiket melalui email.',
+      answer: 'Untuk mendaftar event, navigasi ke halaman event yang ingin Anda ikuti, kemudian klik tombol "Daftar". Ikuti instruksi pendaftaran dan Anda akan mendapatkan notifikasi persetujuan di halaman profil Anda.',
     },
     {
       id: 2,
-      question: 'Bagaimana cara membatalkan pendaftaran?',
-      answer:
-        'Anda dapat membatalkan pendaftaran melalui menu "Tiket Saya". Pilih event yang ingin dibatalkan, kemudian klik "Batalkan Pendaftaran". Pembatalan hanya dapat dilakukan sebelum event dimulai.',
+      question: 'Bagaimana cara mengunggah bukti pembayaran?',
+      answer: 'Setelah Anda disetujui untuk mengikuti event, masuk ke profil Anda lalu pilih menu "Riwayat Pendaftaran". Di sana akan ada opsi untuk mengunggah bukti pembayaran Anda untuk diverifikasi oleh penyelenggara.',
     },
     {
       id: 3,
-      question: 'Bagaimana cara mengubah informasi profil?',
-      answer:
-        'Kunjungi halaman "Pengaturan Akun" di menu profil. Di sana Anda dapat mengubah nama, email, nomor telepon, institusi, dan informasi lainnya. Jangan lupa klik "Simpan Perubahan".',
+      question: 'Bagaimana cara membatalkan pendaftaran?',
+      answer: 'Anda dapat membatalkan pendaftaran melalui profil Anda. Pilih event yang ingin dibatalkan di "Riwayat Pendaftaran", kemudian klik "Batalkan Pendaftaran". Pembatalan hanya dapat dilakukan sebelum Anda melakukan pembayaran atau sebelum status pendaftaran final.',
     },
     {
       id: 4,
+      question: 'Bagaimana cara mengubah informasi profil?',
+      answer: 'Kunjungi halaman "Pengaturan Akun" di menu profil. Di sana Anda dapat mengubah nama, email, nomor telepon, institusi, dan informasi lainnya. Jangan lupa klik "Simpan Perubahan".',
+    },
+    {
+      id: 5,
       question: 'Bagaimana cara menambahkan event ke favorit?',
       answer: (
         <>
@@ -38,10 +79,24 @@ export default function BantuanPage() {
       ),
     },
     {
-      id: 5,
+      id: 6,
+      question: 'Bagaimana saya tahu pembayaran saya sudah diverifikasi?',
+      answer: 'Setelah Anda mengunggah bukti pembayaran, penyelenggara akan memeriksanya secara manual. Anda bisa mengecek status verifikasi secara berkala di halaman "Riwayat Pendaftaran" pada profil Anda.',
+    },
+    {
+      id: 7,
+      question: 'Apakah saya bisa mengajukan refund?',
+      answer: 'Ketentuan refund bergantung pada masing-masing penyelenggara. Silakan hubungi support lewat formulir dengan subjek "Masalah Teknis" dan sebutkan judul event yang diikuti.',
+    },
+    {
+      id: 8,
+      question: 'Bagaimana cara mengirimkan/submit paper?',
+      answer: 'Jika event yang Anda ikuti membutuhkan submission paper, masuk ke menu profil Anda dan cari opsi "Kirim Paper Baru". Isi detail form metadata, kata kunci, daftar penulis, dan unggah file PDF paper Anda sesuai panduan.',
+    },
+    {
+      id: 9,
       question: 'Bagaimana cara menghubungi support?',
-      answer:
-        'Anda dapat menghubungi tim support kami melalui email support@polivents.com atau menggunakan form kontak di bawah. Tim kami akan merespons dalam waktu 24 jam.',
+      answer: 'Anda dapat menghubungi tim support kami melalui email poliventsofficial@gmail.com atau menggunakan form kontak di bawah. Tim kami akan merespons dalam waktu 24 jam.',
     },
   ];
 
@@ -84,6 +139,11 @@ export default function BantuanPage() {
           border-radius: 12px;
           overflow: hidden;
           margin-bottom: 24px;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
         .section-card-header {
           padding: 20px 24px;
@@ -158,19 +218,24 @@ export default function BantuanPage() {
           font-family: inherit;
         }
         .form-textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        .btn-kirim {
+          .btn-kirim {
           width: 100%;
           padding: 12px;
-          background: #2563eb;
+          background: var(--brand-dark, #0f172a);
           color: white;
           border: none;
           border-radius: 8px;
           font-size: 15px;
           font-weight: 600;
           cursor: pointer;
-          transition: background 0.2s;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
         }
-        .btn-kirim:hover { background: #1d4ed8; }
+        .btn-kirim:hover { background: #1e293b; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
+        .btn-kirim:active { transform: translateY(0); }
         .contact-info {
           background: linear-gradient(135deg, #eff6ff, #dbeafe);
           border: 1px solid #bfdbfe;
@@ -242,31 +307,37 @@ export default function BantuanPage() {
               <h2 className="section-card-title">Hubungi Kami</h2>
             </div>
             <div className="contact-form">
-              <div className="form-grid">
-                <div>
-                  <label className="form-label">Nama Anda</label>
-                  <Input type="text" placeholder="Masukkan nama Anda" className="form-input" />
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                <div className="form-grid">
+                  <div>
+                    <label className="form-label">Nama Anda</label>
+                    <Input type="text" placeholder="Masukkan nama Anda" className="form-input" value={formData.nama} onChange={e => setFormData({...formData, nama: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="form-label">Email Anda</label>
+                    <Input type="email" placeholder="Masukkan email Anda" className="form-input" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                  </div>
                 </div>
                 <div>
-                  <label className="form-label">Email Anda</label>
-                  <Input type="email" placeholder="Masukkan email Anda" className="form-input" />
+                  <label className="form-label">Subjek</label>
+                  <select className="form-input" value={formData.subjek} onChange={e => setFormData({...formData, subjek: e.target.value})}>
+                    <option value="">-- Pilih Subjek --</option>
+                    <option value="Pertanyaan Umum">Pertanyaan Umum</option>
+                    <option value="Laporan Bug">Laporan Bug</option>
+                    <option value="Saran Fitur">Saran Fitur</option>
+                    <option value="Masalah Teknis">Masalah Teknis</option>
+                  </select>
                 </div>
-              </div>
-              <div>
-                <label className="form-label">Subjek</label>
-                <select className="form-input">
-                  <option>-- Pilih Subjek --</option>
-                  <option>Pertanyaan Umum</option>
-                  <option>Laporan Bug</option>
-                  <option>Saran Fitur</option>
-                  <option>Masalah Teknis</option>
-                </select>
-              </div>
-              <div>
-                <label className="form-label">Pesan</label>
-                <textarea rows={6} placeholder="Tulis pesan Anda di sini..." className="form-textarea" />
-              </div>
-              <Button variant="default" className="btn-kirim">Kirim Pesan</Button>
+                <div>
+                  <label className="form-label">Pesan</label>
+                  <textarea rows={6} placeholder="Tulis pesan Anda di sini..." className="form-textarea" value={formData.pesan} onChange={e => setFormData({...formData, pesan: e.target.value})} />
+                </div>
+                <Button variant="default" type="submit" disabled={isSubmitting} className="btn-kirim">
+                  {isSubmitting ? 'Mengirim...' : (
+                    <>Kirim Pesan <Send size={18} className="animate-pulse" /></>
+                  )}
+                </Button>
+              </form>
             </div>
           </div>
 
@@ -276,11 +347,11 @@ export default function BantuanPage() {
             <div className="contact-info-grid">
               <div>
                 <p className="contact-info-label">Email</p>
-                <p className="contact-info-value">support@polivents.com</p>
+                <a href="mailto:poliventsofficial@gmail.com" className="contact-info-value block">poliventsofficial@gmail.com</a>
               </div>
               <div>
-                <p className="contact-info-label">Nomor Telepon</p>
-                <p className="contact-info-value">+62 (024) 8313-8313</p>
+                <p className="contact-info-label">Nomor WhatsApp</p>
+                <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="contact-info-value block">+62 812-3456-7890</a>
               </div>
               <div>
                 <p className="contact-info-label">Jam Operasional</p>

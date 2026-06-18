@@ -21,20 +21,25 @@ export default function HelpClient() {
     {
       id: 1,
       question: 'Bagaimana cara mendaftar event?',
-      answer: 'Untuk mendaftar event, navigasi ke halaman event yang ingin Anda ikuti, kemudian klik tombol "Daftar" atau "Beli Tiket". Ikuti proses pembayaran (jika ada) dan Anda akan menerima tiket melalui email.',
+      answer: 'Untuk mendaftar event, navigasi ke halaman event yang ingin Anda ikuti, kemudian klik tombol "Daftar". Ikuti instruksi pendaftaran dan Anda akan mendapatkan notifikasi persetujuan di halaman profil Anda.',
     },
     {
       id: 2,
-      question: 'Bagaimana cara membatalkan pendaftaran?',
-      answer: 'Anda dapat membatalkan pendaftaran melalui menu "Tiket Saya". Pilih event yang ingin dibatalkan, kemudian klik "Batalkan Pendaftaran". Pembatalan hanya dapat dilakukan sebelum event dimulai.',
+      question: 'Bagaimana cara mengunggah bukti pembayaran?',
+      answer: 'Setelah Anda disetujui untuk mengikuti event, masuk ke profil Anda lalu pilih menu "Riwayat Pendaftaran". Di sana akan ada opsi untuk mengunggah bukti pembayaran Anda untuk diverifikasi oleh penyelenggara.',
     },
     {
       id: 3,
+      question: 'Bagaimana cara membatalkan pendaftaran?',
+      answer: 'Anda dapat membatalkan pendaftaran melalui profil Anda. Pilih event yang ingin dibatalkan di "Riwayat Pendaftaran", kemudian klik "Batalkan Pendaftaran". Pembatalan hanya dapat dilakukan sebelum Anda melakukan pembayaran atau sebelum status pendaftaran final.',
+    },
+    {
+      id: 4,
       question: 'Bagaimana cara mengubah informasi profil?',
       answer: 'Kunjungi halaman "Pengaturan Akun" di menu profil. Di sana Anda dapat mengubah nama, email, nomor telepon, institusi, dan informasi lainnya. Jangan lupa klik "Simpan Perubahan".',
     },
     {
-      id: 4,
+      id: 5,
       question: 'Bagaimana cara menambahkan event ke favorit?',
       answer: (
         <>
@@ -43,9 +48,24 @@ export default function HelpClient() {
       ),
     },
     {
-      id: 5,
+      id: 6,
+      question: 'Bagaimana saya tahu pembayaran saya sudah diverifikasi?',
+      answer: 'Setelah Anda mengunggah bukti pembayaran, penyelenggara akan memeriksanya secara manual. Anda bisa mengecek status verifikasi secara berkala di halaman "Riwayat Pendaftaran" pada profil Anda.',
+    },
+    {
+      id: 7,
+      question: 'Apakah saya bisa mengajukan refund?',
+      answer: 'Ketentuan refund bergantung pada masing-masing penyelenggara. Silakan hubungi support lewat formulir "Laporan Bug" dengan subjek "Lainnya/Refund" dan sebutkan judul event yang diikuti.',
+    },
+    {
+      id: 8,
+      question: 'Bagaimana cara mengirimkan/submit paper?',
+      answer: 'Jika event yang Anda ikuti membutuhkan submission paper, masuk ke menu profil Anda dan cari opsi "Kirim Paper Baru". Isi detail form metadata, kata kunci, daftar penulis, dan unggah file PDF paper Anda sesuai panduan.',
+    },
+    {
+      id: 9,
       question: 'Bagaimana cara menghubungi support?',
-      answer: 'Anda dapat menghubungi tim support kami melalui form kontak di bawah. Tim kami akan merespons dalam waktu 24 jam ke email poliventsofficial@gmail.com.',
+      answer: 'Anda dapat menghubungi tim support kami melalui form kontak di bawah. Tim kami akan merespons dalam waktu 24 jam ke email resmi kami.',
     },
   ];
 

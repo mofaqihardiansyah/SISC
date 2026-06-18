@@ -39,7 +39,7 @@ export default function EventCard({
 }: EventCardProps) {
   return (
     <Link href={`/event/${id}`}>
-      <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+      <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer h-full flex flex-col">
 
         {/* Image + POLINES badge */}
         <div className="relative h-36">
@@ -57,7 +57,7 @@ export default function EventCard({
         </div>
 
         {/* Body */}
-        <div className="p-4">
+        <div className="p-4 flex flex-col flex-grow">
           <div className="flex flex-wrap gap-1 mb-2">
             {tipePlatform && (
               <span className="text-xxs font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full capitalize">
@@ -77,7 +77,7 @@ export default function EventCard({
 
           <p className="text-micro text-slate-400 mt-1">{date}</p>
 
-          <div className="flex justify-between items-center mt-2">
+          <div className="flex justify-between items-center mt-auto pt-2">
             <p className={`text-sm font-extrabold ${
               price === null || price === 0 ? "text-green-600" : "text-slate-800"
             }`}>

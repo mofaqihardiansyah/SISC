@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Search,
-  X,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -16,7 +15,6 @@ import {
   BookText,
   User,
   Calendar,
-  MessageSquare,
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
@@ -26,6 +24,7 @@ import { getOrganizerPapers, updatePaperStatus } from "./actions";
 import type { PaperData, EventData } from "./actions";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 export const dynamic = 'force-dynamic';
 
 
@@ -436,244 +435,217 @@ export default function ReviewPaperPage() {
 
       {/* DETAIL MODAL (slide-in) */}
       {selectedPaper && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-end">
-          <div 
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-            onClick={() => setSelectedPaper(null)} 
-          />
-          <div className="relative bg-white w-full max-w-5xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-              <div className="flex items-center gap-3">
-                <Button onClick={() => setSelectedPaper(null)} variant="ghost" size="icon" aria-label="Tutup">
-                  <X size={20} />
-                </Button>
-                <div>
-                  <h2 className="text-lg font-bold text-sisc-slate">Detail Paper</h2>
-                  <p className="text-xs text-slate-400">Review dan kelola submission paper</p>
-                </div>
+        <Modal
+          open={!!selectedPaper}
+          onClose={() => setSelectedPaper(null)}
+          variant="side"
+          className="max-w-5xl"
+          title="Detail Paper"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs text-slate-400">Review dan kelola submission paper</p>
+            <StatusBadge status={selectedPaper.status} />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 h-full">
+            {/* LEFT: Info */}
+            <div className="lg:col-span-2 space-y-6 border-r border-slate-100 pr-6">
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">Event</p>
+                <p className="font-bold text-slate-800 text-sm">{selectedPaper.eventJudul || "-"}</p>
               </div>
-              <StatusBadge status={selectedPaper.status} />
-            </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 h-full">
-                {/* LEFT: Info */}
-                <div className="lg:col-span-2 p-6 space-y-6 border-r border-slate-100">
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">Event</p>
-                    <p className="font-bold text-slate-800 text-sm">{selectedPaper.eventJudul || "-"}</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <BookText size={12} /> Judul Penelitian
-                    </p>
-                    <p className="text-sm font-semibold text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      {selectedPaper.judul}
-                    </p>
-                  </div>
-                  {(selectedPaper.track || selectedPaper.kataKunci) && (
-                    <div className="grid grid-cols-2 gap-4">
-                      {selectedPaper.track && (
-                        <div className="space-y-1.5">
-                          <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                            Track / Topik
-                          </p>
-                          <p className="text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            {selectedPaper.track}
-                          </p>
-                        </div>
-                      )}
-                      {selectedPaper.kataKunci && (
-                        <div className="space-y-1.5">
-                          <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                            Kata Kunci
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {selectedPaper.kataKunci.split(',').map((k, i) => (
-                              <span key={i} className="bg-slate-800 text-white px-2 py-1 rounded text-micro font-bold">
-                                {k.trim()}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <div className="space-y-1.5">
-                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <User size={12} /> Daftar Penulis
-                    </p>
-                    <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                      {Array.isArray(selectedPaper.penulis) ? selectedPaper.penulis.map((author, idx) => (
-                        <div key={idx} className="flex flex-col bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-slate-800">{author.nama}</span>
-                            {author.isCorresponding && (
-                              <span className="bg-amber-100 text-amber-800 text-nano font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
-                                Penulis Utama
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex flex-col text-micro text-slate-500 mt-1">
-                            <span>{author.email}</span>
-                            <span>{author.afiliasi}</span>
-                          </div>
-                        </div>
-                      )) : null}
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <User size={12} /> Disubmit Oleh
-                    </p>
-                    <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <div className={`w-9 h-9 rounded-full ${getAvatarColor(selectedPaper.userNama || "")} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
-                        {getInitials(selectedPaper.userNama || "?")}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-800 text-sm">{selectedPaper.userNama || "-"}</p>
-                        <p className="text-xs text-slate-400">{selectedPaper.userEmail || "-"}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Calendar size={12} /> Tanggal Submit
-                    </p>
-                    <p className="text-sm font-medium text-slate-700">{formatDate(selectedPaper.dibuatPada)}</p>
-                  </div>
-
-                  {selectedPaper.status === "review" && (
-                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-3.5 flex gap-2.5">
-                      <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-800 font-medium">Paper ini menunggu keputusan review dari anda.</p>
-                    </div>
-                  )}
-                  {selectedPaper.status === "accepted" && (
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 flex gap-2.5">
-                      <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
-                      <p className="text-xs text-emerald-800 font-medium">Paper telah diterima dan akan dipublikasikan pada conference.</p>
-                    </div>
-                  )}
-                  {selectedPaper.status === "rejected" && selectedPaper.komentarPenolakan && (
-                    <div className="bg-rose-50 border border-rose-100 rounded-xl p-3.5 space-y-2">
-                      <div className="flex gap-2.5">
-                        <XCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
-                        <p className="text-xs text-rose-800 font-bold">Paper ditolak dengan alasan:</p>
-                      </div>
-                      <div className="text-xs bg-white border border-rose-100 p-2.5 rounded-lg text-rose-700 font-medium leading-relaxed">
-                        {selectedPaper.komentarPenolakan}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="border-t border-slate-100 pt-4 flex items-center gap-3">
-                    <FileText size={16} className="text-slate-400 shrink-0" />
-                    <span className="text-xs text-slate-500 truncate">Dokumen Paper (PDF)</span>
-                    <a href={selectedPaper.urlFile} download
-                      className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">
-                      <Download size={13} /> Unduh
-                    </a>
-                  </div>
-                </div>
-
-                {/* RIGHT: PDF + Actions */}
-                <div className="lg:col-span-3 flex flex-col h-full">
-                  <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[400px] lg:min-h-0">
-                    <div className="bg-slate-50/75 border-b border-slate-200 px-5 py-3 flex items-center justify-between shrink-0">
-                      <div className="flex items-center gap-2">
-                        <Eye size={16} className="text-slate-500" />
-                        <h3 className="text-xs font-bold text-slate-800">Pratinjau Langsung Paper</h3>
-                      </div>
-                      <span className="px-2 py-0.5 text-nano font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">PDF FILE</span>
-                    </div>
-                    <div className="flex-1 bg-slate-100 relative w-full">
-                      <iframe src={`${selectedPaper.urlFile}#toolbar=0&navpanes=0`} className="absolute inset-0 w-full h-full border-none" title="PDF Document Viewer" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border-t border-slate-200 px-6 py-4 shrink-0">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-xs text-slate-400">
-                        {selectedPaper.status === "review" ? "Tentukan keputusan untuk paper ini" :
-                         selectedPaper.status === "accepted" ? "Paper telah diterima" : "Paper telah ditolak"}
+              <div className="space-y-1.5">
+                <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <BookText size={12} /> Judul Penelitian
+                </p>
+                <p className="text-sm font-semibold text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  {selectedPaper.judul}
+                </p>
+              </div>
+              {(selectedPaper.track || selectedPaper.kataKunci) && (
+                <div className="grid grid-cols-2 gap-4">
+                  {selectedPaper.track && (
+                    <div className="space-y-1.5">
+                      <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        Track / Topik
                       </p>
-                      <div className="flex items-center gap-3">
-                        {selectedPaper.status === "review" && (
-                          <>
-                            <Button
-                              onClick={() => { setSelectedPaper(null); setRejectPaper(selectedPaper); setRejectReason(""); }}
-                              disabled={actionLoading?.id === selectedPaper.id}
-                              variant="destructive"
-                              loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "reject"}
-                            >
-                              <ThumbsDown size={14} />
-                              Tolak
-                            </Button>
-                            <Button
-                              onClick={() => handleAccept(selectedPaper)}
-                              disabled={actionLoading?.id === selectedPaper.id}
-                              variant="success"
-                              loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "accept"}
-                            >
-                              <ThumbsUp size={14} />
-                              Terima Paper
-                            </Button>
-                          </>
+                      <p className="text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        {selectedPaper.track}
+                      </p>
+                    </div>
+                  )}
+                  {selectedPaper.kataKunci && (
+                    <div className="space-y-1.5">
+                      <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        Kata Kunci
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedPaper.kataKunci.split(',').map((k, i) => (
+                          <span key={i} className="bg-slate-800 text-white px-2 py-1 rounded text-micro font-bold">
+                            {k.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <User size={12} /> Daftar Penulis
+                </p>
+                <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  {Array.isArray(selectedPaper.penulis) ? selectedPaper.penulis.map((author, idx) => (
+                    <div key={idx} className="flex flex-col bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-800">{author.nama}</span>
+                        {author.isCorresponding && (
+                          <span className="bg-amber-100 text-amber-800 text-nano font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider">
+                            Penulis Utama
+                          </span>
                         )}
                       </div>
+                      <div className="flex flex-col text-micro text-slate-500 mt-1">
+                        <span>{author.email}</span>
+                        <span>{author.afiliasi}</span>
+                      </div>
                     </div>
+                  )) : null}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <User size={12} /> Disubmit Oleh
+                </p>
+                <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <div className={`w-9 h-9 rounded-full ${getAvatarColor(selectedPaper.userNama || "")} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                    {getInitials(selectedPaper.userNama || "?")}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-800 text-sm">{selectedPaper.userNama || "-"}</p>
+                    <p className="text-xs text-slate-400">{selectedPaper.userEmail || "-"}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Calendar size={12} /> Tanggal Submit
+                </p>
+                <p className="text-sm font-medium text-slate-700">{formatDate(selectedPaper.dibuatPada)}</p>
+              </div>
+
+              {selectedPaper.status === "review" && (
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-3.5 flex gap-2.5">
+                  <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-800 font-medium">Paper ini menunggu keputusan review dari anda.</p>
+                </div>
+              )}
+              {selectedPaper.status === "accepted" && (
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 flex gap-2.5">
+                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-emerald-800 font-medium">Paper telah diterima dan akan dipublikasikan pada conference.</p>
+                </div>
+              )}
+              {selectedPaper.status === "rejected" && selectedPaper.komentarPenolakan && (
+                <div className="bg-rose-50 border border-rose-100 rounded-xl p-3.5 space-y-2">
+                  <div className="flex gap-2.5">
+                    <XCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
+                    <p className="text-xs text-rose-800 font-bold">Paper ditolak dengan alasan:</p>
+                  </div>
+                  <div className="text-xs bg-white border border-rose-100 p-2.5 rounded-lg text-rose-700 font-medium leading-relaxed">
+                    {selectedPaper.komentarPenolakan}
+                  </div>
+                </div>
+              )}
+
+              <div className="border-t border-slate-100 pt-4 flex items-center gap-3">
+                <FileText size={16} className="text-slate-400 shrink-0" />
+                <span className="text-xs text-slate-500 truncate">Dokumen Paper (PDF)</span>
+                <a href={selectedPaper.urlFile} download
+                  className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                  <Download size={13} /> Unduh
+                </a>
+              </div>
+            </div>
+
+            {/* RIGHT: PDF + Actions */}
+            <div className="lg:col-span-3 flex flex-col h-full">
+              <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[400px] lg:min-h-0">
+                <div className="bg-slate-50/75 border-b border-slate-200 px-5 py-3 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Eye size={16} className="text-slate-500" />
+                    <h3 className="text-xs font-bold text-slate-800">Pratinjau Langsung Paper</h3>
+                  </div>
+                  <span className="px-2 py-0.5 text-nano font-extrabold tracking-wider rounded-md border bg-red-50 text-red-700 border-red-200 uppercase">PDF FILE</span>
+                </div>
+                <div className="flex-1 bg-slate-100 relative w-full">
+                  <iframe src={`${selectedPaper.urlFile}#toolbar=0&navpanes=0`} className="absolute inset-0 w-full h-full border-none" title="PDF Document Viewer" />
+                </div>
+              </div>
+
+              <div className="bg-white border-t border-slate-200 px-6 py-4 shrink-0">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-xs text-slate-400">
+                    {selectedPaper.status === "review" ? "Tentukan keputusan untuk paper ini" :
+                     selectedPaper.status === "accepted" ? "Paper telah diterima" : "Paper telah ditolak"}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    {selectedPaper.status === "review" && (
+                      <>
+                        <Button
+                          onClick={() => { setSelectedPaper(null); setRejectPaper(selectedPaper); setRejectReason(""); }}
+                          disabled={actionLoading?.id === selectedPaper.id}
+                          variant="destructive"
+                          loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "reject"}
+                        >
+                          <ThumbsDown size={14} />
+                          Tolak
+                        </Button>
+                        <Button
+                          onClick={() => handleAccept(selectedPaper)}
+                          disabled={actionLoading?.id === selectedPaper.id}
+                          variant="success"
+                          loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "accept"}
+                        >
+                          <ThumbsUp size={14} />
+                          Terima Paper
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* REJECT MODAL */}
-      {rejectPaper && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-            onClick={() => setRejectPaper(null)} 
-          />
-          <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
-                  <MessageSquare size={20} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sisc-slate text-base">Tolak Paper</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Berikan alasan penolakan untuk paper <span className="font-bold text-slate-600">&ldquo;{rejectPaper.judul}&rdquo;</span>
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700">Alasan Penolakan</label>
-                <textarea rows={4} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
-                  placeholder="Jelaskan alasan penolakan atau revisi yang diperlukan..."
-                  className="w-full border border-slate-200 rounded-xl p-3.5 outline-none text-sm resize-none focus:border-rose-400 transition-colors" />
-              </div>
-            </div>
-            <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end gap-3">
-              <Button onClick={() => setRejectPaper(null)}
-                variant="outline"
-                disabled={!!actionLoading}>Batal</Button>
-              <Button onClick={handleReject} disabled={actionLoading?.id === rejectPaper.id || !rejectReason.trim()}
-                variant="destructive"
-                loading={actionLoading?.id === rejectPaper.id}>
-                <XCircle size={14} />
-                Tolak Paper
-              </Button>
-            </div>
-          </div>
+      <Modal
+        open={!!rejectPaper}
+        onClose={() => setRejectPaper(null)}
+        title="Tolak Paper"
+      >
+        <p className="text-xs text-slate-400 mb-4">
+          Berikan alasan penolakan untuk paper <span className="font-bold text-slate-600">&ldquo;{rejectPaper?.judul}&rdquo;</span>
+        </p>
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-700">Alasan Penolakan</label>
+          <textarea rows={4} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+            placeholder="Jelaskan alasan penolakan atau revisi yang diperlukan..."
+            className="w-full border border-slate-200 rounded-xl p-3.5 outline-none text-sm resize-none focus:border-rose-400 transition-colors" />
         </div>
-      )}
+        <div className="flex items-center justify-end gap-3 mt-6">
+          <Button onClick={() => setRejectPaper(null)}
+            variant="outline"
+            disabled={!!actionLoading}>Batal</Button>
+          <Button onClick={handleReject} disabled={actionLoading?.id === rejectPaper?.id || !rejectReason.trim()}
+            variant="destructive"
+            loading={actionLoading?.id === rejectPaper?.id}>
+            <XCircle size={14} />
+            Tolak Paper
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

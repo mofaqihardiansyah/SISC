@@ -16,7 +16,8 @@ import {
   statusOptions, statusLabel, getPlatformColor, getStatusColor,
   formatDateDisplay, formatPlatform, DEBOUNCE_MS, SEARCH_MIN_LENGTH,
 } from "@/constants/persetujuan";
-import Portal from "@/components/ui/Portal";
+import { Modal } from "@/components/ui/modal";
+import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { Button } from "@/components/ui/button";
 
 export function StatCards({
@@ -359,146 +360,128 @@ export function ReviewModal({
   };
 
   return (
-    <Portal>
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={onClose} 
-      />
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
-        <div className="bg-slate-900 px-5 py-2.5 flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-              <span className="text-nano font-bold text-slate-400 uppercase tracking-wider">ID {event.id}</span>
-              <span className="text-nano font-bold text-slate-500">â€¢</span>
-              {event.jenisEvent && (
-                <><span className="text-nano font-bold text-slate-300 uppercase tracking-wider">{event.jenisEvent}</span><span className="text-nano font-bold text-slate-300">â€¢</span></>
-              )}
-              <span className="text-nano font-bold text-slate-300 uppercase tracking-wider">{formatPlatform(event.platform)}</span>
-              <span className="text-nano font-bold text-slate-300">â€¢</span>
-              <span className={`text-nano font-bold uppercase tracking-wider ${event.status === "pending" ? "text-amber-300" : event.status === "published" ? "text-emerald-300" : "text-rose-300"}`}>
-                {statusLabel[event.status]}
-              </span>
-            </div>
-            <h2 className="text-base font-bold text-white truncate">{event.judul}</h2>
-            <p className="text-xs text-slate-300">oleh {event.penyelenggara || "-"}</p>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="bg-white/10 hover:bg-white/20 text-white ml-3" aria-label="Tutup">
-            <X size={16} />
-          </Button>
-        </div>
-
-        {event.urlBanner && (
-          <div className="relative w-full">
-            <Image src={event.urlBanner} alt={event.judul} className="w-full h-48 object-cover" width={800} height={192} />
-          </div>
+    <Modal open onClose={onClose} className="max-w-2xl">
+      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+        <span className="text-nano font-bold text-slate-400 uppercase tracking-wider">ID {event.id}</span>
+        <span className="text-nano font-bold text-slate-300">&bull;</span>
+        {event.jenisEvent && (
+          <><span className="text-nano font-bold text-slate-400 uppercase tracking-wider">{event.jenisEvent}</span><span className="text-nano font-bold text-slate-300">&bull;</span></>
         )}
+        <span className="text-nano font-bold text-slate-400 uppercase tracking-wider">{formatPlatform(event.platform)}</span>
+        <span className="text-nano font-bold text-slate-300">&bull;</span>
+        <span className={`text-nano font-bold uppercase tracking-wider ${event.status === "pending" ? "text-amber-600" : event.status === "published" ? "text-emerald-600" : "text-rose-600"}`}>
+          {statusLabel[event.status]}
+        </span>
+      </div>
+      <p className="text-xs text-slate-500 mb-4">oleh {event.penyelenggara || "-"}</p>
 
-        <div className="flex-1 overflow-y-auto p-3">
-          <div className="grid grid-cols-4 gap-1.5 mb-2.5">
-            {[
-              { label: "Kategori", value: event.kategori || "-" },
-              { label: "Tanggal", value: formatDateDisplay(event.tanggalMulai) },
-              { label: "Jam", value: `${event.jamMulai} - ${event.jamSelesai}` },
-              { label: "Harga", value: event.harga },
-            ].map((item) => (
-              <div key={item.label} className="bg-slate-50 rounded-xl p-1.5 border border-slate-100">
-                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
-                <p className="text-micro font-bold text-slate-800 truncate">{item.value}</p>
-              </div>
-            ))}
+      {event.urlBanner && (
+        <div className="relative w-full mb-4 rounded-xl overflow-hidden">
+          <Image src={event.urlBanner} alt={event.judul} className="w-full h-48 object-cover" width={800} height={192} />
+        </div>
+      )}
+
+      <div className="grid grid-cols-4 gap-1.5 mb-2.5">
+        {[
+          { label: "Kategori", value: event.kategori || "-" },
+          { label: "Tanggal", value: formatDateDisplay(event.tanggalMulai) },
+          { label: "Jam", value: `${event.jamMulai} - ${event.jamSelesai}` },
+          { label: "Harga", value: event.harga },
+        ].map((item) => (
+          <div key={item.label} className="bg-slate-50 rounded-xl p-1.5 border border-slate-100">
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{item.label}</p>
+            <p className="text-micro font-bold text-slate-800 truncate">{item.value}</p>
           </div>
+        ))}
+      </div>
 
-          {event.status === "rejected" && event.alasanPenolakan && (
-            <div className="mb-2">
-              <h3 className="text-xxs font-bold text-rose-600 uppercase tracking-wider mb-1">Alasan Penolakan</h3>
-              <div className="bg-rose-50 rounded-xl p-2.5 border border-rose-200">
-                <p className="text-xs text-rose-700 font-medium">{event.alasanPenolakan}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="mb-2">
-            <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Deskripsi</h3>
-            <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-2.5 border border-slate-100 whitespace-pre-wrap">
-              {event.deskripsi || "Tidak ada deskripsi."}
-            </p>
+      {event.status === "rejected" && event.alasanPenolakan && (
+        <div className="mb-2">
+          <h3 className="text-xxs font-bold text-rose-600 uppercase tracking-wider mb-1">Alasan Penolakan</h3>
+          <div className="bg-rose-50 rounded-xl p-2.5 border border-rose-200">
+            <p className="text-xs text-rose-700 font-medium">{event.alasanPenolakan}</p>
           </div>
+        </div>
+      )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
-            <div className="space-y-1">
-              <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Waktu & Lokasi</h3>
-              <InfoRow icon={<Calendar size={12} />} label="Mulai" value={formatDateDisplay(event.tanggalMulai)} />
-              <InfoRow icon={<Calendar size={12} />} label="Selesai" value={formatDateDisplay(event.tanggalSelesai)} />
-              <InfoRow icon={<Clock size={12} />} label="Jam" value={`${event.jamMulai} - ${event.jamSelesai}`} />
-              <InfoRow icon={<Clock size={12} />} label="Batas Daftar" value={formatDateDisplay(event.batasRegistrasi)} />
-              <InfoRow icon={<MapPin size={12} />} label="Lokasi" value={event.lokasi || "-"} />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Detail Event</h3>
-              <InfoRow icon={<Tag size={12} />} label="Kategori" value={event.kategori || "-"} />
-              <InfoRow icon={<Monitor size={12} />} label="Platform" value={formatPlatform(event.platform)} />
-              <InfoRow icon={<UsersIcon size={12} />} label="Kuota" value={event.kuota ? `${event.kuota.toLocaleString("id-ID")} orang` : "-"} />
-              <InfoRow icon={<Wallet size={12} />} label="Harga" value={event.harga} />
-              <InfoRow icon={<Globe size={12} />} label="Link" value={event.linkEksternal || "-"} />
-            </div>
-          </div>
+      <div className="mb-2">
+        <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Deskripsi</h3>
+        <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-2.5 border border-slate-100 whitespace-pre-wrap">
+          {event.deskripsi || "Tidak ada deskripsi."}
+        </p>
+      </div>
 
-          {event.pembicara && (
-            <div className="mb-2">
-              <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Pembicara</h3>
-              <div className="flex items-center gap-2.5 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
-                <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0">
-                  {event.pembicara.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-800">{event.pembicara}</p>
-                  <p className="text-micro text-slate-500">{event.peranPembicara || "-"}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mb-2">
-            <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Kontak Penyelenggara</h3>
-            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 space-y-1">
-              <InfoRow icon={<Building2 size={14} />} label="Penyelenggara" value={event.penyelenggara || "-"} />
-              <InfoRow icon={<Mail size={14} />} label="Email" value={event.kontakEmail || "-"} />
-              <InfoRow icon={<Phone size={14} />} label="Telepon" value={event.kontakTelepon || "-"} />
-            </div>
-          </div>
-
-          {event.status === "pending" && !showRejectForm && (
-            <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-              <Button variant="success" onClick={handleApprove} disabled={actionLoading !== null} className="flex-1">
-                {actionLoading === "approve" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "âœ“ Setujui"}
-              </Button>
-              <Button variant="destructive" onClick={() => setShowRejectForm(true)} disabled={actionLoading !== null} className="flex-1">
-                âœ— Tolak
-              </Button>
-            </div>
-          )}
-
-          {event.status === "pending" && showRejectForm && (
-            <div className="pt-3 border-t border-slate-100 space-y-2">
-              <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Alasan penolakan..." rows={2}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
-              />
-              <div className="flex items-center gap-2">
-                <Button variant="destructive" onClick={handleReject} disabled={actionLoading !== null} className="flex-1">
-                  {actionLoading === "reject" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Konfirmasi Tolak"}
-                </Button>
-                <Button variant="outline" onClick={() => { setShowRejectForm(false); setRejectReason(""); }} disabled={actionLoading !== null}>
-                  Batal
-                </Button>
-              </div>
-            </div>
-          )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+        <div className="space-y-1">
+          <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Waktu & Lokasi</h3>
+          <InfoRow icon={<Calendar size={12} />} label="Mulai" value={formatDateDisplay(event.tanggalMulai)} />
+          <InfoRow icon={<Calendar size={12} />} label="Selesai" value={formatDateDisplay(event.tanggalSelesai)} />
+          <InfoRow icon={<Clock size={12} />} label="Jam" value={`${event.jamMulai} - ${event.jamSelesai}`} />
+          <InfoRow icon={<Clock size={12} />} label="Batas Daftar" value={formatDateDisplay(event.batasRegistrasi)} />
+          <InfoRow icon={<MapPin size={12} />} label="Lokasi" value={event.lokasi || "-"} />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Detail Event</h3>
+          <InfoRow icon={<Tag size={12} />} label="Kategori" value={event.kategori || "-"} />
+          <InfoRow icon={<Monitor size={12} />} label="Platform" value={formatPlatform(event.platform)} />
+          <InfoRow icon={<UsersIcon size={12} />} label="Kuota" value={event.kuota ? `${event.kuota.toLocaleString("id-ID")} orang` : "-"} />
+          <InfoRow icon={<Wallet size={12} />} label="Harga" value={event.harga} />
+          <InfoRow icon={<Globe size={12} />} label="Link" value={event.linkEksternal || "-"} />
         </div>
       </div>
-    </div>
-    </Portal>
+
+      {event.pembicara && (
+        <div className="mb-2">
+          <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Pembicara</h3>
+          <div className="flex items-center gap-2.5 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+            <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0">
+              {event.pembicara.charAt(0)}
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-800">{event.pembicara}</p>
+              <p className="text-micro text-slate-500">{event.peranPembicara || "-"}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mb-2">
+        <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Kontak Penyelenggara</h3>
+        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 space-y-1">
+          <InfoRow icon={<Building2 size={14} />} label="Penyelenggara" value={event.penyelenggara || "-"} />
+          <InfoRow icon={<Mail size={14} />} label="Email" value={event.kontakEmail || "-"} />
+          <InfoRow icon={<Phone size={14} />} label="Telepon" value={event.kontakTelepon || "-"} />
+        </div>
+      </div>
+
+      {event.status === "pending" && !showRejectForm && (
+        <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
+          <Button variant="success" onClick={handleApprove} disabled={actionLoading !== null} className="flex-1">
+            {actionLoading === "approve" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "\u2713 Setujui"}
+          </Button>
+          <Button variant="destructive" onClick={() => setShowRejectForm(true)} disabled={actionLoading !== null} className="flex-1">
+            \u2717 Tolak
+          </Button>
+        </div>
+      )}
+
+      {event.status === "pending" && showRejectForm && (
+        <div className="pt-3 border-t border-slate-100 space-y-2">
+          <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+            placeholder="Alasan penolakan..." rows={2}
+            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
+          />
+          <div className="flex items-center gap-2">
+            <Button variant="destructive" onClick={handleReject} disabled={actionLoading !== null} className="flex-1">
+              {actionLoading === "reject" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Konfirmasi Tolak"}
+            </Button>
+            <Button variant="outline" onClick={() => { setShowRejectForm(false); setRejectReason(""); }} disabled={actionLoading !== null}>
+              Batal
+            </Button>
+          </div>
+        </div>
+      )}
+    </Modal>
   );
 }
 
@@ -507,27 +490,15 @@ export function ConfirmModal({
 }: {
   isOpen: boolean; onConfirm: () => void; onCancel: () => void;
 }) {
-  if (!isOpen) return null;
   return (
-    <Portal>
-    <div className="fixed inset-0 z-[110] grid place-items-center p-4">
-      <div
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={onCancel} 
-      />
-      <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
-        <h3 className="text-lg font-bold text-gray-900 mb-2">Konfirmasi</h3>
-        <p className="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin mengubah status event ini?</p>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={onCancel} className="flex-1">
-            Batal
-          </Button>
-          <Button variant="destructive" onClick={onConfirm} className="flex-1">
-            Ya, Ubah
-          </Button>
-        </div>
-      </div>
-    </div>
-    </Portal>
+    <ConfirmationModal
+      open={isOpen}
+      title="Konfirmasi"
+      message="Apakah Anda yakin ingin mengubah status event ini?"
+      confirmLabel="Ya, Ubah"
+      variant="danger"
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />
   );
 }

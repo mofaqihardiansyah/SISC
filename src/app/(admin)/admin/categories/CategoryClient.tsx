@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Layers, Tag as TagIcon, Loader2, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import Portal from '@/components/ui/Portal';
+import { Plus, Edit2, Trash2, Layers, Tag as TagIcon, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Modal } from "@/components/ui/modal";
+import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { 
   addKategoriAction, editKategoriAction, deleteKategoriAction,
   addTagAction, editTagAction, deleteTagAction 
@@ -417,92 +418,69 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
 
       </div>
 
-      {/* ================= POPUP MODALS ================= */}
-      {modalType !== null && (
-        <Portal>
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={handleCloseModal} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border border-slate-100 animate-in zoom-in-95 duration-300">
-            
-            {/* Modal Title */}
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-sm font-bold text-slate-800">
-                {modalType === 'addKategori' && 'Tambah Kategori Baru'}
-                {modalType === 'editKategori' && 'Ubah Kategori'}
-                {modalType === 'deleteKategori' && 'Hapus Kategori'}
-                {modalType === 'addTag' && 'Tambah Tag Baru'}
-                {modalType === 'editTag' && 'Ubah Tag'}
-                {modalType === 'deleteTag' && 'Hapus Tag'}
-              </h3>
-              <Button 
-                onClick={handleCloseModal}
+      {/* ================= FORM MODALS (Add/Edit) ================= */}
+      {(modalType !== null && modalType !== 'deleteKategori' && modalType !== 'deleteTag') && (
+        <Modal open={true} onClose={handleCloseModal} title={
+          modalType === 'addKategori' ? 'Tambah Kategori Baru' :
+          modalType === 'editKategori' ? 'Ubah Kategori' :
+          modalType === 'addTag' ? 'Tambah Tag Baru' : 'Ubah Tag'
+        }>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {errorMsg && (
+              <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-xl text-xs font-medium">
+                {errorMsg}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                Nama {modalType && modalType.toLowerCase().includes('kategori') ? 'Kategori' : 'Tag'}
+              </label>
+              <Input 
+                type="text" 
+                value={inputNama}
+                onChange={(e) => setInputNama(e.target.value)}
+                placeholder={modalType && modalType.toLowerCase().includes('kategori') ? 'contoh: Teknologi' : 'contoh: WebDev'}
                 disabled={loading}
-                variant="ghost"
-                size="icon"
-                aria-label="Tutup"
-              >
-                <X size={16} />
-              </Button>
+                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-700 font-medium"
+                autoFocus
+              />
             </div>
 
-            {/* Modal Body / Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {errorMsg && (
-                <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-xl text-xs font-medium">
-                  {errorMsg}
-                </div>
-              )}
+            <div className="flex gap-2 justify-end pt-2">
+              <Button 
+                type="button"
+                onClick={handleCloseModal}
+                disabled={loading}
+                variant="outline"
+              >
+                Batal
+              </Button>
+              <Button 
+                type="submit"
+                disabled={loading}
+                loading={loading}
+                variant="default"
+              >
+                Simpan
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
-              {/* Form inputs if not delete mode */}
-              {modalType !== 'deleteKategori' && modalType !== 'deleteTag' ? (
-                <div>
-                  <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Nama {modalType.toLowerCase().includes('kategori') ? 'Kategori' : 'Tag'}
-                  </label>
-                  <Input 
-                    type="text" 
-                    value={inputNama}
-                    onChange={(e) => setInputNama(e.target.value)}
-                    placeholder={modalType.toLowerCase().includes('kategori') ? 'contoh: Teknologi' : 'contoh: WebDev'}
-                    disabled={loading}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-700 font-medium"
-                    autoFocus
-                  />
-                </div>
-              ) : (
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Apakah Anda yakin ingin menghapus {modalType === 'deleteKategori' ? 'kategori' : 'tag'}{" "}
-                  <strong className="text-slate-800">&quot;{inputNama}&quot;</strong>? Tindakan ini tidak bisa dibatalkan.
-                </p>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 justify-end pt-2">
-                <Button 
-                  type="button"
-                  onClick={handleCloseModal}
-                  disabled={loading}
-                  variant="outline"
-                >
-                  Batal
-                </Button>
-                <Button 
-                  type="submit"
-                  disabled={loading}
-                  loading={loading}
-                  variant={modalType.startsWith('delete') ? 'destructive' : 'default'}
-                >
-                  {modalType.startsWith('delete') ? 'Hapus' : 'Simpan'}
-                </Button>
-              </div>
-            </form>
-
-          </div>
-          </div>
-        </Portal>
+      {/* ================= DELETE CONFIRMATION MODALS ================= */}
+      {(modalType === 'deleteKategori' || modalType === 'deleteTag') && (
+        <ConfirmationModal
+          open={true}
+          title={modalType === 'deleteKategori' ? 'Hapus Kategori' : 'Hapus Tag'}
+          message={`Apakah Anda yakin ingin menghapus ${modalType === 'deleteKategori' ? 'kategori' : 'tag'} "${inputNama}"? Tindakan ini tidak bisa dibatalkan.`}
+          confirmLabel="Hapus"
+          variant="danger"
+          loading={loading}
+          onConfirm={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
+          onCancel={handleCloseModal}
+        />
       )}
     </div>
   );

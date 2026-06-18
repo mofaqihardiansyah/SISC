@@ -20,11 +20,10 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  ArrowRight,
-  FileText,
   Loader2
 } from 'lucide-react';
 import { daftarEvent } from '@/actions/peserta';
+import { Modal } from '@/components/ui/modal';
 
 interface DataEvent {
   judul: string;
@@ -185,18 +184,6 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser, paymen
         title: 'Gagal Mendaftar',
         message: 'Terjadi kegagalan koneksi sistem saat menghubungi server.'
       });
-    }
-  };
-
-  const handleModalAction = () => {
-    setModalStatus((prev) => ({ ...prev, isOpen: false }));
-    if (modalStatus.type === 'success' || modalStatus.title === 'Sudah Terdaftar') {
-      if (checkIsConference()) {
-        router.push(`/profile/submit-paper?eventId=${eventId}`);
-      } else {
-        router.push(`/event/${eventId}`);
-      }
-      router.refresh();
     }
   };
 
@@ -379,61 +366,62 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser, paymen
       </form>
 
       {/* POP-UP CUSTOM MODAL DIALOG */}
-      {modalStatus.isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-            onClick={modalStatus.type !== 'success' ? () => setModalStatus(prev => ({ ...prev, isOpen: false })) : undefined}
-          />
-          <div className="relative bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl text-center flex flex-col items-center animate-in zoom-in-95 duration-300">
-            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${
-              modalStatus.type === 'success' ? 'bg-emerald-50 text-emerald-600' :
-              modalStatus.type === 'warning' ? 'bg-amber-50 text-amber-600' :
-              'bg-rose-50 text-rose-600'
-            }`}>
-              {modalStatus.type === 'success' && <CheckCircle2 className="w-10 h-10" />}
-              {modalStatus.type === 'warning' && <AlertTriangle className="w-10 h-10" />}
-              {modalStatus.type === 'error' && <XCircle className="w-10 h-10" />}
-            </div>
+      <Modal
+        open={modalStatus.isOpen}
+        onClose={() => {
+          if (modalStatus.type !== 'success') {
+            setModalStatus(prev => ({ ...prev, isOpen: false }));
+          }
+        }}
+        className="text-center"
+      >
+        <div className="flex flex-col items-center max-w-md mx-auto">
+          <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${
+            modalStatus.type === 'success' ? 'bg-emerald-50 text-emerald-600' :
+            modalStatus.type === 'warning' ? 'bg-amber-50 text-amber-600' :
+            'bg-rose-50 text-rose-600'
+          }`}>
+            {modalStatus.type === 'success' && <CheckCircle2 className="w-10 h-10" />}
+            {modalStatus.type === 'warning' && <AlertTriangle className="w-10 h-10" />}
+            {modalStatus.type === 'error' && <XCircle className="w-10 h-10" />}
+          </div>
 
-            <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">{modalStatus.title}</h3>
-            <p className="text-slate-500 mb-8 leading-relaxed text-sm md:text-base">{modalStatus.message}</p>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">{modalStatus.title}</h3>
+          <p className="text-slate-500 mb-8 leading-relaxed text-sm md:text-base">{modalStatus.message}</p>
+          {modalStatus.type === 'success' && (
+            <p className="text-amber-600 font-medium mb-8 leading-relaxed text-sm md:text-base p-3 bg-amber-50 rounded-lg">
+              Pendaftaran Anda sedang menunggu verifikasi dari penyelenggara. Silakan cek status secara berkala di dashboard Anda.
+              {checkIsConference() && " Setelah diverifikasi, Anda dapat melakukan submit paper."}
+            </p>
+          )}
 
-            <div className="w-full">
-              {modalStatus.type === 'success' || modalStatus.title === 'Sudah Terdaftar' ? (
-                checkIsConference() ? (
-                  <Button 
-                    onClick={handleModalAction} 
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-13 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-slate-200"
-                  >
-                    <FileText className="w-5 h-5" /> 
-                    <span>Lanjutkan ke Submit Paper</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={handleModalAction} 
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-13 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-slate-200"
-                  >
-                    Kembali ke Detail Event
-                  </Button>
-                )
-              ) : (
-                <Button 
-                  onClick={() => setModalStatus((prev) => ({ ...prev, isOpen: false }))} 
-                  className={`w-full font-bold h-13 rounded-2xl transition-all active:scale-[0.98] shadow-lg ${
-                    modalStatus.type === 'warning' 
-                      ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-100' 
-                      : 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-100'
-                  }`}
-                >
-                  {modalStatus.type === 'warning' ? 'Upload Sekarang' : 'Tutup'}
-                </Button>
-              )}
-            </div>
+          <div className="w-full">
+            {modalStatus.type === 'success' || modalStatus.title === 'Sudah Terdaftar' ? (
+              <Button 
+                onClick={() => {
+                  setModalStatus(prev => ({ ...prev, isOpen: false }));
+                  router.push('/profile/dashboard');
+                  router.refresh();
+                }} 
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-13 rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-slate-200"
+              >
+                Lihat Dashboard Saya
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => setModalStatus((prev) => ({ ...prev, isOpen: false }))} 
+                className={`w-full font-bold h-13 rounded-2xl transition-all active:scale-[0.98] shadow-lg ${
+                  modalStatus.type === 'warning' 
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-100' 
+                    : 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-100'
+                }`}
+              >
+                {modalStatus.type === 'warning' ? 'Upload Sekarang' : 'Tutup'}
+              </Button>
+            )}
           </div>
         </div>
-      )}
+      </Modal>
     </>
   );
 }

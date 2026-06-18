@@ -7,7 +7,8 @@ import {
   ChevronUp, ChevronDown, ChevronsUpDown, X, Eye,
 } from "lucide-react";
 import Image from "next/image";
-import Portal from "@/components/ui/Portal";
+import { Modal } from "@/components/ui/modal";
+import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,53 +144,35 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
   ] : [];
 
   return (
-    <Portal>
-      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-        <div 
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-          onClick={onClose} 
-        />
-        <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-gray-800">Detail Pengguna</h3>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Tutup">
-            <X className="w-4 h-4" />
-          </Button>
+    <Modal open={true} onClose={onClose} title="Detail Pengguna">
+      {loading ? (
+        <div className="py-16 flex justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
         </div>
-
-        {loading ? (
-          <div className="py-16 flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+      ) : !user ? (
+        <div className="py-10 text-center text-xs text-red-400">Gagal memuat data</div>
+      ) : (
+        <div>
+          <div className="flex items-center gap-4 mb-5">
+            <Avatar user={user} size="lg" />
+            <div>
+              <div className="font-bold text-gray-800 text-sm">{user.namaLengkap}</div>
+              <div className="text-xs text-gray-400 mb-1.5">{user.email}</div>
+              <StatusBadge user={user} />
+            </div>
           </div>
-        ) : !user ? (
-          <div className="py-10 text-center text-xs text-red-400">Gagal memuat data</div>
-        ) : (
-          <div className="p-5">
-            {/* Avatar + nama + status */}
-            <div className="flex items-center gap-4 mb-5">
-              <Avatar user={user} size="lg" />
-              <div>
-                <div className="font-bold text-gray-800 text-sm">{user.namaLengkap}</div>
-                <div className="text-xs text-gray-400 mb-1.5">{user.email}</div>
-                <StatusBadge user={user} />
+
+          <div className="space-y-3">
+            {rows.map(({ label, value }) => (
+              <div key={label} className="flex justify-between items-start gap-4">
+                <span className="text-micro text-gray-400 font-medium shrink-0 w-36">{label}</span>
+                <span className="text-micro text-gray-700 text-right">{value || "-"}</span>
               </div>
-            </div>
-
-            {/* Data rows */}
-            <div className="space-y-3">
-              {rows.map(({ label, value }) => (
-                <div key={label} className="flex justify-between items-start gap-4">
-                  <span className="text-micro text-gray-400 font-medium shrink-0 w-36">{label}</span>
-                  <span className="text-micro text-gray-700 text-right">{value || "-"}</span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
-        )}
         </div>
-      </div>
-    </Portal>
+      )}
+    </Modal>
   );
 }
 
@@ -523,54 +506,28 @@ export default function ManajemenUserPage() {
       )}
 
       {/* Single Delete Modal */}
-      {deleteModal !== null && (
-        <Portal>
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setDeleteModal(null)} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
-            <h3 className="text-sm font-bold text-gray-800 mb-2">Hapus Pengguna</h3>
-            <p className="text-xs text-gray-500 mb-5">Apakah kamu yakin ingin menghapus pengguna ini? Tindakan ini tidak bisa dibatalkan.</p>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setDeleteModal(null)} disabled={deleteLoading}>
-                Batal
-              </Button>
-              <Button variant="destructive" size="sm" onClick={() => handleDelete(deleteModal)} disabled={deleteLoading}>
-                {deleteLoading && <Loader2 className="w-3 h-3 animate-spin" />}Hapus
-              </Button>
-            </div>
-          </div>
-        </div>
-        </Portal>
-      )}
+      <ConfirmationModal
+        open={deleteModal !== null}
+        title="Hapus Pengguna"
+        message="Apakah kamu yakin ingin menghapus pengguna ini? Tindakan ini tidak bisa dibatalkan."
+        confirmLabel="Hapus"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={() => handleDelete(deleteModal!)}
+        onCancel={() => setDeleteModal(null)}
+      />
 
       {/* Bulk Delete Modal */}
-      {bulkDeleteModal && (
-    <Portal>
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setBulkDeleteModal(false)} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
-            <h3 className="text-sm font-bold text-gray-800 mb-2">Hapus Massal</h3>
-            <p className="text-xs text-gray-500 mb-5">
-              Kamu akan menghapus <b>{selectedRows.length} pengguna</b> sekaligus. Tindakan ini tidak bisa dibatalkan.
-            </p>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setBulkDeleteModal(false)} disabled={deleteLoading}>
-                Batal
-              </Button>
-              <Button variant="destructive" size="sm" onClick={handleBulkDelete} disabled={deleteLoading}>
-                {deleteLoading && <Loader2 className="w-3 h-3 animate-spin" />}Hapus {selectedRows.length} User
-              </Button>
-            </div>
-          </div>
-        </div>
-        </Portal>
-      )}
+      <ConfirmationModal
+        open={bulkDeleteModal}
+        title="Hapus Massal"
+        message={`Kamu akan menghapus ${selectedRows.length} pengguna sekaligus. Tindakan ini tidak bisa dibatalkan.`}
+        confirmLabel={`Hapus ${selectedRows.length} User`}
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={handleBulkDelete}
+        onCancel={() => setBulkDeleteModal(false)}
+      />
     </div>
   );
 }

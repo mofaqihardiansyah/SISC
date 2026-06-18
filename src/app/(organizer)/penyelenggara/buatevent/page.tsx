@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Landmark, Wallet } from "lucide-react";
+import { ConfirmationModal } from '@/components/feedback/ConfirmationModal';
 import { createEvent, type MetodePembayaranInput } from "@/actions/create-event";
 import { BANK_LIST, E_WALLET_LIST } from "@/lib/constants";
 import { UPLOAD_LIMITS } from "@/lib/constants";
@@ -23,48 +24,6 @@ const BANK_OPTIONS = [...BANK_LIST, "Bank Jateng", "Lainnya"];
 
 const EWALLET_OPTIONS = [...E_WALLET_LIST, "Jenius", "Sakuku", "Lainnya"];
 
-// â”€â”€â”€ Popup Konfirmasi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function ConfirmDraftModal({ onYes, onNo, isPending }: {
-  onYes: () => void; onNo: () => void; isPending: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={onNo} 
-      />
-      <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-300">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-gray-900">Simpan Perubahan ke Draft?</h3>
-            <p className="text-sm text-gray-500 mt-0.5">Data event yang sudah kamu isi belum disimpan.</p>
-          </div>
-        </div>
-        <p className="text-sm text-gray-600 mb-5 pl-14">
-          Apakah kamu ingin menyimpan data ini ke dalam draft sebelum membuat event baru?
-        </p>
-        <div className="flex gap-3 justify-end">
-          <Button onClick={onNo} disabled={isPending}
-            variant="outline">
-            Tidak, Buang
-          </Button>
-          <Button onClick={onYes} disabled={isPending}
-            loading={isPending}
-            variant="default">
-            Ya, Simpan Draft
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // â”€â”€â”€ Tipe internal dengan field "lainnya" â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type MetodePembayaranLocal = MetodePembayaranInput & {
@@ -414,9 +373,17 @@ export default function BuatEventPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {showDraftModal && (
-        <ConfirmDraftModal onYes={handleModalYes} onNo={handleModalNo} isPending={isPending || isSubmitting} />
-      )}
+      <ConfirmationModal
+        open={showDraftModal}
+        title="Simpan Perubahan ke Draft?"
+        message="Data event yang sudah kamu isi belum disimpan. Apakah kamu ingin menyimpan data ini ke dalam draft sebelum membuat event baru?"
+        confirmLabel="Ya, Simpan Draft"
+        cancelLabel="Tidak, Buang"
+        variant="warning"
+        loading={isPending || isSubmitting}
+        onConfirm={handleModalYes}
+        onCancel={handleModalNo}
+      />
 
       <div className="max-w-3xl mx-auto py-8 px-4 flex flex-col gap-6">
 
@@ -670,3 +637,4 @@ function PaymentIcon() {
 function UploadIcon() {
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>;
 }
+

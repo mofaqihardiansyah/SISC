@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Search, ChevronRight, ChevronLeft, Ban, X, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
+import { Search, ChevronRight, ChevronLeft, Ban, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
-import Portal from '@/components/ui/Portal';
+import { Modal } from '@/components/ui/modal';
 import { STATUS_LABEL } from "@/lib/constants";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -515,115 +515,89 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         </div>
       )}
 
-      {/* MODAL EDIT FORM */}
-      {isModalOpen && (
-        <Portal>
-          <div className="fixed inset-0 z-50 flex items-center justify-end">
-            <div 
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => !isSaving && setIsModalOpen(false)} 
-            />
-            <div className="relative bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            {/* Header Modal */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-100">
-              <h2 className="text-xl font-bold text-sisc-slate">
-                {selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
-              </h2>
-              <Button onClick={() => setIsModalOpen(false)} variant="ghost" size="icon" aria-label="Tutup" disabled={isSaving}>
-                <X size={24}/>
-              </Button>
+      <Modal
+        open={isModalOpen}
+        onClose={() => !isSaving && setIsModalOpen(false)}
+        variant="side"
+        className="max-w-2xl"
+        title={selectedEvent?.status === "DRAFT" ? "Lanjutkan Draft Event" : "Edit Detail Event"}
+      >
+        <div className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Tipe Event</label>
+              <select value={formData.tipeEvent} onChange={(e) => setFormData({...formData, tipeEvent: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
+                <option value="Seminar">Seminar</option>
+                <option value="Conference">Conference</option>
+              </select>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-600">Tipe Event</label>
-                  <select value={formData.tipeEvent} onChange={(e) => setFormData({...formData, tipeEvent: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
-                    <option value="Seminar">Seminar</option>
-                    <option value="Conference">Conference</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-600">Platform</label>
-                  <select value={formData.platform} onChange={(e) => setFormData({...formData, platform: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
-                    <option value="ONLINE">Online</option>
-                    <option value="OFFLINE">Offline</option>
-                    <option value="HYBRID">Hybrid</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600">Judul Event</label>
-                <Input type="text" value={formData.judul} onChange={(e) => setFormData({...formData, judul: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600">Kategori</label>
-                <select value={formData.kategori} onChange={(e) => setFormData({...formData, kategori: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
-                  <option>Teknologi & Informasi</option>
-                  <option>Bisnis & Ekonomi</option>
-                  <option>Kreatif & Desain</option>
-                  <option>Sains & Akademik</option>
-                  <option>Kesehatan & Medis</option>
-                  <option>Umum</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600">Lokasi / Venue</label>
-                <div className="relative">
-                  <Input type="text" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm outline-none" />
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-600">Tipe Tiket</label>
-                  <select value={formData.tipeTiket} onChange={(e) => setFormData({...formData, tipeTiket: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
-                    <option value="Paid">Paid (Berbayar)</option>
-                    <option value="Free">Free (Gratis)</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-600">Biaya (Rp)</label>
-                  <div className="relative">
-                    <Input type="text" value={formData.tipeTiket === "Free" ? "0" : formData.harga} onChange={(e) => setFormData({...formData, harga: e.target.value})} disabled={formData.tipeTiket === "Free"} className="w-full border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm outline-none disabled:bg-slate-50" />
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Rp</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600">Deskripsi Event</label>
-                <textarea rows={4} value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none resize-none"></textarea>
-              </div>
-            </div>
-
-            {/* Footer Modal */}
-            <div className="p-6 border-t border-slate-100 flex gap-4 bg-slate-50/50">
-              <Button 
-                onClick={() => setIsModalOpen(false)} 
-                variant="outline"
-                className="flex-1"
-                disabled={isSaving}
-              >
-                Batal
-              </Button>
-              <Button 
-                onClick={handleSimpanPerubahan}
-                loading={isSaving}
-                variant="default"
-                className="flex-1"
-              >
-                {selectedEvent?.status === "DRAFT" ? "Simpan Draft" : "Simpan Perubahan"}
-              </Button>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Platform</label>
+              <select value={formData.platform} onChange={(e) => setFormData({...formData, platform: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
+                <option value="ONLINE">Online</option>
+                <option value="OFFLINE">Offline</option>
+                <option value="HYBRID">Hybrid</option>
+              </select>
             </div>
           </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-600">Judul Event</label>
+            <Input type="text" value={formData.judul} onChange={(e) => setFormData({...formData, judul: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
           </div>
-        </Portal>
-      )}
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-600">Kategori</label>
+            <select value={formData.kategori} onChange={(e) => setFormData({...formData, kategori: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
+              <option>Teknologi & Informasi</option>
+              <option>Bisnis & Ekonomi</option>
+              <option>Kreatif & Desain</option>
+              <option>Sains & Akademik</option>
+              <option>Kesehatan & Medis</option>
+              <option>Umum</option>
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-600">Lokasi / Venue</label>
+            <div className="relative">
+              <Input type="text" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm outline-none" />
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Tipe Tiket</label>
+              <select value={formData.tipeTiket} onChange={(e) => setFormData({...formData, tipeTiket: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
+                <option value="Paid">Paid (Berbayar)</option>
+                <option value="Free">Free (Gratis)</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Biaya (Rp)</label>
+              <div className="relative">
+                <Input type="text" value={formData.tipeTiket === "Free" ? "0" : formData.harga} onChange={(e) => setFormData({...formData, harga: e.target.value})} disabled={formData.tipeTiket === "Free"} className="w-full border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm outline-none disabled:bg-slate-50" />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Rp</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-600">Deskripsi Event</label>
+            <textarea rows={4} value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none resize-none"></textarea>
+          </div>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-slate-100 flex gap-4">
+          <Button onClick={() => setIsModalOpen(false)} variant="outline" className="flex-1" disabled={isSaving}>
+            Batal
+          </Button>
+          <Button onClick={handleSimpanPerubahan} loading={isSaving} variant="default" className="flex-1">
+            {selectedEvent?.status === "DRAFT" ? "Simpan Draft" : "Simpan Perubahan"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

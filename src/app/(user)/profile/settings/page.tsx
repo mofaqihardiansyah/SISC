@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
+import { ConfirmationModal } from '@/components/feedback/ConfirmationModal';
 import { UPLOAD_LIMITS } from '@/lib/constants';
 export const dynamic = 'force-dynamic';
 
@@ -355,39 +356,16 @@ export default function SettingsPage() {
       </section>
 
       {/* MODAL */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-            onClick={() => setShowDeleteModal(false)} 
-          />
-          <div className="relative bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300">
-            <h3 className="font-bold text-xl text-slate-900 mb-2">
-              Hapus Akun Permanen?
-            </h3>
-            <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-              Tindakan ini tidak dapat dibatalkan. Semua data profil, riwayat event, dan sertifikat Anda akan dihapus secara permanen.
-            </p>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Batal
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={handleDelete}
-              >
-                Ya, Hapus Akun
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        open={showDeleteModal}
+        title="Hapus Akun Permanen?"
+        message="Tindakan ini tidak dapat dibatalkan. Semua data profil, riwayat event, dan sertifikat Anda akan dihapus secara permanen."
+        confirmLabel="Ya, Hapus Akun"
+        cancelLabel="Batal"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

@@ -65,13 +65,7 @@ export default async function RegistrasiEventPage({
     .limit(1);
 
   if (existingPendaftaran.length > 0) {
-    const isConference = dataEvent.jenisEvent === "conference";
-
-    if (isConference) {
-      redirect(`/profile/submit-paper?eventId=${eventID}`);
-    } else {
-      redirect(`/event/${eventID}`);
-    }
+    redirect(`/profile/dashboard`);
   }
 
   return (

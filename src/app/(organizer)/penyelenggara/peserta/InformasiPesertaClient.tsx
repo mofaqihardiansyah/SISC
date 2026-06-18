@@ -20,7 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
-import Portal from "@/components/ui/Portal";
+import { Modal } from "@/components/ui/modal";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from "sonner";
@@ -211,86 +211,59 @@ function LampiranPopup({
   const isImage = hasImageExt || (isKnownImageHost && !isPdf);
 
   return (
-    <Portal>
-      <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
-        <div 
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-          onClick={onClose} 
-        />
-        <div 
-          className="relative bg-white rounded-2xl overflow-hidden w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-300"
-          onClick={(e) => e.stopPropagation()}
+    <Modal open onClose={onClose} title="Lampiran Bukti Pembayaran" className="max-w-2xl">
+      <p className="text-xs text-gray-400 mb-4">{nama}</p>
+      <div className="flex items-center gap-2 mb-4">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1a2b4b] text-white text-xs font-medium rounded-lg hover:bg-sisc-med transition-colors"
         >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div>
-            <p className="text-sm font-bold text-gray-800">Lampiran Bukti Pembayaran</p>
-            <p className="text-xs text-gray-400 mt-0.5">{nama}</p>
+          <ExternalLink size={12} />
+          Buka di Tab Baru
+        </a>
+      </div>
+      <div
+        className="bg-gray-50 rounded-xl flex items-center justify-center"
+        style={{ minHeight: 320, maxHeight: "60vh", overflow: "auto" }}
+      >
+        {isImage ? (
+          <div className="relative w-full rounded-xl shadow-md overflow-hidden" style={{ maxHeight: "55vh", minHeight: 200 }}>
+            <Image
+              src={url}
+              alt={`Lampiran ${nama}`}
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 800px"
+              unoptimized
+            />
           </div>
-          <div className="flex items-center gap-2">
+        ) : isPdf ? (
+          <iframe
+            src={url}
+            className="w-full rounded-xl border-0"
+            style={{ height: "55vh" }}
+            title="PDF Lampiran"
+          />
+        ) : (
+          <div className="text-center py-10">
+            <div className="flex justify-center mb-3 text-slate-300">
+              <Paperclip size={48} />
+            </div>
+            <p className="text-sm text-slate-500 mb-3">Berkas tidak dapat dipreview</p>
             <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1a2b4b] text-white text-xs font-medium rounded-lg hover:bg-sisc-med transition-colors"
+              className="text-sm text-slate-900 hover:text-slate-700 hover:underline font-bold"
             >
-              <ExternalLink size={12} />
-              Buka di Tab Baru
+              Unduh Berkas
             </a>
-            <Button
-              onClick={onClose}
-              variant="ghost"
-              size="icon"
-              aria-label="Tutup"
-            >
-              <X size={15} />
-            </Button>
           </div>
-        </div>
-
-        {/* Konten */}
-        <div
-          className="p-5 bg-gray-50 flex items-center justify-center"
-          style={{ minHeight: 320, maxHeight: "70vh", overflow: "auto" }}
-        >
-          {isImage ? (
-            <div className="relative w-full rounded-xl shadow-md overflow-hidden" style={{ maxHeight: "60vh", minHeight: 200 }}>
-              <Image
-                src={url}
-                alt={`Lampiran ${nama}`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100vw, 800px"
-                unoptimized
-              />
-            </div>
-          ) : isPdf ? (
-            <iframe
-              src={url}
-              className="w-full rounded-xl border-0"
-              style={{ height: "60vh" }}
-              title="PDF Lampiran"
-            />
-          ) : (
-            <div className="text-center py-10">
-              <div className="flex justify-center mb-3 text-slate-300">
-                <Paperclip size={48} />
-              </div>
-              <p className="text-sm text-slate-500 mb-3">Berkas tidak dapat dipreview</p>
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-slate-900 hover:text-slate-700 hover:underline font-bold"
-              >
-                Unduh Berkas
-              </a>
-            </div>
-          )}
-        </div>
+        )}
       </div>
-      </div>
-    </Portal>
+    </Modal>
   );
 }
 
@@ -656,46 +629,38 @@ export default function InformasiPesertaClient() {
 
       {/* Reject Reason Modal */}
       {rejectModal.pendaftaranId !== null && (
-        <Portal>
-          <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setRejectModal({ pendaftaranId: null, reason: "" })} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
-              <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Pendaftaran Peserta</h3>
-              <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar peserta dapat mengetahuinya (misal: Bukti pembayaran tidak valid).</p>
-              
-              <textarea
-                value={rejectModal.reason}
-                onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
-                placeholder="Misal: Bukti pembayaran buram / kurang jelas..."
-                rows={3}
-                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none mb-5"
-              />
+        <Modal open onClose={() => setRejectModal({ pendaftaranId: null, reason: "" })} className="max-w-sm">
+          <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Pendaftaran Peserta</h3>
+          <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar peserta dapat mengetahuinya (misal: Bukti pembayaran tidak valid).</p>
+          
+          <textarea
+            value={rejectModal.reason}
+            onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
+            placeholder="Misal: Bukti pembayaran buram / kurang jelas..."
+            rows={3}
+            className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none mb-5"
+          />
 
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm" onClick={() => setRejectModal({ pendaftaranId: null, reason: "" })}>
-                  Batal
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onClick={() => {
-                    if (!rejectModal.reason.trim()) {
-                      toast.error("Alasan penolakan tidak boleh kosong.");
-                      return;
-                    }
-                    updateStatus(rejectModal.pendaftaranId!, "dibatalkan", rejectModal.reason);
-                    setRejectModal({ pendaftaranId: null, reason: "" });
-                  }}
-                >
-                  Kirim Penolakan
-                </Button>
-              </div>
-            </div>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" size="sm" onClick={() => setRejectModal({ pendaftaranId: null, reason: "" })}>
+              Batal
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={() => {
+                if (!rejectModal.reason.trim()) {
+                  toast.error("Alasan penolakan tidak boleh kosong.");
+                  return;
+                }
+                updateStatus(rejectModal.pendaftaranId!, "dibatalkan", rejectModal.reason);
+                setRejectModal({ pendaftaranId: null, reason: "" });
+              }}
+            >
+              Kirim Penolakan
+            </Button>
           </div>
-        </Portal>
+        </Modal>
       )}
     </div>
   );

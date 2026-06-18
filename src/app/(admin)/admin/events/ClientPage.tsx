@@ -19,8 +19,8 @@ import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import Portal from '@/components/ui/Portal';
 import DataEvent from './DataEvent';
+import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 
 export type Event = {
   id: number;
@@ -682,36 +682,17 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
       )}
 
       {/* Confirm Modal */}
-      {confirmModal.isOpen && (
-        <Portal>
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
-              onClick={() => setConfirmModal({ isOpen: false, type: null, eventId: null })} 
-            />
-            <div className="relative bg-white rounded-2xl p-6 shadow-xl w-80 animate-in zoom-in-95 duration-300">
-              <h3 className="text-sm font-bold text-gray-800 mb-2">Konfirmasi Hapus</h3>
-              <p className="text-xs text-gray-500 mb-5">
-                {confirmModal.type === 'bulk' 
-                  ? `Apakah Anda yakin ingin menghapus ${selectedRowIds.size} event terpilih secara massal? Aksi ini tidak dapat dibatalkan.`
-                  : `Apakah Anda yakin ingin menghapus event ini? Aksi ini tidak dapat dibatalkan.`}
-              </p>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm" onClick={() => setConfirmModal({ isOpen: false, type: null, eventId: null })}>
-                  Batal
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onClick={handleConfirmExecute}
-                >
-                  Ya, Hapus
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
+      <ConfirmationModal
+        open={confirmModal.isOpen}
+        title="Konfirmasi Hapus"
+        message={confirmModal.type === 'bulk' 
+          ? `Apakah Anda yakin ingin menghapus ${selectedRowIds.size} event terpilih secara massal? Aksi ini tidak dapat dibatalkan.`
+          : "Apakah Anda yakin ingin menghapus event ini? Aksi ini tidak dapat dibatalkan."}
+        confirmLabel="Ya, Hapus"
+        variant="danger"
+        onConfirm={handleConfirmExecute}
+        onCancel={() => setConfirmModal({ isOpen: false, type: null, eventId: null })}
+      />
     </div>
   );
 }

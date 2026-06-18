@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { X, Save, Image as ImageIcon, Layout, Tag, Type, Globe, MapPin, Mic, Ticket, Clock, Users, AlignLeft, ShieldCheck } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Tag, Type, Globe, MapPin, Mic, Ticket, Clock, Users, AlignLeft, ShieldCheck } from "lucide-react";
 import { updateEvent } from "@/actions/admin-event";
 import { toast } from "sonner";
 import type { Event } from "./ClientPage";
 import { cn } from "@/lib/utils";
-import Portal from "@/components/ui/Portal";
+import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -74,26 +74,10 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
   const labelClasses = "text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 block flex items-center gap-1.5";
 
   return (
-    <Portal>
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
-      
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-white text-slate-800 shrink-0">
-          <div className="flex items-center gap-3">
-            <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider leading-none">Edit Data Event</h2>
-              <p className="text-nano text-slate-400 font-medium tracking-normal mt-1">Kelola data event dan simpan perubahannya!</p>
-            </div>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Tutup">
-            <X className="w-4.5 h-4.5" />
-          </Button>
-        </div>
+    <Modal open={isOpen} onClose={onClose} title="Edit Data Event" className="max-w-4xl">
+      <p className="text-nano text-slate-400 font-medium mb-6 -mt-2">Kelola data event dan simpan perubahannya!</p>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+      <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Poster & Banner */}
           <div className="space-y-3">
              <label className={labelClasses}><ImageIcon size={12} /> Poster / Banner Event</label>
@@ -282,8 +266,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
           </div>
         </form>
 
-        {/* Footer Actions */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-3 justify-end shrink-0">
+        <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 mt-6 -mx-6 -mb-6 px-6 pb-4 bg-slate-50/50">
           <Button variant="outline" onClick={onClose} className="text-xs">
             Batal
           </Button>
@@ -306,8 +289,6 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
             )}
           </Button>
         </div>
-      </div>
-    </div>
-    </Portal>
+    </Modal>
   );
 }
