@@ -262,6 +262,7 @@ export const rawScrapedData = pgTable('raw_scraped_data', {
   urlTarget: varchar('url_target', { length: 512 }),
   data: jsonb('data').notNull(),
   statusIntegrasi: boolean('status_integrasi').default(false),
+  status: varchar('status', { length: 20 }).default('pending'), // pending, processed, error
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
 });
 

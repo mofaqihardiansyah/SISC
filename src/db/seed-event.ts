@@ -1,6 +1,6 @@
 import { db } from "./index";
 import { event, profilPenyelenggara, tag, eventTag, jadwalEvent, logAdmin, pembicara, infoPembayaran } from "./schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { SEED } from "@/lib/constants";
 
 function slug(text: string) {
@@ -165,5 +165,6 @@ export async function seedEvent() {
   console.log("📦 [EVENT] Seeding events...\n");
   await seedEventsTable();
   await seedAuxiliary();
+  await db.execute(sql`SELECT setval('event_id_seq', COALESCE((SELECT MAX(id) FROM event), 0) + 1, false)`);
   console.log(`\n✅ [EVENT] Done in ${((Date.now() - start) / 1000).toFixed(2)}s`);
 }
