@@ -30,6 +30,8 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { Event } from './ClientPage';
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
 type DataEventProps = {
   isOpen: boolean;
@@ -276,14 +278,14 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelClasses}><Layout size={12} /> Tipe Event</label>
-            <select name="jenisEvent" value={formData.jenisEvent || ''} onChange={handleChange} className={selectClasses}>
+            <Select name="jenisEvent" value={formData.jenisEvent || ''} onChange={handleChange} className={selectClasses}>
               <option value="seminar">Seminar</option>
               <option value="conference">Conference</option>
-            </select>
+            </Select>
           </div>
           <div>
             <label className={labelClasses}><Tag size={12} /> Jenis Event</label>
-            <select
+            <Select
               name="eventPolines"
               value={formData.eventPolines ? "true" : "false"}
               onChange={(e) => setFormData(prev => ({ ...prev, eventPolines: e.target.value === "true" }))}
@@ -291,7 +293,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
             >
               <option value="true">Polines (Internal)</option>
               <option value="false">Umum (Eksternal)</option>
-            </select>
+            </Select>
           </div>
         </div>
 
@@ -307,11 +309,11 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
           </div>
           <div>
             <label className={labelClasses}><Globe size={12} /> Tipe Platform</label>
-            <select name="tipePlatform" value={formData.tipePlatform || 'offline'} onChange={handleChange} className={selectClasses}>
+            <Select name="tipePlatform" value={formData.tipePlatform || 'offline'} onChange={handleChange} className={selectClasses}>
               <option value="offline">Luring (Offline)</option>
               <option value="online">Daring (Online)</option>
               <option value="hybrid">Hybrid</option>
-            </select>
+            </Select>
           </div>
           <div>
             <label className={labelClasses}><MapPin size={12} /> Lokasi / Link Platform</label>
@@ -323,10 +325,10 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
           </div>
           <div>
             <label className={labelClasses}><Ticket size={12} /> Status Biaya</label>
-            <select name="tipeHarga" value={formData.tipeHarga || 'free'} onChange={handleChange} className={selectClasses}>
+            <Select name="tipeHarga" value={formData.tipeHarga || 'free'} onChange={handleChange} className={selectClasses}>
               <option value="free">Gratis</option>
               <option value="paid">Berbayar</option>
-            </select>
+            </Select>
           </div>
           <div>
             <label className={labelClasses}><Ticket size={12} /> Nominal Biaya (IDR)</label>
@@ -375,11 +377,11 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
           )}
           <div>
             <label className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><AlignLeft size={12} /> Deskripsi Lengkap Event</label>
-            <textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
+            <Textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
           </div>
           <div>
             <label className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><ShieldCheck size={12} /> Syarat & Ketentuan</label>
-            <textarea name="syaratDanKetentuan" value={formData.syaratDanKetentuan || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
+            <Textarea name="syaratDanKetentuan" value={formData.syaratDanKetentuan || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
           </div>
         </div>
       </div>

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Star, Plus, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
 export default function BantuanPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -320,17 +322,17 @@ export default function BantuanPage() {
                 </div>
                 <div>
                   <label className="form-label">Subjek</label>
-                  <select className="form-input" value={formData.subjek} onChange={e => setFormData({...formData, subjek: e.target.value})}>
+                  <Select className="form-input" value={formData.subjek} onChange={e => setFormData({...formData, subjek: e.target.value})}>
                     <option value="">-- Pilih Subjek --</option>
                     <option value="Pertanyaan Umum">Pertanyaan Umum</option>
                     <option value="Laporan Bug">Laporan Bug</option>
                     <option value="Saran Fitur">Saran Fitur</option>
                     <option value="Masalah Teknis">Masalah Teknis</option>
-                  </select>
+                  </Select>
                 </div>
                 <div>
                   <label className="form-label">Pesan</label>
-                  <textarea rows={6} placeholder="Tulis pesan Anda di sini..." className="form-textarea" value={formData.pesan} onChange={e => setFormData({...formData, pesan: e.target.value})} />
+                  <Textarea rows={6} placeholder="Tulis pesan Anda di sini..." className="form-textarea" value={formData.pesan} onChange={e => setFormData({...formData, pesan: e.target.value})} />
                 </div>
                 <Button variant="default" type="submit" disabled={isSubmitting} className="btn-kirim">
                   {isSubmitting ? 'Mengirim...' : (

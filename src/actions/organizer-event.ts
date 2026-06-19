@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { event, users } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { event, users, pendaftaran } from "@/db/schema";
+import { eq, and, count } from "drizzle-orm";
 import { auth } from "@/auth";
 
 export async function getDaftarEvent() {
@@ -26,11 +26,35 @@ export async function getDaftarEvent() {
     }
 
     // Mengambil data event milik penyelenggara ini saja
-    const data = await db.select().from(event).where(eq(event.organizerId, userId));
+    const data = await db
+      .select({
+        id: event.id,
+        judul: event.judul,
+        status: event.status,
+        jenisEvent: event.jenisEvent,
+        tipePlatform: event.tipePlatform,
+        kuota: event.kuota,
+        harga: event.harga,
+        tanggalMulai: event.tanggalMulai,
+        urlBanner: event.urlBanner,
+        alasanPenolakan: event.alasanPenolakan,
+        detailLokasi: event.detailLokasi,
+        deskripsi: event.deskripsi,
+        participantCount: count(pendaftaran.id),
+      })
+      .from(event)
+      .leftJoin(pendaftaran, eq(event.id, pendaftaran.eventId))
+      .where(eq(event.organizerId, userId))
+      .groupBy(event.id);
+
+    const formattedData = data.map(ev => ({
+      ...ev,
+      participantCount: Number(ev.participantCount || 0)
+    }));
     
     return { 
       success: true, 
-      data: data 
+      data: formattedData as any 
     };
   } catch (error) {
     console.error("🚨 Gagal mengambil data event dari database:", error);

@@ -6,7 +6,8 @@ import type { PendingEvent } from "@/actions/persetujuan-event";
 import { getPendingEvents, updateEventStatus, getEventStats } from "@/actions/persetujuan-event";
 import { PAGE_SIZE } from "@/constants/persetujuan";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { StatCards, FilterBar, EventTable, Pagination, ReviewModal, ConfirmModal } from "./PersetujuanComponents";
+import { StatCards, FilterBar, EventTable, ReviewModal, ConfirmModal } from "./PersetujuanComponents";
+import { Pagination } from "@/components/ui/pagination";
 
 type Props = {
   initialPendingCount: number;
@@ -137,8 +138,6 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
   });
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  const showFrom = total > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
-  const showTo = Math.min(currentPage * PAGE_SIZE, total);
 
   return (
     <div className="space-y-10 pb-10">
@@ -191,13 +190,13 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              showFrom={showFrom}
-              showTo={showTo}
               totalItems={total}
-              onChange={(page) => {
+              itemsPerPage={PAGE_SIZE}
+              onPageChange={(page) => {
                 setCurrentPage(page);
                 fetchPage(page);
               }}
+              itemLabel="event"
             />
           </div>
         )}

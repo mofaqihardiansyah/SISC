@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { ERROR_MESSAGES } from "@/lib/constants";
+import { Select } from '@/components/ui/select'
 
 type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
@@ -79,7 +80,7 @@ export function ViewChart({ selectedEventId }: ViewChartProps) {
           <p className="text-sm text-gray-400">Data tayangan real-time</p>
         </div>
 
-        <select
+        <Select
           value={filter}
           onChange={(e) => setFilter(e.target.value as FilterType)}
           className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl p-2.5 font-bold outline-none"
@@ -87,7 +88,7 @@ export function ViewChart({ selectedEventId }: ViewChartProps) {
           <option value="bulan-ini">Bulan Ini</option>
           <option value="bulan-lalu">Bulan Lalu</option>
           <option value="tahun-ini">Tahun Ini</option>
-        </select>
+        </Select>
       </div>
 
       <div className="relative">

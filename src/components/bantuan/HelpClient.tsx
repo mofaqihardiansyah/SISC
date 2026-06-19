@@ -5,6 +5,8 @@ import { Star, Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { ERROR_MESSAGES } from '@/lib/constants';
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
 export default function HelpClient() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -168,7 +170,7 @@ export default function HelpClient() {
 
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">Subjek</label>
-            <select 
+            <Select 
               value={formData.subjek}
               onChange={(e) => setFormData({...formData, subjek: e.target.value})}
               className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -178,12 +180,12 @@ export default function HelpClient() {
               <option value="Laporan Bug">Laporan Bug</option>
               <option value="Saran Fitur">Saran Fitur</option>
               <option value="Masalah Teknis">Masalah Teknis</option>
-            </select>
+            </Select>
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">Pesan</label>
-            <textarea
+            <Textarea
               rows={6}
               value={formData.pesan}
               onChange={(e) => setFormData({...formData, pesan: e.target.value})}

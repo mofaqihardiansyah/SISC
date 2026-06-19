@@ -48,6 +48,15 @@ export function DashboardContent({
   const [stats, setStats] = useState(initialStats);
   const [recentParticipants, setRecentParticipants] = useState(initialParticipants);
   const [recentPapers, setRecentPapers] = useState(initialPapers);
+
+  useEffect(() => {
+    if (selectedEventId === "all") {
+      setStats(initialStats);
+      setRecentParticipants(initialParticipants);
+      setRecentPapers(initialPapers);
+    }
+  }, [selectedEventId, initialStats, initialParticipants, initialPapers]);
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -78,11 +87,6 @@ export function DashboardContent({
 
   useEffect(() => {
     if (selectedEventId === "all") {
-      setTimeout(() => {
-        setStats(initialStats);
-        setRecentParticipants(initialParticipants);
-        setRecentPapers(initialPapers);
-      }, 0);
       return;
     }
 

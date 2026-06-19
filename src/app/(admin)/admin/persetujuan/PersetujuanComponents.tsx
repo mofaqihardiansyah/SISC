@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
 import {
   FileCheck, CheckCircle, X, Eye, MoreVertical, Check, XCircle,
-  ChevronLeft, ChevronRight, Search, ChevronDown, Calendar, MapPin,
+  Search, ChevronDown, Calendar, MapPin,
   Clock, Tag, Monitor, Users as UsersIcon, Wallet, Building2, Phone,
   Mail, Globe,
 } from "lucide-react";
@@ -19,6 +19,7 @@ import {
 import { Modal } from "@/components/ui/modal";
 import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { Button } from "@/components/ui/button";
+import { Textarea } from '@/components/ui/textarea'
 
 export function StatCards({
   pendingCount, approvedCount, rejectedCount,
@@ -269,56 +270,7 @@ export function EventTable({
   );
 }
 
-function getPageButtons(currentPage: number, totalPages: number): (number | "...")[] {
-  const pages: (number | "...")[] = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) pages.push(i);
-  } else {
-    pages.push(1);
-    if (currentPage > 3) pages.push("...");
-    const start = Math.max(2, currentPage - 1);
-    const end = Math.min(totalPages - 1, currentPage + 1);
-    for (let i = start; i <= end; i++) pages.push(i);
-    if (currentPage < totalPages - 2) pages.push("...");
-    pages.push(totalPages);
-  }
-  return pages;
-}
-
-export function Pagination({
-  currentPage, totalPages, showFrom, showTo, totalItems, onChange,
-}: {
-  currentPage: number; totalPages: number; showFrom: number; showTo: number; totalItems: number;
-  onChange: (page: number) => void;
-}) {
-  if (totalPages <= 1) return null;
-  return (
-    <div className="flex flex-col sm:flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 gap-3">
-      <span className="text-xs text-slate-400 font-semibold">
-        Menampilkan <span className="text-slate-700">{showFrom}</span> â€“{" "}
-        <span className="text-slate-700">{showTo}</span> dari{" "}
-        <span className="text-slate-700 font-bold">{totalItems}</span> event
-      </span>
-      <div className="flex gap-1 items-center">
-        <Button variant="outline" size="icon" onClick={() => onChange(Math.max(1, currentPage - 1))} disabled={currentPage === 1} aria-label="Halaman sebelumnya">
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        {getPageButtons(currentPage, totalPages).map((p, i) =>
-          p === "..." ? (
-            <span key={`d${i}`} className="text-slate-400 px-1 text-xs">...</span>
-          ) : (
-            <Button key={p} variant={currentPage === p ? "default" : "outline"} size="icon" onClick={() => onChange(p as number)}>
-              {p}
-            </Button>
-          )
-        )}
-        <Button variant="outline" size="icon" onClick={() => onChange(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} aria-label="Halaman berikutnya">
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
+export { Pagination } from "@/components/ui/pagination";
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
@@ -467,7 +419,7 @@ export function ReviewModal({
 
       {event.status === "pending" && showRejectForm && (
         <div className="pt-3 border-t border-slate-100 space-y-2">
-          <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+          <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
             placeholder="Alasan penolakan..." rows={2}
             className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
           />

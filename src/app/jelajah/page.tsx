@@ -1,27 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { RotateCcw, ChevronDown, Loader2, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
+import { RotateCcw, ChevronDown, Loader2, SearchX } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
 import EventCard from '@/components/shared/EventCard';
 import EmptyState from '@/components/profile/EmptyState';
 
-type EventType = {
-  id: number;
-  judul: string;
-  urlBanner?: string;
-  harga: number;
-  tipeHarga: string;
-  tipePlatform: string;
-  jenisEvent: string | null;
-  eventPolines: boolean;
-  tanggalMulai: string;
-  tanggalSelesai: string;
-  status: string;
-  kategoriNama?: string;
-  kotaNama?: string;
-};
+import { Event } from '@/types/event';
+
+type EventType = Event;
 
 type DropdownType = "Lokasi" | "Tipe Event" | "Kategori Event" | "Waktu" | "Harga";
 
@@ -60,30 +49,21 @@ function JelajahContent() {
       .then(res => res.json())
       .then(data => setIsLoggedIn(!!data?.user))
       .catch(() => setIsLoggedIn(false));
-  }, []);
 
-  useEffect(() => {
     fetch('/api/events?mode=kota')
       .then(res => res.json())
       .then(data => setKotaList(data.map((k: { nama: string }) => k.nama)))
       .catch(err => console.error("Gagal fetch kota:", err));
-  }, []);
 
-  useEffect(() => {
     fetch('/api/events?mode=kategori')
       .then(res => res.json())
       .then(data => setKategoriList(data.map((k: { nama: string }) => k.nama)))
       .catch(err => console.error("Gagal fetch kategori:", err));
   }, []);
-  
-  useEffect(() => {
-  const kategori = searchParams.get("kategori") ?? "";
-  setFilters(prev => ({ ...prev, category: kategori }));
-}, [searchParams]);
 
   useEffect(() => {
-    const q = searchParams.get("q") ?? "";
-    setSearchTerm(q);
+    setFilters(prev => ({ ...prev, category: searchParams.get("kategori") ?? "" }));
+    setSearchTerm(searchParams.get("q") ?? "");
   }, [searchParams]);
 
   useEffect(() => {
@@ -138,16 +118,6 @@ function JelajahContent() {
   ];
 
   const totalPages = Math.ceil(totalEvents / eventsPerPage);
-
-  const getPageButtons = (): (number | string)[] => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | string)[] = [1, 2, 3];
-    if (currentPage > 4) pages.push("...");
-    if (currentPage > 3 && currentPage < totalPages - 1) pages.push(currentPage);
-    if (currentPage < totalPages - 2) pages.push("...");
-    pages.push(totalPages);
-    return pages;
-  };
 
   const resetFilter = () => {
     setFilters({ polines: false, price: "", location: "", type: "", category: "", time: "" });
@@ -355,7 +325,7 @@ function JelajahContent() {
                 />
               ) : (
                 <div className="grid grid-cols-3 gap-6">
-                  {events.map((event) => (
+                      {events.map((event) => (
                     <EventCard
                       key={event.id}
                       id={String(event.id)}
@@ -372,60 +342,24 @@ function JelajahContent() {
                       price={event.tipeHarga === "free" ? 0 : (event.harga ?? null)}
                       category={event.jenisEvent ?? ""}
                       type={event.eventPolines ? "POLINES" : "UMUM"}
-                      imageUrl={event.urlBanner}
-                      tipePlatform={event.tipePlatform}
-                      kotaNama={event.kotaNama}
-                      kategoriNama={event.kategoriNama}
+                      imageUrl={event.urlBanner ?? undefined}
+                      tipePlatform={event.tipePlatform ?? undefined}
+                      kotaNama={undefined}
+                      kategoriNama={undefined}
                       isLoggedIn={isLoggedIn}
                     />
                   ))}
                 </div>
               )}
 
-              {totalPages > 1 && (
-                <div className="flex justify-between items-center mt-8 flex-wrap gap-3">
-                  <span className="text-xs text-slate-400 font-semibold">
-                    Menampilkan <span className="text-slate-700">{totalEvents > 0 ? (currentPage - 1) * eventsPerPage + 1 : 0}</span> –{" "}
-                    <span className="text-slate-700">{Math.min(currentPage * eventsPerPage, totalEvents)}</span> dari{" "}
-                    <span className="text-slate-700 font-bold">{totalEvents}</span> event
-                  </span>
-                  <div className="flex gap-1 items-center">
-                    <button
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                    </button>
-                    {getPageButtons().map((p, i) =>
-                      p === "..." ? (
-                        <span key={`dots-${i}`} className="text-gray-400 px-1 text-xs font-semibold">
-                          ...
-                        </span>
-                      ) : (
-                        <button
-                          key={p}
-                          onClick={() => setCurrentPage(p as number)}
-                          className={`w-7 h-7 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
-                            currentPage === p
-                              ? "bg-slate-900 text-white shadow-sm"
-                              : "border border-gray-200 bg-white text-slate-600 hover:bg-gray-50"
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      )
-                    )}
-                    <button
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      className="w-7 h-7 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 transition-all duration-200 hover:scale-105 active:scale-95 text-slate-500"
-                    >
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              )}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalEvents}
+                itemsPerPage={eventsPerPage}
+                onPageChange={setCurrentPage}
+                itemLabel="event"
+              />
             </>
           )}
         </main>

@@ -1,4 +1,4 @@
-# Sistem Informasi Seminar & Conference (SISC)
+# POLIVENTS
 
 Aplikasi SISC (juga disebut **POLIVENTS**) adalah platform web untuk manajemen event seminar dan konferensi. Dibangun menggunakan **Next.js 16 (App Router)**, **PostgreSQL (Docker)**, dan **Drizzle ORM**.
 

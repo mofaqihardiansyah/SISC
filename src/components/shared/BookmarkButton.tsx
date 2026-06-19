@@ -30,7 +30,8 @@ export default function BookmarkButton({
 
     fetch(`/api/bookmark?eventId=${eventId}`)
       .then(res => res.json())
-      .then(data => setBookmarked(data.bookmarked));
+      .then(data => setBookmarked(data.bookmarked))
+      .catch(err => console.error("Gagal fetch bookmark:", err));
   }, [eventId, isLoggedIn, initialBookmarked]);
 
   const handleClick = async (e: React.MouseEvent) => {

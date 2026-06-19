@@ -116,7 +116,7 @@ Tabel utama menyimpan seluruh data event:
 | detail_lokasi | text | |
 | link_eksternal | varchar(512) | |
 | nama_kontak, email_kontak, telepon_kontak | | Kontak person |
-| kuota | integer | |
+| kuota | integer | Batas kuota pendaftar |
 | maks_tiket_per_transaksi | integer | |
 | satu_akun_satu_transaksi | boolean | |
 | status | enum | draft / pending / published / rejected |

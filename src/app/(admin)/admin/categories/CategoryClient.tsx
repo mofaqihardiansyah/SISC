@@ -221,7 +221,7 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
             <span className="text-micro text-slate-400 font-medium">
               {filteredKategori.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startKatIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startKatIndex + KATEGORI_PER_PAGE, filteredKategori.length)}</strong> dari <strong className="text-slate-600">{filteredKategori.length}</strong> kategori
+                  Menampilkan <strong className="text-slate-600">{startKatIndex + 1}</strong>&ndash;<strong className="text-slate-600">{Math.min(startKatIndex + KATEGORI_PER_PAGE, filteredKategori.length)}</strong> dari <strong className="text-slate-600">{filteredKategori.length}</strong> kategori
                 </>
               ) : (
                 "Tidak ada kategori ditemukan"
@@ -359,7 +359,7 @@ export default function CategoryClient({ initialKategori, initialTag }: Category
             <span className="text-micro text-slate-400 font-medium">
               {filteredTags.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startIndex + TAGS_PER_PAGE, filteredTags.length)}</strong> dari <strong className="text-slate-600">{filteredTags.length}</strong> tag
+                  Menampilkan <strong className="text-slate-600">{startIndex + 1}</strong>&ndash;<strong className="text-slate-600">{Math.min(startIndex + TAGS_PER_PAGE, filteredTags.length)}</strong> dari <strong className="text-slate-600">{filteredTags.length}</strong> tag
                 </>
               ) : (
                 "Tidak ada tag ditemukan"

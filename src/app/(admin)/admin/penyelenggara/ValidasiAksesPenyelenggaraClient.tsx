@@ -1,12 +1,11 @@
 "use client";
 import { useState, useMemo, useTransition, useEffect, ComponentType } from "react";
 import { Modal } from "@/components/ui/modal";
+import { Pagination } from "@/components/ui/pagination";
 import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { toast } from "sonner";
 import {
   Search,
-  ChevronLeft, 
-  ChevronRight,
   Check,
   X,
   Eye,
@@ -28,11 +27,14 @@ import {
 } from "lucide-react";
 import type { PenyelenggaraItem, StatusValidasi } from "@/types/penyelenggara";
 import { Button } from "@/components/ui/button";
+import { Menu } from "@base-ui/react/menu";
 import { Input } from "@/components/ui/input";
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Helpers
 
 const formatDate = (iso: string | null) =>
   iso
@@ -43,7 +45,7 @@ const formatDate = (iso: string | null) =>
       })
     : "-";
 
-// â”€â”€â”€ StatusBadge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// StatusBadge
 
 function StatusBadge({ status }: { status: StatusValidasi }) {
   const config: Record<StatusValidasi, { label: string; className: string; icon: ComponentType<{ className?: string }> }> = {
@@ -74,7 +76,7 @@ function StatusBadge({ status }: { status: StatusValidasi }) {
   );
 }
 
-// â”€â”€â”€ Main Client Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Main Client Component
 
 export function ValidasiAksesPenyelenggaraClient({
   initialData,
@@ -106,16 +108,6 @@ export function ValidasiAksesPenyelenggaraClient({
   
   const [, startTransition] = useTransition();
 
-  // Dropdown menu state
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleOutsideClick = () => setOpenMenuId(null);
-    window.addEventListener("click", handleOutsideClick);
-    return () => window.removeEventListener("click", handleOutsideClick);
-  }, []);
-
   // Reset success/error messages after 5 seconds
   useEffect(() => {
     if (successMsg || errorMsg) {
@@ -127,7 +119,7 @@ export function ValidasiAksesPenyelenggaraClient({
     }
   }, [successMsg, errorMsg]);
 
-  // â”€â”€â”€ Dynamic Counts (Real-time Stats) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Dynamic Counts (Real-time Stats) 
   const stats = useMemo(() => {
     const total = data.length;
     const pending = data.filter((d) => d.status === "pending").length;
@@ -136,7 +128,7 @@ export function ValidasiAksesPenyelenggaraClient({
     return { total, pending, approved, rejected };
   }, [data]);
 
-  // â”€â”€â”€ Filter & Sort Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Filter & Sort Logic 
 
   const processedData = useMemo(() => {
     let result = [...data];
@@ -181,7 +173,7 @@ export function ValidasiAksesPenyelenggaraClient({
     return result;
   }, [data, search, statusTab, sortBy]);
 
-  // â”€â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Pagination 
 
   const totalPages = Math.max(1, Math.ceil(processedData.length / PAGE_SIZE));
   
@@ -196,22 +188,7 @@ export function ValidasiAksesPenyelenggaraClient({
     return processedData.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   }, [processedData, currentPage]);
 
-  const getPageButtons = (): (number | string)[] => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | string)[] = [1, 2, 3];
-    if (currentPage > 4) pages.push("...");
-    if (currentPage > 3 && currentPage < totalPages - 1) pages.push(currentPage);
-    if (currentPage < totalPages - 2) pages.push("...");
-    pages.push(totalPages);
-    return pages;
-  };
-
-  const goPage = (page: number) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-  };
-
-  // â”€â”€â”€ Selection Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Selection Logic 
 
   const pageRowIds = useMemo(() => pageItems.map((item) => item.rawId), [pageItems]);
   
@@ -239,7 +216,7 @@ export function ValidasiAksesPenyelenggaraClient({
     setSelectedIds([]);
   };
 
-  // â”€â”€â”€ Update Status via API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Update Status via API 
 
   const handleChangeStatus = (rawId: number, status: StatusValidasi, skipToast = false, alasanPenolakan?: string) => {
     const prevStatus = data.find((d) => d.rawId === rawId)?.status;
@@ -318,7 +295,7 @@ export function ValidasiAksesPenyelenggaraClient({
     });
   };
 
-  // â”€â”€â”€ Bulk Action Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Bulk Action Logic 
 
   const handleBulkChangeStatus = (status: StatusValidasi) => {
     if (selectedIds.length === 0) return;
@@ -361,7 +338,7 @@ export function ValidasiAksesPenyelenggaraClient({
   return (
     <div className="flex flex-col gap-6 relative min-h-[calc(100vh-80px)] pb-24">
       
-      {/* â”€â”€ Alerts Banner â”€â”€ */}
+      {/*  Alerts Banner  */}
       {errorMsg && (
         <div className="flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-xs font-semibold text-rose-700 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-500" />
@@ -393,9 +370,9 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
       )}
 
-      {/* â”€â”€ Bulk Actions Progress Overlay â”€â”€ */}
+      {/*  Bulk Actions Progress Overlay  */}
       {bulkLoading && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" />
           <div className="relative bg-white rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm w-full text-center border border-slate-100 animate-in zoom-in-95 duration-300">
             <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
@@ -414,7 +391,7 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
       )}
 
-      {/* â”€â”€ Main Data Card Container â”€â”€ */}
+      {/*  Main Data Card Container  */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5">
         
         {/* Header Title inside card */}
@@ -466,7 +443,7 @@ export function ValidasiAksesPenyelenggaraClient({
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                 <span className="text-xs text-slate-400 font-medium sm:hidden">Urutkan:</span>
               </div>
-              <select
+              <Select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="bg-transparent text-xs font-bold text-slate-600 outline-none cursor-pointer pr-1"
@@ -475,7 +452,7 @@ export function ValidasiAksesPenyelenggaraClient({
                 <option value="date-asc">Registrasi: Terlama</option>
                 <option value="name-asc">Nama Instansi: A - Z</option>
                 <option value="name-desc">Nama Instansi: Z - A</option>
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -520,7 +497,7 @@ export function ValidasiAksesPenyelenggaraClient({
           </div>
         </div>
 
-        {/* â”€â”€ Table Area â”€â”€ */}
+        {/*  Table Area  */}
         <div className="overflow-x-auto border border-slate-100 rounded-2xl shadow-sm">
           <table className="w-full text-xs">
             <thead className="bg-slate-50/70 border-b border-slate-100">
@@ -631,66 +608,49 @@ export function ValidasiAksesPenyelenggaraClient({
                                 <Eye className="w-4 h-4" />
                               </Button>
 
-                              <div className="relative">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenMenuId(openMenuId === item.rawId ? null : item.rawId);
-                                  }}
-                                  aria-label="Buka menu aksi"
+                              <Menu.Root>
+                                <Menu.Trigger
+                                  render={<Button variant="ghost" size="icon" aria-label="Buka menu aksi" />}
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   <MoreHorizontal className="w-4 h-4" />
-                                </Button>
+                                </Menu.Trigger>
+                                <Menu.Portal>
+                                  <Menu.Positioner side="bottom" align="end" sideOffset={4}>
+                                    <Menu.Popup className="w-44 bg-white rounded-xl border border-slate-200/80 shadow-xl z-50 py-1.5 animate-in fade-in duration-150">
+                                      {item.status !== "approved" && (
+                                        <Menu.Item
+                                          className="flex items-center gap-2 w-full text-xs font-bold text-emerald-600 data-[highlighted]:bg-emerald-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
+                                          onClick={() => handleChangeStatus(item.rawId, "approved")}
+                                        >
+                                          <Check className="w-3.5 h-3.5" />
+                                          Setujui Akses
+                                        </Menu.Item>
+                                      )}
 
-                                {/* Dropdown Menu Portal */}
-                                {openMenuId === item.rawId && (
-                                  <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-xl border border-slate-200/80 shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
-                                    {item.status !== "approved" && (
-                                      <Button
-                                        variant="ghost"
-                                        onClick={() => {
-                                          handleChangeStatus(item.rawId, "approved");
-                                          setOpenMenuId(null);
-                                        }}
-                                        className="w-full justify-start text-xs font-bold text-emerald-600 hover:bg-emerald-50/50"
-                                      >
-                                        <Check className="w-3.5 h-3.5" />
-                                        Setujui Akses
-                                      </Button>
-                                    )}
+                                      {item.status !== "pending" && (
+                                        <Menu.Item
+                                          className="flex items-center gap-2 w-full text-xs font-bold text-amber-600 data-[highlighted]:bg-amber-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
+                                          onClick={() => handleChangeStatus(item.rawId, "pending")}
+                                        >
+                                          <Clock className="w-3.5 h-3.5" />
+                                          Cabut Persetujuan
+                                        </Menu.Item>
+                                      )}
 
-                                    {item.status !== "pending" && (
-                                      <Button
-                                        variant="ghost"
-                                        onClick={() => {
-                                          handleChangeStatus(item.rawId, "pending");
-                                          setOpenMenuId(null);
-                                        }}
-                                        className="w-full justify-start text-xs font-bold text-amber-600 hover:bg-amber-50/50"
-                                      >
-                                        <Clock className="w-3.5 h-3.5" />
-                                        Cabut Persetujuan
-                                      </Button>
-                                    )}
-
-                                    {item.status !== "rejected" && (
-                                      <Button
-                                        variant="ghost"
-                                        onClick={() => {
-                                          setRejectModal({ id: item.rawId, reason: item.alasanPenolakan || "" });
-                                          setOpenMenuId(null);
-                                        }}
-                                        className="w-full justify-start text-xs font-bold text-rose-600 hover:bg-rose-50/50"
-                                      >
-                                        <X className="w-3.5 h-3.5" />
-                                        Tolak Akses
-                                      </Button>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
+                                      {item.status !== "rejected" && (
+                                        <Menu.Item
+                                          className="flex items-center gap-2 w-full text-xs font-bold text-rose-600 data-[highlighted]:bg-rose-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
+                                          onClick={() => setRejectModal({ id: item.rawId, reason: item.alasanPenolakan || "" })}
+                                        >
+                                          <X className="w-3.5 h-3.5" />
+                                          Tolak Akses
+                                        </Menu.Item>
+                                      )}
+                                    </Menu.Popup>
+                                  </Menu.Positioner>
+                                </Menu.Portal>
+                              </Menu.Root>
                             </>
                           )}
                         </div>
@@ -703,60 +663,18 @@ export function ValidasiAksesPenyelenggaraClient({
           </table>
         </div>
 
-        {/* â”€â”€ Pagination Area â”€â”€ */}
-        <div className="flex justify-between items-center mt-3 pt-5 border-t border-slate-100 flex-wrap gap-3">
-          <span className="text-xs text-slate-400 font-semibold">
-            Menampilkan <span className="text-slate-700">{processedData.length > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0}</span> â€“{" "}
-            <span className="text-slate-700">
-              {Math.min(currentPage * PAGE_SIZE, processedData.length)}
-            </span>{" "}
-            dari <span className="text-slate-700 font-bold">{processedData.length}</span> penyelenggara
-          </span>
-          
-          <div className="flex gap-1 items-center">
-            <Button
-              variant="outline"
-              size="icon-xs"
-              onClick={() => goPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              aria-label="Halaman sebelumnya"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </Button>
-
-            {getPageButtons().map((page, idx) =>
-              page === "..." ? (
-                <span key={`dots-${idx}`} className="text-gray-400 px-1 text-xs font-semibold">
-                  ...
-                </span>
-              ) : (
-                <Button
-                  key={page}
-                  variant={page === currentPage ? "default" : "outline"}
-                  size="icon-xs"
-                  onClick={() => goPage(page as number)}
-                  aria-label={`Halaman ${page}`}
-                >
-                  {page}
-                </Button>
-              )
-            )}
-
-            <Button
-              variant="outline"
-              size="icon-xs"
-              onClick={() => goPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              aria-label="Halaman berikutnya"
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={processedData.length}
+          itemsPerPage={PAGE_SIZE}
+          onPageChange={setCurrentPage}
+          itemLabel="penyelenggara"
+        />
 
       </div>
 
-      {/* â”€â”€ Floating Bulk Action Bar â”€â”€ */}
+      {/*  Floating Bulk Action Bar  */}
       {selectedIds.length > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 border border-slate-200 shadow-2xl rounded-3xl p-4 flex items-center justify-between gap-6 max-w-lg w-[90%] backdrop-blur-md animate-in slide-in-from-bottom-8 fade-in-40 duration-300">
           <div className="flex items-center gap-3">
@@ -808,7 +726,7 @@ export function ValidasiAksesPenyelenggaraClient({
         </div>
       )}
 
-      {/* â”€â”€ Premium Detail Modal â”€â”€ */}
+      {/*  Premium Detail Modal  */}
       <Modal open={detailItem !== null} onClose={() => setDetailItem(null)} className="max-w-2xl">
         {detailItem && (<>
             <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex flex-col items-center text-center relative overflow-hidden mb-6">
@@ -975,7 +893,7 @@ export function ValidasiAksesPenyelenggaraClient({
           <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Akses Penyelenggara</h3>
           <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar penyelenggara dapat memperbaikinya.</p>
           
-          <textarea
+          <Textarea
             value={rejectModal.reason}
             onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
             placeholder="Misal: Dokumen legalitas kurang jelas..."

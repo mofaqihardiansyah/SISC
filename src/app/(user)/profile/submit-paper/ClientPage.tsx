@@ -7,6 +7,7 @@ import { SubmissionForm } from './SubmissionForm';
 import { EventList } from './EventList';
 import { SubmissionDetail } from './SubmissionDetail';
 import { SubmittedPaper } from '@/actions/paper';
+import { Select } from '@/components/ui/select'
 
 type RegisteredEvent = {
   id: number;
@@ -106,7 +107,7 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400 outline-none focus:border-primary/40 transition-colors"
               />
-              <select
+              <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 outline-none focus:border-primary/40 transition-colors cursor-pointer sm:w-48"
@@ -116,7 +117,7 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
                 <option value="review">Sedang Direview</option>
                 <option value="accepted">Diterima</option>
                 <option value="rejected">Ditolak</option>
-              </select>
+              </Select>
             </div>
 
             {/* Event List Table */}

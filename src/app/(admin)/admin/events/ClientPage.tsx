@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import DataEvent from './DataEvent';
 import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
+import { Select } from '@/components/ui/select'
 
 export type Event = {
   id: number;
@@ -294,7 +295,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
             <div>
               <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Verifikasi</label>
               <div className="relative">
-                <select 
+                <Select 
                   value={statusTab}
                   onChange={(e) => setStatusTab(e.target.value as 'all' | 'pending' | 'published' | 'rejected')}
                   className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
@@ -303,7 +304,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   <option value="pending">Menunggu ({events.filter(e => e.status === 'pending').length})</option>
                   <option value="published">Published ({events.filter(e => e.status === 'published').length})</option>
                   <option value="rejected">Ditolak ({events.filter(e => e.status === 'rejected').length})</option>
-                </select>
+                </Select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
             </div>
@@ -312,7 +313,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
             <div>
               <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Jenis Event</label>
               <div className="relative">
-                <select 
+                <Select 
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
                   className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
@@ -320,7 +321,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   <option value="all">Semua Jenis</option>
                   <option value="seminar">Seminar</option>
                   <option value="conference">Conference</option>
-                </select>
+                </Select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
             </div>
@@ -329,7 +330,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
             <div>
               <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Target Peserta</label>
               <div className="relative">
-                <select 
+                <Select 
                   value={targetFilter}
                   onChange={(e) => setTargetFilter(e.target.value)}
                   className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
@@ -337,7 +338,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   <option value="all">Semua Target</option>
                   <option value="polines">Polines (Internal)</option>
                   <option value="umum">Umum (Eksternal)</option>
-                </select>
+                </Select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
             </div>
@@ -346,7 +347,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
             <div>
               <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Platform</label>
               <div className="relative">
-                <select 
+                <Select 
                   value={platformFilter}
                   onChange={(e) => setPlatformFilter(e.target.value)}
                   className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
@@ -355,7 +356,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   <option value="offline">Offline (Luring)</option>
                   <option value="online">Online (Daring)</option>
                   <option value="hybrid">Hybrid</option>
-                </select>
+                </Select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
             </div>
@@ -364,7 +365,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
             <div>
               <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status Biaya</label>
               <div className="relative">
-                <select 
+                <Select 
                   value={priceFilter}
                   onChange={(e) => setPriceFilter(e.target.value)}
                   className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
@@ -372,7 +373,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   <option value="all">Semua Status</option>
                   <option value="free">Gratis</option>
                   <option value="paid">Berbayar</option>
-                </select>
+                </Select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
             </div>
@@ -381,7 +382,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
             <div>
               <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Urutkan</label>
               <div className="relative">
-                <select 
+                <Select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
@@ -390,7 +391,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   <option value="oldest">Terlama</option>
                   <option value="name_asc">Nama (A-Z)</option>
                   <option value="name_desc">Nama (Z-A)</option>
-                </select>
+                </Select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
             </div>
@@ -617,7 +618,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
           <span className="text-micro text-slate-400 font-medium">
             {sortedEvents.length > 0 ? (
               <>
-                Menampilkan <strong className="text-slate-600">{startIdx + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startIdx + EVENTS_PER_PAGE, sortedEvents.length)}</strong> dari <strong className="text-slate-600">{sortedEvents.length}</strong> event
+                Menampilkan <strong className="text-slate-600">{startIdx + 1}</strong>&ndash;<strong className="text-slate-600">{Math.min(startIdx + EVENTS_PER_PAGE, sortedEvents.length)}</strong> dari <strong className="text-slate-600">{sortedEvents.length}</strong> event
               </>
             ) : (
               "Tidak ada data"

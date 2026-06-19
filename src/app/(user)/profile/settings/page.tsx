@@ -46,7 +46,8 @@ export default function SettingsPage() {
           institusi: data.institusi || '',
           urlAvatar: data.urlAvatar || '',
         });
-      });
+      })
+      .catch(err => console.error("Gagal fetch profil:", err));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

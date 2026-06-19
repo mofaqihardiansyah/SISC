@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea'
 
 interface ProfilFormProps {
   initialData: {
@@ -230,7 +231,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
             
             <div className="md:col-span-2">
               <label className="text-sm font-semibold mb-2 block">Deskripsi</label>
-              <textarea 
+              <Textarea 
                 rows={4}
                 value={formData.deskripsiInstansi}
                 onChange={(e) => setFormData(prev => ({ ...prev, deskripsiInstansi: e.target.value }))}

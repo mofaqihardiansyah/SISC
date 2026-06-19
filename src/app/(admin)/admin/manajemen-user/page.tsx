@@ -2,21 +2,23 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Search, Trash2, ChevronLeft, ChevronRight,
+  Search, Trash2,
   Users, UserCheck, UserX, Clock, TrendingUp, Loader2,
   ChevronUp, ChevronDown, ChevronsUpDown, X, Eye,
 } from "lucide-react";
 import Image from "next/image";
 import { Modal } from "@/components/ui/modal";
+import { Pagination } from "@/components/ui/pagination";
 import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Select } from '@/components/ui/select'
 export const dynamic = 'force-dynamic';
 
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Types 
 type SortField = "namaLengkap" | "dibuatPada" | "role";
 type SortDir = "asc" | "desc";
 
@@ -54,7 +56,7 @@ interface Stats {
   suspended: number;
 }
 
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Helpers 
 
 const AVATAR_COLORS = ["#f59e0b","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#ef4444","#22c55e","#f97316"];
 const getAvatarColor = (id: number) => AVATAR_COLORS[id % AVATAR_COLORS.length];
@@ -66,7 +68,7 @@ const formatDateTime = (iso: string | null) =>
 
 const ROWS_PER_PAGE = PAGINATION.ROWS_PER_PAGE;
 
-// â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Sub-components 
 
 function Avatar({ user, size = "md" }: { user: { id: number; namaLengkap: string; urlAvatar: string | null }; size?: "md" | "lg" }) {
   const cls = size === "lg" ? "w-16 h-16 text-base" : "w-8 h-8 text-xxs";
@@ -118,7 +120,7 @@ function StatCard({ icon: Icon, label, value, sub, subColor, iconColor, iconBg, 
   );
 }
 
-// â”€â”€â”€ Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Detail Modal 
 
 function DetailModal({ userId, onClose }: { userId: number; onClose: () => void }) {
   const [user, setUser] = useState<UserDetail | null>(null);
@@ -176,7 +178,7 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
   );
 }
 
-// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Page 
 
 export default function ManajemenUserPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -202,7 +204,7 @@ export default function ManajemenUserPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [detailUserId, setDetailUserId] = useState<number | null>(null);
 
-  // â”€â”€ Fetch stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Fetch stats 
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -216,7 +218,7 @@ export default function ManajemenUserPage() {
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
-  // â”€â”€ Fetch users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Fetch users 
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -247,7 +249,7 @@ export default function ManajemenUserPage() {
     setSelectedRows([]);
   }, [fetchUsers]);
 
-  // â”€â”€ Sort â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Sort 
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) setSortDir((d) => d === "asc" ? "desc" : "asc");
@@ -255,7 +257,7 @@ export default function ManajemenUserPage() {
     setCurrentPage(1);
   };
 
-  // â”€â”€ Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Filter 
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -269,7 +271,7 @@ export default function ManajemenUserPage() {
   }, [searchInput, tipeInput, search, tipe]);
 
 
-  // â”€â”€ Selection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Selection 
 
   const pageIds = users.map((u) => u.id);
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedRows.includes(id));
@@ -279,7 +281,7 @@ export default function ManajemenUserPage() {
   const toggleRow = (id: number) =>
     setSelectedRows((p) => p.includes(id) ? p.filter((r) => r !== id) : [...p, id]);
 
-  // â”€â”€ Delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Delete 
 
   const handleDelete = async (id: number) => {
     setDeleteLoading(true);
@@ -306,22 +308,9 @@ export default function ManajemenUserPage() {
     finally { setDeleteLoading(false); }
   };
 
-  // â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Pagination 
 
-  const getPageButtons = (): (number | string)[] => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | string)[] = [1, 2, 3];
-    if (currentPage > 4) pages.push("...");
-    if (currentPage > 3 && currentPage < totalPages - 1) pages.push(currentPage);
-    if (currentPage < totalPages - 2) pages.push("...");
-    pages.push(totalPages);
-    return pages;
-  };
-
-  const showFrom = total === 0 ? 0 : (currentPage - 1) * ROWS_PER_PAGE + 1;
-  const showTo = Math.min(currentPage * ROWS_PER_PAGE, total);
-
-  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Render 
 
   return (
     <div className="flex-1 p-6 bg-gray-50 min-h-screen overflow-y-auto">
@@ -385,12 +374,12 @@ export default function ManajemenUserPage() {
           </div>
           <div className="min-w-36">
             <label className="block text-xxs font-semibold text-gray-400 uppercase tracking-wider mb-1">Peran</label>
-            <select value={tipeInput} onChange={(e) => setTipeInput(e.target.value)}
+            <Select value={tipeInput} onChange={(e) => setTipeInput(e.target.value)}
               className="w-full px-3 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:outline-none text-gray-700">
               <option>Semua Tipe</option>
               <option value="organizer">Organizer</option>
               <option value="visitor">Visitor</option>
-            </select>
+            </Select>
           </div>
         </div>
 
@@ -474,30 +463,14 @@ export default function ManajemenUserPage() {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
-          <span className="text-xs text-gray-400">
-            Menampilkan <b className="text-gray-600">{showFrom}</b> â€“ <b className="text-gray-600">{showTo}</b> dari{" "}
-            <b className="text-gray-600">{total.toLocaleString("id-ID")}</b> pengguna
-          </span>
-          <div className="flex gap-1 items-center">
-            <Button variant="outline" size="icon-xs" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} aria-label="Halaman sebelumnya">
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </Button>
-            {getPageButtons().map((p, i) =>
-              p === "..." ? (
-                <span key={`d${i}`} className="text-gray-400 px-1 text-xs">...</span>
-              ) : (
-                <Button key={p} variant={currentPage === p ? "default" : "outline"} size="icon-xs" onClick={() => setCurrentPage(p as number)}>
-                  {p}
-                </Button>
-              )
-            )}
-            <Button variant="outline" size="icon-xs" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} aria-label="Halaman berikutnya">
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={total}
+          itemsPerPage={ROWS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="pengguna"
+        />
       </div>
 
       {/* Detail Modal */}

@@ -8,6 +8,8 @@ import { Modal } from '@/components/ui/modal';
 import { approveEvent, rejectEvent, getPendingEvents } from '../../../../actions/persetujuan-event';
 import type { PendingEvent } from '../../../../actions/persetujuan-event';
 import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 
 function EventCategoryIcon({ emoji, className = "w-5 h-5 text-slate-500" }: { emoji: string; className?: string }) {
   switch (emoji) {
@@ -206,28 +208,18 @@ function ReviewModal({
       {/* Action Buttons */}
       {event.status === 'pending' && !showRejectForm && (
         <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-          <button
-            onClick={handleApproveAction}
-            disabled={actionLoading !== null}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
-          >
-            {actionLoading === 'approve' ? (
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : '\u2713 Setujui'}
-          </button>
-          <button
-            onClick={() => setShowRejectForm(true)}
-            disabled={actionLoading !== null}
-            className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
-          >
-            \u2717 Tolak
-          </button>
+          <Button variant="success" loading={actionLoading === 'approve'} disabled={actionLoading !== null} onClick={handleApproveAction} className="flex-1">
+            {'\u2713 Setujui'}
+          </Button>
+          <Button variant="destructive-solid" disabled={actionLoading !== null} onClick={() => setShowRejectForm(true)} className="flex-1">
+            {'\u2717 Tolak'}
+          </Button>
         </div>
       )}
 
       {event.status === 'pending' && showRejectForm && (
         <div className="pt-4 border-t border-slate-100 space-y-3">
-          <textarea
+          <Textarea
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             placeholder="Alasan penolakan..."
@@ -235,22 +227,12 @@ function ReviewModal({
             className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
           />
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleRejectAction}
-              disabled={actionLoading !== null}
-              className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm text-sm flex items-center justify-center gap-2"
-            >
-              {actionLoading === 'reject' ? (
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : 'Konfirmasi Tolak'}
-            </button>
-            <button
-              onClick={() => { setShowRejectForm(false); setRejectReason(''); }}
-              disabled={actionLoading !== null}
-              className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
-            >
+            <Button variant="destructive-solid" loading={actionLoading === 'reject'} disabled={actionLoading !== null} onClick={handleRejectAction} className="flex-1">
+              Konfirmasi Tolak
+            </Button>
+            <Button variant="outline" disabled={actionLoading !== null} onClick={() => { setShowRejectForm(false); setRejectReason(''); }}>
               Batal
-            </button>
+            </Button>
           </div>
         </div>
       )}

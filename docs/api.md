@@ -41,7 +41,8 @@ Daftar event publik dengan filter dan pagination.
       "tanggalSelesai": "2026-06-10T00:00:00.000Z",
       "status": "published",
       "kategoriNama": "string",
-      "kotaNama": "string"
+      "kotaNama": "string",
+      "kuota": 300
     }
   ],
   "total": 50

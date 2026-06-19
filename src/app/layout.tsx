@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter } from "next/font/google";
 import "./globals.css";
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 import Providers from "@/components/providers";
 import Navbar from "@/components/layout/Navbar";
@@ -36,7 +37,9 @@ export default function RootLayout({
         <Providers>
           {/* Navbar GLOBAL */}
           <NavbarWrapper>
-            <Navbar />
+            <Suspense fallback={<div className="h-16" />}>
+              <Navbar />
+            </Suspense>
           </NavbarWrapper>
 
           <main className="flex-1 flex flex-col">{children}</main>

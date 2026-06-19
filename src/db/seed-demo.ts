@@ -5,21 +5,11 @@ import { eq } from 'drizzle-orm';
 
 async function seedBookmarks() {
   console.log("📦 Seeding favorit...");
-  const favoritData = [
-    // seed-dummy favorit
-    { userId: 3, eventId: 1 }, { userId: 3, eventId: 17 },
-    { userId: 4, eventId: 1 }, { userId: 4, eventId: 14 },
-  ];
-  for (const b of favoritData) {
-    await db.insert(favorit).values(b).onConflictDoNothing();
-  }
-
-  // seed-profile-demo favorit (visitor user)
   const visitor = await db.query.users.findFirst({
     where: eq(users.email, "visitor@gmail.com")
   });
   if (visitor) {
-    for (const eventId of [1, 3, 8]) {
+    for (const eventId of [1, 2, 3]) {
       await db.insert(favorit).values({ userId: visitor.id, eventId }).onConflictDoNothing();
     }
   }
@@ -30,7 +20,6 @@ async function seedBookmarks() {
 async function seedRegistrations() {
   console.log("📦 Seeding pendaftaran & peserta...");
 
-  // --- From seed-dummy.ts ---
   const dummyPendaftarans = [
     {
       eventId: 1, userId: 4, kodePendaftaran: "REG-1-001", status: "terdaftar" as const,
@@ -45,30 +34,32 @@ async function seedRegistrations() {
       buktiPembayaran: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
     },
   ];
+
   for (const p of dummyPendaftarans) {
     const existing = await db.query.pendaftaran.findFirst({
       where: eq(pendaftaran.kodePendaftaran, p.kodePendaftaran)
     });
     if (!existing) {
-      await db.insert(pendaftaran).values({
+      const newReg = await db.insert(pendaftaran).values({
         eventId: p.eventId, userId: p.userId,
         kodePendaftaran: p.kodePendaftaran, status: p.status,
         buktiPembayaran: p.buktiPembayaran,
-      });
+      }).returning({ id: pendaftaran.id });
+
       await db.insert(peserta).values({
+        pendaftaranId: newReg[0].id,
         kodePeserta: p.kodePeserta, namaLengkap: p.namaLengkap, email: p.email,
         nomorTelepon: p.nomorTelepon, jenisKelamin: p.jenisKelamin,
       });
     }
   }
 
-  // --- From seed-profile-demo.ts ---
   const visitor = await db.query.users.findFirst({
     where: eq(users.email, "visitor@gmail.com")
   });
   if (visitor) {
     const registrationEvents = [
-      { id: 5, kode: 'REG-SC-001' }, { id: 2, kode: 'REG-CS-002' }, { id: 14, kode: 'REG-EH-003' }
+      { id: 4, kode: 'REG-SC-001' }, { id: 5, kode: 'REG-CS-002' }, { id: 6, kode: 'REG-EH-003' }
     ];
     for (const reg of registrationEvents) {
       const existingReg = await db.query.pendaftaran.findFirst({
@@ -80,9 +71,9 @@ async function seedRegistrations() {
           kodePendaftaran: reg.kode, status: 'terdaftar',
           buktiPembayaran: "https://picsum.photos/seed/payment_reg/800/600",
         }).returning({ id: pendaftaran.id });
-        const pendaftaranId = newReg[0].id;
+        
         await db.insert(peserta).values({
-          pendaftaranId,
+          pendaftaranId: newReg[0].id,
           kodePeserta: `PS-${reg.kode}`,
           namaLengkap: visitor.namaLengkap,
           email: visitor.email,
@@ -108,7 +99,7 @@ async function seedPapers() {
 
   const papers = [
     {
-      eventId: 5,
+      eventId: 4,
       judul: "Implementasi Edge Computing untuk Deteksi Kepadatan Parkir Real-time di Kampus",
       penulis: "Ahmad Rizki, Dr. Sujatmiko, Sarah Amelia",
       urlFile: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
@@ -116,7 +107,7 @@ async function seedPapers() {
       komentarPenolakan: null as string | null
     },
     {
-      eventId: 2,
+      eventId: 5,
       judul: "Analisis Forensik Digital pada Serangan Ransomware di Infrastruktur Cloud",
       penulis: "Ahmad Rizki, Prof. Budi Santoso",
       urlFile: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
@@ -124,12 +115,12 @@ async function seedPapers() {
       komentarPenolakan: null as string | null
     },
     {
-      eventId: 14,
+      eventId: 6,
       judul: "Pemanfaatan Blockchain untuk Keamanan Data Rekam Medis di Puskesmas",
       penulis: "Ahmad Rizki, dr. Tirta",
       urlFile: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       status: "rejected" as const,
-      komentarPenolakan: "Metodologi penelitian pada bagian konsensus blockchain kurang mendalam untuk skala Puskesmas. Mohon perbaiki landasan teori dan analisis skalabilitas sebelum submit kembali."
+      komentarPenolakan: "Metodologi penelitian pada bagian konsensus blockchain kurang mendalam untuk skala Puskesmas. Mohon perbaiki landasan teori."
     }
   ];
 

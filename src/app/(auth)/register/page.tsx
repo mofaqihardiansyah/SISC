@@ -16,6 +16,7 @@ import { FileUpload } from '@/components/shared/FileUpload';
 import { FileText, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import { Select } from '@/components/ui/select'
 
 const visitorSchema = z.object({
   namaLengkap: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
@@ -226,14 +227,14 @@ export default function RegisterPage() {
                 </div>
                 <div className="flex-1 space-y-2">
                   <Label className="text-sm font-semibold text-slate-700 ml-0.5">Jenis Kelamin</Label>
-                  <select 
+                  <Select 
                     className="flex h-12 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium ring-offset-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 transition-all"
                     {...visitorForm.register('jenisKelamin')}
                   >
                     <option value="">Pilih jenis kelamin</option>
                     <option value="Laki-laki">Laki-laki</option>
                     <option value="Perempuan">Perempuan</option>
-                  </select>
+                  </Select>
                   {visitorForm.formState.errors.jenisKelamin && <p className="text-red-500 text-xxs font-bold mt-1 ml-1">{visitorForm.formState.errors.jenisKelamin.message}</p>}
                 </div>
               </div>

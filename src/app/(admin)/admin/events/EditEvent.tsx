@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
 type EditEventProps = {
   isOpen: boolean;
@@ -117,10 +119,10 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Layout size={12} /> Tipe Event (Seminar/Conference)</label>
               <div className="relative">
                 <Layout className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <select name="jenisEvent" value={formData.jenisEvent || ''} onChange={handleChange} className={cn(inputClasses, "appearance-none")}>
+                <Select name="jenisEvent" value={formData.jenisEvent || ''} onChange={handleChange} className={cn(inputClasses, "appearance-none")}>
                   <option value="seminar">Seminar</option>
                   <option value="conference">Conference</option>
-                </select>
+                </Select>
               </div>
             </div>
 
@@ -128,7 +130,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Tag size={12} /> Jenis Event (Polines/Umum)</label>
               <div className="relative">
                 <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <select 
+                <Select 
                    name="eventPolines" 
                    value={formData.eventPolines ? "true" : "false"} 
                    onChange={(e) => setFormData(prev => prev ? ({ ...prev, eventPolines: e.target.value === "true" }) : null)} 
@@ -136,7 +138,7 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
                 >
                   <option value="true">Polines (Internal)</option>
                   <option value="false">Umum (Eksternal)</option>
-                </select>
+                </Select>
               </div>
             </div>
 
@@ -158,11 +160,11 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Globe size={12} /> Tipe Platform</label>
               <div className="relative">
                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <select name="tipePlatform" value={formData.tipePlatform || 'offline'} onChange={handleChange} className={cn(inputClasses, "appearance-none")}>
+                <Select name="tipePlatform" value={formData.tipePlatform || 'offline'} onChange={handleChange} className={cn(inputClasses, "appearance-none")}>
                   <option value="offline">Luring (Offline)</option>
                   <option value="online">Daring (Online)</option>
                   <option value="hybrid">Hybrid</option>
-                </select>
+                </Select>
               </div>
             </div>
 
@@ -186,10 +188,10 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <label className={labelClasses}><Ticket size={12} /> Status Biaya</label>
               <div className="relative">
                 <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                <select name="tipeHarga" value={formData.tipeHarga || 'free'} onChange={handleChange} className={cn(inputClasses, "appearance-none")}>
+                <Select name="tipeHarga" value={formData.tipeHarga || 'free'} onChange={handleChange} className={cn(inputClasses, "appearance-none")}>
                   <option value="free">Gratis</option>
                   <option value="paid">Berbayar</option>
-                </select>
+                </Select>
               </div>
             </div>
 
@@ -256,12 +258,12 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
 
             <div className="md:col-span-2">
               <label className={labelClasses}><AlignLeft size={12} /> Deskripsi Lengkap Event</label>
-              <textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "pl-4 pt-2 resize-none")} />
+              <Textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "pl-4 pt-2 resize-none")} />
             </div>
 
             <div className="md:col-span-2">
               <label className={labelClasses}><ShieldCheck size={12} /> Syarat & Ketentuan</label>
-              <textarea name="syaratDanKetentuan" value={formData.syaratDanKetentuan || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "pl-4 pt-2 resize-none")} />
+              <Textarea name="syaratDanKetentuan" value={formData.syaratDanKetentuan || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "pl-4 pt-2 resize-none")} />
             </div>
           </div>
         </form>

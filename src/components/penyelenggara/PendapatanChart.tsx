@@ -6,6 +6,7 @@ import {
   Tooltip, ResponsiveContainer,
 } from "recharts";
 import { ERROR_MESSAGES } from "@/lib/constants";
+import { Select } from '@/components/ui/select'
 
 type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
@@ -57,7 +58,7 @@ export function PendapatanChart({ initialData, selectedEventId }: PendapatanChar
           <h3 className="text-lg font-bold text-gray-900">Grafik Pendapatan</h3>
           <p className="text-sm text-gray-400">Data pendapatan real-time</p>
         </div>
-        <select
+        <Select
           value={filter}
           onChange={e => setFilter(e.target.value as FilterType)}
           className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl p-2.5 font-bold outline-none"
@@ -65,7 +66,7 @@ export function PendapatanChart({ initialData, selectedEventId }: PendapatanChar
           <option value="bulan-ini">Bulan Ini</option>
           <option value="bulan-lalu">Bulan Lalu</option>
           <option value="tahun-ini">Tahun Ini</option>
-        </select>
+        </Select>
       </div>
 
       <div className="relative">

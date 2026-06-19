@@ -30,6 +30,11 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
+  
+  useEffect(() => {
+    setPrevPathname(pathname);
+  }, [pathname]);
+
   const { isCollapsed } = useSidebar();
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(() => {
@@ -50,6 +55,8 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
   });
 
   useEffect(() => {
+    setIsOpen(false);
+
     menuItems.forEach((item) => {
       if (item.subItems) {
         const hasActiveSub = item.subItems.some((sub) => {
@@ -63,11 +70,6 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
       }
     });
   }, [pathname, menuItems]);
-
-  if (pathname !== prevPathname) {
-    setIsOpen(false);
-    setPrevPathname(pathname);
-  }
 
   return (
     <>

@@ -70,7 +70,7 @@ PostgreSQL 16 berjalan di `localhost:5433`, user `sisc_user`, database `sisc_db`
 # Push schema ke database
 npm run db:push
 
-# Seed data awal (kategori, provinsi, kota, users, events, demo)
+# Seed data awal (kategori, provinsi, kota, users, professional events, demo)
 npm run db:seed
 
 # (Opsional) Buka Drizzle Studio

@@ -1,8 +1,8 @@
 import React from 'react';
 import { db } from "@/db";
-import { users, event } from "@/db/schema";
+import { users, event, pendaftaran } from "@/db/schema";
 import { auth } from "@/auth";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import KelolaEventClient from "./KelolaEventClient";
 import { BlockedOrganizerState } from "@/components/penyelenggara/BlockedOrganizerState";
@@ -32,9 +32,30 @@ export default async function KelolaEventPage() {
   }
 
   const initialEventsData = await db
-    .select()
+    .select({
+      id: event.id,
+      judul: event.judul,
+      status: event.status,
+      jenisEvent: event.jenisEvent,
+      tipePlatform: event.tipePlatform,
+      kuota: event.kuota,
+      harga: event.harga,
+      tanggalMulai: event.tanggalMulai,
+      urlBanner: event.urlBanner,
+      alasanPenolakan: event.alasanPenolakan,
+      detailLokasi: event.detailLokasi,
+      deskripsi: event.deskripsi,
+      participantCount: count(pendaftaran.id),
+    })
     .from(event)
-    .where(eq(event.organizerId, userId));
+    .leftJoin(pendaftaran, eq(event.id, pendaftaran.eventId))
+    .where(eq(event.organizerId, userId))
+    .groupBy(event.id);
 
-  return <KelolaEventClient initialEvents={initialEventsData} />;
+  const formattedEvents = initialEventsData.map(ev => ({
+    ...ev,
+    participantCount: Number(ev.participantCount || 0)
+  }));
+
+  return <KelolaEventClient initialEvents={formattedEvents as any} />;
 }

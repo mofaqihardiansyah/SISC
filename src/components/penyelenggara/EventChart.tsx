@@ -6,6 +6,7 @@ import {
   Tooltip, ResponsiveContainer, Area, AreaChart,
 } from "recharts";
 import { ERROR_MESSAGES, FILTER_OPTIONS } from "@/lib/constants";
+import { Select } from '@/components/ui/select'
 
 type FilterType = "bulan-ini" | "bulan-lalu" | "tahun-ini";
 
@@ -62,7 +63,7 @@ export function EventChart({ initialData, selectedEventId }: EventChartProps) {
           <h3 className="text-lg font-bold text-gray-900">Grafik Peserta</h3>
           <p className="text-sm text-gray-400">Data pendaftaran real-time</p>
         </div>
-        <select
+        <Select
           value={filter}
           onChange={e => setFilter(e.target.value as FilterType)}
           className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl p-2.5 font-bold outline-none"
@@ -70,7 +71,7 @@ export function EventChart({ initialData, selectedEventId }: EventChartProps) {
           {FILTER_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <div className="relative">

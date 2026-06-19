@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { Select } from '@/components/ui/select'
 
 interface ProvinsiItem {
   id: number;
@@ -224,7 +225,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
             <span className="text-micro text-slate-400 font-medium">
               {filteredProvinsi.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startProvIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startProvIndex + PROV_PER_PAGE, filteredProvinsi.length)}</strong> dari <strong className="text-slate-600">{filteredProvinsi.length}</strong> provinsi
+                  Menampilkan <strong className="text-slate-600">{startProvIndex + 1}</strong>&ndash;<strong className="text-slate-600">{Math.min(startProvIndex + PROV_PER_PAGE, filteredProvinsi.length)}</strong> dari <strong className="text-slate-600">{filteredProvinsi.length}</strong> provinsi
                 </>
               ) : (
                 "Tidak ada data"
@@ -368,7 +369,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
             <span className="text-micro text-slate-400 font-medium">
               {filteredKota.length > 0 ? (
                 <>
-                  Menampilkan <strong className="text-slate-600">{startKotaIndex + 1}</strong> â€“ <strong className="text-slate-600">{Math.min(startKotaIndex + KOTA_PER_PAGE, filteredKota.length)}</strong> dari <strong className="text-slate-600">{filteredKota.length}</strong> kota
+                  Menampilkan <strong className="text-slate-600">{startKotaIndex + 1}</strong>&ndash;<strong className="text-slate-600">{Math.min(startKotaIndex + KOTA_PER_PAGE, filteredKota.length)}</strong> dari <strong className="text-slate-600">{filteredKota.length}</strong> kota
                 </>
               ) : (
                 "Tidak ada data"
@@ -447,7 +448,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                   <label className="block text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1">
                     Pilih Provinsi
                   </label>
-                  <select
+                  <Select
                     value={selectedProvinsiId || ''}
                     onChange={(e) => setSelectedProvinsiId(parseInt(e.target.value))}
                     disabled={loading}
@@ -461,7 +462,7 @@ export default function LocationClient({ initialProvinsi, initialKota }: Locatio
                     {initialProvinsi.length === 0 && (
                       <option value="">Belum ada provinsi (tambah provinsi dahulu)</option>
                     )}
-                  </select>
+                  </Select>
                 </div>
               )}
 

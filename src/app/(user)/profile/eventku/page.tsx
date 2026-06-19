@@ -5,6 +5,7 @@ import { getUserEvents } from '@/actions/user-event';
 import EventCard from '@/components/profile/EventCard';
 import EmptyState from '@/components/profile/EmptyState';
 import Link from 'next/link';
+import { Select } from '@/components/ui/select'
 export const dynamic = 'force-dynamic';
 
 
@@ -107,7 +108,7 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
           {totalPages > 1 && (
             <div className="flex justify-between items-center mt-6 flex-wrap gap-3">
               <span className="text-xs text-slate-400 font-semibold">
-                Menampilkan <span className="text-slate-700">{events.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> â€“{" "}
+                Menampilkan <span className="text-slate-700">{events.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span>&ndash;{" "}
                 <span className="text-slate-700">{Math.min(currentPage * ITEMS_PER_PAGE, events.length)}</span> dari{" "}
                 <span className="text-slate-700 font-bold">{events.length}</span> eventku
               </span>
@@ -184,7 +185,7 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
           Status
         </label>
         <div className="relative">
-          <select
+          <Select
             name="status"
             defaultValue={currentStatus}
             className="w-full appearance-none bg-white border border-slate-200 py-2.5 pl-3 pr-8 rounded-xl outline-none text-sm cursor-pointer shadow-sm focus:border-sisc-navy transition-all"
@@ -194,7 +195,7 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
                 {opt.label}
               </option>
             ))}
-          </select>
+          </Select>
           <ChevronDown
             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
             size={14}

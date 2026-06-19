@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { submitNewPaper } from '@/actions/paper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea'
 
 type SubmissionFormProps = {
   selectedEvent: { id: number; judul: string } | undefined;
@@ -91,6 +92,10 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
       setStep(2);
     } else if (step === 2) {
       if (authors.length === 0) return toast.error('Tambahkan minimal 1 penulis');
+      const nameRegex = /^[\p{L}\s.'-]{2,}$/u;
+      const invalidName = authors.some((a) => !nameRegex.test(a.namaDepan.trim()) || !nameRegex.test(a.namaBelakang.trim()));
+      if (invalidName) return toast.error('Nama Depan & Nama Belakang: minimal 2 karakter, hanya huruf, spasi, titik, apostrof, dan tanda hubung');
+
       const incomplete = authors.some((a) => !a.namaDepan.trim() || !a.namaBelakang.trim() || (a.isCorresponding && !a.email.trim()) || !a.afiliasi.trim());
       if (incomplete) return toast.error('Lengkapi semua data penulis (Nama Depan, Nama Belakang, Email untuk Penulis Utama, Afiliasi)');
       
@@ -225,7 +230,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                     <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-slate-400" /> Judul Penelitian
                     </label>
-                    <textarea
+                    <Textarea
                       rows={2}
                       value={paperTitle}
                       onChange={(e) => setPaperTitle(e.target.value)}

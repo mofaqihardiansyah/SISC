@@ -6,8 +6,6 @@ import {
   Search,
   Download,
   Loader2,
-  ChevronLeft,
-  ChevronRight,
   Paperclip,
   X,
   ExternalLink,
@@ -21,9 +19,12 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Modal } from "@/components/ui/modal";
+import { Pagination } from "@/components/ui/pagination";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from "sonner";
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
 // ============================================================
 // TIPE DATA
@@ -284,7 +285,7 @@ export default function InformasiPesertaClient() {
 
   const PER_PAGE = 10;
 
-  // â”€â”€ Fetch data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Fetch data 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -343,7 +344,7 @@ export default function InformasiPesertaClient() {
     }
   };
 
-  // â”€â”€ Export Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Export Excel 
   const exportExcel = async () => {
     setExporting(true);
     try {
@@ -377,20 +378,8 @@ export default function InformasiPesertaClient() {
     }
   };
 
-  // â”€â”€ Pagination logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Pagination logic 
   const totalPages = Math.ceil(totalData / PER_PAGE);
-  const startItem = totalData === 0 ? 0 : (page - 1) * PER_PAGE + 1;
-  const endItem = Math.min(page * PER_PAGE, totalData);
-
-  const getPageNumbers = (): (number | string)[] => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | string)[] = [1, 2, 3];
-    if (page > 4) pages.push("...");
-    if (page > 3 && page < totalPages - 1) pages.push(page);
-    if (page < totalPages - 2) pages.push("...");
-    pages.push(totalPages);
-    return pages;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -412,7 +401,7 @@ export default function InformasiPesertaClient() {
             className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-slate-700 font-medium"
           />
         </div>
-        <select
+        <Select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
           className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-40 text-slate-600 font-semibold cursor-pointer"
@@ -421,7 +410,7 @@ export default function InformasiPesertaClient() {
           <option value="hadir">Terverifikasi</option>
           <option value="terdaftar">Menunggu</option>
           <option value="dibatalkan">Ditolak</option>
-        </select>
+        </Select>
       </div>
 
       {/* Table Card */}
@@ -538,7 +527,7 @@ export default function InformasiPesertaClient() {
                             Lihat File
                           </Button>
                         ) : (
-                          <span className="text-gray-300 text-sm">â€”</span>
+                          <span className="text-gray-300 text-sm"></span>
                         )}
                       </td>
 
@@ -571,51 +560,14 @@ export default function InformasiPesertaClient() {
           </table>
         </div>
 
-        {/* Pagination */}
-        {totalData > 0 && (
-          <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100 flex-wrap gap-3">
-            <span className="text-xs text-slate-400 font-semibold">
-              Menampilkan <span className="text-slate-700">{startItem}</span> â€“ <span className="text-slate-700">{endItem}</span> dari <span className="text-slate-700 font-bold">{totalData}</span> peserta
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                variant="ghost"
-                size="icon"
-                aria-label="Halaman sebelumnya"
-              >
-                <ChevronLeft size={13} />
-              </Button>
-              {getPageNumbers().map((pg, idx) =>
-                pg === "..." ? (
-                  <span key={`dots-${idx}`} className="text-gray-400 px-1 text-xs font-semibold">
-                    ...
-                  </span>
-                ) : (
-                  <Button
-                    key={pg}
-                    onClick={() => setPage(pg as number)}
-                    variant={page === pg ? "default" : "outline"}
-                    size="icon-xs"
-                    className={page === pg ? "" : "border-gray-200"}
-                  >
-                    {pg}
-                  </Button>
-                )
-              )}
-              <Button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                variant="ghost"
-                size="icon"
-                aria-label="Halaman selanjutnya"
-              >
-                <ChevronRight size={13} />
-              </Button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={totalData}
+          itemsPerPage={PER_PAGE}
+          onPageChange={setPage}
+          itemLabel="peserta"
+        />
       </div>
 
       {/* Popup Lampiran */}
@@ -633,7 +585,7 @@ export default function InformasiPesertaClient() {
           <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Pendaftaran Peserta</h3>
           <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar peserta dapat mengetahuinya (misal: Bukti pembayaran tidak valid).</p>
           
-          <textarea
+          <Textarea
             value={rejectModal.reason}
             onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
             placeholder="Misal: Bukti pembayaran buram / kurang jelas..."

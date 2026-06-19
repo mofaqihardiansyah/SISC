@@ -134,6 +134,8 @@ export default function DetailEvent({ event, isLoggedIn, isRegistered }: DetailE
 
   const navRef = useRef<HTMLElement | null>(null);
 
+  // ponytail: navHeight captured on mount; if layout shifts (responsive header), rootMargin goes stale.
+  // Upgrade: add a ResizeObserver on navRef.current to update rootMargin dynamically.
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
     const navHeight = navRef.current?.offsetHeight ?? 80;

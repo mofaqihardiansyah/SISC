@@ -31,7 +31,7 @@ type Props = {
   event: EventType;
 };
 
-// â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  helpers 
 
 function ReadonlyField({
   label,
@@ -47,7 +47,7 @@ function ReadonlyField({
       <label className="text-xs font-medium text-gray-505">{label}</label>
       <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 min-h-9 flex items-center">
         {value || (
-          <span className="text-slate-400 text-sm">{placeholder ?? "â€”"}</span>
+          <span className="text-slate-400 text-sm">{placeholder ?? ""}</span>
         )}
       </div>
     </div>
@@ -82,7 +82,7 @@ export default function Content({ event }: Props) {
       ? "Seminar"
       : event.jenisEvent === "conference"
       ? "Conference"
-      : "â€”";
+      : "";
 
   const polinesLabel = event.eventPolines ? "Polines" : "Umum";
 
@@ -99,7 +99,7 @@ export default function Content({ event }: Props) {
       ? `Rp ${event.harga.toLocaleString("id-ID")}`
       : event.tipeHarga === "free"
       ? "Gratis"
-      : "â€”";
+      : "";
 
   const fmtDate = (d: Date | null) =>
     d ? format(new Date(d), "dd/MM/yyyy, HH:mm", { locale: id }) : "";
@@ -115,7 +115,7 @@ export default function Content({ event }: Props) {
   return (
     <div className="space-y-4 pb-8 animate-page-fade-in">
 
-      {/* â”€â”€ 1. TIPE EVENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/*  1. TIPE EVENT  */}
       <SectionCard sectionId="tipe-event" icon={<Info size={16} />} title="Tipe Event">
         <div className="grid grid-cols-2 gap-3">
           <ReadonlyField
@@ -129,7 +129,7 @@ export default function Content({ event }: Props) {
         </div>
       </SectionCard>
 
-      {/* â”€â”€ 2. DETAIL UMUM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/*  2. DETAIL UMUM  */}
       <SectionCard sectionId="detail-umum" icon={<Info size={16} />} title="Detail Umum">
         <div className="space-y-3">
 
@@ -172,7 +172,7 @@ export default function Content({ event }: Props) {
         </div>
       </SectionCard>
 
-      {/* â”€â”€ 3. DESKRIPSI & POSTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/*  3. DESKRIPSI & POSTER  */}
       <SectionCard sectionId="deskripsi-poster" icon={<ImageIcon size={16} />} title="Deskripsi & Poster">
         <div className="space-y-3">
 
@@ -208,7 +208,7 @@ export default function Content({ event }: Props) {
         </div>
       </SectionCard>
 
-      {/* â”€â”€ 4. SYARAT DAN KETENTUAN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/*  4. SYARAT DAN KETENTUAN  */}
       <SectionCard sectionId="syarat" icon={<ClipboardList size={16} />} title="Syarat dan Ketentuan">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-slate-505">
@@ -222,7 +222,7 @@ export default function Content({ event }: Props) {
         </div>
       </SectionCard>
 
-      {/* â”€â”€ 5. JADWAL & KUOTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/*  5. JADWAL & KUOTA  */}
       <SectionCard sectionId="jadwal-kuota" icon={<Calendar size={16} />} title="Jadwal & Kuota">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -240,12 +240,12 @@ export default function Content({ event }: Props) {
           <ReadonlyField
             label="Kuota Peserta"
             value={event.kuota ? String(event.kuota) : null}
-            placeholder="â€”"
+            placeholder=""
           />
         </div>
       </SectionCard>
 
-      {/* â”€â”€ 6. LINK FORM PENDAFTARAN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/*  6. LINK FORM PENDAFTARAN  */}
       <SectionCard sectionId="link-pendaftaran" icon={<Link2 size={16} />} title="Link Form Pendaftaran">
         <ReadonlyField
           label="Link Form Pendaftaran untuk Peserta Event"

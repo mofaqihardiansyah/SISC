@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition, useEffect, useCallback } from "react";
 import Image from "next/image";
@@ -10,6 +10,8 @@ import { BANK_LIST, E_WALLET_LIST } from "@/lib/constants";
 import { UPLOAD_LIMITS } from "@/lib/constants";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 export const dynamic = 'force-dynamic';
 
 
@@ -25,12 +27,12 @@ const BANK_OPTIONS = [...BANK_LIST, "Bank Jateng", "Lainnya"];
 const EWALLET_OPTIONS = [...E_WALLET_LIST, "Jenius", "Sakuku", "Lainnya"];
 
 
-// â”€â”€â”€ Tipe internal dengan field "lainnya" â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Tipe internal dengan field "lainnya" ─────────────────────────
 type MetodePembayaranLocal = MetodePembayaranInput & {
   namaPenyediaCustom?: string; // diisi ketika namaPenyedia === "Lainnya"
 };
 
-// â”€â”€â”€ Komponen 1 item metode pembayaran â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Komponen 1 item metode pembayaran ───────────────────────────
 function MetodePembayaranItem({
   item, index, onChange, onRemove,
 }: {
@@ -87,7 +89,7 @@ function MetodePembayaranItem({
           <div>
             <label className="block text-xs text-slate-500 mb-1">Nama Bank</label>
             <div className="relative">
-              <select
+              <Select
                 value={item.namaPenyedia}
                 onChange={(e) => onChange(index, {
                   ...item,
@@ -97,7 +99,7 @@ function MetodePembayaranItem({
                 className="w-full appearance-none border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Pilih Bank</option>
                 {BANK_OPTIONS.map((b) => <option key={b} value={b}>{b}</option>)}
-              </select>
+              </Select>
               <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="6 9 12 15 18 9" />
@@ -138,7 +140,7 @@ function MetodePembayaranItem({
           <div>
             <label className="block text-xs text-slate-500 mb-1">E-Wallet</label>
             <div className="relative">
-              <select
+              <Select
                 value={item.namaPenyedia}
                 onChange={(e) => onChange(index, {
                   ...item,
@@ -148,7 +150,7 @@ function MetodePembayaranItem({
                 className="w-full appearance-none border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Pilih E-Wallet</option>
                 {EWALLET_OPTIONS.map((ew) => <option key={ew} value={ew}>{ew}</option>)}
-              </select>
+              </Select>
               <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="6 9 12 15 18 9" />
@@ -186,7 +188,7 @@ function MetodePembayaranItem({
   );
 }
 
-// â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Main Page ────────────────────────────────────────────────────
 export default function BuatEventPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -257,7 +259,7 @@ export default function BuatEventPage() {
     setMetodePembayaranList((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // â”€â”€ Resolve nama penyedia final (custom jika "Lainnya") â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Resolve nama penyedia final (custom jika "Lainnya") ──────────
   const resolveNamaPenyedia = (item: MetodePembayaranLocal): string => {
     if (item.namaPenyedia === "Lainnya") {
       return item.namaPenyediaCustom?.trim() ?? "";
@@ -484,7 +486,7 @@ export default function BuatEventPage() {
                 <div className="flex flex-col items-center gap-2 p-10">
                   <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><UploadIcon /></div>
                   <p className="text-sm font-medium text-gray-700">Drag & Drop Banner Event</p>
-                  <p className="text-xs text-gray-400">Recommended size: 1200 Ã— 630px (Max 5MB)</p>
+                  <p className="text-xs text-gray-400">Recommended size: 1200 × 630px (Max 5MB)</p>
                 </div>
               )}
             </label>
@@ -564,7 +566,7 @@ export default function BuatEventPage() {
   );
 }
 
-// â”€â”€â”€ Helper Components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Helper Components ────────────────────────────────────────────
 
 function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
@@ -583,10 +585,10 @@ function SelectField({ label, value, onChange, options }: {
     <div>
       {label && <label className="block text-sm text-gray-600 mb-1.5">{label}</label>}
       <div className="relative">
-        <select value={value} onChange={(e) => onChange(e.target.value)}
+        <Select value={value} onChange={(e) => onChange(e.target.value)}
           className="w-full appearance-none border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500">
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        </Select>
         <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="6 9 12 15 18 9" />
@@ -616,7 +618,7 @@ function RichTextarea({ value, onChange, placeholder }: {
           </Button>
         ))}
       </div>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={5}
+      <Textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={5}
         className="w-full px-3 py-2.5 text-sm text-slate-700 bg-slate-50 focus:outline-none resize-none placeholder-slate-400" />
     </div>
   );

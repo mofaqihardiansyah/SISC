@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -251,14 +252,14 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser, paymen
               <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
                 <Coins className="h-4 w-4" /> Jenis Kelamin
               </Label>
-              <select 
+              <Select 
                 {...form.register("jenis_kelamin")}
                 disabled
                 className="flex h-10 w-full rounded-md border border-gray-200 bg-gray-100/70 px-3 py-2 text-sm text-gray-700 cursor-not-allowed focus-visible:outline-none disabled:opacity-70"
               >
                 <option value="Laki-laki">Laki-laki</option>
                 <option value="Perempuan">Perempuan</option>
-              </select>
+              </Select>
               {form.formState.errors.jenis_kelamin && (
                 <p className="text-red-500 text-xs font-medium mt-1">{form.formState.errors.jenis_kelamin.message}</p>
               )}

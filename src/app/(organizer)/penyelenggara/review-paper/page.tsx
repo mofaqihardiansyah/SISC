@@ -25,6 +25,9 @@ import type { PaperData, EventData } from "./actions";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 export const dynamic = 'force-dynamic';
 
 
@@ -77,6 +80,9 @@ export default function ReviewPaperPage() {
 
   // Action state
   const [actionLoading, setActionLoading] = useState<{ id: number; type: string } | null>(null);
+
+  // Confirm accept
+  const [confirmAccept, setConfirmAccept] = useState<PaperData | null>(null);
 
   // Reject modal
   const [rejectPaper, setRejectPaper] = useState<PaperData | null>(null);
@@ -132,14 +138,19 @@ export default function ReviewPaperPage() {
   useEffect(() => { setPage(1); }, [searchQuery, eventFilter, statusFilter]);
 
   // Actions
-  const handleAccept = async (paper: PaperData) => {
-    if (!confirm(`Terima paper "${paper.judul}"?`)) return;
-    setActionLoading({ id: paper.id, type: "accept" });
+  const handleAccept = (paper: PaperData) => {
+    setConfirmAccept(paper);
+  };
+
+  const handleConfirmAccept = async () => {
+    if (!confirmAccept) return;
+    setActionLoading({ id: confirmAccept.id, type: "accept" });
     try {
-      await updatePaperStatus(paper.id, "accepted");
-      showNotif("success", `Paper "${paper.judul}" berhasil diterima`);
-      setPapers(prev => prev.map(p => p.id === paper.id ? { ...p, status: "accepted", komentarPenolakan: null } : p));
+      await updatePaperStatus(confirmAccept.id, "accepted");
+      showNotif("success", `Paper "${confirmAccept.judul}" berhasil diterima`);
+      setPapers(prev => prev.map(p => p.id === confirmAccept.id ? { ...p, status: "accepted", komentarPenolakan: null } : p));
       setSelectedPaper(null);
+      setConfirmAccept(null);
     } catch (err: unknown) {
       showNotif("error", err instanceof Error ? err.message : "Gagal menerima paper");
     } finally {
@@ -232,15 +243,15 @@ export default function ReviewPaperPage() {
               className="w-full pl-11 pr-4 py-2.5 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-400"
             />
           </div>
-          <select
+          <Select
             value={eventFilter === "all" ? "all" : eventFilter}
             onChange={(e) => setEventFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
             className="px-4 py-2.5 border border-slate-200 rounded-xl outline-none text-sm bg-white text-slate-600 cursor-pointer min-w-44"
           >
             <option value="all">Semua Event</option>
             {events.map(ev => <option key={ev.id} value={ev.id}>{ev.judul}</option>)}
-          </select>
-          <select
+          </Select>
+          <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-4 py-2.5 border border-slate-200 rounded-xl outline-none text-sm bg-white text-slate-600 cursor-pointer min-w-40"
@@ -249,7 +260,7 @@ export default function ReviewPaperPage() {
             <option value="review">Perlu Direview</option>
             <option value="accepted">Diterima</option>
             <option value="rejected">Ditolak</option>
-          </select>
+          </Select>
         </div>
       </div>
 
@@ -630,7 +641,7 @@ export default function ReviewPaperPage() {
         </p>
         <div className="space-y-2">
           <label className="text-xs font-bold text-slate-700">Alasan Penolakan</label>
-          <textarea rows={4} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+          <Textarea rows={4} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
             placeholder="Jelaskan alasan penolakan atau revisi yang diperlukan..."
             className="w-full border border-slate-200 rounded-xl p-3.5 outline-none text-sm resize-none focus:border-rose-400 transition-colors" />
         </div>
@@ -646,6 +657,17 @@ export default function ReviewPaperPage() {
           </Button>
         </div>
       </Modal>
+
+      {/* CONFIRM ACCEPT DIALOG */}
+      <ConfirmDialog
+        open={!!confirmAccept}
+        onClose={() => setConfirmAccept(null)}
+        onConfirm={handleConfirmAccept}
+        title="Terima Paper"
+        message={`Apakah Anda yakin ingin menerima paper "${confirmAccept?.judul}"?`}
+        confirmLabel="Terima"
+        loading={actionLoading?.type === "accept"}
+      />
     </div>
   );
 }
