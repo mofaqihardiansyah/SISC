@@ -234,7 +234,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                       rows={2}
                       value={paperTitle}
                       onChange={(e) => setPaperTitle(e.target.value)}
-                      placeholder="Tuliskan judul lengkap paper Anda"
+                      placeholder="Judul lengkap paper"
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white outline-none text-sm text-slate-700 transition-all placeholder:text-slate-400"
                     />
                   </div>
@@ -248,8 +248,8 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                       list="topicsList"
                       value={track}
                       onChange={(e) => setTrack(e.target.value)}
-                      placeholder="Pilih atau ketik Topik (Contoh: Artificial Intelligence)"
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white outline-none text-sm text-slate-700 transition-all placeholder:text-slate-400"
+                      placeholder="Topik (contoh: AI)"
+                      className="w-full h-[50px] p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white outline-none text-sm text-slate-700 transition-all placeholder:text-slate-400"
                     />
                   </div>
 
@@ -277,13 +277,13 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                       <Input
                         type="text"
                         list="topicsList"
-                        placeholder="Pilih atau ketik kata kunci lalu tekan Enter..."
-                        className="w-full pl-4 pr-16 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm text-slate-700 focus:border-primary transition-all shadow-sm"
+                        placeholder="Kata kunci (Enter untuk tambah)"
+                        className="w-full h-[46px] pl-4 pr-16 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm text-slate-700 focus:border-primary transition-all shadow-sm"
                         value={keywordInput}
                         onChange={e => setKeywordInput(e.target.value)}
                         onKeyDown={handleAddKeyword}
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 bg-slate-100 rounded text-slate-400 text-nano font-bold tracking-wider">ENTER â†µ</div>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 bg-slate-100 rounded text-slate-400 text-nano font-bold tracking-wider">ENTER ↵</div>
                     </div>
                   </div>
                   
@@ -318,12 +318,12 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                           </Button>
                           
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <Input type="text" placeholder="Nama Depan" value={author.namaDepan} onChange={(e) => updateAuthor(idx, 'namaDepan', e.target.value)} className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary`} />
-                              <Input type="text" placeholder="Nama Belakang" value={author.namaBelakang} onChange={(e) => updateAuthor(idx, 'namaBelakang', e.target.value)} className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary`} />
+                              <Input type="text" placeholder="Nama Depan" value={author.namaDepan} onChange={(e) => updateAuthor(idx, 'namaDepan', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
+                              <Input type="text" placeholder="Nama Belakang" value={author.namaBelakang} onChange={(e) => updateAuthor(idx, 'namaBelakang', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
                               {author.isCorresponding && (
-                                <Input type="email" placeholder="Email (misal: jhon@univ.edu)" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
+                                <Input type="email" placeholder="Email (misal: jhon@univ.edu)" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
                               )}
-                              <Input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
+                              <Input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
                             </div>
                           
                           <div className="mt-4 flex items-center gap-2">

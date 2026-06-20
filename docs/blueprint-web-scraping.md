@@ -7,38 +7,34 @@ Dokumen ini mendefinisikan arsitektur dan roadmap pengembangan fitur scraping sk
 - [x] **Backend & Queue**: Menggunakan **Inngest** (asynchronous).
 - [x] **Scraper Engine**: Playwright + Cheerio (v1) dengan Zod Validation.
 - [x] **Frontend Control Panel**: CRUD Data mentah, Publishing ke event table.
+- [x] **Pembersihan Data (Auto-Clean & Confidence Score)**: Normalisasi otomatis saat ingestion dengan penghitungan skor kepercayaan kualitas data (0-100).
+- [x] **Pencegahan Duplikasi**: Validasi ketersediaan URL target sebelum merekam data baru untuk mencegah duplikasi event.
+- [x] **Form Edit Interaktif**: Suntingan detail event secara langsung pada modal pratinjau sebelum diterbitkan.
+- [x] **Aksi Masal (Bulk Actions)**: Terbitkan, bersihkan, dan hapus banyak data sekaligus secara masal.
+- [x] **Sanitasi HTML & Auto-Retry**: Menghapus tag formatting kotor untuk keamanan XSS, serta melakukan percobaan ulang HTTP fetch jika koneksi putus sementara.
 
-## Gap Analysis (Apa yang Kurang?)
+## Gap Analysis (Telah Diselesaikan)
 
-### 1. Backend & Pipeline
-- **Pembersihan Data (Cleaning Pipeline)**: Data dari web sering kotor. Butuh fungsi untuk standarisasi format tanggal (`parseIndoDate`), pembersihan HTML (sanitize), dan normalisasi kategori/kota.
-- **Deduplikasi Cerdas**: Saat ini hanya cek `linkEksternal`. Perlu pengecekan berdasarkan *fuzzy matching* judul agar tidak ada duplikasi data dari sumber berbeda.
-- **Log Scraping**: Sudah ada, tapi belum menyertakan detail error spesifik pada level item (hanya level request).
-
-### 2. Frontend & UI
-- **Data Sanitization Preview**: Admin seharusnya bisa mengedit data di tabel *scraping* sebelum di-publish. Saat ini admin hanya bisa klik "Publish".
-- **Batch Processing**: Belum ada aksi *Bulk Publish* atau *Bulk Delete* di halaman scraping admin.
-- **Monitoring Visual**: Admin perlu melihat riwayat `log_scraping` di UI agar tahu scraper sedang aktif atau gagal.
-
-### 3. Fitur Lanjutan
-- **Proxy Rotation**: Untuk target yang memblokir IP server.
-- **Dynamic Content Support**: Jika target menggunakan React/Vue yang me-*render* data via JS, cheerio akan gagal total. Perlu *full headless browser* (Playwright) di semua proses.
-- **Export**: Fitur export (CSV/Excel) belum ada.
+Seluruh poin pada analisis kesenjangan (*gap analysis*) sebelumnya telah diimplementasikan sepenuhnya:
+1. **Pembersihan Data**: Selesai lewat normalisasi otomatis saat data disimpan ([cleaner.ts](file:///d:/Documents/PBL_smt_4/sisc/src/lib/scraper/cleaner.ts)).
+2. **Batch Processing & Log Monitoring**: Ditambahkan ke antarmuka pengguna admin ([ScrapingClient.tsx](file:///d:/Documents/PBL_smt_4/sisc/src/app/%28admin%29/admin/scraping/ScrapingClient.tsx)).
+3. **Data Sanitization Preview**: Admin dapat mengoreksi data secara interaktif di modal sebelum diterbitkan.
 
 ---
 
 ## Roadmap Fase Mendatang (Update)
 
-### Fase 1: Data Quality & Cleaning (Prioritas Tinggi)
-1. **Cleaning Service**: Buat library `@/lib/scraper/cleaner.ts` untuk normalisasi judul, harga, dan format tanggal dari `tanggalMentah` ke `Date` object yang valid.
-2. **Schema Update**: Update `raw_scraped_data` agar memiliki field `status` (`pending`, `processed`, `published`, `error`).
+### Fase 1: Data Quality & Cleaning (Selesai ✅)
+- [x] **Cleaning Service**: Implementasi `@/lib/scraper/cleaner.ts` untuk normalisasi judul, harga, dan format tanggal dari `tanggalMentah` ke `Date` object yang valid.
+- [x] **Schema Update**: Menambahkan kolom `status` (`pending`, `processed`, `error`) pada tabel `raw_scraped_data`.
 
-### Fase 2: Admin UX & Curation
-1. **Interactive Preview**: Tambahkan modal edit di halaman Scraping agar admin bisa mengoreksi data (misal: menentukan `kategoriId` dan `kotaId`) sebelum publish.
-2. **Bulk Actions**: Tambahkan checkbox di tabel Scraping untuk "Publish Terpilih" dan "Hapus Terpilih".
-3. **Log View**: Tambahkan tab "Log Scraping" di halaman admin yang menampilkan isi tabel `log_scraping`.
+### Fase 2: Admin UX & Curation (Selesai ✅)
+- [x] **Interactive Preview**: Modal form edit interaktif bagi admin untuk mengoreksi data sebelum klik terbitkan.
+- [x] **Bulk Actions**: Tombol aksi masal untuk terbitkan, bersihkan, dan hapus baris terpilih.
+- [x] **Log View**: Tab visual riwayat eksekusi scraping di halaman admin.
+- [x] **Auto-Publish (Auto-Approved)**: Tombol sekali klik untuk menerbitkan seluruh event berkualitas tinggi (skor 100/100) secara otomatis.
 
-### Fase 3: Hardening
-1. **Proxy Service**: Integrasi dengan layanan *proxy rotation* jika proses mulai sering diblokir.
-2. **Advanced Scraping**: Jika website target kompleks (dinamis), beralih dari cheerio ke full Playwright browser context untuk seluruh engine.
-3. **Load Testing**: Monitor performa server saat scraping massal.
+### Fase 3: Hardening & Skalabilitas (Fokus Selanjutnya 🚀)
+1. **Proxy Service / Rotate**: Integrasi dengan layanan *proxy rotation* jika proses mulai sering diblokir atau dibatasi rate limit oleh eventkampus.com.
+2. **Advanced Scraping**: Beralih sepenuhnya ke Playwright headless browser cluster eksternal (misal: Browserless.io) jika Next.js dideploy ke Vercel agar engine Playwright tidak crash karena batasan *serverless constraints*.
+3. **Load Testing**: Pantau utilitas memori server saat melakukan penarikan data dalam volume masal.

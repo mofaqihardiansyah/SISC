@@ -2,12 +2,18 @@ import React from 'react';
 import { db } from "@/db";
 import { profilPenyelenggara, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import ProfilForm from './profil-form';
 export const dynamic = 'force-dynamic';
 
 
 export default async function ProfilPenyelenggaraPage() {
-  // 1. Menggabungkan tabel profil_penyelenggara dengan tabel users berdasarkan user_id
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const userId = parseInt(session.user.id, 10);
+  if (isNaN(userId)) redirect("/login");
+
   const rows = await db
     .select({
       id: profilPenyelenggara.id,
@@ -22,9 +28,9 @@ export default async function ProfilPenyelenggaraPage() {
       nomorTelepon: users.nomorTelepon,
       urlAvatar: users.urlAvatar,
     })
-    .from(profilPenyelenggara)
-    .innerJoin(users, eq(profilPenyelenggara.userId, users.id))
-    .where(eq(profilPenyelenggara.id, 1))
+    .from(users)
+    .leftJoin(profilPenyelenggara, eq(profilPenyelenggara.userId, users.id))
+    .where(eq(users.id, userId))
     .limit(1);
 
   // Ambil data baris gabungan pertama

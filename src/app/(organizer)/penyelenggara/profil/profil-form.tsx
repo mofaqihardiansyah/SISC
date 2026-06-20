@@ -235,7 +235,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
                 rows={4}
                 value={formData.deskripsiInstansi}
                 onChange={(e) => setFormData(prev => ({ ...prev, deskripsiInstansi: e.target.value }))}
-                placeholder="Deskripsikan organisasi Anda..."
+                placeholder="Deskripsi organisasi..."
                 className="w-full px-4 py-3 border rounded-lg resize-none"
               />
             </div>
@@ -360,7 +360,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
               value={passLama}
               onChange={(e) => setPassLama(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg"
-              placeholder="Masukkan kata sandi lama"
+              placeholder="Kata sandi lama"
             />
           </div>
           <div>

@@ -112,7 +112,7 @@ export default function LoginPage() {
               <Input 
                 id="email" 
                 type="email" 
-                placeholder="Masukkan email anda" 
+                placeholder="Email Anda" 
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 disabled={isLoading}
                 {...register('email')}
@@ -129,7 +129,7 @@ export default function LoginPage() {
                 <Input 
                   id="password" 
                   type={showPassword ? "text" : "password"} 
-                  placeholder="Masukkan kata sandi" 
+                  placeholder="Kata sandi" 
                   className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   autoComplete="current-password"
                   disabled={isLoading}

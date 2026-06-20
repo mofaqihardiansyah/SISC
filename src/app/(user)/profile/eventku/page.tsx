@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Search, ChevronDown, X, CalendarDays, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { getUserEvents } from '@/actions/user-event';
@@ -159,7 +159,7 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
       method="GET"
       className="flex flex-wrap gap-3 items-end bg-slate-50/70 p-4 rounded-2xl border border-slate-200"
     >
-      {/* Search input â€” grows to fill available space */}
+      {/* Search input — grows to fill available space */}
       <div className="flex-1 min-w-44">
         <label className="block text-xxs font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
           Cari Nama Event
@@ -173,13 +173,13 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
             type="text"
             name="q"
             defaultValue={currentSearch}
-            placeholder="Ketikkan sesuatu..."
+            placeholder="Cari event..."
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-sisc-navy/10 focus:border-sisc-navy outline-none text-sm transition-all shadow-sm"
           />
         </div>
       </div>
 
-      {/* Status dropdown â€” fixed but shrinkable */}
+      {/* Status dropdown — fixed but shrinkable */}
       <div className="w-44 shrink-0">
         <label className="block text-xxs font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
           Status

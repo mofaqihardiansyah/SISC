@@ -151,7 +151,7 @@ export default function HelpClient() {
                 type="text"
                 value={formData.nama}
                 onChange={(e) => setFormData({...formData, nama: e.target.value})}
-                placeholder="Masukkan nama Anda"
+                placeholder="Nama Anda"
                 className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
@@ -162,7 +162,7 @@ export default function HelpClient() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                placeholder="Masukkan email Anda"
+                placeholder="Email Anda"
                 className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
@@ -189,7 +189,7 @@ export default function HelpClient() {
               rows={6}
               value={formData.pesan}
               onChange={(e) => setFormData({...formData, pesan: e.target.value})}
-              placeholder="Tulis pesan Anda di sini..."
+              placeholder="Pesan Anda..."
               className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
             />
           </div>

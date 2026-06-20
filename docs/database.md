@@ -202,7 +202,7 @@ Field: `paper_submission_id` (FK, not null), `nama` (not null), `email`, `instit
 Jadwal acara event. Field: `event_id` (FK), `waktu_mulai`, `waktu_selesai`, `deskripsi`, `dibuat_pada`.
 
 ### 20. `raw_scraped_data`
-Data mentah hasil scraping. Field: `id` (PK), `sumber` (not null), `url_target`, `data` (jsonb, not null), `status_integrasi` (boolean), `dibuat_pada`.
+Data mentah hasil scraping. Field: `id` (PK), `sumber` (not null), `url_target`, `data` (jsonb, not null), `status_integrasi` (boolean), `status` (varchar(20) - pending/processed/error), `dibuat_pada`.
 
 ### 21. `log_scraping`
 Log proses scraping. Field: `id` (PK), `target_url`, `sumber`, `status` (pending/processing/success/failed), `jumlah_data`, `error_message`, `mulai_pada`, `selesai_pada`.

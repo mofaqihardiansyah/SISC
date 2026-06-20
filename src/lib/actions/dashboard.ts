@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { event, users, peserta, pendaftaran } from "@/db/schema";
-import { count, eq, and, gte, sql } from "drizzle-orm";
+import { count, eq, and, gte, desc, sql } from "drizzle-orm";
 import { MONTHS_ID } from "@/lib/constants";
 import { PAGINATION } from "@/lib/constants";
 
@@ -60,10 +60,16 @@ export async function getDashboardStats() {
 
 export async function getRecentEvents() {
   try {
-    const data = await db.query.event.findMany({
-      limit: PAGINATION.RECENT_EVENTS_LIMIT,
-      orderBy: (event, { desc }) => [desc(event.dibuatPada)],
-    });
+    const data = await db.select({
+      id: event.id,
+      judul: event.judul,
+      detailLokasi: event.detailLokasi,
+      kuota: event.kuota,
+      urlBanner: event.urlBanner,
+      status: event.status,
+    }).from(event)
+      .orderBy(desc(event.dibuatPada))
+      .limit(PAGINATION.RECENT_EVENTS_LIMIT);
 
     return data;
   } catch (error) {
@@ -103,15 +109,18 @@ export async function getMonthlyGrowth() {
       .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'Mon')`, sql`EXTRACT(MONTH FROM ${pendaftaran.dibuatPada})`)
       .orderBy(sql`EXTRACT(MONTH FROM ${pendaftaran.dibuatPada})`);
 
-    // 3. Data Pendapatan per Bulan (Diubah: tabel transaksi tidak ada di schema.ts)
-    // const revenueData = await db
-    //   .select({
-    //     month: sql<string>`TO_CHAR(${transaksi.dibuatPada}, 'Mon')`,
-    //     total: sql<number>`SUM(${transaksi.totalHarga})`,
-    //   })
-    //   .from(transaksi)
-    //   .where(and(gte(transaksi.dibuatPada, twelveMonthsAgo), eq(transaksi.status, 'success')))
-    //   .groupBy(sql`TO_CHAR(${transaksi.dibuatPada}, 'Mon')`);
+    // 3. Data Pendapatan per Bulan (dari pendaftaran terkonfirmasi × harga event)
+    const revenueData = await db
+      .select({
+        month: sql<string>`TO_CHAR(${pendaftaran.dibuatPada}, 'Mon')`,
+        monthNum: sql<number>`EXTRACT(MONTH FROM ${pendaftaran.dibuatPada})`,
+        total: sql<number>`COALESCE(SUM(${event.harga}), 0)`,
+      })
+      .from(pendaftaran)
+      .innerJoin(event, eq(pendaftaran.eventId, event.id))
+      .where(and(gte(pendaftaran.dibuatPada, twelveMonthsAgo), eq(pendaftaran.status, 'terdaftar')))
+      .groupBy(sql`TO_CHAR(${pendaftaran.dibuatPada}, 'Mon')`, sql`EXTRACT(MONTH FROM ${pendaftaran.dibuatPada})`)
+      .orderBy(sql`EXTRACT(MONTH FROM ${pendaftaran.dibuatPada})`);
 
     // Format data untuk Recharts - Mulai dari JAN sampai DES
     const monthNames = [...MONTHS_ID];
@@ -135,16 +144,16 @@ export async function getMonthlyGrowth() {
         return map[dbMonth] === mName || dbMonth === mName;
       });
 
-      // const foundRev = revenueData.find((item: { month: string; total: number }) => {
-      //   const dbMonth = item.month?.toUpperCase();
-      //   return map[dbMonth] === mName || dbMonth === mName;
-      // });
+      const foundRev = revenueData.find((item: { month: string; monthNum: number; total: number }) => {
+        const dbMonth = item.month?.toUpperCase();
+        return map[dbMonth] === mName || dbMonth === mName;
+      });
       
       fullYear.push({
         name: mName,
         count: foundEvent ? Math.round(Number(foundEvent.count)) : 0,
         registrations: foundReg ? Math.round(Number(foundReg.count)) : 0,
-        revenue: 0, // foundRev ? Math.round(Number(foundRev.total)) : 0,
+        revenue: foundRev ? Math.round(Number(foundRev.total)) : 0,
         trend: foundEvent ? Math.round(Number(foundEvent.count) * PAGINATION.TREND_MULTIPLIER) : 0,
       });
     }

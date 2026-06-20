@@ -11,7 +11,9 @@ import {
   Layers,
   MapPin,
   Database,
-  Globe
+  Globe,
+  ScrollText,
+  ShieldCheck
 } from 'lucide-react';
 import { Sidebar as SharedSidebar, MenuItem } from '@/components/layout/Sidebar';
 
@@ -27,7 +29,14 @@ const menuItems: MenuItem[] = [
       { icon: UserCog, label: 'Pengguna', href: '/admin/manajemen-user' },
       { icon: Layers, label: 'Kategori', href: '/admin/categories' },
       { icon: MapPin, label: 'Wilayah', href: '/admin/locations' },
-      { icon: Globe, label: 'Scraping', href: '/admin/scraping' },
+    ]
+  },
+  {
+    icon: Globe,
+    label: 'Scraping',
+    subItems: [
+      { icon: ScrollText, label: 'Data & Log', href: '/admin/scraping', exactMatch: true },
+      { icon: Settings, label: 'Konfigurasi', href: '/admin/scraping/sources' },
     ]
   },
   { icon: Settings, label: 'Pengaturan', href: '/admin/pengaturan' },

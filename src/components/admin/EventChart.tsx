@@ -76,21 +76,7 @@ export function EventChart({ data }: { data: ChartData[] }) {
 
   const isShowAll = activeSeries.length === 0;
 
-  // Mock data for 12 months if empty
-  const chartData = data.length > 0 ? data : [
-    { name: 'JAN', count: 8, registrations: 2, revenue: 4, trend: 1 },
-    { name: 'FEB', count: 12, registrations: 3, revenue: 6, trend: 1 },
-    { name: 'MAR', count: 10, registrations: 2, revenue: 5, trend: 1 },
-    { name: 'APR', count: 15, registrations: 5, revenue: 8, trend: 2 },
-    { name: 'MEI', count: 18, registrations: 4, revenue: 9, trend: 2 },
-    { name: 'JUN', count: 14, registrations: 3, revenue: 7, trend: 2 },
-    { name: 'JUL', count: 22, registrations: 6, revenue: 11, trend: 3 },
-    { name: 'AGU', count: 20, registrations: 5, revenue: 10, trend: 3 },
-    { name: 'SEP', count: 25, registrations: 8, revenue: 13, trend: 4 },
-    { name: 'OKT', count: 28, registrations: 10, revenue: 16, trend: 4 },
-    { name: 'NOV', count: 24, registrations: 7, revenue: 14, trend: 4 },
-    { name: 'DES', count: 30, registrations: 12, revenue: 18, trend: 5 },
-  ];
+  const chartData = data.length > 0 ? data : [];
 
   return (
     <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex-1">

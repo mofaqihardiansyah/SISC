@@ -278,6 +278,50 @@ export const logScraping = pgTable('log_scraping', {
   selesaiPada: timestamp('selesai_pada'),
 });
 
+// 22. SCRAPING SOURCES CONFIGURATION
+export const scraperTypeEnum = pgEnum('scraper_type', ['cheerio', 'crawlee_playwright']);
+
+export const scrapingSources = pgTable('scraping_sources', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  baseUrl: varchar('base_url', { length: 500 }).notNull(),
+  urlPattern: varchar('url_pattern', { length: 500 }),
+  scraperType: scraperTypeEnum('scraper_type').default('cheerio'),
+  cronSchedule: varchar('cron_schedule', { length: 100 }),
+  maxResultsPerRun: integer('max_results_per_run').default(100),
+  rateLimitDelayMs: integer('rate_limit_delay_ms').default(1000),
+  maxConcurrentRequests: integer('max_concurrent_requests').default(5),
+  isActive: boolean('is_active').default(true),
+  lastScrapedAt: timestamp('last_scraped_at'),
+  lastSuccessfulCount: integer('last_successful_count'),
+  lastErrorMessage: text('last_error_message'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// 23. SCRAPING VALIDATION RULES
+export const scrapingValidationRules = pgTable('scraping_validation_rules', {
+  id: serial('id').primaryKey(),
+  fieldName: varchar('field_name', { length: 100 }).notNull(),
+  isRequired: boolean('is_required').default(true),
+  minLength: integer('min_length'),
+  maxLength: integer('max_length'),
+  regexPattern: varchar('regex_pattern', { length: 500 }),
+  confidenceThreshold: integer('confidence_threshold').default(75),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// 24. SCRAPING AUTO-APPROVAL RULES
+export const scrapingAutoApprovalRules = pgTable('scraping_auto_approval_rules', {
+  id: serial('id').primaryKey(),
+  ruleName: varchar('rule_name', { length: 255 }).notNull(),
+  conditionType: varchar('condition_type', { length: 50 }).notNull(),
+  thresholdValue: integer('threshold_value').default(85),
+  autoPublish: boolean('auto_publish').default(true),
+  enabled: boolean('enabled').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 // ── RELATIONS ─────────────────────────────────────────────────────
 
 export const usersRelations = relations(users, ({ one, many }) => ({

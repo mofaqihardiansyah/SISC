@@ -50,11 +50,8 @@ export async function getOrganizerPapers(): Promise<PapersResult> {
     .from(event)
     .where(eq(event.organizerId, userId));
   if (allEvents.length === 0) return { success: true, data: [], events: [] };
-  const now = new Date();
-  const activeEvents = allEvents
-    .filter(e => !e.tanggalSelesai || e.tanggalSelesai > now)
-    .map(({ id, judul }) => ({ id, judul }));
   const eventIds = allEvents.map(e => e.id);
+  const events = allEvents.map(({ id, judul }) => ({ id, judul }));
   const papers = await db
     .select({
       id: paperSubmission.id,
@@ -86,7 +83,7 @@ export async function getOrganizerPapers(): Promise<PapersResult> {
     .innerJoin(users, eq(paperSubmission.userId, users.id))
     .where(inArray(paperSubmission.eventId, eventIds))
     .orderBy(desc(paperSubmission.dibuatPada));
-  return { success: true, data: papers as unknown as PaperData[], events: activeEvents as EventData[] };
+  return { success: true, data: papers as unknown as PaperData[], events: events as EventData[] };
 }
 
 export async function updatePaperStatus(

@@ -21,7 +21,7 @@ export async function Topbar() {
 
   const menuItems = [
     { label: "Dashboard", href: "/penyelenggara", icon: <LayoutDashboard className="w-4 h-4" /> },
-    { label: "Pengaturan", href: "/penyelenggara/profile", icon: <Settings className="w-4 h-4" /> },
+    { label: "Pengaturan", href: "/penyelenggara/profil", icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (

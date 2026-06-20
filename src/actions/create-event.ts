@@ -37,6 +37,7 @@ export async function createEvent(formData: FormData) {
   const kuota = parseInt(formData.get("kuota") as string) || null;
   const linkEksternal = (formData.get("linkEksternal") as string)?.trim() || null;
   const kategoriId = parseInt(formData.get("kategoriId") as string) || null;
+  const kotaId = parseInt(formData.get("kotaId") as string) || null;
   const isDraft = formData.get("isDraft") === "true";
   const bannerFile = formData.get("banner") as File | null;
 
@@ -97,6 +98,7 @@ export async function createEvent(formData: FormData) {
       kuota,
       linkEksternal,
       kategoriId,
+      kotaId,
       urlBanner,
       status: isDraft ? "draft" : "pending",
     }).returning({ id: event.id });

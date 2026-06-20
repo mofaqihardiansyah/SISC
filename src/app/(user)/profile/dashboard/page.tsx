@@ -5,7 +5,7 @@ import { Activity, Megaphone, MapPin, Calendar, Bookmark, History } from 'lucide
 import { db } from '@/db'; 
 import { auth } from '@/auth';
 import { event, favorit, pendaftaran } from '@/db/schema'; 
-import { desc, eq, type InferSelectModel } from 'drizzle-orm';
+import { desc, eq, asc, gte, and, type InferSelectModel } from 'drizzle-orm';
 export const dynamic = 'force-dynamic';
 
 
@@ -56,7 +56,11 @@ export default async function UserDashboard() {
       .from(event)
       .where(eq(event.status, 'published'));
 
-    upcomingEventsData = await db.select().from(event).limit(3);
+    upcomingEventsData = await db.select()
+      .from(event)
+      .where(and(eq(event.status, 'published'), gte(event.tanggalMulai, new Date())))
+      .orderBy(asc(event.tanggalMulai))
+      .limit(3);
 
     latestEventsData = await db.select()
       .from(event)
@@ -116,7 +120,7 @@ export default async function UserDashboard() {
             <p className="text-sm text-slate-500 mt-1">Jangan lewatkan kesempatan bergabung</p>
           </div>
           <Link href="/profile/eventku" className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
-            Lihat Selengkapnya <span className="text-lg">â†’</span>
+            Lihat Selengkapnya <span className="text-lg">→</span>
           </Link>
         </div>
 
@@ -127,8 +131,8 @@ export default async function UserDashboard() {
                 key={data.id} 
                 id={data.id}
                 judul={data.judul}
-                date={'TBA'} 
-                location={'TBA'} 
+                date={data.tanggalMulai ? new Date(data.tanggalMulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'TBA'} 
+                location={data.detailLokasi || 'TBA'} 
                 urlBanner={data.urlBanner}
               />
             ))

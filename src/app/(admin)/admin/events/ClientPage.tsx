@@ -272,7 +272,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors" size={15} />
               <Input 
                 type="text" 
-                placeholder="Cari judul event, penyelenggara, atau kata kunci lainnya..." 
+                placeholder="Cari event..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl outline-none text-xs font-medium text-slate-700 placeholder:text-slate-400 focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs" 
@@ -477,7 +477,8 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200/60 group-hover:border-slate-900/20 transition-all relative">
                             {event.urlBanner ? (
-                              <Image src={event.urlBanner} alt={event.judul} fill className="object-cover" sizes="48px" />
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img src={event.urlBanner} alt={event.judul} className="absolute inset-0 w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
                               </div>
@@ -551,7 +552,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       <td className="px-3 py-2.5">
                         <div className="flex flex-col gap-1 w-28">
                           <div className="flex justify-between items-center text-xxs font-bold text-slate-500">
-                            <span>{participantVal} / {kuotaVal > 0 ? kuotaVal : 'âˆž'} Terdaftar</span>
+                            <span>{participantVal} / {kuotaVal > 0 ? kuotaVal : '∞'} Terdaftar</span>
                             {kuotaVal > 0 && <span>{percent}%</span>}
                           </div>
                           {kuotaVal > 0 && (

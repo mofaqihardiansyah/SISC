@@ -73,7 +73,7 @@ export default function EventFavoritPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
               <Input 
                 type="text"
-                placeholder="Cari event favoritmu..."
+                placeholder="Cari event favorit Anda..."
                 className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none text-sm text-black"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

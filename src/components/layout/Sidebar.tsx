@@ -161,7 +161,7 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
 
                           return (
                             <Link
-                              key={sub.href}
+                              key={sub.label}
                               href={sub.href}
                               className={cn(
                                 "flex items-center gap-2 px-2.5 py-2 rounded-md transition-all duration-200 group",

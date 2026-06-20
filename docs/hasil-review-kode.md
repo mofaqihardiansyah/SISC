@@ -20,8 +20,9 @@ Ditemukan cukup banyak instruksi `console.log` yang tertinggal di *backend/actio
 **Saran Perbaikan:**
 Gunakan *library* *logging* khusus, atau hapus *log* tersebut. Jika sekadar untuk *debugging* lokal, gunakan validasi lingkungan (contoh: `if (process.env.NODE_ENV !== 'production') console.log(...)`).
 
-### B. Route `api/cron/scrape/route.ts`
-Ada *route* yang tampaknya digunakan untuk *scraping* data event secara berkala. Pastikan rute tersebut terlindungi atau menggunakan *Secret Key* / API Key khusus agar tidak dipanggil sembarangan oleh publik yang bisa membebani server Anda.
+### B. Route `api/cron/scrape/route.ts` (Telah Diperbaiki & Dilindungi ✅)
+Ada *route* yang tampaknya digunakan untuk *scraping* data event secara berkala.
+- **Status Perbaikan**: Rute ini telah sepenuhnya dilindungi menggunakan otentikasi Bearer token `CRON_SECRET` di tingkat server. Panggilan manual dari sisi admin di frontend telah dialihkan melalui Server Action `triggerScrapeAction()` yang memproses token secara tertutup di backend, sehingga mencegah kebocoran kredensial di sisi klien/browser.
 
 ### C. Keamanan OTP dan Credential
 Di `src/auth.ts` dan `src/actions/auth.ts`, pastikan OTP dikirim dengan aman dan *rate limit* diberlakukan untuk menghindari eksploitasi serangan *brute force*. 

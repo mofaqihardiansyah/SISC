@@ -412,7 +412,7 @@ export function ReviewModal({
             {actionLoading === "approve" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "\u2713 Setujui"}
           </Button>
           <Button variant="destructive" onClick={() => setShowRejectForm(true)} disabled={actionLoading !== null} className="flex-1">
-            \u2717 Tolak
+            {"\u2717"} Tolak
           </Button>
         </div>
       )}

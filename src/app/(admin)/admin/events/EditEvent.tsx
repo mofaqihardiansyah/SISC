@@ -85,7 +85,8 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
              <label className={labelClasses}><ImageIcon size={12} /> Poster / Banner Event</label>
              <div className="relative h-48 w-full rounded-xl bg-slate-100 overflow-hidden group border border-slate-200 shadow-sm">
                 {formData.urlBanner ? (
-                   <Image src={formData.urlBanner} alt="Preview" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="100vw" />
+                   /* eslint-disable-next-line @next/next/no-img-element */
+                   <img src={formData.urlBanner} alt="Preview" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 ) : (
                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-1">
                       <ImageIcon size={32} strokeWidth={1} />

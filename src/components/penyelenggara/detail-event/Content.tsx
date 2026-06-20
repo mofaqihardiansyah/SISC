@@ -229,18 +229,18 @@ export default function Content({ event }: Props) {
             <ReadonlyField
               label="Tanggal & Waktu Mulai"
               value={fmtDate(event.tanggalMulai)}
-              placeholder="mm/dd/yyyy, --:-- --"
+              placeholder="dd/mm/yyyy, --:-- --"
             />
             <ReadonlyField
               label="Tanggal & Waktu Selesai"
               value={fmtDate(event.tanggalSelesai)}
-              placeholder="mm/dd/yyyy, --:-- --"
+              placeholder="dd/mm/yyyy, --:-- --"
             />
           </div>
           <ReadonlyField
             label="Kuota Peserta"
             value={event.kuota ? String(event.kuota) : null}
-            placeholder=""
+            placeholder="Belum diisi"
           />
         </div>
       </SectionCard>

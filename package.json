@@ -11,6 +11,7 @@
     "db:seed-demo": "tsx src/db/seed-demo.ts",
     "db:seed-event": "tsx src/db/seed-event.ts",
     "db:seed-master": "tsx src/db/seed-master.ts",
+    "db:seed-scraping": "tsx src/db/seed-scraping.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },

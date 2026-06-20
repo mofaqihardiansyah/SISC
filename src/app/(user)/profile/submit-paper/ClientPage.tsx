@@ -105,12 +105,12 @@ export default function ClientPage({ initialRegisteredEvents, initialSubmittedPa
                 placeholder="Cari conference atau penyelenggara..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400 outline-none focus:border-primary/40 transition-colors"
+                className="flex-1 h-10 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400 outline-none focus:border-primary/40 transition-colors"
               />
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 outline-none focus:border-primary/40 transition-colors cursor-pointer sm:w-48"
+                className="h-[38px] px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 outline-none focus:border-primary/40 transition-colors cursor-pointer sm:w-48"
               >
                 <option value="all">Semua Status</option>
                 <option value="belum_submit">Belum Submit</option>

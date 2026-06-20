@@ -275,7 +275,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
             <Input 
               type="text" 
-              placeholder="Cari nama event..." 
+              placeholder="Cari event..." 
               className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl outline-none text-sm focus:border-slate-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -396,7 +396,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
                       }`}>
                         {ev.status}
                       </span>
-                      <span className="text-slate-300">â€¢ {ev.sub}</span>
+                      <span className="text-slate-300">• {ev.sub}</span>
                     </div>
                     <h3 className="font-bold text-sisc-slate text-xl leading-tight mb-1 truncate">{ev.judul}</h3>
                     <div className="text-[12px] text-slate-400 flex items-center gap-1.5">

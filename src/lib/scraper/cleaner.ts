@@ -53,6 +53,16 @@ function guessPlatform(detailLokasi: string | null): string | null {
   return null;
 }
 
+function sanitizeDescriptionHtml(html: string): string {
+  if (!html) return '';
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/\s+on\w+\s*=\s*(["'][^"']*["']|[^\s>]+)/gi, '')
+    .trim();
+}
+
 export async function cleanRawData(rawId: number) {
   const [raw] = await db.select().from(rawScrapedData).where(eq(rawScrapedData.id, rawId));
   if (!raw) return { success: false, error: 'Data tidak ditemukan' };
@@ -82,6 +92,43 @@ export async function cleanRawData(rawId: number) {
 
   const tipePlatform = d.tipePlatform || guessPlatform(lokasi) || null;
 
+  // New detailed fields normalization
+  const deskripsi = sanitizeDescriptionHtml(d.deskripsi || '');
+  const tipeHarga = (d.tipeHarga === 'paid' ? 'paid' : 'free') as 'free' | 'paid';
+  const harga = typeof d.harga === 'number' ? d.harga : 0;
+  const kuota = typeof d.kuota === 'number' ? d.kuota : null;
+  const linkRegistrasi = d.linkRegistrasi || null;
+  const namaKontak = d.namaKontak || null;
+  const teleponKontak = d.teleponKontak || null;
+
+  // Backup original raw data if not already backed up
+  const originalRaw = d._raw ? d._raw : { ...d };
+
+  // Calculate field-level confidence breakdown
+  const fieldConfidence = {
+    judul: (judul && judul.length > 5) ? 10 : 0,
+    tanggalMulai: tanggalMulai ? 10 : 0,
+    tipePlatform: tipePlatform ? 15 : 0,
+    kotaId: kotaId ? 15 : 0,
+    kategoriId: kategoriId ? 10 : 0,
+    deskripsi: (deskripsi && deskripsi.length > 20) ? 15 : 0,
+    kontak: (linkRegistrasi || teleponKontak) ? 15 : 0,
+    harga: (tipeHarga === 'free' || (tipeHarga === 'paid' && harga > 0)) ? 10 : 0,
+  };
+
+  // Hitung confidence score (Max 100)
+  let score = 0;
+  if (judul && judul.length > 5) score += 10;
+  if (tanggalMulai) score += 10;
+  if (tipePlatform) score += 15;
+  if (kotaId) score += 15;
+  if (kategoriId) score += 10;
+  if (deskripsi && deskripsi.length > 20) score += 15;
+  if (linkRegistrasi || teleponKontak) score += 15;
+  if (tipeHarga === 'free' || (tipeHarga === 'paid' && harga > 0)) score += 10;
+
+  const autoApproved = score === 100;
+
   const cleaned = {
     ...d,
     judul,
@@ -92,7 +139,18 @@ export async function cleanRawData(rawId: number) {
     detailLokasi: lokasi,
     kategoriId,
     kotaId,
+    deskripsi,
+    tipeHarga,
+    harga,
+    kuota,
+    linkRegistrasi,
+    namaKontak,
+    teleponKontak,
+    _raw: originalRaw,
+    fieldConfidence,
     cleanedAt: new Date().toISOString(),
+    confidenceScore: score,
+    autoApproved,
   };
 
   await db.update(rawScrapedData).set({

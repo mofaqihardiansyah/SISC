@@ -44,6 +44,16 @@ export function DashboardContent({
   recentParticipants: initialParticipants,
   recentPapers: initialPapers,
 }: DashboardContentProps) {
+  const computedTrend = useMemo(() => {
+    if (initialGrafikData.length < 2) return "+0%";
+    const half = Math.floor(initialGrafikData.length / 2);
+    const firstHalf = initialGrafikData.slice(0, half).reduce((sum, d) => sum + d.jumlah, 0);
+    const secondHalf = initialGrafikData.slice(half).reduce((sum, d) => sum + d.jumlah, 0);
+    if (firstHalf === 0) return "+0%";
+    const pct = ((secondHalf - firstHalf) / firstHalf) * 100;
+    return pct >= 0 ? `+${Math.round(pct)}%` : `${Math.round(pct)}%`;
+  }, [initialGrafikData]);
+
   const [selectedEventId, setSelectedEventId] = useState<string>("all");
   const [stats, setStats] = useState(initialStats);
   const [recentParticipants, setRecentParticipants] = useState(initialParticipants);
@@ -169,7 +179,7 @@ export function DashboardContent({
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Cari dan filter berdasarkan nama event..."
+                placeholder="Cari event..."
                 value={isDropdownOpen ? searchQuery : (selectedEventId === "all" ? "" : selectedEvent?.judul || "")}
                 onFocus={() => setIsDropdownOpen(true)}
                 onChange={(e) => {
@@ -271,7 +281,7 @@ export function DashboardContent({
                   )}>
                     {selectedEvent.status}
                   </span>
-                  <span className="text-xxs font-bold text-gray-300 uppercase tracking-wider">â€¢</span>
+                  <span className="text-xxs font-bold text-gray-300 uppercase tracking-wider">•</span>
                   <span className="text-xxs font-bold text-gray-400 uppercase tracking-wider">
                     {selectedEvent.tipePlatform}
                   </span>
@@ -325,7 +335,7 @@ export function DashboardContent({
         <StatCard
           title="Total Peserta"
           value={stats.totalPeserta.toLocaleString()}
-          trend="+0%"
+          trend={computedTrend}
           icon={Users}
           className="h-full"
         />
@@ -425,7 +435,7 @@ export function DashboardContent({
               Paper Terbaru
             </h3>
             <Link 
-              href="#"
+              href="/penyelenggara/review-paper"
               className="text-xxs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors uppercase tracking-wider"
             >
               Lihat Semua
@@ -450,7 +460,7 @@ export function DashboardContent({
                         {paper.judul}
                       </h4>
                       <p className="text-xxs text-gray-400 font-medium uppercase tracking-wider line-clamp-1">
-                        {Array.isArray(paper.penulis) ? paper.penulis.map((p: { nama?: string }) => p?.nama || String(p)).join(", ") : String(paper.penulis || "Unknown")}
+                        {String(paper.penulis || "Unknown")}
                       </p>
                     </div>
                   </div>

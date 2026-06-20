@@ -288,7 +288,7 @@ export default function SettingsPage() {
                 value={passLama}
                 onChange={(e) => setPassLama(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
-                placeholder="Masukkan kata sandi lama"
+                placeholder="Kata sandi lama"
               />
               <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -303,7 +303,7 @@ export default function SettingsPage() {
                 value={passBaru}
                 onChange={(e) => setPassBaru(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
-                placeholder="Masukkan kata sandi baru"
+                placeholder="Kata sandi baru"
               />
               <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}

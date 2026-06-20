@@ -313,11 +313,11 @@ export default function BantuanPage() {
                 <div className="form-grid">
                   <div>
                     <label className="form-label">Nama Anda</label>
-                    <Input type="text" placeholder="Masukkan nama Anda" className="form-input" value={formData.nama} onChange={e => setFormData({...formData, nama: e.target.value})} />
+                    <Input type="text" placeholder="Nama Anda" className="form-input" value={formData.nama} onChange={e => setFormData({...formData, nama: e.target.value})} />
                   </div>
                   <div>
                     <label className="form-label">Email Anda</label>
-                    <Input type="email" placeholder="Masukkan email Anda" className="form-input" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                    <Input type="email" placeholder="Email Anda" className="form-input" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                   </div>
                 </div>
                 <div>
@@ -332,7 +332,7 @@ export default function BantuanPage() {
                 </div>
                 <div>
                   <label className="form-label">Pesan</label>
-                  <Textarea rows={6} placeholder="Tulis pesan Anda di sini..." className="form-textarea" value={formData.pesan} onChange={e => setFormData({...formData, pesan: e.target.value})} />
+                  <Textarea rows={6} placeholder="Pesan Anda..." className="form-textarea" value={formData.pesan} onChange={e => setFormData({...formData, pesan: e.target.value})} />
                 </div>
                 <Button variant="default" type="submit" disabled={isSubmitting} className="btn-kirim">
                   {isSubmitting ? 'Mengirim...' : (

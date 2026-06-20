@@ -27,7 +27,7 @@ export async function Topbar({ title }: TopbarProps) {
 
   const menuItems = [
     { label: "Dashboard Admin", href: "/admin/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
-    { label: "Pengaturan", href: "/admin/settings", icon: <Settings className="w-4 h-4" /> },
+    { label: "Pengaturan", href: "/admin/pengaturan", icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (

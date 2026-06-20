@@ -176,7 +176,7 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Nama Lengkap</Label>
                 <Input 
-                  placeholder="Masukkan nama lengkap (min. 3 karakter)" 
+                  placeholder="Nama lengkap (min. 3 karakter)" 
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('namaLengkap')}
                 />
@@ -188,7 +188,7 @@ export default function RegisterPage() {
                 <Input 
                   id="visitor-email" 
                   type="email" 
-                  placeholder="Masukkan email anda" 
+                  placeholder="Email Anda" 
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...visitorForm.register('email')}
                 />
@@ -266,7 +266,7 @@ export default function RegisterPage() {
                   <Input 
                     type={showVisitorPassword ? "text" : "password"} 
                     autoComplete="new-password"
-                    placeholder="Minimal 8 karakter (huruf, angka, & simbol)" 
+                    placeholder="Min. 8 karakter (huruf, angka, & simbol)" 
                     className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...visitorForm.register('password')}
                   />
@@ -320,7 +320,7 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700 ml-0.5">Deskripsi Institusi</Label>
                 <Input 
-                  placeholder="Deskripsikan institusi Anda (min. 10 karakter)" 
+                  placeholder="Deskripsi institusi (min. 10 karakter)" 
                   className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                   {...organizerForm.register('deskripsiInstansi')}
                 />
@@ -332,7 +332,7 @@ export default function RegisterPage() {
                   <Input 
                     type="email" 
                     autoComplete="off"
-                    placeholder="Masukkan email anda" 
+                    placeholder="Email Anda" 
                     className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                     {...organizerForm.register('email')}
                   />
@@ -364,7 +364,7 @@ export default function RegisterPage() {
                     <Input 
                       type={showOrganizerPassword ? "text" : "password"} 
                       autoComplete="new-password"
-                      placeholder="Minimal 8 karakter (huruf, angka, & simbol)" 
+                      placeholder="Min. 8 karakter (huruf, angka, & simbol)" 
                       className="bg-white border-slate-200 h-12 px-4 pr-12 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                       {...organizerForm.register('password')}
                     />

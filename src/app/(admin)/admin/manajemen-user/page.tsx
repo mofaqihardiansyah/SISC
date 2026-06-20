@@ -319,7 +319,7 @@ export default function ManajemenUserPage() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-5">
         <StatCard icon={Users} label="Total Users" value={stats?.total ?? 0}
-          sub="+12% dari bulan lalu" subColor="#22c55e" iconColor="#3b82f6" iconBg="#eff6ff" subIcon={TrendingUp} loading={statsLoading} />
+          sub={stats ? `Total: ${stats.total}` : "-"} subColor="#22c55e" iconColor="#3b82f6" iconBg="#eff6ff" subIcon={TrendingUp} loading={statsLoading} />
         <StatCard icon={UserCheck} label="Aktif 30 Hari" value={stats?.active ?? 0}
           sub="Pengguna aktif bulan ini" subColor="#6b7280" iconColor="#22c55e" iconBg="#f0fdf4" loading={statsLoading} />
         <StatCard icon={Clock} label="Menunggu Persetujuan" value={stats?.pending ?? 0}

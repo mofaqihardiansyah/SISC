@@ -209,7 +209,7 @@ export default function AdminSettingsPage() {
                 type="text" 
                 value={namaLengkap}
                 onChange={(e) => setNamaLengkap(e.target.value)}
-                placeholder="Masukkan nama lengkap"
+                placeholder="Nama lengkap"
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 transition-all text-sm text-slate-700 bg-slate-50 focus:bg-white"
               />
             </div>
@@ -220,7 +220,7 @@ export default function AdminSettingsPage() {
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Masukkan email"
+                placeholder="Email"
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 transition-all text-sm text-slate-700 bg-slate-50 focus:bg-white"
               />
             </div>
@@ -260,7 +260,7 @@ export default function AdminSettingsPage() {
                 value={passLama}
                 onChange={(e) => setPassLama(e.target.value)}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl pr-12 focus:outline-none focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 transition-all text-sm text-slate-700 bg-slate-50 focus:bg-white"
-                placeholder="Masukkan kata sandi saat ini"
+                placeholder="Kata sandi saat ini"
               />
               <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}

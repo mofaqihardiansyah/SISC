@@ -54,7 +54,7 @@ export function RecentEvents({ events }: RecentEventProps) {
                   {event.judul || "Tanpa Judul"}
                 </h4>
                 <p className="text-xxs text-gray-400 font-bold mt-0.5">
-                  {event.detailLokasi || "Lokasi menyusul"} â€¢ {event.kuota || 0} Kuota
+                  {event.detailLokasi || "Lokasi menyusul"} • {event.kuota || 0} Kuota
                 </p>
               </div>
               <div className={`w-2 h-2 rounded-full ${statusColor} shadow-sm shadow-black/5`} />

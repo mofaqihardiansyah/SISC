@@ -1,6 +1,8 @@
 import { inngest } from "./client";
 import { seminarCrawler } from "../scraper/engine";
-import { SCRAPER } from "@/lib/constants";
+import { db } from "@/db";
+import { scrapingSources } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const scrapeEvents = inngest.createFunction(
   { 
@@ -12,9 +14,16 @@ export const scrapeEvents = inngest.createFunction(
     const { urls } = event.data;
 
     const result = await step.run("execute-scraping", async () => {
-      // Menjalankan crawler dengan list URL yang diberikan
-      await seminarCrawler.run(urls || [SCRAPER.DEFAULT_URL]);
-      return { success: true, processedUrls: urls };
+      let targetUrls = urls;
+      if (!targetUrls || targetUrls.length === 0) {
+        const sources = await db.select().from(scrapingSources).where(eq(scrapingSources.isActive, true));
+        targetUrls = sources.map(s => {
+          const base = s.baseUrl.replace(/\/$/, '');
+          return s.urlPattern ? `${base}${s.urlPattern}` : base;
+        });
+      }
+      await seminarCrawler.run(targetUrls);
+      return { success: true, processedUrls: targetUrls };
     });
 
     return result;

@@ -222,7 +222,7 @@ function ResetPasswordContent() {
               <Input 
                 id="password" 
                 type="password" 
-                placeholder="Minimal 6 karakter" 
+                placeholder="Min. 8 karakter" 
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 {...register('password')}
               />
@@ -236,7 +236,7 @@ function ResetPasswordContent() {
               <Input 
                 id="confirmPassword" 
                 type="password" 
-                placeholder="Masukkan ulang kata sandi baru" 
+                placeholder="Ketik ulang kata sandi baru" 
                 className="bg-white border-slate-200 h-12 px-4 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary text-slate-900 font-medium placeholder:text-slate-400 transition-all shadow-none"
                 {...register('confirmPassword')}
               />
