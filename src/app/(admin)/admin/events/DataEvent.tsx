@@ -8,6 +8,7 @@ import {
   Save, 
   Pencil, 
   Eye,
+  Check,
   MapPin,
   Users,
   Clock,
@@ -476,7 +477,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
                     >
                       {actionLoading === 'approve' ? (
                         <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : '✓ Setujui Event'}
+                      ) : <><Check className="w-3.5 h-3.5 mr-1" /> Setujui Event</>}
                     </Button>
                     <Button
                       variant="destructive"
@@ -484,7 +485,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
                       onClick={() => setShowRejectForm(true)}
                       disabled={actionLoading !== null}
                     >
-                      ✗ Tolak Event
+                      <X className="w-3.5 h-3.5 mr-1" /> Tolak Event
                     </Button>
                   </div>
                 ) : (

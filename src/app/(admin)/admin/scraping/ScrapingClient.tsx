@@ -12,6 +12,9 @@ import {
   publishAllAutoApproved
 } from "@/actions/admin-scraping";
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Modal } from '@/components/ui/modal';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +24,9 @@ import {
   Search, 
   RefreshCw, 
   Check, 
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
   Trash2, 
   Eye, 
   Sparkles, 
@@ -357,42 +363,38 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
         </div>
       </div>
 
-      {/* 📊 Ringkasan Kartu Metrik (Executive Dashboard Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
-        {/* Card 1: Total Data Terkumpul */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Total Data Terkumpul</span>
-            <span className="text-3xl font-extrabold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">{data.length}</span>
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Data Terkumpul</span>
+            <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{data.length}</span>
           </div>
-          <div className="p-3 bg-indigo-50/80 text-indigo-600 rounded-xl group-hover:bg-indigo-100 transition-colors">
-            <Globe className="w-6 h-6" />
+          <div className="p-3 bg-slate-100 text-slate-500 rounded-lg">
+            <Globe className="w-5 h-5" />
           </div>
         </div>
         
-        {/* Card 2: Auto-Approved */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Siap Terbit (Auto-Approved)</span>
-            <span className="text-3xl font-extrabold text-emerald-600 tracking-tight group-hover:text-emerald-700 transition-colors">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Siap Terbit (Auto-Approved)</span>
+            <span className="text-3xl font-extrabold text-emerald-600 tracking-tight">
               {data.filter(d => d.data.autoApproved).length}
             </span>
           </div>
-          <div className="p-3 bg-emerald-50/80 text-emerald-600 rounded-xl group-hover:bg-emerald-100 transition-colors">
-            <Sparkles className="w-6 h-6 text-amber-500 animate-pulse" />
+          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+            <Sparkles className="w-5 h-5" />
           </div>
         </div>
 
-        {/* Card 3: Perlu Tinjauan */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Perlu Tinjauan</span>
-            <span className="text-3xl font-extrabold text-amber-500 tracking-tight group-hover:text-amber-600 transition-colors">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Perlu Tinjauan</span>
+            <span className="text-3xl font-extrabold text-amber-500 tracking-tight">
               {data.filter(d => !d.data.autoApproved).length}
             </span>
           </div>
-          <div className="p-3 bg-amber-50/80 text-amber-500 rounded-xl group-hover:bg-amber-100 transition-colors">
-            <AlertCircle className="w-6 h-6" />
+          <div className="p-3 bg-amber-50 text-amber-500 rounded-lg">
+            <AlertCircle className="w-5 h-5" />
           </div>
         </div>
       </div>
@@ -401,7 +403,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
         <TabsList className="bg-slate-100 p-1 rounded-xl mb-4">
           <TabsTrigger value="data" className="rounded-lg px-4 py-2 text-sm font-semibold">
             Data Scraping
-            <Badge variant="secondary" className="ml-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-none font-bold">
+            <Badge variant="secondary" className="ml-2 bg-indigo-50 text-indigo-700 border-none font-bold">
               {data.length}
             </Badge>
           </TabsTrigger>
@@ -419,23 +421,22 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
               <div className="relative w-full sm:w-80">
                 <Search className="absolute left-3 top-2.5 h-4 text-slate-400" />
-                <input 
-                  type="text" 
+                <Input 
                   placeholder="Cari event..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-2 w-full text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-slate-300 transition-all duration-150"
+                  className="pl-9"
                 />
               </div>
-              <select 
+              <Select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-44 py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-slate-300 transition-all duration-150"
+                className="w-full sm:w-44"
               >
                 <option value="all">Semua Status</option>
                 <option value="processed">Processed (Bersih)</option>
                 <option value="pending">Pending (Mentah)</option>
-              </select>
+              </Select>
             </div>
 
             {selected.size > 0 && (
@@ -471,20 +472,19 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                     <th className="p-4">Judul Event</th>
                     <th className="p-4 w-48">Sumber Halaman</th>
                     <th className="p-4 w-32">Status</th>
-                    <th className="p-4 w-48 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700 text-sm">
                   {paginatedData.map((item) => {
                     const confidence = item.data.confidenceScore ?? 0;
                     let confidenceColor = "bg-rose-50 text-rose-700 border-rose-100";
-                    let confidenceIcon = "❌";
+                    let ConfidenceIcon = XCircle;
                     if (confidence >= 90) {
                       confidenceColor = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                      confidenceIcon = "✅";
+                      ConfidenceIcon = CheckCircle2;
                     } else if (confidence >= 75) {
                       confidenceColor = "bg-amber-50 text-amber-700 border-amber-100";
-                      confidenceIcon = "⚠️";
+                      ConfidenceIcon = AlertTriangle;
                     }
 
                     // Metadata
@@ -497,7 +497,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                     }) : 'Tanggal belum ditentukan';
 
                     return (
-                      <tr key={item.id} className="hover:bg-indigo-50/15 border-b border-slate-100 transition-all duration-150 group">
+                      <tr key={item.id} className="hover:bg-slate-50 border-b border-slate-100 transition-all duration-150">
                         <td className="p-4 text-center align-middle">
                           <input 
                             type="checkbox" 
@@ -510,15 +510,15 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           <div className="flex flex-col items-start gap-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <button 
-                                className="text-left font-bold text-slate-800 hover:text-indigo-600 transition-colors cursor-pointer group-hover:underline line-clamp-2 text-sm sm:text-base" 
+                                className="text-left font-bold text-slate-800 hover:text-indigo-600 transition-colors line-clamp-2 text-sm sm:text-base" 
                                 onClick={() => handleOpenPreview(item)}
                               >
                                 {item.data.judul}
                               </button>
                               
                               {/* Confidence score badge */}
-                              <span className={`inline-flex items-center gap-0.5 text-xxs font-bold px-1.5 py-0.5 rounded border ${confidenceColor}`}>
-                                {confidenceIcon} {confidence}%
+                              <span className={`inline-flex items-center gap-1 text-xxs font-bold px-1.5 py-0.5 rounded border ${confidenceColor}`}>
+                                <ConfidenceIcon className="w-3 h-3" /> {confidence}%
                               </span>
 
                               {item.data.autoApproved && (
@@ -546,7 +546,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                             </div>
 
                             {/* Inline Quick Actions */}
-                            <div className="flex gap-3.5 mt-2 text-slate-500 opacity-60 group-hover:opacity-100 transition-opacity duration-150">
+                            <div className="flex gap-3.5 mt-2 text-slate-500">
                               <Button
                                 variant="link"
                                 size="xs"
@@ -587,39 +587,19 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                             variant={item.status === 'processed' ? 'default' : 'secondary'}
                             className={`shadow-none font-bold uppercase tracking-wider text-xxs ${
                               item.status === 'processed' 
-                                ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-200' 
-                                : 'bg-amber-50 text-amber-700 hover:bg-amber-50 border-amber-200'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
                             }`}
                           >
                             {item.status === 'processed' ? 'processed' : 'pending'}
                           </Badge>
-                        </td>
-                        <td className="p-4 text-right align-middle">
-                          <div className="flex gap-1.5 justify-end">
-                            <Button
-                              size="xs"
-                              variant="outline"
-                              onClick={() => handleOpenPreview(item)}
-                            >
-                              <Eye className="w-3.5 h-3.5 mr-1" /> Detail & Terbit
-                            </Button>
-                            {item.status !== 'processed' && (
-                              <Button
-                                size="xs"
-                                variant="outline"
-                                onClick={() => handleClean(item.id)}
-                              >
-                                <Sparkles className="w-3.5 h-3.5 mr-1" /> Clean
-                              </Button>
-                            )}
-                          </div>
                         </td>
                       </tr>
                     );
                   })}
                   {filteredData.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-slate-400">
+                      <td colSpan={4} className="p-8 text-center text-slate-400">
                         <div className="flex flex-col items-center justify-center gap-2 py-4">
                           <AlertCircle className="w-8 h-8 text-slate-300" />
                           <p className="font-semibold text-slate-500">Tidak ada data scraping ditemukan</p>
@@ -762,12 +742,12 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                           : 'bg-amber-100 text-amber-800 border-amber-200'
                       }`}>
-                        {previewItem.data.autoApproved ? '✅' : '⚠️'} {previewItem.data.confidenceScore ?? 0} / 100
+                        {previewItem.data.autoApproved ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />} {previewItem.data.confidenceScore ?? 0} / 100
                       </span>
                     </div>
                     {previewItem.data.autoApproved && (
                       <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 uppercase tracking-wider shadow-sm">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" /> Auto-Approved
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Auto-Approved
                       </span>
                     )}
                   </div>
@@ -826,8 +806,8 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                 <TabsContent value="edit" className="space-y-6 pt-1">
                   
                   {/* SECTION 1: INFORMASI UTAMA */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
                       <FileText className="w-4 h-4" /> 1. Informasi Utama Event
                     </h3>
                     
@@ -837,11 +817,9 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                         Judul Event <span className="text-rose-500 ml-0.5">*</span>
                         {renderConfidenceBadge(previewItem.data.fieldConfidence?.judul)}
                       </label>
-                      <input 
-                        type="text" 
+                      <Input 
                         value={editJudul}
                         onChange={(e) => setEditJudul(e.target.value)}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         placeholder="Judul seminar/conference"
                       />
                       <p className="text-xxs text-slate-400 mt-1">Judul resmi event yang akan dipublikasikan.</p>
@@ -854,11 +832,10 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           <Calendar className="w-3.5 h-3.5 text-slate-400" /> Tanggal Mulai <span className="text-rose-500 ml-0.5">*</span>
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.tanggalMulai)}
                         </label>
-                        <input 
+                        <Input 
                           type="date" 
                           value={editTanggalMulai}
                           onChange={(e) => setEditTanggalMulai(e.target.value)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Format: DD/MM/YYYY. Tanggal dimulainya event.</p>
                       </div>
@@ -868,11 +845,10 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-slate-400" /> Tanggal Selesai (Opsional)
                         </label>
-                        <input 
+                        <Input 
                           type="date" 
                           value={editTanggalSelesai}
                           onChange={(e) => setEditTanggalSelesai(e.target.value)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Isi jika event berlangsung lebih dari satu hari.</p>
                       </div>
@@ -880,8 +856,8 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                   </div>
 
                   {/* SECTION 2: LOKASI & KLASIFIKASI */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
                       <MapPin className="w-4 h-4" /> 2. Lokasi & Klasifikasi Event
                     </h3>
 
@@ -892,16 +868,15 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           Platform <span className="text-rose-500 ml-0.5">*</span>
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.tipePlatform)}
                         </label>
-                        <select 
+                        <Select 
                           value={editTipePlatform || ''} 
                           onChange={(e) => setEditTipePlatform((e.target.value || null) as 'online' | 'offline' | 'hybrid' | null)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         >
                           <option value="">Belum Ditentukan</option>
                           <option value="online">Online (Daring)</option>
                           <option value="offline">Offline (Luring)</option>
                           <option value="hybrid">Hybrid (Hibrida)</option>
-                        </select>
+                        </Select>
                         <p className="text-xxs text-slate-400 mt-1">Pilih metode pelaksanaan event.</p>
                       </div>
 
@@ -910,11 +885,9 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
                           Detail Lokasi <span className="text-rose-500 ml-0.5">*</span>
                         </label>
-                        <input 
-                          type="text" 
+                        <Input 
                           value={editDetailLokasi}
                           onChange={(e) => setEditDetailLokasi(e.target.value)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                           placeholder="Gedung, Jalan, atau Meeting Link"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Nama tempat, alamat jalan, atau URL Zoom / link webinar.</p>
@@ -928,16 +901,15 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           Kota (Database) <span className="text-rose-500 ml-0.5">*</span>
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.kotaId)}
                         </label>
-                        <select 
+                        <Select 
                           value={editKotaId || ''} 
                           onChange={(e) => setEditKotaId(e.target.value ? Number(e.target.value) : null)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         >
                           <option value="">Pilih Kota...</option>
                           {cities.map((city) => (
                             <option key={city.id} value={city.id}>{city.nama}</option>
                           ))}
-                        </select>
+                        </Select>
                         <p className="text-xxs text-slate-400 mt-1">Harus dipetakan ke data kota terdaftar.</p>
                       </div>
 
@@ -947,38 +919,36 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           Kategori (Database) <span className="text-rose-500 ml-0.5">*</span>
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.kategoriId)}
                         </label>
-                        <select 
+                        <Select 
                           value={editKategoriId || ''} 
                           onChange={(e) => setEditKategoriId(e.target.value ? Number(e.target.value) : null)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         >
                           <option value="">Pilih Kategori...</option>
                           {categories.map((cat) => (
                             <option key={cat.id} value={cat.id}>{cat.nama}</option>
                           ))}
-                        </select>
+                        </Select>
                         <p className="text-xxs text-slate-400 mt-1">Kelompok utama kategori event.</p>
                       </div>
 
                       {/* Jenis Event */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Jenis Event <span className="text-rose-500 ml-0.5">*</span></label>
-                        <select 
+                        <Select 
                           value={editJenisEvent} 
                           onChange={(e) => setEditJenisEvent(e.target.value as 'seminar' | 'conference')}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         >
                           <option value="seminar">Seminar</option>
                           <option value="conference">Conference</option>
-                        </select>
+                        </Select>
                         <p className="text-xxs text-slate-400 mt-1">Tipe format acara.</p>
                       </div>
                     </div>
                   </div>
 
                   {/* SECTION 3: HARGA & KUOTA */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
                       <Coins className="w-4 h-4" /> 3. Harga & Kuota Tiket
                     </h3>
 
@@ -989,30 +959,28 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           Tipe Harga <span className="text-rose-500 ml-0.5">*</span>
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.harga)}
                         </label>
-                        <select
+                        <Select
                           value={editTipeHarga}
                           onChange={(e) => {
                             const val = e.target.value as 'free' | 'paid';
                             setEditTipeHarga(val);
                             if (val === 'free') setEditHarga(0);
                           }}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                         >
                           <option value="free">Gratis (Free)</option>
                           <option value="paid">Berbayar (Paid)</option>
-                        </select>
+                        </Select>
                         <p className="text-xxs text-slate-400 mt-1">Status biaya registrasi.</p>
                       </div>
 
                       {/* Harga */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Harga (Rp)</label>
-                        <input
+                        <Input
                           type="number"
                           value={editHarga}
                           onChange={(e) => setEditHarga(Number(e.target.value))}
                           disabled={editTipeHarga === 'free'}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100"
                           placeholder="Contoh: 50000"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Nominal harga (dinonaktifkan jika Gratis).</p>
@@ -1021,11 +989,10 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Kuota */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Kuota Peserta</label>
-                        <input
+                        <Input
                           type="number"
                           value={editKuota}
                           onChange={(e) => setEditKuota(e.target.value === "" ? "" : Number(e.target.value))}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                           placeholder="Kosongkan jika tak terbatas"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Batas kuota pendaftar (opsional).</p>
@@ -1034,8 +1001,8 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                   </div>
 
                   {/* SECTION 4: PENDAFTARAN & KONTAK PANITIA */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
                       <User className="w-4 h-4" /> 4. Pendaftaran & Kontak Panitia
                     </h3>
 
@@ -1046,11 +1013,9 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           Link Registrasi Asli <span className="text-rose-500 ml-0.5">*</span>
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.kontak)}
                         </label>
-                        <input
-                          type="text"
+                        <Input
                           value={editLinkRegistrasi}
                           onChange={(e) => setEditLinkRegistrasi(e.target.value)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                           placeholder="Google Form atau Link Pendaftaran"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Tautan pendaftaran eksternal.</p>
@@ -1059,11 +1024,9 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Nama CP */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Nama Kontak (CP)</label>
-                        <input
-                          type="text"
+                        <Input
                           value={editNamaKontak}
                           onChange={(e) => setEditNamaKontak(e.target.value)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                           placeholder="Nama Contact Person"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Nama narahubung panitia.</p>
@@ -1072,11 +1035,9 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Telepon CP */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">No Telepon CP</label>
-                        <input
-                          type="text"
+                        <Input
                           value={editTeleponKontak}
                           onChange={(e) => setEditTeleponKontak(e.target.value)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                           placeholder="No Telp / WhatsApp CP"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Format bebas (disarankan format WA).</p>
@@ -1087,11 +1048,10 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Email CP */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Email CP (Opsional)</label>
-                        <input
+                        <Input
                           type="email"
                           value={editEmailKontak}
                           onChange={(e) => setEditEmailKontak(e.target.value)}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium"
                           placeholder="panitia@domain.com"
                         />
                         <p className="text-xxs text-slate-400 mt-1">Surel resmi pendaftaran atau panitia.</p>
@@ -1100,8 +1060,8 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                   </div>
 
                   {/* SECTION 5: DESKRIPSI EVENT */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 border-b border-slate-100 pb-2">
                       <FileText className="w-4 h-4" /> 5. Deskripsi Detail Event
                     </h3>
 
@@ -1111,11 +1071,10 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                         Deskripsi Event (HTML/Teks)
                         {renderConfidenceBadge(previewItem.data.fieldConfidence?.deskripsi)}
                       </label>
-                      <textarea
+                      <Textarea
                         value={editDeskripsi}
                         onChange={(e) => setEditDeskripsi(e.target.value)}
                         rows={6}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 bg-white text-slate-800 font-medium resize-y"
                         placeholder="Deskripsi event..."
                       />
                       <div className="flex justify-between items-center text-xxs text-slate-400 mt-1">

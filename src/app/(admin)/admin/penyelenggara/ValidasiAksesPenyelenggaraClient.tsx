@@ -376,8 +376,8 @@ export function ValidasiAksesPenyelenggaraClient({
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" />
           <div className="relative bg-white rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm w-full text-center border border-slate-100 animate-in zoom-in-95 duration-300">
             <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
-            <h3 className="text-sm font-bold text-gray-800 mb-1">Memproses Akses Penyelenggara...</h3>
-            <p className="text-xs text-gray-500 mb-4">Mohon tunggu sebentar, sistem sedang melakukan pembaruan massal.</p>
+            <h3 className="text-sm font-bold text-slate-800 mb-1">Memproses Akses Penyelenggara...</h3>
+            <p className="text-xs text-slate-500 mb-4">Mohon tunggu sebentar, sistem sedang melakukan pembaruan massal.</p>
             <div className="w-full bg-slate-100 rounded-full h-2.5 mb-2 overflow-hidden">
               <div
                 className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
@@ -392,13 +392,13 @@ export function ValidasiAksesPenyelenggaraClient({
       )}
 
       {/*  Main Data Card Container  */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col gap-5">
         
         {/* Header Title inside card */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-5">
           <div>
-            <h2 className="text-base font-bold text-gray-800">Daftar Pengajuan Akses</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Kelola verifikasi dan status persetujuan akun penyelenggara secara detail.</p>
+            <h2 className="text-base font-bold text-slate-800">Daftar Pengajuan Akses</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Kelola verifikasi dan status persetujuan akun penyelenggara secara detail.</p>
           </div>
         </div>
 
@@ -410,7 +410,7 @@ export function ValidasiAksesPenyelenggaraClient({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative w-full sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <Input
                 type="text"
                 placeholder="Cari instansi, email..."
@@ -465,7 +465,7 @@ export function ValidasiAksesPenyelenggaraClient({
             <div className="flex flex-wrap gap-1.5">
               {(
                 [
-                  { id: "all", label: "Semua", count: stats.total, activeClass: "bg-gray-800 text-white border-gray-800" },
+                  { id: "all", label: "Semua", count: stats.total, activeClass: "bg-slate-800 text-white border-slate-800" },
                   { id: "pending", label: "Belum Disetujui", count: stats.pending, activeClass: "bg-amber-600 text-white border-amber-600" },
                   { id: "approved", label: "Disetujui", count: stats.approved, activeClass: "bg-emerald-600 text-white border-emerald-600" },
                   { id: "rejected", label: "Ditolak", count: stats.rejected, activeClass: "bg-rose-600 text-white border-rose-600" },
@@ -508,7 +508,7 @@ export function ValidasiAksesPenyelenggaraClient({
                     type="checkbox"
                     checked={isAllPageSelected}
                     onChange={toggleSelectAllPage}
-                    className="accent-indigo-600 cursor-pointer w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="accent-indigo-600 cursor-pointer w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                   />
                 </th>
                 
@@ -529,7 +529,7 @@ export function ValidasiAksesPenyelenggaraClient({
             <tbody className="divide-y divide-slate-100">
               {pageItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-gray-400 font-medium">
+                  <td colSpan={7} className="py-16 text-center text-slate-400 font-medium">
                     <div className="flex flex-col items-center gap-2">
                       <SlidersHorizontal className="w-8 h-8 text-slate-300" />
                       Tidak ada data penyelenggara yang sesuai dengan filter pencarian.
@@ -554,7 +554,7 @@ export function ValidasiAksesPenyelenggaraClient({
                            type="checkbox"
                            checked={isSelected}
                            onChange={() => toggleSelectRow(item.rawId)}
-                           className="accent-indigo-600 cursor-pointer w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                           className="accent-indigo-600 cursor-pointer w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                         />
                       </td>
 
@@ -890,8 +890,8 @@ export function ValidasiAksesPenyelenggaraClient({
       {/* ── Reject Reason Modal ── */}
       {rejectModal.id !== null && (
         <Modal open onClose={() => setRejectModal({ id: null, reason: "" })} className="max-w-sm">
-          <h3 className="text-sm font-bold text-gray-800 mb-2">Tolak Akses Penyelenggara</h3>
-          <p className="text-xs text-gray-500 mb-4">Silakan tuliskan alasan penolakan agar penyelenggara dapat memperbaikinya.</p>
+          <h3 className="text-sm font-bold text-slate-800 mb-2">Tolak Akses Penyelenggara</h3>
+          <p className="text-xs text-slate-500 mb-4">Silakan tuliskan alasan penolakan agar penyelenggara dapat memperbaikinya.</p>
           
           <Textarea
             value={rejectModal.reason}

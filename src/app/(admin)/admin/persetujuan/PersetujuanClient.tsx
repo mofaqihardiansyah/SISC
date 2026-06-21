@@ -143,7 +143,7 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
     <div className="space-y-10 pb-10">
       <section>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Validasi Pengajuan Baru</h1>
-        <p className="text-gray-500 mt-2 font-medium">Tinjau dan kelola pendaftaran event baru dari penyelenggara.</p>
+        <p className="text-slate-500 mt-2 font-medium">Tinjau dan kelola pendaftaran event baru dari penyelenggara.</p>
       </section>
 
       <StatCards
@@ -152,9 +152,9 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
         rejectedCount={stats.rejectedCount}
       />
 
-      <section className="bg-white rounded-3xl shadow-sm border border-gray-50 p-8">
+      <section className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900 tracking-tight">Daftar Registrasi Event</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Daftar Registrasi Event</h2>
           <FilterBar
             searchQuery={searchQuery}
             statusFilter={statusFilter}
@@ -176,7 +176,7 @@ export function PersetujuanClient({ initialPendingCount, initialApprovedCount, i
             <div className="flex justify-center mb-4 text-slate-300">
               <ClipboardList size={48} />
             </div>
-            <p className="text-gray-500 font-medium">Belum ada event.</p>
+            <p className="text-slate-500 font-medium">Belum ada event.</p>
           </div>
         ) : (
           <div>

@@ -115,6 +115,42 @@ export async function getValidationRules() {
   }
 }
 
+export async function createValidationRule(data: {
+  fieldName: string;
+  isRequired?: boolean;
+  minLength?: number | null;
+  maxLength?: number | null;
+  regexPattern?: string | null;
+  confidenceThreshold?: number;
+}) {
+  await checkAdminAuth();
+  try {
+    const [rule] = await db.insert(scrapingValidationRules).values({
+      fieldName: data.fieldName,
+      isRequired: data.isRequired,
+      minLength: data.minLength,
+      maxLength: data.maxLength,
+      regexPattern: data.regexPattern,
+      confidenceThreshold: data.confidenceThreshold,
+    }).returning();
+    return { success: true, data: rule };
+  } catch (error) {
+    console.error("Error creating validation rule:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Gagal membuat aturan validasi" };
+  }
+}
+
+export async function deleteValidationRule(id: number) {
+  await checkAdminAuth();
+  try {
+    await db.delete(scrapingValidationRules).where(eq(scrapingValidationRules.id, id));
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting validation rule:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Gagal menghapus aturan validasi" };
+  }
+}
+
 export async function updateValidationRule(id: number, data: {
   fieldName?: string;
   isRequired?: boolean;
@@ -145,6 +181,40 @@ export async function getAutoApprovalRules() {
   } catch (error) {
     console.error("Error fetching auto-approval rules:", error);
     return { success: false, error: error instanceof Error ? error.message : "Gagal mengambil aturan persetujuan otomatis" };
+  }
+}
+
+export async function createAutoApprovalRule(data: {
+  ruleName: string;
+  conditionType: string;
+  thresholdValue?: number;
+  autoPublish?: boolean;
+  enabled?: boolean;
+}) {
+  await checkAdminAuth();
+  try {
+    const [rule] = await db.insert(scrapingAutoApprovalRules).values({
+      ruleName: data.ruleName,
+      conditionType: data.conditionType,
+      thresholdValue: data.thresholdValue,
+      autoPublish: data.autoPublish,
+      enabled: data.enabled,
+    }).returning();
+    return { success: true, data: rule };
+  } catch (error) {
+    console.error("Error creating auto-approval rule:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Gagal membuat aturan persetujuan otomatis" };
+  }
+}
+
+export async function deleteAutoApprovalRule(id: number) {
+  await checkAdminAuth();
+  try {
+    await db.delete(scrapingAutoApprovalRules).where(eq(scrapingAutoApprovalRules.id, id));
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting auto-approval rule:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Gagal menghapus aturan persetujuan otomatis" };
   }
 }
 

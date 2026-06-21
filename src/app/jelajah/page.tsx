@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import EventCard from '@/components/shared/EventCard';
+import Footer from '@/components/shared/Footer';
 import EmptyState from '@/components/profile/EmptyState';
 
 import { Event } from '@/types/event';
@@ -344,8 +345,8 @@ function JelajahContent() {
                       type={event.eventPolines ? "POLINES" : "UMUM"}
                       imageUrl={event.urlBanner ?? undefined}
                       tipePlatform={event.tipePlatform ?? undefined}
-                      kotaNama={undefined}
-                      kategoriNama={undefined}
+                      kotaNama={event.kotaNama ?? undefined}
+                      kategoriNama={event.kategoriNama ?? undefined}
                       isLoggedIn={isLoggedIn}
                     />
                   ))}
@@ -365,24 +366,7 @@ function JelajahContent() {
         </main>
       </div>
 
-      {/* FOOTER */}
-      <footer className="bg-brand-dark text-white py-12 px-12 mt-16">
-        <div className="max-w-[1300px] mx-auto grid grid-cols-4 gap-10">
-          <div>
-            <h2 className="font-bold mb-4">POLIVENTS</h2>
-            <p className="text-gray-400 text-sm">Hubungkan koneksi anda dan tambah wawasan anda melalui seminar dan conference</p>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-4">BANTUAN</h3>
-            <ul className="text-gray-400 text-sm space-y-2"><li>FAQ</li><li>Kontak</li></ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-4">JELAJAH EVENT</h3>
-            <ul className="text-gray-400 text-sm space-y-2"><li>Jelajah</li><li>Event Polines</li><li>Event Umum</li></ul>
-          </div>
-          <div className="text-right text-gray-400 text-sm flex items-end justify-end">© 2026 POLIVENTS</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

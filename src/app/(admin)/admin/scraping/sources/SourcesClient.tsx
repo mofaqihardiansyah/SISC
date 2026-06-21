@@ -1,19 +1,29 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
 import {
-  Plus, Globe, Trash2, Play, Pencil, Sparkles, Check, AlertCircle
+  Plus, Globe, Trash2, Play, Pencil, Sparkles, Check, AlertCircle, Search, Activity, Power, PowerOff
 } from 'lucide-react';
 import {
   createScrapingSource,
   deleteScrapingSource,
   toggleSourceActive,
   updateScrapingSource,
+  createValidationRule,
+  updateValidationRule,
+  deleteValidationRule,
+  createAutoApprovalRule,
+  updateAutoApprovalRule,
+  deleteAutoApprovalRule,
 } from '@/actions/scraping-config';
+import { triggerScrapeAction } from '@/actions/admin-scraping';
 
 interface ScrapingSource {
   id: number;
@@ -62,12 +72,18 @@ interface Props {
 
 export default function SourcesClient({ initialSources, initialRules, initialAutoApprovalRules }: Props) {
   const [sources, setSources] = useState<ScrapingSource[]>(initialSources);
-  const [rules] = useState<ValidationRule[]>(initialRules);
-  const [autoRules] = useState<AutoApprovalRule[]>(initialAutoApprovalRules);
+  const [rules, setRules] = useState<ValidationRule[]>(initialRules);
+  const [autoRules, setAutoRules] = useState<AutoApprovalRule[]>(initialAutoApprovalRules);
   const [activeTab, setActiveTab] = useState<'sources' | 'rules' | 'auto'>('sources');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editSource, setEditSource] = useState<ScrapingSource | null>(null);
+  const [ruleModal, setRuleModal] = useState<{ open: boolean; edit: ValidationRule | null }>({ open: false, edit: null });
+  const [autoModal, setAutoModal] = useState<{ open: boolean; edit: AutoApprovalRule | null }>({ open: false, edit: null });
+  const [deleteConfirm, setDeleteConfirm] = useState<ScrapingSource | null>(null);
+  const [testingSource, setTestingSource] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'name-asc' | 'name-desc' | 'active' | 'inactive' | 'scraped-new' | 'scraped-old'>('name-asc');
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
@@ -88,14 +104,16 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
     { key: 'auto', label: 'Auto-Approval', icon: <Sparkles className="w-4 h-4" /> },
   ];
 
-  const handleDelete = async (id: number) => {
-    const res = await deleteScrapingSource(id);
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+    const res = await deleteScrapingSource(deleteConfirm.id);
     if (res.success) {
-      setSources(prev => prev.filter(s => s.id !== id));
-      toast.success('Sumber scraping berhasil dihapus');
+      setSources(prev => prev.filter(s => s.id !== deleteConfirm.id));
+      toast.success(`"${deleteConfirm.name}" berhasil dihapus`);
     } else {
       toast.error(res.error || 'Gagal menghapus');
     }
+    setDeleteConfirm(null);
   };
 
   const handleToggleActive = async (id: number) => {
@@ -109,8 +127,136 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
   };
 
   const handleTestScrape = async (source: ScrapingSource) => {
-    toast.info(`Tes scraping untuk ${source.name}... (simulasi)`);
+    setTestingSource(source.id);
+    try {
+      const res = await triggerScrapeAction();
+      if (res.success) {
+        toast.success(`Scrapping "${source.name}" selesai! Cek log untuk detail.`);
+      } else {
+        toast.error(res.error || `Gagal scrapping ${source.name}`);
+      }
+    } catch {
+      toast.error(`Gagal scrapping ${source.name}`);
+    } finally {
+      setTestingSource(null);
+    }
   };
+
+  const handleSaveRule = async (data: Partial<ValidationRule>) => {
+    setSaving(true);
+    try {
+      if (ruleModal.edit) {
+        const res = await updateValidationRule(ruleModal.edit.id, {
+          fieldName: data.fieldName,
+          isRequired: data.isRequired ?? undefined,
+          minLength: data.minLength ?? null,
+          maxLength: data.maxLength ?? null,
+          regexPattern: data.regexPattern ?? null,
+          confidenceThreshold: data.confidenceThreshold ?? 75,
+        });
+        if (res.success) {
+          setRules(prev => prev.map(r => r.id === ruleModal.edit!.id ? { ...r, ...data } : r));
+          toast.success('Aturan validasi diperbarui');
+          setRuleModal({ open: false, edit: null });
+        } else toast.error(res.error || 'Gagal memperbarui');
+      } else {
+        const res = await createValidationRule({
+          fieldName: data.fieldName || '',
+          isRequired: data.isRequired ?? undefined,
+          minLength: data.minLength ?? null,
+          maxLength: data.maxLength ?? null,
+          regexPattern: data.regexPattern ?? null,
+          confidenceThreshold: data.confidenceThreshold ?? 75,
+        });
+        if (res.success && res.data) {
+          setRules(prev => [...prev, res.data as ValidationRule]);
+          toast.success('Aturan validasi ditambahkan');
+          setRuleModal({ open: false, edit: null });
+        } else toast.error(res.error || 'Gagal menambahkan');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteRule = async (id: number) => {
+    const res = await deleteValidationRule(id);
+    if (res.success) {
+      setRules(prev => prev.filter(r => r.id !== id));
+      toast.success('Aturan validasi dihapus');
+    } else toast.error(res.error || 'Gagal menghapus');
+  };
+
+  const handleSaveAutoRule = async (data: Partial<AutoApprovalRule>) => {
+    setSaving(true);
+    try {
+      if (autoModal.edit) {
+        const res = await updateAutoApprovalRule(autoModal.edit.id, {
+          ruleName: data.ruleName,
+          conditionType: data.conditionType,
+          thresholdValue: data.thresholdValue ?? undefined,
+          autoPublish: data.autoPublish ?? undefined,
+          enabled: data.enabled ?? undefined,
+        });
+        if (res.success) {
+          setAutoRules(prev => prev.map(r => r.id === autoModal.edit!.id ? { ...r, ...data } : r));
+          toast.success('Aturan auto-approval diperbarui');
+          setAutoModal({ open: false, edit: null });
+        } else toast.error(res.error || 'Gagal memperbarui');
+      } else {
+        const res = await createAutoApprovalRule({
+          ruleName: data.ruleName || '',
+          conditionType: data.conditionType || 'confidence_score',
+          thresholdValue: data.thresholdValue ?? undefined,
+          autoPublish: data.autoPublish ?? undefined,
+          enabled: data.enabled ?? undefined,
+        });
+        if (res.success && res.data) {
+          setAutoRules(prev => [...prev, res.data as AutoApprovalRule]);
+          toast.success('Aturan auto-approval ditambahkan');
+          setAutoModal({ open: false, edit: null });
+        } else toast.error(res.error || 'Gagal menambahkan');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteAutoRule = async (id: number) => {
+    const res = await deleteAutoApprovalRule(id);
+    if (res.success) {
+      setAutoRules(prev => prev.filter(r => r.id !== id));
+      toast.success('Aturan auto-approval dihapus');
+    } else toast.error(res.error || 'Gagal menghapus');
+  };
+
+  const filteredSources = useMemo(() => {
+    let result = sources;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        s.baseUrl.toLowerCase().includes(q)
+      );
+    }
+    return [...result].sort((a, b) => {
+      switch (sortBy) {
+        case 'name-desc': return b.name.localeCompare(a.name);
+        case 'active': return a.isActive === b.isActive ? 0 : a.isActive ? -1 : 1;
+        case 'inactive': return a.isActive === b.isActive ? 0 : a.isActive ? 1 : -1;
+        case 'scraped-new': return new Date(b.lastScrapedAt ?? 0).getTime() - new Date(a.lastScrapedAt ?? 0).getTime();
+        case 'scraped-old': return new Date(a.lastScrapedAt ?? 0).getTime() - new Date(b.lastScrapedAt ?? 0).getTime();
+        default: return a.name.localeCompare(b.name);
+      }
+    });
+  }, [sources, searchQuery, sortBy]);
+
+  const stats = useMemo(() => ({
+    total: sources.length,
+    active: sources.filter(s => s.isActive).length,
+    inactive: sources.filter(s => !s.isActive).length,
+    errors: sources.filter(s => s.lastErrorMessage).length,
+  }), [sources]);
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -142,69 +288,116 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
       {/* SOURCES TAB */}
       {activeTab === 'sources' && (
         <div className="space-y-4">
-          <div className="flex justify-end">
+          {/* Stats cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white p-4 rounded-xl border border-slate-200">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total</span>
+              <p className="text-2xl font-bold text-slate-800 mt-1">{stats.total}</p>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Aktif</span>
+              <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.active}</p>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nonaktif</span>
+              <p className="text-2xl font-bold text-slate-500 mt-1">{stats.inactive}</p>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Error</span>
+              <p className="text-2xl font-bold text-rose-600 mt-1">{stats.errors}</p>
+            </div>
+          </div>
+
+          {/* Search + Sort + Add button */}
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <div className="flex gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-56">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Cari sumber..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9"
+                />
+              </div>
+              <Select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value as typeof sortBy)}
+                className="h-9"
+              >
+                <option value="name-asc">Nama A-Z</option>
+                <option value="name-desc">Nama Z-A</option>
+                <option value="active">Aktif dulu</option>
+                <option value="inactive">Nonaktif dulu</option>
+                <option value="scraped-new">Terbaru discrape</option>
+                <option value="scraped-old">Terlama discrape</option>
+              </Select>
+            </div>
             <Button onClick={() => setShowAddModal(true)}>
               <Plus className="w-4 h-4 mr-2" /> Tambah Sumber
             </Button>
           </div>
 
-          {sources.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
-              <Globe className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="font-bold text-slate-500">Belum ada sumber scraping</p>
-              <p className="text-sm text-slate-400 mt-1">Tambahkan sumber website untuk discrape</p>
+          {filteredSources.length === 0 ? (
+            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+              <Globe className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <p className="font-semibold text-slate-500">
+                {searchQuery ? 'Tidak ada sumber yang cocok' : 'Belum ada sumber scraping'}
+              </p>
+              <p className="text-sm text-slate-400 mt-1">
+                {searchQuery ? 'Coba ubah kata kunci pencarian' : 'Tambahkan sumber website untuk discrape'}
+              </p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {sources.map(source => (
-                <div key={source.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between gap-4">
+            <div className="space-y-2">
+              {filteredSources.map(source => (
+                <div key={source.id} className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-slate-800">{source.name}</h3>
-                        <Badge variant={source.isActive ? 'default' : 'secondary'} className={`shadow-none text-xxs font-bold uppercase tracking-wider ${
+                        <h3 className="font-semibold text-slate-800 text-sm">{source.name}</h3>
+                        <span className={`inline-flex items-center gap-1 text-xxs font-semibold px-1.5 py-0.5 rounded border ${
                           source.isActive
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : 'bg-slate-100 text-slate-500 border-slate-200'
                         }`}>
+                          {source.isActive ? <Power className="w-2.5 h-2.5" /> : <PowerOff className="w-2.5 h-2.5" />}
                           {source.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
-                        <Badge variant="secondary" className="shadow-none text-xxs font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border-indigo-100">
-                          {source.scraperType === 'cheerio' ? 'Cheerio' : 'Crawlee+Playwright'}
-                        </Badge>
+                        </span>
+                        <span className="inline-flex items-center text-xxs font-semibold px-1.5 py-0.5 rounded border bg-slate-50 text-slate-600 border-slate-200">
+                          {source.scraperType === 'cheerio' ? 'Cheerio' : 'Playwright'}
+                        </span>
                       </div>
                       <p className="text-xs font-mono text-slate-500 truncate">{source.baseUrl}</p>
-                      {source.urlPattern && (
-                        <p className="text-xxs text-slate-400 mt-0.5">Pattern: {source.urlPattern}</p>
-                      )}
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xxs text-slate-400">
-                        {source.cronSchedule && <span>Schedule: {source.cronSchedule}</span>}
-                        <span>Max: {source.maxResultsPerRun ?? 100} items</span>
+                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1.5 text-xxs text-slate-400">
+                        {source.cronSchedule && <span>Schedule: <span className="font-mono text-slate-500">{source.cronSchedule}</span></span>}
+                        <span>Max: {source.maxResultsPerRun ?? 100}</span>
                         <span>Delay: {source.rateLimitDelayMs ?? 1000}ms</span>
                       </div>
                       {source.lastScrapedAt && (
-                        <div className="mt-2 text-xxs text-slate-400">
-                          Last scrape: {new Date(source.lastScrapedAt).toLocaleString('id-ID')}
-                          {source.lastSuccessfulCount !== null && ` (${source.lastSuccessfulCount} items)`}
+                        <div className="mt-1.5 text-xxs text-slate-400 flex items-center gap-1">
+                          <Activity className="w-3 h-3" />
+                          {new Date(source.lastScrapedAt).toLocaleString('id-ID')}
+                          {source.lastSuccessfulCount !== null && <>({source.lastSuccessfulCount} items)</>}
                         </div>
                       )}
                       {source.lastErrorMessage && (
-                        <div className="mt-1 text-xxs text-rose-600 font-medium flex items-center gap-1">
+                        <div className="mt-1 text-xxs text-rose-600 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" /> {source.lastErrorMessage}
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-1.5 shrink-0">
-                      <Button size="xs" variant="outline" onClick={() => setEditSource(source)}>
+                    <div className="flex gap-1 shrink-0">
+                      <Button size="xs" variant="outline" onClick={() => setEditSource(source)} title="Edit">
                         <Pencil className="w-3 h-3" />
                       </Button>
-                      <Button size="xs" variant="outline" onClick={() => handleTestScrape(source)}>
-                        <Play className="w-3 h-3" />
+                      <Button size="xs" variant="outline" onClick={() => handleTestScrape(source)} title="Test Scrape" loading={testingSource === source.id}>
+                        {testingSource !== source.id && <Play className="w-3 h-3" />}
                       </Button>
                       <Button size="xs" variant={source.isActive ? 'outline' : 'default'} onClick={() => handleToggleActive(source.id)}>
                         {source.isActive ? 'Nonaktifkan' : 'Aktifkan'}
                       </Button>
-                      <Button size="xs" variant="destructive" onClick={() => handleDelete(source.id)}>
+                      <Button size="xs" variant="destructive" onClick={() => setDeleteConfirm(source)} title="Hapus">
                         <Trash2 className="w-3 h-3" />
                       </Button>
                     </div>
@@ -218,22 +411,31 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
 
       {/* RULES TAB */}
       {activeTab === 'rules' && (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-slate-100">
-            <h3 className="font-bold text-slate-700">Aturan Validasi Field</h3>
-            <p className="text-xs text-slate-400 mt-1">Konfigurasi field yang wajib diisi dan threshold kepercayaan per field</p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-800">Aturan Validasi Field</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Konfigurasi field yang wajib diisi dan threshold kepercayaan</p>
+            </div>
+            <Button size="sm" onClick={() => setRuleModal({ open: true, edit: null })}>
+              <Plus className="w-4 h-4 mr-1" /> Tambah Aturan
+            </Button>
           </div>
+
           {rules.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">Belum ada aturan validasi</div>
+            <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
+              <Check className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="font-semibold text-slate-500">Belum ada aturan validasi</p>
+            </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
               {rules.map(rule => (
-                <div key={rule.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="shadow-none font-bold uppercase text-xxs bg-slate-100 text-slate-700 border-slate-200 min-w-[100px]">
+                <div key={rule.id} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded min-w-[90px] text-center">
                       {rule.fieldName}
-                    </Badge>
-                    <div className="flex gap-3 text-xs text-slate-500">
+                    </span>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
                       <span className={rule.isRequired ? 'text-emerald-600 font-semibold' : ''}>
                         {rule.isRequired ? 'Required' : 'Optional'}
                       </span>
@@ -241,6 +443,14 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
                       {rule.maxLength !== null && <span>Max: {rule.maxLength}</span>}
                       <span>Threshold: {rule.confidenceThreshold ?? 75}%</span>
                     </div>
+                  </div>
+                  <div className="flex gap-1 shrink-0 ml-3">
+                    <Button size="xs" variant="outline" onClick={() => setRuleModal({ open: true, edit: rule })}>
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                    <Button size="xs" variant="destructive" onClick={() => handleDeleteRule(rule.id)}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -251,38 +461,56 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
 
       {/* AUTO-APPROVAL TAB */}
       {activeTab === 'auto' && (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-slate-100">
-            <h3 className="font-bold text-slate-700">Aturan Auto-Approval</h3>
-            <p className="text-xs text-slate-400 mt-1">Konfigurasi kapan event otomatis diterbitkan tanpa review manual</p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-800">Aturan Auto-Approval</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Konfigurasi kapan event otomatis diterbitkan tanpa review manual</p>
+            </div>
+            <Button size="sm" onClick={() => setAutoModal({ open: true, edit: null })}>
+              <Plus className="w-4 h-4 mr-1" /> Tambah Aturan
+            </Button>
           </div>
+
           {autoRules.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">Belum ada aturan auto-approval</div>
+            <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
+              <Sparkles className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="font-semibold text-slate-500">Belum ada aturan auto-approval</p>
+            </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
               {autoRules.map(rule => (
-                <div key={rule.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div>
+                <div key={rule.id} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="min-w-0">
                       <p className="font-semibold text-slate-700 text-sm">{rule.ruleName}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {rule.conditionType} {rule.thresholdValue !== null ? `≥ ${rule.thresholdValue}%` : ''}
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {rule.conditionType === 'confidence_score' ? 'Confidence Score' : rule.conditionType}
+                        {rule.thresholdValue !== null ? ` ≥ ${rule.thresholdValue}%` : ''}
                       </p>
                     </div>
+                    <div className="flex gap-1.5">
+                      <span className={`inline-flex items-center text-xxs font-semibold px-1.5 py-0.5 rounded border ${
+                        rule.enabled
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-100 text-slate-500 border-slate-200'
+                      }`}>
+                        {rule.enabled ? 'Aktif' : 'Nonaktif'}
+                      </span>
+                      {rule.autoPublish && (
+                        <span className="inline-flex items-center text-xxs font-semibold px-1.5 py-0.5 rounded border bg-slate-50 text-slate-600 border-slate-200">
+                          Auto-Publish
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={`shadow-none text-xxs font-bold uppercase tracking-wider ${
-                      rule.enabled
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-slate-100 text-slate-500 border-slate-200'
-                    }`}>
-                      {rule.enabled ? 'Aktif' : 'Nonaktif'}
-                    </Badge>
-                    {rule.autoPublish && (
-                      <Badge variant="secondary" className="shadow-none text-xxs font-bold bg-indigo-50 text-indigo-700 border-indigo-100">
-                        Auto-Publish
-                      </Badge>
-                    )}
+                  <div className="flex gap-1 shrink-0 ml-3">
+                    <Button size="xs" variant="outline" onClick={() => setAutoModal({ open: true, edit: rule })}>
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                    <Button size="xs" variant="destructive" onClick={() => handleDeleteAutoRule(rule.id)}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -344,7 +572,189 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
           onCancel={() => { setShowAddModal(false); setEditSource(null); }}
         />
       </Modal>
+
+      {/* Rule Form Modal */}
+      <Modal
+        open={ruleModal.open}
+        onClose={() => setRuleModal({ open: false, edit: null })}
+        title={ruleModal.edit ? 'Edit Aturan Validasi' : 'Tambah Aturan Validasi'}
+        className="max-w-md"
+      >
+        <RuleForm
+          initialData={ruleModal.edit}
+          onSave={handleSaveRule}
+          saving={saving}
+          onCancel={() => setRuleModal({ open: false, edit: null })}
+        />
+      </Modal>
+
+      {/* Auto-Approval Form Modal */}
+      <Modal
+        open={autoModal.open}
+        onClose={() => setAutoModal({ open: false, edit: null })}
+        title={autoModal.edit ? 'Edit Aturan Auto-Approval' : 'Tambah Aturan Auto-Approval'}
+        className="max-w-md"
+      >
+        <AutoApprovalForm
+          initialData={autoModal.edit}
+          onSave={handleSaveAutoRule}
+          saving={saving}
+          onCancel={() => setAutoModal({ open: false, edit: null })}
+        />
+      </Modal>
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={handleDelete}
+        title="Hapus Sumber Scraping"
+        message={`Yakin ingin menghapus "${deleteConfirm?.name}"? Semua data scraping dari sumber ini tidak akan terpengaruh, tapi sumber tidak bisa digunakan lagi.`}
+        confirmLabel="Hapus"
+        variant="danger"
+      />
     </div>
+  );
+}
+
+function AutoApprovalForm({
+  initialData,
+  onSave,
+  saving,
+  onCancel,
+}: {
+  initialData: AutoApprovalRule | null;
+  onSave: (data: Partial<AutoApprovalRule>) => Promise<void>;
+  saving: boolean;
+  onCancel: () => void;
+}) {
+  const [ruleName, setRuleName] = useState(initialData?.ruleName ?? '');
+  const [conditionType, setConditionType] = useState(initialData?.conditionType ?? 'confidence_score');
+  const [threshold, setThreshold] = useState(initialData?.thresholdValue ?? 85);
+  const [autoPublish, setAutoPublish] = useState(initialData?.autoPublish ?? true);
+  const [enabled, setEnabled] = useState(initialData?.enabled ?? true);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ruleName.trim()) {
+      toast.error('Nama aturan wajib diisi');
+      return;
+    }
+    await onSave({
+      ruleName: ruleName.trim(),
+      conditionType,
+      thresholdValue: threshold,
+      autoPublish,
+      enabled,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 p-1">
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-700">Nama Aturan <span className="text-rose-500">*</span></label>
+        <Input value={ruleName} onChange={e => setRuleName(e.target.value)} placeholder="Misal: Event berkualitas tinggi" />
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-700">Kondisi</label>
+        <Select value={conditionType} onChange={e => setConditionType(e.target.value)}>
+          <option value="confidence_score">Confidence Score</option>
+          <option value="field_completeness">Field Completeness</option>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-700">Threshold (%)</label>
+        <Input type="number" value={threshold} onChange={e => setThreshold(Number(e.target.value))} min={0} max={100} />
+      </div>
+      <div className="flex items-center gap-3">
+        <input type="checkbox" id="autoPublish" checked={autoPublish} onChange={e => setAutoPublish(e.target.checked)}
+          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
+        <label htmlFor="autoPublish" className="text-sm text-slate-700">Auto-Publish (terbitkan otomatis)</label>
+      </div>
+      <div className="flex items-center gap-3">
+        <input type="checkbox" id="enabled" checked={enabled} onChange={e => setEnabled(e.target.checked)}
+          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
+        <label htmlFor="enabled" className="text-sm text-slate-700">Aturan aktif</label>
+      </div>
+      <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+        <Button variant="outline" type="button" onClick={onCancel}>Batal</Button>
+        <Button type="submit" loading={saving}>
+          <Check className="w-4 h-4 mr-2" /> {initialData ? 'Simpan' : 'Tambah'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function RuleForm({
+  initialData,
+  onSave,
+  saving,
+  onCancel,
+}: {
+  initialData: ValidationRule | null;
+  onSave: (data: Partial<ValidationRule>) => Promise<void>;
+  saving: boolean;
+  onCancel: () => void;
+}) {
+  const [fieldName, setFieldName] = useState(initialData?.fieldName ?? '');
+  const [isRequired, setIsRequired] = useState(initialData?.isRequired ?? true);
+  const [minLength, setMinLength] = useState<number | ''>(initialData?.minLength ?? '');
+  const [maxLength, setMaxLength] = useState<number | ''>(initialData?.maxLength ?? '');
+  const [regexPattern, setRegexPattern] = useState(initialData?.regexPattern ?? '');
+  const [threshold, setThreshold] = useState(initialData?.confidenceThreshold ?? 75);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fieldName.trim()) {
+      toast.error('Nama field wajib diisi');
+      return;
+    }
+    await onSave({
+      fieldName: fieldName.trim(),
+      isRequired,
+      minLength: minLength === '' ? null : Number(minLength),
+      maxLength: maxLength === '' ? null : Number(maxLength),
+      regexPattern: regexPattern.trim() || null,
+      confidenceThreshold: threshold,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 p-1">
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-700">Nama Field <span className="text-rose-500">*</span></label>
+        <Input value={fieldName} onChange={e => setFieldName(e.target.value)} placeholder="judul, deskripsi, harga..." />
+      </div>
+      <div className="flex items-center gap-2">
+        <input type="checkbox" id="isRequired" checked={isRequired} onChange={e => setIsRequired(e.target.checked)}
+          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
+        <label htmlFor="isRequired" className="text-sm text-slate-700">Field wajib diisi (Required)</label>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700">Min Length</label>
+          <Input type="number" value={minLength} onChange={e => setMinLength(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Kosongkan" />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700">Max Length</label>
+          <Input type="number" value={maxLength} onChange={e => setMaxLength(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Kosongkan" />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-700">Regex Pattern</label>
+        <Input value={regexPattern} onChange={e => setRegexPattern(e.target.value)} placeholder="/^[a-zA-Z]+$/" />
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-700">Confidence Threshold (%)</label>
+        <Input type="number" value={threshold} onChange={e => setThreshold(Number(e.target.value))} min={0} max={100} />
+      </div>
+      <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+        <Button variant="outline" type="button" onClick={onCancel}>Batal</Button>
+        <Button type="submit" loading={saving}>
+          <Check className="w-4 h-4 mr-2" /> {initialData ? 'Simpan' : 'Tambah'}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -389,54 +799,42 @@ function SourceForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-1">
       <div className="space-y-1.5">
-        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Nama Sumber <span className="text-rose-500">*</span></label>
-        <input type="text" value={name} onChange={e => setName(e.target.value)}
-          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-          placeholder="nama website" />
+        <label className="text-xs font-semibold text-slate-700">Nama Sumber <span className="text-rose-500">*</span></label>
+        <Input value={name} onChange={e => setName(e.target.value)} placeholder="nama website" />
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Base URL <span className="text-rose-500">*</span></label>
-        <input type="url" value={baseUrl} onChange={e => setBaseUrl(e.target.value)}
-          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-          placeholder="URL Website" />
+        <label className="text-xs font-semibold text-slate-700">Base URL <span className="text-rose-500">*</span></label>
+        <Input type="url" value={baseUrl} onChange={e => setBaseUrl(e.target.value)} placeholder="URL Website" />
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">URL Pattern (Regex)</label>
-        <input type="text" value={urlPattern} onChange={e => setUrlPattern(e.target.value)}
-          className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-          placeholder="Pola URL" />
+        <label className="text-xs font-semibold text-slate-700">URL Pattern (Regex)</label>
+        <Input value={urlPattern} onChange={e => setUrlPattern(e.target.value)} placeholder="Pola URL" />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Scraper Type</label>
-          <select value={scraperType} onChange={e => setScraperType(e.target.value as 'cheerio' | 'crawlee_playwright')}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white">
+          <label className="text-xs font-semibold text-slate-700">Scraper Type</label>
+          <Select value={scraperType} onChange={e => setScraperType(e.target.value as 'cheerio' | 'crawlee_playwright')}>
             <option value="cheerio">Cheerio (Ringan)</option>
             <option value="crawlee_playwright">Crawlee + Playwright (Berat)</option>
-          </select>
+          </Select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Cron Schedule</label>
-          <input type="text" value={cronSchedule} onChange={e => setCronSchedule(e.target.value)}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-            placeholder="0 */6 * * * (setiap 6 jam)" />
+          <label className="text-xs font-semibold text-slate-700">Cron Schedule</label>
+          <Input value={cronSchedule} onChange={e => setCronSchedule(e.target.value)} placeholder="0 */6 * * * (setiap 6 jam)" />
         </div>
       </div>
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Max Items</label>
-          <input type="number" value={maxResults} onChange={e => setMaxResults(Number(e.target.value))}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+          <label className="text-xs font-semibold text-slate-700">Max Items</label>
+          <Input type="number" value={maxResults} onChange={e => setMaxResults(Number(e.target.value))} />
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Delay (ms)</label>
-          <input type="number" value={rateLimit} onChange={e => setRateLimit(Number(e.target.value))}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+          <label className="text-xs font-semibold text-slate-700">Delay (ms)</label>
+          <Input type="number" value={rateLimit} onChange={e => setRateLimit(Number(e.target.value))} />
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Concurrent</label>
-          <input type="number" value={maxConcurrent} onChange={e => setMaxConcurrent(Number(e.target.value))}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+          <label className="text-xs font-semibold text-slate-700">Concurrent</label>
+          <Input type="number" value={maxConcurrent} onChange={e => setMaxConcurrent(Number(e.target.value))} />
         </div>
       </div>
       <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">

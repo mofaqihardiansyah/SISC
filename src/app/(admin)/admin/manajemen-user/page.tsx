@@ -90,7 +90,7 @@ function StatusBadge({ user }: { user: Pick<User, "diblokir" | "disetujui" | "ro
 }
 
 function SortIcon({ field, sortBy, sortDir }: { field: SortField; sortBy: SortField; sortDir: SortDir }) {
-  if (sortBy !== field) return <ChevronsUpDown className="w-3 h-3 text-gray-300 inline ml-1" />;
+  if (sortBy !== field) return <ChevronsUpDown className="w-3 h-3 text-slate-300 inline ml-1" />;
   return sortDir === "asc"
     ? <ChevronUp className="w-3 h-3 text-blue-500 inline ml-1" />
     : <ChevronDown className="w-3 h-3 text-blue-500 inline ml-1" />;
@@ -102,15 +102,15 @@ function StatCard({ icon: Icon, label, value, sub, subColor, iconColor, iconBg, 
   subIcon?: React.ElementType | null; loading?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1">
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-1">
       <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-1" style={{ backgroundColor: iconBg }}>
         <Icon className="w-5 h-5" style={{ color: iconColor }} />
       </div>
-      <div className="text-sm font-bold text-gray-800">{label}</div>
+      <div className="text-sm font-bold text-slate-800">{label}</div>
       {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin text-gray-300 my-1" />
+        <Loader2 className="w-4 h-4 animate-spin text-slate-300 my-1" />
       ) : (
-        <div className="text-lg font-semibold text-gray-500">{value.toLocaleString("id-ID")}</div>
+        <div className="text-lg font-semibold text-slate-500">{value.toLocaleString("id-ID")}</div>
       )}
       <div className="text-xxs font-medium flex items-center gap-1" style={{ color: subColor }}>
         {SubIcon && <SubIcon className="w-3 h-3" />}
@@ -158,8 +158,8 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
           <div className="flex items-center gap-4 mb-5">
             <Avatar user={user} size="lg" />
             <div>
-              <div className="font-bold text-gray-800 text-sm">{user.namaLengkap}</div>
-              <div className="text-xs text-gray-400 mb-1.5">{user.email}</div>
+              <div className="font-bold text-slate-800 text-sm">{user.namaLengkap}</div>
+              <div className="text-xs text-slate-400 mb-1.5">{user.email}</div>
               <StatusBadge user={user} />
             </div>
           </div>
@@ -167,8 +167,8 @@ function DetailModal({ userId, onClose }: { userId: number; onClose: () => void 
           <div className="space-y-3">
             {rows.map(({ label, value }) => (
               <div key={label} className="flex justify-between items-start gap-4">
-                <span className="text-micro text-gray-400 font-medium shrink-0 w-36">{label}</span>
-                <span className="text-micro text-gray-700 text-right">{value || "-"}</span>
+                <span className="text-micro text-slate-400 font-medium shrink-0 w-36">{label}</span>
+                <span className="text-micro text-slate-700 text-right">{value || "-"}</span>
               </div>
             ))}
           </div>
@@ -313,7 +313,7 @@ export default function ManajemenUserPage() {
   // Render 
 
   return (
-    <div className="flex-1 p-6 bg-gray-50 min-h-screen overflow-y-auto">
+    <div className="flex-1 p-6 bg-slate-50 min-h-screen overflow-y-auto">
       <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Manajemen User</h1>
 
       {/* Stats */}
@@ -329,9 +329,9 @@ export default function ManajemenUserPage() {
       </div>
 
       {/* Main Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-gray-800">Daftar Pengguna</h2>
+          <h2 className="text-base font-bold text-slate-800">Daftar Pengguna</h2>
 
           {/* Bulk delete bar */}
           {selectedRows.length > 0 && (
@@ -362,20 +362,20 @@ export default function ManajemenUserPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 items-end mb-5">
           <div className="flex-1 min-w-44">
-            <label className="block text-xxs font-semibold text-gray-400 uppercase tracking-wider mb-1">Cari Pengguna</label>
+            <label className="block text-xxs font-semibold text-slate-400 uppercase tracking-wider mb-1">Cari Pengguna</label>
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
               <Input type="text" placeholder="Nama atau email..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:outline-none focus:ring-2 focus:ring-slate-100 text-gray-700"
+                className="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-100 text-slate-700"
               />
             </div>
           </div>
           <div className="min-w-36">
-            <label className="block text-xxs font-semibold text-gray-400 uppercase tracking-wider mb-1">Peran</label>
+            <label className="block text-xxs font-semibold text-slate-400 uppercase tracking-wider mb-1">Peran</label>
             <Select value={tipeInput} onChange={(e) => setTipeInput(e.target.value)}
-              className="w-full px-3 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:outline-none text-gray-700">
+              className="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none text-slate-700">
               <option>Semua Tipe</option>
               <option value="organizer">Organizer</option>
               <option value="visitor">Visitor</option>
@@ -398,20 +398,20 @@ export default function ManajemenUserPage() {
                   return (
                     <th key={field}
                       onClick={() => handleSort(field)}
-                      className="px-6 py-3 text-left text-xxs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 select-none whitespace-nowrap">
+                      className="px-6 py-3 text-left text-xxs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-slate-600 select-none whitespace-nowrap">
                       {labels[field]}
                       <SortIcon field={field} sortBy={sortBy} sortDir={sortDir} />
                     </th>
                   );
                 })}
                 {["Status", "Email", "Aksi"].map((h) => (
-                  <th key={h} className="px-6 py-3 text-left text-xxs font-bold text-gray-400 uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-6 py-3 text-left text-xxs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan={8} className="py-12 text-center text-gray-400">
+                <tr><td colSpan={8} className="py-12 text-center text-slate-400">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-400" />Memuat data...
                 </td></tr>
               ) : error ? (
@@ -419,7 +419,7 @@ export default function ManajemenUserPage() {
                   {error} <Button variant="link" onClick={fetchUsers} size="xs">Coba lagi</Button>
                 </td></tr>
               ) : users.length === 0 ? (
-                <tr><td colSpan={8} className="py-8 text-center text-gray-400">Tidak ada data ditemukan</td></tr>
+                <tr><td colSpan={8} className="py-8 text-center text-slate-400">Tidak ada data ditemukan</td></tr>
               ) : (
                 users.map((user) => (
                   <tr key={user.id}
@@ -433,8 +433,8 @@ export default function ManajemenUserPage() {
                         onClick={() => setDetailUserId(user.id)}>
                         <Avatar user={user} />
                         <div>
-                          <div className="font-semibold text-gray-800 text-sm2 hover:text-slate-700 transition-colors">{user.namaLengkap}</div>
-                          <div className="text-xxs text-gray-400">{user.email}</div>
+                          <div className="font-semibold text-slate-800 text-sm2 hover:text-slate-700 transition-colors">{user.namaLengkap}</div>
+                          <div className="text-xxs text-slate-400">{user.email}</div>
                         </div>
                       </Button>
                     </td>
@@ -443,9 +443,9 @@ export default function ManajemenUserPage() {
                         {user.role === "organizer" ? "Penyelenggara" : "Pengunjung"}
                       </span>
                     </td>
-                    <td className="px-6 py-3.5 text-gray-500 whitespace-nowrap text-xs">{formatDate(user.dibuatPada)}</td>
+                    <td className="px-6 py-3.5 text-slate-500 whitespace-nowrap text-xs">{formatDate(user.dibuatPada)}</td>
                     <td className="px-6 py-3.5"><StatusBadge user={user} /></td>
-                    <td className="px-6 py-3.5 text-gray-500 text-xs">{user.email}</td>
+                    <td className="px-6 py-3.5 text-slate-500 text-xs">{user.email}</td>
                     <td className="px-6 py-3.5">
                       <div className="flex gap-1.5">
                         <Button variant="outline" size="icon-xs" onClick={() => setDetailUserId(user.id)} aria-label="Lihat Detail">

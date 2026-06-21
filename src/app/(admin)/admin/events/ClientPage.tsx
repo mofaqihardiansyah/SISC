@@ -531,7 +531,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                             <span className={cn(
                               "inline-flex items-center px-2 py-0.5 rounded-full text-nano font-bold border tracking-wider uppercase whitespace-nowrap",
                               event.tipePlatform === 'offline' && "bg-blue-50 text-blue-700 border-blue-200/60",
-                              event.tipePlatform === 'online' && "bg-purple-50 text-purple-700 border-purple-200/60",
+                              event.tipePlatform === 'online' && "bg-slate-50 text-slate-700 border-slate-200/60",
                               event.tipePlatform === 'hybrid' && "bg-emerald-50 text-emerald-700 border-emerald-200/60",
                               !event.tipePlatform && "bg-slate-50 text-slate-600 border-slate-200/60"
                             )}>

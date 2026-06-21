@@ -37,20 +37,20 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-gray-100 min-w-48">
-        <p className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">{label}</p>
+      <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-slate-200 min-w-48">
+        <p className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">{label}</p>
         <div className="space-y-2">
           {payload.map((item, idx) => (
             <div key={idx} className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                <p className="text-micro font-bold text-gray-500 uppercase">
+                <p className="text-micro font-bold text-slate-500 uppercase">
                   {                   item.dataKey === 'count' ? 'Event' : 
                    item.dataKey === 'registrations' ? 'Daftar' :
                    item.dataKey === 'revenue' ? 'Revenue' : 'Tren'}
                 </p>
               </div>
-              <p className="text-xs font-black text-gray-900">
+              <p className="text-xs font-black text-slate-900">
                 {Math.round(Number(item.value || 0))}
               </p>
             </div>
@@ -79,11 +79,11 @@ export function EventChart({ data }: { data: ChartData[] }) {
   const chartData = data.length > 0 ? data : [];
 
   return (
-    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex-1">
+    <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex-1">
       <div className="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
         <div>
-          <h3 className="text-xl font-bold text-gray-800">Statistik Pertumbuhan</h3>
-          <p className="text-sm text-gray-400 font-medium mt-1">
+          <h3 className="text-xl font-bold text-slate-800">Statistik Pertumbuhan</h3>
+          <p className="text-sm text-slate-400 font-medium mt-1">
             Analisis tren 12 bulan terakhir
           </p>
         </div>

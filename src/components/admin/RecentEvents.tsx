@@ -19,9 +19,9 @@ interface RecentEventProps {
 
 export function RecentEvents({ events }: RecentEventProps) {
   return (
-    <div className="bg-white p-8 rounded-4xl shadow-sm border border-gray-50 w-full lg:w-[350px]">
+    <div className="bg-white p-8 rounded-4xl shadow-sm border border-slate-200 w-full lg:w-[350px]">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-gray-900 tracking-tight">Event Terbaru</h3>
+        <h3 className="text-xl font-bold text-slate-900 tracking-tight">Event Terbaru</h3>
         <Link 
           href="/admin/events" 
           className="text-xxs font-bold text-blue-600 hover:text-blue-700 px-2 py-1 bg-blue-50 rounded-md border border-blue-100 uppercase tracking-tight transition-colors"
@@ -50,10 +50,10 @@ export function RecentEvents({ events }: RecentEventProps) {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-gray-900 truncate mt-4">
+                <h4 className="text-sm font-bold text-slate-900 truncate mt-4">
                   {event.judul || "Tanpa Judul"}
                 </h4>
-                <p className="text-xxs text-gray-400 font-bold mt-0.5">
+                <p className="text-xxs text-slate-400 font-bold mt-0.5">
                   {event.detailLokasi || "Lokasi menyusul"} • {event.kuota || 0} Kuota
                 </p>
               </div>
@@ -61,7 +61,7 @@ export function RecentEvents({ events }: RecentEventProps) {
             </div>
           );
         }) : (
-          <p className="text-xs text-gray-400 text-center py-4 font-medium uppercase">Belum ada event.</p>
+          <p className="text-xs text-slate-400 text-center py-4 font-medium uppercase">Belum ada event.</p>
         )}
       </div>
     </div>
