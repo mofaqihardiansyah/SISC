@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Globe, Mail, Phone, FileText, Eye, Loader2, KeyRound } from 'lucide-react';
+import { Globe, Mail, Phone, FileText, Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
 import { updateProfilPenyelenggara } from './actions';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,9 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
   const [passKonfirm, setPassKonfirm] = useState('');
   const [loadingPass, setLoadingPass] = useState(false);
   const [errorPass, setErrorPass] = useState('');
+  const [showPassLama, setShowPassLama] = useState(false);
+  const [showPassBaru, setShowPassBaru] = useState(false);
+  const [showPassKonfirm, setShowPassKonfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     urlAvatar: initialData.urlAvatar || '/uploads/avatars/fotodummy.jpg',
@@ -298,7 +301,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
         </div>
 
         <div>
-          <label className="text-sm font-semibold mb-2 block">Dokumen Legalitas (Opsional)</label>
+          <label className="text-sm font-semibold mb-2 block">Dokumen Legalitas</label>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <input 
               type="file" 
@@ -355,33 +358,48 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
         <div className="space-y-4 max-w-md">
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Saat Ini</label>
-            <Input
-              type="password"
-              value={passLama}
-              onChange={(e) => setPassLama(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg"
-              placeholder="Kata sandi lama"
-            />
+            <div className="relative">
+              <Input
+                type={showPassLama ? 'text' : 'password'}
+                value={passLama}
+                onChange={(e) => setPassLama(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg pr-12"
+                placeholder="Kata sandi lama"
+              />
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassLama(!showPassLama)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassLama ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
+                {showPassLama ? <EyeOff size={20} /> : <Eye size={20} />}
+              </Button>
+            </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Baru</label>
-            <Input
-              type="password"
-              value={passBaru}
-              onChange={(e) => setPassBaru(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg"
-              placeholder="Minimal 8 karakter"
-            />
+            <div className="relative">
+              <Input
+                type={showPassBaru ? 'text' : 'password'}
+                value={passBaru}
+                onChange={(e) => setPassBaru(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg pr-12"
+                placeholder="Minimal 8 karakter"
+              />
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassBaru(!showPassBaru)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassBaru ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
+                {showPassBaru ? <EyeOff size={20} /> : <Eye size={20} />}
+              </Button>
+            </div>
           </div>
           <div>
             <label className="text-sm font-semibold mb-2 block">Konfirmasi Kata Sandi Baru</label>
-            <Input
-              type="password"
-              value={passKonfirm}
-              onChange={(e) => setPassKonfirm(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg"
-              placeholder="Ketik ulang kata sandi baru"
-            />
+            <div className="relative">
+              <Input
+                type={showPassKonfirm ? 'text' : 'password'}
+                value={passKonfirm}
+                onChange={(e) => setPassKonfirm(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg pr-12"
+                placeholder="Ketik ulang kata sandi baru"
+              />
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassKonfirm(!showPassKonfirm)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassKonfirm ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
+                {showPassKonfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+              </Button>
+            </div>
           </div>
           
           {errorPass && <p className="text-sm text-red-600">{errorPass}</p>}

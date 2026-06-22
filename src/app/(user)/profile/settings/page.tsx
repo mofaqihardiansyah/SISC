@@ -32,7 +32,9 @@ export default function SettingsPage() {
   const [passKonfirm, setPassKonfirm] = useState('');
   const [loadingPass, setLoadingPass] = useState(false);
   const [errorPass, setErrorPass] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassLama, setShowPassLama] = useState(false);
+  const [showPassBaru, setShowPassBaru] = useState(false);
+  const [showPassKonfirm, setShowPassKonfirm] = useState(false);
 
   // FETCH DATA USER
   useEffect(() => {
@@ -284,14 +286,14 @@ export default function SettingsPage() {
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Saat Ini</label>
             <div className="relative">
               <Input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassLama ? 'text' : 'password'}
                 value={passLama}
                 onChange={(e) => setPassLama(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
                 placeholder="Kata sandi lama"
               />
-              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassLama(!showPassLama)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassLama ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
+                {showPassLama ? <EyeOff size={20} /> : <Eye size={20} />}
               </Button>
             </div>
           </div>
@@ -299,14 +301,14 @@ export default function SettingsPage() {
             <label className="text-sm font-semibold mb-2 block">Kata Sandi Baru</label>
             <div className="relative">
               <Input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassBaru ? 'text' : 'password'}
                 value={passBaru}
                 onChange={(e) => setPassBaru(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
                 placeholder="Kata sandi baru"
               />
-              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassBaru(!showPassBaru)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassBaru ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
+                {showPassBaru ? <EyeOff size={20} /> : <Eye size={20} />}
               </Button>
             </div>
           </div>
@@ -314,14 +316,14 @@ export default function SettingsPage() {
             <label className="text-sm font-semibold mb-2 block">Konfirmasi Kata Sandi Baru</label>
             <div className="relative">
               <Input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassKonfirm ? 'text' : 'password'}
                 value={passKonfirm}
                 onChange={(e) => setPassKonfirm(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg pr-12"
                 placeholder="Ketik ulang kata sandi baru"
               />
-              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassKonfirm(!showPassKonfirm)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label={showPassKonfirm ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}>
+                {showPassKonfirm ? <EyeOff size={20} /> : <Eye size={20} />}
               </Button>
             </div>
           </div>

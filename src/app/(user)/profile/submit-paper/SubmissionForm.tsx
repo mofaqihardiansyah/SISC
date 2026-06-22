@@ -321,7 +321,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                               <Input type="text" placeholder="Nama Depan" value={author.namaDepan} onChange={(e) => updateAuthor(idx, 'namaDepan', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
                               <Input type="text" placeholder="Nama Belakang" value={author.namaBelakang} onChange={(e) => updateAuthor(idx, 'namaBelakang', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
                               {author.isCorresponding && (
-                                <Input type="email" placeholder="Email (misal: jhon@univ.edu)" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
+                                <Input type="email" placeholder="Email" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
                               )}
                               <Input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
                             </div>

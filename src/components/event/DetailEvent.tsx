@@ -346,9 +346,16 @@ export default function DetailEvent({ event, isLoggedIn, isRegistered }: DetailE
               Deskripsi
             </h2>
 
-            <p className="text-sm text-gray-700 leading-relaxed mb-5">
-              {teks}
-            </p>
+            {/<[a-z][\s\S]*>/i.test(teks) ? (
+              <div 
+                className="text-sm text-gray-700 leading-relaxed mb-5 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
+                dangerouslySetInnerHTML={{ __html: teks }}
+              />
+            ) : (
+              <p className="text-sm text-gray-700 leading-relaxed mb-5 whitespace-pre-line">
+                {teks}
+              </p>
+            )}
 
             {event.pembicara && (
               <div className="mb-4">

@@ -101,6 +101,60 @@ const eventsData = [
     namaKontak: "Energy Institute", emailKontak: "symposium@energy.id", teleponKontak: "021-99887766",
     jumlahTayangan: 2100, namaPembicara: "Dr. Eng. Masribah", peranPembicara: "Renewable Energy Researcher",
     urlFotoPembicara: "https://picsum.photos/seed/speaker6/400/400"
+  },
+  
+  // === NEW POLINES EVENTS ===
+  {
+    id: 7, organizerId: 2, kategoriId: 4, kotaId: 2,
+    judul: "Workshop Nasional Cybersecurity: Ethical Hacking for Beginners", jenisEvent: "seminar" as const,
+    tipePlatform: "offline" as const, tipeHarga: "paid" as const, harga: 75000,
+    eventPolines: true, status: "published" as const, kuota: 100,
+    urlBanner: "https://picsum.photos/seed/event7/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
+    deskripsi: "Workshop intensif selama satu hari tentang dasar-dasar ethical hacking, penetration testing, dan cara mengamankan sistem.",
+    detailLokasi: "Laboratorium Komputer, Gedung MST Polines",
+    tanggalMulai: futureDate(15), tanggalSelesai: futureDate(15), batasRegistrasi: futureDate(13),
+    namaKontak: "Panitia Cyber", emailKontak: "cyber@polines.ac.id", teleponKontak: "024-7473418",
+    jumlahTayangan: 850, namaPembicara: "Budi Santoso, CEH", peranPembicara: "Cybersecurity Analyst",
+    urlFotoPembicara: "https://picsum.photos/seed/speaker7/400/400"
+  },
+  {
+    id: 8, organizerId: 2, kategoriId: 1, kotaId: 2,
+    judul: "Pelatihan UI/UX Design: From Wireframe to Prototype", jenisEvent: "seminar" as const,
+    tipePlatform: "offline" as const, tipeHarga: "paid" as const, harga: 50000,
+    eventPolines: true, status: "published" as const, kuota: 150,
+    urlBanner: "https://picsum.photos/seed/event8/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
+    deskripsi: "Pelatihan praktis desain UI/UX menggunakan Figma. Peserta akan diajarkan mulai dari research, wireframing, hingga interaktif prototype.",
+    detailLokasi: "Ruang Serbaguna, Polines",
+    tanggalMulai: futureDate(20), tanggalSelesai: futureDate(21), batasRegistrasi: futureDate(18),
+    namaKontak: "Design Team", emailKontak: "design@polines.ac.id", teleponKontak: "024-7473419",
+    jumlahTayangan: 1120, namaPembicara: "Siti Aminah", peranPembicara: "Senior Product Designer",
+    urlFotoPembicara: "https://picsum.photos/seed/speaker8/400/400"
+  },
+  {
+    id: 9, organizerId: 2, kategoriId: 11, kotaId: 2,
+    judul: "Seminar Technopreneurship: Membangun Startup dari Kampus", jenisEvent: "seminar" as const,
+    tipePlatform: "hybrid" as const, tipeHarga: "paid" as const, harga: 35000,
+    eventPolines: true, status: "published" as const, kuota: 250,
+    urlBanner: "https://picsum.photos/seed/event9/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
+    deskripsi: "Menggali potensi mahasiswa dalam membangun startup berbasis teknologi. Dibahas cara mencari ide, validasi, dan pitching ke investor.",
+    detailLokasi: "Auditorium Tata Niaga, Polines",
+    tanggalMulai: futureDate(40), tanggalSelesai: futureDate(40), batasRegistrasi: futureDate(35),
+    namaKontak: "Inkubator Bisnis", emailKontak: "inkubator@polines.ac.id", teleponKontak: "024-7473420",
+    jumlahTayangan: 940, namaPembicara: "Andi Wijaya", peranPembicara: "Startup Founder & CEO",
+    urlFotoPembicara: "https://picsum.photos/seed/speaker9/400/400"
+  },
+  {
+    id: 10, organizerId: 2, kategoriId: 4, kotaId: 2,
+    judul: "Polines Career Fest 2026: Siap Kerja di Era Digital", jenisEvent: "seminar" as const,
+    tipePlatform: "offline" as const, tipeHarga: "free" as const, harga: 0,
+    eventPolines: true, status: "published" as const, kuota: 1000,
+    urlBanner: "https://picsum.photos/seed/event10/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
+    deskripsi: "Festival karir terbesar di Polines yang menghadirkan puluhan perusahaan multinasional dan seminar persiapan karir.",
+    detailLokasi: "Lapangan Utama, Polines",
+    tanggalMulai: futureDate(60), tanggalSelesai: futureDate(62), batasRegistrasi: futureDate(55),
+    namaKontak: "Career Center", emailKontak: "career@polines.ac.id", teleponKontak: "024-7473421",
+    jumlahTayangan: 5200, namaPembicara: "Diana Putri", peranPembicara: "HR Director Tech Co.",
+    urlFotoPembicara: "https://picsum.photos/seed/speaker10/400/400"
   }
 ];
 

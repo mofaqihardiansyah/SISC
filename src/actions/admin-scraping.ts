@@ -10,9 +10,10 @@ import { cleanRawData } from "@/lib/scraper/cleaner";
 
 const checkAdminAuth = async () => {
   const session = await auth();
-  if (session?.user?.role !== 'admin') {
+  if (session?.user?.role !== 'admin' || !session?.user?.id) {
     throw new Error("Unauthorized");
   }
+  return parseInt(session.user.id);
 };
 
 const MONTH_MAP: Record<string, number> = {
@@ -57,7 +58,7 @@ export async function publishRawEvent(
     emailKontak?: string | null;
   }
 ) {
-  await checkAdminAuth();
+  const adminId = await checkAdminAuth();
   const [raw] = await db.select().from(rawScrapedData).where(eq(rawScrapedData.id, rawId));
   if (!raw || raw.statusIntegrasi) return { success: false, error: "Data tidak ditemukan atau sudah terintegrasi" };
 
@@ -103,6 +104,7 @@ export async function publishRawEvent(
   }
 
   await db.insert(event).values({
+    organizerId: adminId,
     judul,
     slug: `${slugify(judul)}-${Math.floor(Math.random() * 1000)}`,
     linkEksternal,

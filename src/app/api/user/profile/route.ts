@@ -68,8 +68,15 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
-    // Jika ada passLama dan passBaru, ini berarti ganti password
-    if (body.passLama && body.passBaru) {
+    // Jika ada passLama atau passBaru, ini berarti ganti password
+    if (body.passLama !== undefined || body.passBaru !== undefined) {
+      if (!body.passLama || !body.passBaru) {
+        return NextResponse.json({ error: 'Kata sandi lama dan baru harus diisi' }, { status: 400 });
+      }
+      if (body.passBaru.length < 8) {
+        return NextResponse.json({ error: 'Kata sandi baru minimal 8 karakter' }, { status: 400 });
+      }
+
       const user = await db.query.users.findFirst({
         where: (u, { eq }) => eq(u.id, userId),
       });
@@ -78,7 +85,11 @@ export async function PUT(req: Request) {
         return NextResponse.json({ error: 'User tidak ditemukan' }, { status: 404 });
       }
 
-      const valid = await bcrypt.compare(body.passLama, user.password || '');
+      if (!user.password) {
+        return NextResponse.json({ error: 'Akun ini terdaftar via login sosial (misal: Google) dan tidak memiliki kata sandi.' }, { status: 400 });
+      }
+
+      const valid = await bcrypt.compare(body.passLama, user.password);
       if (!valid) {
         return NextResponse.json({ error: 'Kata sandi lama salah' }, { status: 400 });
       }
@@ -96,17 +107,19 @@ export async function PUT(req: Request) {
     }
 
     // Jika tidak ada parameter password, berarti update profil biasa
-    await db
-      .update(users)
-      .set({
-        namaLengkap: body.name ?? '',
-        email: body.email ?? '',
-        nomorTelepon: body.phone ?? '',
-        institusi: body.institusi ?? '',
-        urlAvatar: body.urlAvatar,
-        diperbaruiPada: new Date(),
-      })
-      .where(eq(users.id, userId));
+    const updateData: Record<string, any> = { diperbaruiPada: new Date() };
+    if (body.name !== undefined) updateData.namaLengkap = body.name;
+    if (body.email !== undefined) updateData.email = body.email;
+    if (body.phone !== undefined) updateData.nomorTelepon = body.phone;
+    if (body.institusi !== undefined) updateData.institusi = body.institusi;
+    if (body.urlAvatar !== undefined) updateData.urlAvatar = body.urlAvatar;
+
+    if (Object.keys(updateData).length > 1) {
+      await db
+        .update(users)
+        .set(updateData)
+        .where(eq(users.id, userId));
+    }
 
     return NextResponse.json({ message: 'Berhasil update' });
   } catch (error) {

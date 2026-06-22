@@ -206,23 +206,23 @@ export default function HelpClient() {
       </section>
 
       {/* CONTACT INFO */}
-      <section className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-8 shadow-xs">
-        <h2 className="text-xl font-bold text-slate-900 mb-6">Informasi Kontak Lainnya</h2>
+      <section className="bg-slate-900 rounded-xl border border-slate-800 p-8 shadow-xs">
+        <h2 className="text-xl font-bold text-white mb-6">Informasi Kontak Lainnya</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <p className="font-semibold text-slate-700 mb-1">Email Dukungan</p>
-            <p className="text-blue-600 font-medium">poliventsofficial@gmail.com</p>
+            <p className="font-semibold text-slate-400 mb-1">Email Dukungan</p>
+            <p className="text-blue-400 font-medium">poliventsofficial@gmail.com</p>
           </div>
 
           <div>
-            <p className="font-semibold text-slate-700 mb-1">Nomor Telepon</p>
-            <p className="text-slate-600">+62 (024) 8313-8313</p>
+            <p className="font-semibold text-slate-400 mb-1">Nomor Telepon</p>
+            <p className="text-slate-300">+6282327655735</p>
           </div>
 
           <div>
-            <p className="font-semibold text-slate-700 mb-1">Jam Operasional</p>
-            <p className="text-slate-600">Senin - Jumat: 09:00 - 17:00</p>
+            <p className="font-semibold text-slate-400 mb-1">Jam Operasional</p>
+            <p className="text-slate-300">Senin - Jumat: 09:00 - 17:00</p>
           </div>
         </div>
       </section>
