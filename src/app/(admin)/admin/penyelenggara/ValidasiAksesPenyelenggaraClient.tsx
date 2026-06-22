@@ -372,7 +372,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
       {/*  Bulk Actions Progress Overlay  */}
       {bulkLoading && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" />
           <div className="relative bg-white rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm w-full text-center border border-slate-100 animate-in zoom-in-95 duration-300">
             <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
@@ -620,7 +620,7 @@ export function ValidasiAksesPenyelenggaraClient({
                                     <Menu.Popup className="w-44 bg-white rounded-xl border border-slate-200/80 shadow-xl z-50 py-1.5 animate-in fade-in duration-150">
                                       {item.status !== "approved" && (
                                         <Menu.Item
-                                          className="flex items-center gap-2 w-full text-xs font-bold text-emerald-600 data-[highlighted]:bg-emerald-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
+                                          className="flex items-center gap-2 w-full text-xs font-bold text-emerald-600 data-highlighted:bg-emerald-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
                                           onClick={() => handleChangeStatus(item.rawId, "approved")}
                                         >
                                           <Check className="w-3.5 h-3.5" />
@@ -630,7 +630,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
                                       {item.status !== "pending" && (
                                         <Menu.Item
-                                          className="flex items-center gap-2 w-full text-xs font-bold text-amber-600 data-[highlighted]:bg-amber-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
+                                          className="flex items-center gap-2 w-full text-xs font-bold text-amber-600 data-highlighted:bg-amber-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
                                           onClick={() => handleChangeStatus(item.rawId, "pending")}
                                         >
                                           <Clock className="w-3.5 h-3.5" />
@@ -640,7 +640,7 @@ export function ValidasiAksesPenyelenggaraClient({
 
                                       {item.status !== "rejected" && (
                                         <Menu.Item
-                                          className="flex items-center gap-2 w-full text-xs font-bold text-rose-600 data-[highlighted]:bg-rose-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
+                                          className="flex items-center gap-2 w-full text-xs font-bold text-rose-600 data-highlighted:bg-rose-50/50 rounded-lg mx-1 px-2 py-1.5 select-none outline-none"
                                           onClick={() => setRejectModal({ id: item.rawId, reason: item.alasanPenolakan || "" })}
                                         >
                                           <X className="w-3.5 h-3.5" />

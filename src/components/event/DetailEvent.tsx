@@ -254,7 +254,7 @@ export default function DetailEvent({ event, isLoggedIn, isRegistered }: DetailE
     <>
       <EventViewTracker eventId={event.id} />
 
-      <section className="bg-sisc-dark text-white py-12 px-0 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-sisc-dark before:from-60% before:to-sisc-med">
+      <section className="bg-sisc-dark text-white py-12 px-0 relative overflow-hidden before:absolute before:inset-0 before:bg-linear-to-br before:from-sisc-dark before:from-60% before:to-sisc-med">
         <div className="max-w-[1100px] mx-auto px-6 relative flex flex-col md:flex-row gap-10 items-start">
           <div className="flex-1">
             <span className="inline-block bg-white/15 text-sisc-light text-xs font-semibold tracking-[1px] uppercase px-3 py-1 rounded mb-4">

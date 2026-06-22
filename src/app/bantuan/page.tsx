@@ -239,18 +239,18 @@ export default function BantuanPage() {
         .btn-kirim:hover { background: #1e293b; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
         .btn-kirim:active { transform: translateY(0); }
         .contact-info {
-          background: linear-gradient(135deg, #eff6ff, #dbeafe);
-          border: 1px solid #bfdbfe;
+          background: #0f172a;
+          border: 1px solid #1e293b;
           border-radius: 12px;
           padding: 24px;
           margin-bottom: 24px;
         }
-        .contact-info-title { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 20px; }
+        .contact-info-title { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 20px; }
         .contact-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-        .contact-info-label { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
-        .contact-info-value { font-size: 14px; color: #2563eb; cursor: pointer; }
+        .contact-info-label { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; }
+        .contact-info-value { font-size: 14px; color: #60a5fa; cursor: pointer; }
         .contact-info-value:hover { text-decoration: underline; }
-        .contact-info-value.plain { color: #475569; cursor: default; }
+        .contact-info-value.plain { color: #cbd5e1; cursor: default; }
         .contact-info-value.plain:hover { text-decoration: none; }
         @media (max-width: 640px) {
           .quick-links-grid { grid-template-columns: 1fr; }
@@ -353,7 +353,7 @@ export default function BantuanPage() {
               </div>
               <div>
                 <p className="contact-info-label">Nomor WhatsApp</p>
-                <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="contact-info-value block">+62 812-3456-7890</a>
+                <a href="https://wa.me/6282327655735" target="_blank" rel="noopener noreferrer" className="contact-info-value block">+62 823-2765-5735</a>
               </div>
               <div>
                 <p className="contact-info-label">Jam Operasional</p>

@@ -28,7 +28,6 @@ export async function createScrapingSource(data: {
   baseUrl: string;
   urlPattern?: string;
   scraperType?: 'cheerio' | 'crawlee_playwright';
-  cronSchedule?: string;
   maxResultsPerRun?: number;
   rateLimitDelayMs?: number;
   maxConcurrentRequests?: number;
@@ -40,7 +39,6 @@ export async function createScrapingSource(data: {
       baseUrl: data.baseUrl,
       urlPattern: data.urlPattern,
       scraperType: data.scraperType,
-      cronSchedule: data.cronSchedule,
       maxResultsPerRun: data.maxResultsPerRun,
       rateLimitDelayMs: data.rateLimitDelayMs,
       maxConcurrentRequests: data.maxConcurrentRequests,
@@ -57,7 +55,6 @@ export async function updateScrapingSource(id: number, data: {
   baseUrl?: string;
   urlPattern?: string | null;
   scraperType?: 'cheerio' | 'crawlee_playwright';
-  cronSchedule?: string | null;
   isActive?: boolean;
   maxResultsPerRun?: number;
   rateLimitDelayMs?: number;

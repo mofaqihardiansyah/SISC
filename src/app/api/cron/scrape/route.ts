@@ -138,7 +138,7 @@ export async function GET(request: Request) {
     const targetUrl = SCRAPER.DEFAULT_URL; 
     const maxPages = 3; // Crawl up to 3 pages
     
-    const scrapedData: any[] = [];
+    const scrapedData: { judul: string; urlBanner: string; linkEksternal: string; detailLokasi: string; tanggalMentah: string; websiteSumber: string }[] = [];
     const extractedLinks: string[] = [];
 
     // 1. Crawl listing pages
@@ -235,7 +235,7 @@ export async function GET(request: Request) {
 
     // 3. Slicing to limit detail page fetches (prevent Vercel timeout)
     const limitedData = uniqueScrapedData.slice(0, 15);
-    const finalDataToInsert: any[] = [];
+    const finalDataToInsert: { judul: string; urlBanner: string; linkEksternal: string; detailLokasi: string; tanggalMentah: string; websiteSumber: string; deskripsi: string; tipeHarga: string | number; harga: number; kuota: number | null; linkRegistrasi: string | null; namaKontak: string | null; teleponKontak: string | null }[] = [];
 
     for (const item of limitedData) {
       console.log(`🔎 Scraping detail page: ${item.linkEksternal}`);
@@ -302,7 +302,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true, 
       message: `Scraping selesai. Menemukan ${scrapedData.length} event secara total. Berhasil memproses ${insertedRows.length} event baru dengan deep scraping.`,
-      inserted: insertedRows.length
+      inserted: insertedRows.length,
+      ids: insertedRows.map(r => r.id)
     });
 
   } catch (error: unknown) {

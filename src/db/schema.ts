@@ -113,6 +113,7 @@ export const event = pgTable('event', {
   tipePlatform: tipePlatformEnum('tipe_platform'),
   tipeHarga: tipeHargaEnum('tipe_harga'),
   harga: integer('harga').default(0),
+  metodePembayaran: jsonb('metode_pembayaran'),
   detailLokasi: text('detail_lokasi'),
   linkEksternal: varchar('link_eksternal', { length: 512 }),
   namaKontak: varchar('nama_kontak', { length: 255 }),

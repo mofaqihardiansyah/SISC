@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import Image from 'next/image';
 import { 
   Search, 
   ChevronDown, 
@@ -11,8 +10,6 @@ import {
   ChevronRight,
   RotateCcw
 } from 'lucide-react';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
@@ -429,19 +426,17 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   />
                 </th>
                 <th className="px-3 py-2.5 w-10 text-center whitespace-nowrap select-none">#</th>
-                <th className="px-3 py-2.5 w-[25%] min-w-56 whitespace-nowrap select-none">Event</th>
-                <th className="px-3 py-2.5 w-[15%] min-w-32 whitespace-nowrap select-none">Penyelenggara</th>
-                <th className="px-3 py-2.5 w-[18%] min-w-36 whitespace-nowrap select-none">Waktu Pelaksanaan</th>
-                <th className="px-3 py-2.5 w-[12%] min-w-28 whitespace-nowrap select-none">Tipe & Harga</th>
-                <th className="px-3 py-2.5 w-[12%] min-w-28 whitespace-nowrap select-none">Kuota & Pendaftar</th>
+                <th className="px-3 py-2.5 w-[35%] min-w-56 whitespace-nowrap select-none">Event</th>
+                <th className="px-3 py-2.5 w-[20%] min-w-32 whitespace-nowrap select-none">Penyelenggara</th>
+                <th className="px-3 py-2.5 w-[15%] min-w-28 whitespace-nowrap select-none">Tipe & Harga</th>
                 <th className="px-3 py-2.5 w-[10%] min-w-24 text-center whitespace-nowrap select-none">Status</th>
-                <th className="px-3 py-2.5 w-[8%] min-w-20 text-center whitespace-nowrap select-none">Aksi</th>
+                <th className="px-3 py-2.5 w-[10%] min-w-20 text-center whitespace-nowrap select-none">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200/60 text-xs text-slate-600">
               {sortedEvents.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-3 py-16 text-center text-slate-500">
+                  <td colSpan={7} className="px-3 py-16 text-center text-slate-500">
                     <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mx-auto mb-3 border border-slate-100 shadow-inner">
                       <Search className="text-slate-300" size={20} />
                     </div>
@@ -451,10 +446,6 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                 </tr>
               ) : (
                 paginatedEvents.map((event, index) => {
-                  const kuotaVal = event.kuota || 0;
-                  const participantVal = event.participantCount || 0;
-                  const percent = kuotaVal > 0 ? Math.round((participantVal / kuotaVal) * 100) : 0;
-
                   return (
                     <tr key={event.id} className={cn("hover:bg-slate-50/25 transition-colors group", selectedRowIds.has(event.id) && "bg-blue-50/30")}>
                       {/* Column 1: Checkbox */}
@@ -472,35 +463,14 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                         {startIdx + index + 1}
                       </td>
    
-                      {/* Column 3: Event Banner & Title */}
+                      {/* Column 3: Event Title */}
                       <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200/60 group-hover:border-slate-900/20 transition-all relative">
-                            {event.urlBanner ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img src={event.urlBanner} alt={event.judul} className="absolute inset-0 w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
-                              </div>
-                            )}
+                        <div className="flex flex-col min-w-0">
+                          <div className="font-bold text-slate-800 text-xs hover:text-indigo-600 transition-colors line-clamp-1" title={event.judul}>
+                            {event.judul}
                           </div>
-                          <div className="flex flex-col min-w-0">
-                            <div className="font-bold text-slate-800 text-xs hover:text-indigo-600 transition-colors line-clamp-2 leading-snug pr-2" title={event.judul}>
-                              {event.judul}
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              <span className={cn(
-                                "inline-flex items-center px-1.5 py-0.5 rounded text-nano font-bold tracking-wider uppercase whitespace-nowrap",
-                                event.jenisEvent === 'conference'
-                                  ? "bg-blue-50 text-blue-700 border border-blue-100/50"
-                                  : "bg-indigo-50 text-indigo-700 border border-indigo-100/50"
-                              )}>
-                                {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'}
-                              </span>
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-nano font-semibold tracking-wider uppercase whitespace-nowrap bg-slate-50 text-slate-500 border border-slate-100">
-                                {event.eventPolines ? 'Polines' : 'Umum'}
-                              </span>
-                            </div>
+                          <div className="text-nano text-slate-500 mt-0.5">
+                            {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'} • {event.eventPolines ? 'Polines' : 'Umum'}
                           </div>
                         </div>
                       </td>
@@ -512,57 +482,10 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                           </div>
                       </td>
    
-                      {/* Column 5: Waktu Pelaksanaan */}
+                      {/* Column 5: Tipe & Harga */}
                       <td className="px-3 py-2.5">
-                        <div className="flex flex-col gap-0.5">
-                          <div className="text-xs font-bold text-slate-800 whitespace-nowrap">
-                            {format(new Date(event.tanggalMulai), 'dd MMM yyyy', { locale: id })}
-                          </div>
-                          <div className="text-xxs text-slate-400 font-medium">
-                            {format(new Date(event.tanggalMulai), 'HH:mm', { locale: id })} WIB
-                          </div>
-                        </div>
-                      </td>
-   
-                      {/* Column 6: Tipe & Harga */}
-                      <td className="px-3 py-2.5">
-                        <div className="flex flex-col gap-1">
-                          <div>
-                            <span className={cn(
-                              "inline-flex items-center px-2 py-0.5 rounded-full text-nano font-bold border tracking-wider uppercase whitespace-nowrap",
-                              event.tipePlatform === 'offline' && "bg-blue-50 text-blue-700 border-blue-200/60",
-                              event.tipePlatform === 'online' && "bg-slate-50 text-slate-700 border-slate-200/60",
-                              event.tipePlatform === 'hybrid' && "bg-emerald-50 text-emerald-700 border-emerald-200/60",
-                              !event.tipePlatform && "bg-slate-50 text-slate-600 border-slate-200/60"
-                            )}>
-                              {event.tipePlatform === 'offline' ? 'Offline' : event.tipePlatform === 'online' ? 'Online' : event.tipePlatform === 'hybrid' ? 'Hybrid' : '-'}
-                            </span>
-                          </div>
-                          <div className="text-xs font-bold text-slate-700 ml-1">
-                            {event.tipeHarga === 'free' ? (
-                              <span className="text-emerald-600">Gratis</span>
-                            ) : (
-                              <span>Rp {(event.harga || 0).toLocaleString('id-ID')}</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      
-                      {/* Column 7: Kuota & Pendaftar Progress Bar */}
-                      <td className="px-3 py-2.5">
-                        <div className="flex flex-col gap-1 w-28">
-                          <div className="flex justify-between items-center text-xxs font-bold text-slate-500">
-                            <span>{participantVal} / {kuotaVal > 0 ? kuotaVal : '∞'} Terdaftar</span>
-                            {kuotaVal > 0 && <span>{percent}%</span>}
-                          </div>
-                          {kuotaVal > 0 && (
-                            <div className="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
-                              <div 
-                                className="bg-indigo-600 h-full rounded-full transition-all duration-500" 
-                                style={{ width: `${Math.min(100, percent)}%` }}
-                              ></div>
-                            </div>
-                          )}
+                        <div className="text-xs text-slate-700 whitespace-nowrap">
+                          <span className="capitalize">{event.tipePlatform || '-'}</span> • {event.tipeHarga === 'free' ? <span className="text-emerald-600 font-semibold">Gratis</span> : `Rp ${(event.harga || 0).toLocaleString('id-ID')}`}
                         </div>
                       </td>
    
@@ -570,15 +493,15 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       <td className="px-3 py-2.5 text-center">
                         <div className="flex justify-center">
                           {event.status === 'pending' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-nano font-bold bg-amber-50 text-amber-700 uppercase tracking-wider border border-amber-200/60">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-nano font-bold bg-amber-50 text-amber-700 uppercase tracking-wider">
                               Menunggu
                             </span>
                           ) : event.status === 'published' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-nano font-bold bg-emerald-50 text-emerald-700 uppercase tracking-wider border border-emerald-200/60">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-nano font-bold bg-emerald-50 text-emerald-700 uppercase tracking-wider">
                               Disetujui
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-nano font-bold bg-rose-50 text-rose-700 uppercase tracking-wider border border-rose-200/60">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-nano font-bold bg-rose-50 text-rose-700 uppercase tracking-wider">
                               Ditolak
                             </span>
                           )}

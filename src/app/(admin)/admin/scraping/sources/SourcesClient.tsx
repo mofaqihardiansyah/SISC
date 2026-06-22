@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
@@ -31,7 +30,7 @@ interface ScrapingSource {
   baseUrl: string;
   urlPattern: string | null;
   scraperType: 'cheerio' | 'crawlee_playwright' | null;
-  cronSchedule: string | null;
+
   maxResultsPerRun: number | null;
   rateLimitDelayMs: number | null;
   maxConcurrentRequests: number | null;
@@ -126,6 +125,8 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
     }
   };
 
+  // ponytail: triggerScrapeAction runs ALL active sources, not just the target.
+  // Upgrade path: accept a sourceId param in the API to scope the scrape.
   const handleTestScrape = async (source: ScrapingSource) => {
     setTestingSource(source.id);
     try {
@@ -236,7 +237,9 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
       const q = searchQuery.toLowerCase();
       result = result.filter(s =>
         s.name.toLowerCase().includes(q) ||
-        s.baseUrl.toLowerCase().includes(q)
+        s.baseUrl.toLowerCase().includes(q) ||
+        (s.urlPattern && s.urlPattern.toLowerCase().includes(q)) ||
+        (s.scraperType && s.scraperType.toLowerCase().includes(q))
       );
     }
     return [...result].sort((a, b) => {
@@ -290,20 +293,20 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
         <div className="space-y-4">
           {/* Stats cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total</span>
+            <div className="bg-white p-4 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)]">
+              <span className="text-xxs font-bold text-slate-400 tracking-wider">Total</span>
               <p className="text-2xl font-bold text-slate-800 mt-1">{stats.total}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Aktif</span>
+            <div className="bg-white p-4 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)]">
+              <span className="text-xxs font-bold text-slate-400 tracking-wider">Aktif</span>
               <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.active}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nonaktif</span>
+            <div className="bg-white p-4 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)]">
+              <span className="text-xxs font-bold text-slate-400 tracking-wider">Nonaktif</span>
               <p className="text-2xl font-bold text-slate-500 mt-1">{stats.inactive}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Error</span>
+            <div className="bg-white p-4 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)]">
+              <span className="text-xxs font-bold text-slate-400 tracking-wider">Error</span>
               <p className="text-2xl font-bold text-rose-600 mt-1">{stats.errors}</p>
             </div>
           </div>
@@ -339,7 +342,7 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
           </div>
 
           {filteredSources.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+            <div className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] p-12 text-center">
               <Globe className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="font-semibold text-slate-500">
                 {searchQuery ? 'Tidak ada sumber yang cocok' : 'Belum ada sumber scraping'}
@@ -351,7 +354,7 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
           ) : (
             <div className="space-y-2">
               {filteredSources.map(source => (
-                <div key={source.id} className="bg-white rounded-xl border border-slate-200 p-4">
+                <div key={source.id} className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -370,7 +373,7 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
                       </div>
                       <p className="text-xs font-mono text-slate-500 truncate">{source.baseUrl}</p>
                       <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1.5 text-xxs text-slate-400">
-                        {source.cronSchedule && <span>Schedule: <span className="font-mono text-slate-500">{source.cronSchedule}</span></span>}
+
                         <span>Max: {source.maxResultsPerRun ?? 100}</span>
                         <span>Delay: {source.rateLimitDelayMs ?? 1000}ms</span>
                       </div>
@@ -423,12 +426,12 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
           </div>
 
           {rules.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
+            <div className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] p-10 text-center">
               <Check className="w-8 h-8 text-slate-300 mx-auto mb-2" />
               <p className="font-semibold text-slate-500">Belum ada aturan validasi</p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] divide-y divide-slate-100 overflow-hidden">
               {rules.map(rule => (
                 <div key={rule.id} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
@@ -473,12 +476,12 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
           </div>
 
           {autoRules.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
+            <div className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] p-10 text-center">
               <Sparkles className="w-8 h-8 text-slate-300 mx-auto mb-2" />
               <p className="font-semibold text-slate-500">Belum ada aturan auto-approval</p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] divide-y divide-slate-100 overflow-hidden">
               {autoRules.map(rule => (
                 <div key={rule.id} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
@@ -532,7 +535,6 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
                   baseUrl: data.baseUrl,
                   urlPattern: data.urlPattern,
                   scraperType: data.scraperType === null ? undefined : data.scraperType,
-                  cronSchedule: data.cronSchedule,
                   isActive: data.isActive ?? undefined,
                   maxResultsPerRun: data.maxResultsPerRun ?? undefined,
                   rateLimitDelayMs: data.rateLimitDelayMs ?? undefined,
@@ -551,7 +553,6 @@ export default function SourcesClient({ initialSources, initialRules, initialAut
                   baseUrl: data.baseUrl || '',
                   urlPattern: data.urlPattern ?? undefined,
                   scraperType: data.scraperType === null ? undefined : data.scraperType,
-                  cronSchedule: data.cronSchedule ?? undefined,
                   maxResultsPerRun: data.maxResultsPerRun ?? undefined,
                   rateLimitDelayMs: data.rateLimitDelayMs ?? undefined,
                   maxConcurrentRequests: data.maxConcurrentRequests ?? undefined,
@@ -667,12 +668,12 @@ function AutoApprovalForm({
       </div>
       <div className="flex items-center gap-3">
         <input type="checkbox" id="autoPublish" checked={autoPublish} onChange={e => setAutoPublish(e.target.checked)}
-          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
+          className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4" />
         <label htmlFor="autoPublish" className="text-sm text-slate-700">Auto-Publish (terbitkan otomatis)</label>
       </div>
       <div className="flex items-center gap-3">
         <input type="checkbox" id="enabled" checked={enabled} onChange={e => setEnabled(e.target.checked)}
-          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
+          className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4" />
         <label htmlFor="enabled" className="text-sm text-slate-700">Aturan aktif</label>
       </div>
       <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
@@ -727,7 +728,7 @@ function RuleForm({
       </div>
       <div className="flex items-center gap-2">
         <input type="checkbox" id="isRequired" checked={isRequired} onChange={e => setIsRequired(e.target.checked)}
-          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
+          className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4" />
         <label htmlFor="isRequired" className="text-sm text-slate-700">Field wajib diisi (Required)</label>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -773,7 +774,6 @@ function SourceForm({
   const [baseUrl, setBaseUrl] = useState(initialData?.baseUrl ?? '');
   const [urlPattern, setUrlPattern] = useState(initialData?.urlPattern ?? '');
   const [scraperType, setScraperType] = useState<'cheerio' | 'crawlee_playwright'>(initialData?.scraperType ?? 'cheerio');
-  const [cronSchedule, setCronSchedule] = useState(initialData?.cronSchedule ?? '');
   const [maxResults, setMaxResults] = useState(initialData?.maxResultsPerRun ?? 100);
   const [rateLimit, setRateLimit] = useState(initialData?.rateLimitDelayMs ?? 1000);
   const [maxConcurrent, setMaxConcurrent] = useState(initialData?.maxConcurrentRequests ?? 5);
@@ -789,7 +789,6 @@ function SourceForm({
       baseUrl: baseUrl.trim(),
       urlPattern: urlPattern.trim() || null,
       scraperType,
-      cronSchedule: cronSchedule.trim() || null,
       maxResultsPerRun: maxResults,
       rateLimitDelayMs: rateLimit,
       maxConcurrentRequests: maxConcurrent,
@@ -817,10 +816,6 @@ function SourceForm({
             <option value="cheerio">Cheerio (Ringan)</option>
             <option value="crawlee_playwright">Crawlee + Playwright (Berat)</option>
           </Select>
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700">Cron Schedule</label>
-          <Input value={cronSchedule} onChange={e => setCronSchedule(e.target.value)} placeholder="0 */6 * * * (setiap 6 jam)" />
         </div>
       </div>
       <div className="grid grid-cols-3 gap-4">

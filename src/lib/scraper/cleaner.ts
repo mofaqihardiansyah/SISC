@@ -67,15 +67,15 @@ export async function cleanRawData(rawId: number) {
   const [raw] = await db.select().from(rawScrapedData).where(eq(rawScrapedData.id, rawId));
   if (!raw) return { success: false, error: 'Data tidak ditemukan' };
 
-  const d = raw.data as Record<string, any>;
+  const d = raw.data as Record<string, unknown>;
 
-  const judul = (d.judul || '').trim().replace(/\s+/g, ' ');
-  const tanggalMulai = parseIndoDate(d.tanggalMentah);
-  const tanggalSelesai = parseIndoDate(d.tanggalSelesai || d.tanggalMentah);
-  const jenisEvent = (d.jenisEvent || categorizeEvent(judul) || 'seminar') as any;
+  const judul = String(d.judul || '').trim().replace(/\s+/g, ' ');
+  const tanggalMulai = parseIndoDate(String(d.tanggalMentah || ''));
+  const tanggalSelesai = parseIndoDate(String(d.tanggalSelesai || d.tanggalMentah || ''));
+  const jenisEvent = String(d.jenisEvent || categorizeEvent(judul) || 'seminar');
 
   let kotaId: number | null = null;
-  const lokasi = d.detailLokasi || '';
+  const lokasi = String(d.detailLokasi || '');
   if (lokasi) {
     const [matched] = await db.select({ id: kota.id }).from(kota)
       .where(ilike(kota.nama, `%${lokasi.split(',')[0].trim()}%`)).limit(1);
@@ -90,19 +90,19 @@ export async function cleanRawData(rawId: number) {
     if (matched) kategoriId = matched.id;
   }
 
-  const tipePlatform = d.tipePlatform || guessPlatform(lokasi) || null;
+  const tipePlatform = String(d.tipePlatform || guessPlatform(lokasi) || '');
 
   // New detailed fields normalization
-  const deskripsi = sanitizeDescriptionHtml(d.deskripsi || '');
+  const deskripsi = sanitizeDescriptionHtml(String(d.deskripsi || ''));
   const tipeHarga = (d.tipeHarga === 'paid' ? 'paid' : 'free') as 'free' | 'paid';
   const harga = typeof d.harga === 'number' ? d.harga : 0;
   const kuota = typeof d.kuota === 'number' ? d.kuota : null;
-  const linkRegistrasi = d.linkRegistrasi || null;
-  const namaKontak = d.namaKontak || null;
-  const teleponKontak = d.teleponKontak || null;
+  const linkRegistrasi = String(d.linkRegistrasi || '') || null;
+  const namaKontak = String(d.namaKontak || '') || null;
+  const teleponKontak = String(d.teleponKontak || '') || null;
 
   // Backup original raw data if not already backed up
-  const originalRaw = d._raw ? d._raw : { ...d };
+  const originalRaw = (d._raw ? d._raw : { ...d }) as Record<string, unknown>;
 
   // Calculate field-level confidence breakdown
   const fieldConfidence = {
@@ -154,7 +154,7 @@ export async function cleanRawData(rawId: number) {
   };
 
   await db.update(rawScrapedData).set({
-    data: cleaned as any,
+    data: cleaned as never,
     status: 'processed',
   }).where(eq(rawScrapedData.id, rawId));
 

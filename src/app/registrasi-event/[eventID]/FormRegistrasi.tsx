@@ -133,7 +133,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser, paymen
       if (buktiPembayaran) {
         const formDataUpload = new FormData();
         formDataUpload.append('file', buktiPembayaran);
-        formDataUpload.append('type', 'document'); 
+        formDataUpload.append('type', 'payment_proof'); 
 
         const uploadRes = await fetch('/api/upload', {
           method: 'POST',
@@ -282,7 +282,7 @@ export default function FormRegistrasi({ eventId, dataEvent, currentUser, paymen
                 <h2 className="text-xl font-bold text-gray-800">Pembayaran Tiket</h2>
               </div>
               
-              <div className="mb-6 bg-gradient-to-r from-primary to-primary/80 rounded-xl p-6 text-white shadow-md">
+              <div className="mb-6 bg-linear-to-r from-primary to-primary/80 rounded-xl p-6 text-white shadow-md">
                 <p className="text-white/80 text-sm font-medium mb-1">Total Tagihan Pembayaran</p>
                 <h3 className="text-4xl font-black tracking-tight">
                   {Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(dataEvent.harga || 0))}

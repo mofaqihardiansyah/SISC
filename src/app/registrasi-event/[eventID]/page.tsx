@@ -27,8 +27,8 @@ export default async function RegistrasiEventPage({
   // 2. Await params untuk mengambil eventID dari URL
   const { eventID } = await params;
 
-  // 3. Ambil data event, data user, dan info pembayaran secara paralel
-  const [dataEvent, userData, paymentMethods] = await Promise.all([
+  // 3. Ambil data event dan data user
+  const [dataEvent, userData] = await Promise.all([
     db.query.event.findFirst({
       where: eq(event.id, Number(eventID)),
       with: {
@@ -38,8 +38,24 @@ export default async function RegistrasiEventPage({
     db.query.users.findFirst({
       where: eq(users.id, Number(session.user.id)),
     }),
-    db.select().from(infoPembayaran).where(eq(infoPembayaran.aktif, true))
   ]);
+
+  interface PaymentMethodItem { jenis: string; namaPenyedia: string; nomorAkun: string; atasNama: string; }
+  let paymentMethods: { id: number; tipe: string; namaBank: string | null; nomorRekening: string | null; pemilikRekening: string | null; urlGambarQris: string | null }[] = [];
+  if (dataEvent?.metodePembayaran) {
+    const rawMethods = dataEvent.metodePembayaran as PaymentMethodItem[];
+    paymentMethods = rawMethods.map((m: PaymentMethodItem, index: number) => ({
+      id: index + 1,
+      tipe: m.jenis,
+      namaBank: m.namaPenyedia,
+      nomorRekening: m.nomorAkun || "-",
+      pemilikRekening: m.atasNama || "-",
+      urlGambarQris: null
+    }));
+  } else {
+    // Fallback jika event lama tidak punya metode pembayaran khusus
+    paymentMethods = await db.select().from(infoPembayaran).where(eq(infoPembayaran.aktif, true));
+  }
 
   if (!dataEvent) {
     return (

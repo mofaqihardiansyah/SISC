@@ -5,8 +5,7 @@ import Image from "next/image";
 import {
   FileCheck, CheckCircle, X, Eye, MoreVertical, Check, XCircle,
   Search, ChevronDown, Calendar, MapPin,
-  Clock, Tag, Monitor, Users as UsersIcon, Wallet, Building2, Phone,
-  Mail, Globe,
+  Clock, Tag, Monitor, Users as UsersIcon, Wallet, Globe,
 } from "lucide-react";
 import { StatCard } from "@/components/admin/StatCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
@@ -396,15 +395,6 @@ export function ReviewModal({
           </div>
         </div>
       )}
-
-      <div className="mb-2">
-        <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Kontak Penyelenggara</h3>
-        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 space-y-1">
-          <InfoRow icon={<Building2 size={14} />} label="Penyelenggara" value={event.penyelenggara || "-"} />
-          <InfoRow icon={<Mail size={14} />} label="Email" value={event.kontakEmail || "-"} />
-          <InfoRow icon={<Phone size={14} />} label="Telepon" value={event.kontakTelepon || "-"} />
-        </div>
-      </div>
 
       {event.status === "pending" && !showRejectForm && (
         <div className="flex items-center gap-2 pt-3 border-t border-slate-100">

@@ -1,7 +1,6 @@
 import { db } from "./index";
-import { event, profilPenyelenggara, tag, eventTag, jadwalEvent, logAdmin, pembicara, infoPembayaran } from "./schema";
+import { event, profilPenyelenggara, pembicara, infoPembayaran } from "./schema";
 import { eq, sql } from "drizzle-orm";
-import { SEED } from "@/lib/constants";
 
 function slug(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -171,6 +170,20 @@ async function seedEventsTable() {
       satuAkunSatuTransaksi: false,
       hasilScraping: false,
       dibuatPada: new Date(),
+      metodePembayaran: e.tipeHarga === 'paid' ? [
+        {
+          jenis: "bank_transfer",
+          namaPenyedia: "BCA",
+          nomorAkun: "8273645192",
+          atasNama: `Panitia ${e.judul.substring(0, 15)}`
+        },
+        {
+          jenis: "e_wallet",
+          namaPenyedia: "Gopay",
+          nomorAkun: "081234567890",
+          atasNama: `Panitia ${e.judul.substring(0, 15)}`
+        }
+      ] : null
     };
 
     await db.insert(event).values(values).onConflictDoUpdate({
@@ -184,6 +197,7 @@ async function seedEventsTable() {
         jenisEvent: e.jenisEvent,
         kategoriId: e.kategoriId,
         kuota: e.kuota,
+        metodePembayaran: values.metodePembayaran,
       }
     });
 

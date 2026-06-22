@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, pendaftaran, users, peserta } from "@/db/schema";
+import { event, pendaftaran, users, peserta, profilPenyelenggara } from "@/db/schema";
 import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -31,16 +31,20 @@ export async function getAdminEvents(search?: string, type?: string) {
       .select({
         event: event,
         participantCount: sql<number>`count(${pendaftaran.id})`.mapWith(Number),
+        namaInstansi: profilPenyelenggara.namaInstansi,
       })
       .from(event)
       .leftJoin(pendaftaran, eq(event.id, pendaftaran.eventId))
+      .leftJoin(users, eq(event.organizerId, users.id))
+      .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
       .where(and(...conditions))
-      .groupBy(event.id)
+      .groupBy(event.id, profilPenyelenggara.namaInstansi)
       .orderBy(desc(event.dibuatPada));
 
     // Flatten the result
     const flattened = results.map(r => ({
       ...r.event,
+      penyelenggara: r.event.penyelenggara || r.namaInstansi,
       participantCount: r.participantCount
     }));
 

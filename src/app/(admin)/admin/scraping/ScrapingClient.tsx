@@ -3,13 +3,13 @@
 import React, { useState, useMemo } from 'react';
 import { 
   publishRawEvent, 
+  publishManualEvent,
   bulkPublishRawEvents, 
   bulkDeleteRawEvents, 
   cleanRawDataAction, 
   bulkCleanRawData, 
   getLogScraping, 
-  triggerScrapeAction,
-  publishAllAutoApproved
+  scrapeSingleUrl
 } from "@/actions/admin-scraping";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +37,8 @@ import {
   AlertCircle,
   Coins,
   User,
-  FileText
+  FileText,
+  Activity
 } from 'lucide-react';
 
 export interface RawScrapedObject {
@@ -121,6 +122,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
   const [data, setData] = useState<ScrapedData[]>(initialData);
   const [logs, setLogs] = useState<LogScraping[]>(initialLogs);
   const [isScraping, setIsScraping] = useState(false);
+  const [targetUrl, setTargetUrl] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [previewItem, setPreviewItem] = useState<ScrapedData | null>(null);
 
@@ -150,48 +152,44 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
   const [editTeleponKontak, setEditTeleponKontak] = useState("");
   const [editEmailKontak, setEditEmailKontak] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
-  const [isAutoPublishing, setIsAutoPublishing] = useState(false);
-
-  const handlePublishAutoApproved = async () => {
-    setIsAutoPublishing(true);
-    try {
-      const res = await publishAllAutoApproved();
-      if (res.success) {
-        toast.success(`Berhasil menerbitkan ${res.count} event yang berstatus Auto-Approved!`);
-        setData(data.filter(d => !(d.status === 'processed' && d.data.autoApproved === true)));
-      } else {
-        toast.error(res.error || "Gagal menerbitkan event Auto-Approved");
-      }
-    } finally {
-      setIsAutoPublishing(false);
-    }
-  };
 
   const allSelected = data.length > 0 && selected.size === data.length;
-
   const toggleAll = () => {
     if (allSelected) setSelected(new Set());
     else setSelected(new Set(data.map(d => d.id)));
   };
-
   const toggleOne = (id: number) => {
     const next = new Set(selected);
     if (next.has(id)) next.delete(id); else next.add(id);
     setSelected(next);
   };
 
-  const triggerScrape = async () => {
+  const handleTargetedScrape = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetUrl.trim()) return toast.error("Masukkan URL terlebih dahulu");
+    
     setIsScraping(true);
     try {
-      const res = await triggerScrapeAction();
-      if (res.success) {
-        toast.success(res.data?.message || "Scraping selesai!");
-        // Refresh data page/state is handled through local refresh manually or re-trigger
-        // Let's reload logs and show the toast
-        await refreshLogs();
+      const res = await scrapeSingleUrl(targetUrl);
+      if (res.success && res.data) {
+        toast.success("Berhasil mengekstrak data! Silakan tinjau dan lengkapi.");
+        // Mock a ScrapedData object to reuse the existing modal
+        const mockItem: ScrapedData = {
+          id: 0, // 0 indicates it's purely manual and not saved in rawScrapedData
+          sumber: targetUrl,
+          urlTarget: targetUrl,
+          data: res.data as ScrapedData['data'],
+          statusIntegrasi: false,
+          status: 'processed',
+          dibuatPada: new Date(),
+        };
+        handleOpenPreview(mockItem);
+        setTargetUrl("");
       } else {
-        toast.error("Gagal: " + res.error);
+        toast.error("Gagal mengekstrak: " + res.error);
       }
+      } catch {
+      toast.error("Terjadi kesalahan jaringan.");
     } finally {
       setIsScraping(false);
     }
@@ -229,7 +227,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
   const handlePublish = async (id: number) => {
     setIsPublishing(true);
     try {
-      const res = await publishRawEvent(id, {
+      const payload = {
         judul: editJudul,
         tanggalMulai: editTanggalMulai || null,
         tanggalSelesai: editTanggalSelesai || null,
@@ -246,11 +244,25 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
         namaKontak: editNamaKontak,
         teleponKontak: editTeleponKontak,
         emailKontak: editEmailKontak || null,
-      });
+      };
+
+      let res;
+      if (id === 0) {
+        // Targeted Manual Scrape
+        res = await publishManualEvent({
+          ...payload,
+          urlBanner: previewItem?.data?.urlBanner,
+          linkEksternal: previewItem?.data?.linkEksternal,
+          websiteSumber: previewItem?.data?.websiteSumber,
+        });
+      } else {
+        // From existing raw database
+        res = await publishRawEvent(id, payload);
+      }
 
       if (res.success) {
         toast.success("Event berhasil diterbitkan!");
-        setData(data.filter(d => d.id !== id));
+        if (id !== 0) setData(data.filter(d => d.id !== id));
         setPreviewItem(null);
       } else {
         toast.error(res.error || "Gagal menerbitkan event");
@@ -339,61 +351,72 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto bg-slate-50/50 min-h-screen rounded-2xl">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Manajemen Scraping</h1>
-          <p className="text-sm text-slate-500 mt-1">Pantau, sunting, dan publikasikan event otomatis dari eventkampus.com</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6">
+        <div className="max-w-xl">
+          <span className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xxs font-bold text-teal-700 tracking-wider mb-3">SCRAPING</span>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-[1.1]">Scraping Event</h1>
+          <p className="text-sm text-slate-500 mt-2 leading-relaxed">Tempelkan URL detail event, validasi, lalu terbitkan langsung.</p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={handlePublishAutoApproved}
-            loading={isAutoPublishing}
-            variant="success"
+        
+        <form onSubmit={handleTargetedScrape} className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
+          <div className="relative flex-1 min-w-[320px]">
+            <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <Input 
+              placeholder="https://example.com/event/..."
+              className="w-full pl-10 border-slate-200 bg-white/80 backdrop-blur-sm focus:bg-white transition-all duration-200"
+              value={targetUrl}
+              onChange={(e) => setTargetUrl(e.target.value)}
+              disabled={isScraping}
+            />
+          </div>
+          <Button 
+            type="submit"
+            loading={isScraping} 
+            className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-medium shadow-sm active:scale-[0.97] transition-all duration-200"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Publish Auto-Approved
+            {!isScraping && <Globe className="w-4 h-4 mr-2" />}
+            Scraping
           </Button>
-          <Button
-            onClick={triggerScrape}
-            loading={isScraping}
-          >
-            {!isScraping && <RefreshCw className="w-4 h-4 mr-2" />}
-            Mulai Scraping Baru
-          </Button>
-        </div>
+        </form>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Data Terkumpul</span>
-            <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{data.length}</span>
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-2">
+        <div className="sm:col-span-2 bg-white p-6 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] flex items-center justify-between">
+          <div className="space-y-1.5">
+            <span className="text-xxs font-bold text-slate-400 tracking-wider block">Total Data Terkumpul</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-4xl font-black text-slate-900 tracking-tight">{data.length}</span>
+              <span className="text-sm font-medium text-slate-400">event</span>
+            </div>
+            <p className="text-xs text-slate-400">Hasil scraping dari seluruh sumber</p>
           </div>
-          <div className="p-3 bg-slate-100 text-slate-500 rounded-lg">
+          <div className="p-3.5 bg-slate-50 text-slate-400 rounded-xl">
             <Globe className="w-5 h-5" />
           </div>
         </div>
         
-        <div className="bg-white p-5 rounded-xl border border-slate-200 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Siap Terbit (Auto-Approved)</span>
-            <span className="text-3xl font-extrabold text-emerald-600 tracking-tight">
+        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] flex items-center justify-between">
+          <div className="space-y-1.5">
+            <span className="text-xxs font-bold text-slate-400 tracking-wider block">Siap Terbit</span>
+            <span className="text-4xl font-black text-emerald-600 tracking-tight">
               {data.filter(d => d.data.autoApproved).length}
             </span>
+            <p className="text-xs text-slate-400">Auto-approved</p>
           </div>
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+          <div className="p-3.5 bg-emerald-50 text-emerald-500 rounded-xl">
             <Sparkles className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Perlu Tinjauan</span>
-            <span className="text-3xl font-extrabold text-amber-500 tracking-tight">
+        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] flex items-center justify-between">
+          <div className="space-y-1.5">
+            <span className="text-xxs font-bold text-slate-400 tracking-wider block">Perlu Tinjauan</span>
+            <span className="text-4xl font-black text-amber-500 tracking-tight">
               {data.filter(d => !d.data.autoApproved).length}
             </span>
+            <p className="text-xs text-slate-400">Butuh validasi manual</p>
           </div>
-          <div className="p-3 bg-amber-50 text-amber-500 rounded-lg">
+          <div className="p-3.5 bg-amber-50 text-amber-500 rounded-xl">
             <AlertCircle className="w-5 h-5" />
           </div>
         </div>
@@ -403,11 +426,11 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
         <TabsList className="bg-slate-100 p-1 rounded-xl mb-4">
           <TabsTrigger value="data" className="rounded-lg px-4 py-2 text-sm font-semibold">
             Data Scraping
-            <Badge variant="secondary" className="ml-2 bg-indigo-50 text-indigo-700 border-none font-bold">
+            <Badge variant="secondary" className="ml-2 bg-teal-50 text-teal-700 border-none font-bold">
               {data.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="logs" onClick={refreshLogs} className="rounded-lg px-4 py-2 text-sm font-semibold">
+          <TabsTrigger value="logs" className="rounded-lg px-4 py-2 text-sm font-semibold">
             Log Aktivitas
             <Badge variant="secondary" className="ml-2 bg-slate-200 text-slate-700 border-none font-bold">
               {logs.length}
@@ -417,7 +440,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
         <TabsContent value="data" className="space-y-4">
           {/* Filter Toolbar */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)]">
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
               <div className="relative w-full sm:w-80">
                 <Search className="absolute left-3 top-2.5 h-4 text-slate-400" />
@@ -440,15 +463,15 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
             </div>
 
             {selected.size > 0 && (
-              <div className="flex items-center gap-2 bg-indigo-50/50 p-1.5 rounded-lg border border-indigo-100 w-full md:w-auto justify-end shadow-sm">
-                <span className="text-xs font-semibold text-indigo-700 px-2">{selected.size} Item Terpilih</span>
-                <Button size="sm" variant="default" onClick={handleBulkPublish}>
+              <div className="flex items-center gap-2 bg-teal-50/60 p-1.5 rounded-lg w-full md:w-auto justify-end">
+                <span className="text-xs font-semibold text-teal-700 px-2">{selected.size} Item Terpilih</span>
+                <Button size="sm" variant="default" onClick={handleBulkPublish} className="active:scale-[0.97] transition-all duration-200">
                   <Check className="w-3.5 h-3.5 mr-1" /> Terbitkan
                 </Button>
-                <Button size="sm" variant="success" onClick={handleBulkClean}>
+                <Button size="sm" variant="success" onClick={handleBulkClean} className="active:scale-[0.97] transition-all duration-200">
                   <Sparkles className="w-3.5 h-3.5 mr-1" /> Bersihkan
                 </Button>
-                <Button size="sm" variant="destructive-solid" onClick={handleBulkDelete}>
+                <Button size="sm" variant="destructive-solid" onClick={handleBulkDelete} className="active:scale-[0.97] transition-all duration-200">
                   <Trash2 className="w-3.5 h-3.5 mr-1" /> Hapus
                 </Button>
               </div>
@@ -456,17 +479,17 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
           </div>
 
           {/* Table Container */}
-          <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/75 border-b border-slate-100 text-slate-600 font-semibold text-xs uppercase tracking-wider">
+                  <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-500 font-semibold text-xxs tracking-wider">
                     <th className="p-4 w-12 text-center">
                       <input 
                         type="checkbox" 
                         checked={allSelected} 
                         onChange={toggleAll}
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                        className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4 cursor-pointer"
                       />
                     </th>
                     <th className="p-4">Judul Event</th>
@@ -497,20 +520,20 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                     }) : 'Tanggal belum ditentukan';
 
                     return (
-                      <tr key={item.id} className="hover:bg-slate-50 border-b border-slate-100 transition-all duration-150">
+                      <tr key={item.id} className="hover:bg-slate-50/60 border-b border-slate-100 transition-all duration-200">
                         <td className="p-4 text-center align-middle">
                           <input 
                             type="checkbox" 
                             checked={selected.has(item.id)} 
                             onChange={() => toggleOne(item.id)}
-                            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                            className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4 cursor-pointer"
                           />
                         </td>
                         <td className="p-4 font-medium text-slate-800 align-middle">
                           <div className="flex flex-col items-start gap-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <button 
-                                className="text-left font-bold text-slate-800 hover:text-indigo-600 transition-colors line-clamp-2 text-sm sm:text-base" 
+                                className="text-left font-bold text-slate-800 hover:text-teal-600 transition-all duration-200 line-clamp-2 text-sm sm:text-base active:text-teal-800" 
                                 onClick={() => handleOpenPreview(item)}
                               >
                                 {item.data.judul}
@@ -551,6 +574,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                                 variant="link"
                                 size="xs"
                                 onClick={() => handleOpenPreview(item)}
+                                className="active:scale-[0.97] transition-all duration-200"
                               >
                                 <Eye className="w-3 h-3" /> Detail & Terbit
                               </Button>
@@ -559,6 +583,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                                   variant="link"
                                   size="xs"
                                   onClick={() => handleClean(item.id)}
+                                  className="active:scale-[0.97] transition-all duration-200"
                                 >
                                   <Sparkles className="w-3 h-3" /> Bersihkan Data
                                 </Button>
@@ -603,7 +628,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                         <div className="flex flex-col items-center justify-center gap-2 py-4">
                           <AlertCircle className="w-8 h-8 text-slate-300" />
                           <p className="font-semibold text-slate-500">Tidak ada data scraping ditemukan</p>
-                          <p className="text-xs text-slate-400">Gunakan tombol Mulai Scraping Baru di atas untuk menarik data</p>
+                          <p className="text-xs text-slate-400">Gunakan form URL di atas untuk scraping data baru</p>
                         </div>
                       </td>
                     </tr>
@@ -624,16 +649,16 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
         <TabsContent value="logs" className="space-y-4">
           <div className="flex justify-end">
-            <Button size="sm" variant="outline" onClick={refreshLogs}>
+            <Button size="sm" variant="outline" onClick={refreshLogs} className="active:scale-[0.97] transition-all duration-200">
               <RefreshCw className="w-3.5 h-3.5 mr-1" /> Refresh Logs
             </Button>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/75 border-b border-slate-100 text-slate-600 font-semibold text-xs uppercase tracking-wider">
+                  <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-500 font-semibold text-xxs tracking-wider">
                     <th className="p-4">Waktu Eksekusi</th>
                     <th className="p-4">Target Scraper</th>
                     <th className="p-4 w-32">Status</th>
@@ -680,7 +705,13 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                   ))}
                   {logs.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-slate-400">Belum ada riwayat aktivitas log scraping.</td>
+                      <td colSpan={5} className="p-8 text-center text-slate-400">
+                        <div className="flex flex-col items-center justify-center gap-2 py-4">
+                          <Activity className="w-8 h-8 text-slate-300" />
+                          <p className="font-semibold text-slate-500">Belum ada aktivitas scraping</p>
+                          <p className="text-xs text-slate-400">Coba lakukan scraping terlebih dahulu, atau klik <span className="font-bold">Refresh Logs</span> di atas</p>
+                        </div>
+                      </td>
                     </tr>
                   )}
                 </tbody>
@@ -1150,7 +1181,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                           <div>Kontak Mentah: {previewItem.data._raw?.namaKontak || '-'} ({previewItem.data._raw?.teleponKontak || '-'})</div>
                         </div>
                         <div className="border-l border-slate-100 pl-4 text-slate-800 space-y-1 break-all">
-                          <div>Link Reg: <span className="text-xs font-mono text-indigo-600 block">{editLinkRegistrasi || '-'}</span></div>
+                          <div>Link Reg: <span className="text-xs font-mono text-teal-600 block">{editLinkRegistrasi || '-'}</span></div>
                           <div>CP: {editNamaKontak || '-'} ({editTeleponKontak || '-'})</div>
                         </div>
                       </div>
@@ -1170,12 +1201,14 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                 <Button
                   variant="outline"
                   onClick={() => setPreviewItem(null)}
+                  className="active:scale-[0.97] transition-all duration-200"
                 >
                   Batal
                 </Button>
                 <Button
                   onClick={() => handlePublish(previewItem.id)}
                   loading={isPublishing}
+                  className="active:scale-[0.97] transition-all duration-200"
                 >
                   <Check className="w-4 h-4 mr-2" /> Setujui & Terbitkan
                 </Button>
@@ -1184,6 +1217,8 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
           );
         })()}
       </Modal>
+
+
     </div>
   );
 }

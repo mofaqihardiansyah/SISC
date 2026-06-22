@@ -57,7 +57,7 @@ export default function EventCard({
         </div>
 
         {/* Body */}
-        <div className="p-4 flex flex-col flex-grow">
+        <div className="p-4 flex flex-col grow">
           <div className="flex flex-wrap gap-1 mb-2">
             {tipePlatform && (
               <span className="text-xxs font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full capitalize">

@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { event, kategori } from "@/db/schema";
-import { eq, asc, desc, isNull, ilike, count, sql } from "drizzle-orm";
+import { eq, desc, isNull, ilike, count, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { PAGINATION } from "@/lib/constants";
 

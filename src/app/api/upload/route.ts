@@ -31,6 +31,12 @@ const UPLOAD_CONFIG = {
     folder: 'documents',
     label: 'Dokumen',
   },
+  payment_proof: {
+    allowedTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
+    maxSize: 10 * 1024 * 1024,
+    folder: 'payments',
+    label: 'Bukti Pembayaran',
+  },
   banner: {
     allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
     maxSize: 20 * 1024 * 1024,

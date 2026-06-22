@@ -16,6 +16,7 @@ import {
   Info,
   RotateCcw,
   Trash2,
+  AlertCircle,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Modal } from "@/components/ui/modal";
@@ -29,7 +30,7 @@ import { Textarea } from '@/components/ui/textarea'
 // ============================================================
 // TIPE DATA
 // ============================================================
-type StatusPendaftaran = "terdaftar" | "dibatalkan" | "hadir";
+type StatusPendaftaran = "terdaftar" | "menunggu_verifikasi" | "lunas" | "dibatalkan" | "hadir";
 
 interface PesertaData {
   pendaftaranId: number;
@@ -38,6 +39,7 @@ interface PesertaData {
   dibuatPada: string;
   buktiPembayaran: string | null;
   namaEvent: string;
+  tipeHarga: "free" | "paid";
   urlAvatar?: string | null;
   peserta: {
     id: number;
@@ -77,7 +79,7 @@ const getBgColorClass = (nama: string) => {
 // KOMPONEN STATUS BADGE (Sesuai Desain Asli)
 // ============================================================
 function StatusBadge({ status }: { status: StatusPendaftaran }) {
-  if (status === "hadir") {
+  if (status === "hadir" || status === "terdaftar" || status === "lunas") {
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-semibold border border-green-300 bg-green-50 text-green-600">
         <CheckCircle size={13} strokeWidth={2.5} />
@@ -85,7 +87,7 @@ function StatusBadge({ status }: { status: StatusPendaftaran }) {
       </span>
     );
   }
-  if (status === "terdaftar") {
+  if (status === "menunggu_verifikasi") {
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-semibold border border-yellow-300 bg-yellow-50 text-yellow-600">
         <Clock size={13} strokeWidth={2.5} />
@@ -121,7 +123,7 @@ function ActionButtons({
   onDetail: () => void;
   disabled: boolean;
 }) {
-  if (status === "terdaftar") {
+  if (status === "menunggu_verifikasi") {
     return (
       <div className="flex items-center gap-1.5">
         <Button
@@ -364,7 +366,7 @@ export default function InformasiPesertaClient() {
         "Event": p.namaEvent,
         "Email": p.peserta?.email ?? "-",
         "Nomor HP": p.peserta?.nomorTelepon ?? "-",
-        "Status": p.status === "hadir" ? "DISETUJUI" : p.status === "terdaftar" ? "MENUNGGU" : "DITOLAK",
+        "Status": (p.status === "hadir" || p.status === "terdaftar" || p.status === "lunas") ? "DISETUJUI" : p.status === "menunggu_verifikasi" ? "MENUNGGU" : "DITOLAK",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -391,7 +393,7 @@ export default function InformasiPesertaClient() {
 
       {/* Search + Filter */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        <div className="relative flex-1">
+        <div className="relative min-w-[200px] sm:min-w-[300px]">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
             type="text"
@@ -404,11 +406,11 @@ export default function InformasiPesertaClient() {
         <Select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-40 text-slate-600 font-semibold cursor-pointer"
+          className="px-4 py-2.5 flex-1 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-600 font-semibold cursor-pointer"
         >
           <option value="semua">Semua Status</option>
           <option value="hadir">Terverifikasi</option>
-          <option value="terdaftar">Menunggu</option>
+          <option value="menunggu_verifikasi">Menunggu</option>
           <option value="dibatalkan">Ditolak</option>
         </Select>
       </div>
@@ -514,20 +516,26 @@ export default function InformasiPesertaClient() {
                       <td className="px-5 py-3.5 text-gray-600 text-sm">{noHp}</td>
 
                       {/* Lampiran */}
-                      <td className="px-5 py-3.5">
-                        {item.buktiPembayaran ? (
+                      <td className="px-5 py-3.5 text-center">
+                        {item.tipeHarga === "free" ? (
+                          <span className="text-gray-400 font-bold text-lg">-</span>
+                        ) : item.buktiPembayaran ? (
                           <Button
                             onClick={() =>
                               setLampiran({ url: item.buktiPembayaran!, nama: nama })
                             }
                             variant="outline"
                             size="sm"
+                            className="mx-auto"
                           >
                             <Paperclip size={12} />
                             Lihat File
                           </Button>
                         ) : (
-                          <span className="text-gray-300 text-sm"></span>
+                          <div className="flex items-center justify-center gap-1.5 text-rose-500">
+                            <AlertCircle size={14} />
+                            <span className="text-xs font-semibold">Belum Upload</span>
+                          </div>
                         )}
                       </td>
 
@@ -542,7 +550,7 @@ export default function InformasiPesertaClient() {
                           status={item.status}
                           onVerify={() => updateStatus(item.pendaftaranId, "hadir")}
                           onTolak={() => setRejectModal({ pendaftaranId: item.pendaftaranId, reason: "" })}
-                          onEdit={() => updateStatus(item.pendaftaranId, "terdaftar")}
+                          onEdit={() => updateStatus(item.pendaftaranId, "menunggu_verifikasi")}
                           onDelete={() => setRejectModal({ pendaftaranId: item.pendaftaranId, reason: "" })}
                           onDetail={() =>
                             item.buktiPembayaran

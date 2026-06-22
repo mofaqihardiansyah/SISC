@@ -99,6 +99,7 @@ export async function createEvent(formData: FormData) {
       linkEksternal,
       kategoriId,
       kotaId,
+      metodePembayaran: metodePembayaranList.length > 0 ? metodePembayaranList : null,
       urlBanner,
       status: isDraft ? "draft" : "pending",
     }).returning({ id: event.id });

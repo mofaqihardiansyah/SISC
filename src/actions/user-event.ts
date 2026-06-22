@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { pendaftaran, event } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { pendaftaran, event, users, profilPenyelenggara } from "@/db/schema";
+import { eq, desc, and, ne } from "drizzle-orm";
 import { auth } from "@/auth";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -36,18 +36,25 @@ function determineEventStatus(
 ): 'pending' | 'registered' | 'completed' {
   const now = new Date();
   
-  // Selama dia terdaftar/hadir (bukan dibatalkan)
-  if (pendaftaranStatus === 'terdaftar' || pendaftaranStatus === 'hadir') {
-     if (tanggalSelesai && tanggalSelesai < now) return 'completed';
-     if (tanggalMulai > now) return 'pending';
-     return 'registered'; // Sedang berlangsung hari ini
-  }
-  
-  if (tanggalMulai > now) {
+  if (pendaftaranStatus === 'menunggu_verifikasi') {
     return 'pending';
   }
   
-  return 'completed';
+  // Jika sudah diverifikasi (terdaftar, lunas, hadir)
+  if (pendaftaranStatus === 'terdaftar' || pendaftaranStatus === 'lunas' || pendaftaranStatus === 'hadir') {
+     // Jika event sudah selesai
+     if (tanggalSelesai && tanggalSelesai < now) return 'completed';
+     // Jika event tidak punya tanggalSelesai dan tanggalMulai sudah lewat jauh, mungkin bisa dianggap completed, tapi amannya kita anggap:
+     if (!tanggalSelesai && tanggalMulai < now) {
+       // Misal event berlalu > 1 hari
+       const oneDayAfter = new Date(tanggalMulai.getTime() + 24 * 60 * 60 * 1000);
+       if (oneDayAfter < now) return 'completed';
+     }
+     // Jika masih di masa depan atau sedang berlangsung
+     return 'registered'; 
+  }
+  
+  return 'completed'; // Fallback
 }
 
 function formatDate(date: Date): string {
@@ -76,13 +83,22 @@ export async function getUserEvents(
         eventTitle: event.judul,
         eventBannerUrl: event.urlBanner,
         eventPenyelenggara: event.penyelenggara,
+        namaInstansi: profilPenyelenggara.namaInstansi,
+        namaLengkapPenyelenggara: users.namaLengkap,
         eventDetailLokasi: event.detailLokasi,
         eventTanggalMulai: event.tanggalMulai,
         eventTanggalSelesai: event.tanggalSelesai,
       })
       .from(pendaftaran)
       .innerJoin(event, eq(pendaftaran.eventId, event.id))
-      .where(eq(pendaftaran.userId, userId))
+      .leftJoin(users, eq(event.organizerId, users.id))
+      .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
+      .where(
+        and(
+          eq(pendaftaran.userId, userId),
+          ne(pendaftaran.status, 'dibatalkan')
+        )
+      )
       .orderBy(desc(pendaftaran.dibuatPada));
     
     let events: UserEventItem[] = pendaftarans.map((t) => {
@@ -92,12 +108,14 @@ export async function getUserEvents(
         t.eventTanggalSelesai
       );
       
+      const realPenyelenggara = t.eventPenyelenggara || t.namaInstansi || t.namaLengkapPenyelenggara;
+
       return {
         id: t.eventId,
         title: t.eventTitle,
         date: formatDate(t.eventTanggalMulai),
         location: t.eventDetailLokasi || "Lokasi tidak tersedia",
-        organizer: t.eventPenyelenggara || "Penyelenggara tidak tersedia",
+        organizer: realPenyelenggara || "Penyelenggara tidak tersedia",
         image: t.eventBannerUrl,
         status: eventStatus,
         kodePendaftaran: t.kodePendaftaran,

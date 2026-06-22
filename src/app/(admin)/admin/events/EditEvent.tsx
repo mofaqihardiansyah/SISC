@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { Save, Image as ImageIcon, Layout, Tag, Type, Globe, MapPin, Mic, Ticket, Clock, Users, AlignLeft, ShieldCheck } from "lucide-react";
 import { updateEvent } from "@/actions/admin-event";
 import { toast } from "sonner";

@@ -185,7 +185,7 @@ export default function SettingsPage() {
 
         <div className="space-y-6">
           <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-100 flex-shrink-0">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-100 shrink-0">
               <Image 
                 src={formData.urlAvatar || "/uploads/avatars/fotodummy.jpg"} 
                 alt="Profile" 

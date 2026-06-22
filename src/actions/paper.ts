@@ -58,7 +58,13 @@ export async function getSubmissionData() {
       .innerJoin(event, eq(pendaftaran.eventId, event.id))
       .leftJoin(users, eq(event.organizerId, users.id))
       .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
-      .where(and(eq(pendaftaran.userId, userId), eq(event.jenisEvent, 'conference')));
+      .where(
+        and(
+          eq(pendaftaran.userId, userId), 
+          eq(event.jenisEvent, 'conference'),
+          sql`${pendaftaran.status} IN ('terdaftar', 'hadir', 'lunas')`
+        )
+      );
 
     // Mengambil riwayat status paper yang pernah disubmit beserta penulis dan urlFile
     const submittedPapers = await db
@@ -115,6 +121,21 @@ export async function submitNewPaper(data: z.infer<typeof paperSchema>) {
     const validatedData = result.data;
 
     const { penulis, ...paperData } = validatedData;
+
+    const approvedRegistration = await db
+      .select()
+      .from(pendaftaran)
+      .where(and(
+          eq(pendaftaran.eventId, validatedData.eventId),
+          eq(pendaftaran.userId, userId),
+          sql`${pendaftaran.status} IN ('terdaftar', 'hadir', 'lunas')`
+        )
+      )
+      .limit(1);
+
+    if (approvedRegistration.length === 0) {
+      throw new Error("Pendaftaran event Anda belum disetujui. Anda hanya dapat mengirim paper jika status pendaftaran telah diverifikasi.");
+    }
 
     // Check for existing submission for this event by this user
     const existing = await db

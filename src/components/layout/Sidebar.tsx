@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, startTransition } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, MoreVertical, ChevronDown } from 'lucide-react';
@@ -29,12 +29,6 @@ interface SidebarProps {
 export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [prevPathname, setPrevPathname] = useState(pathname);
-  
-  useEffect(() => {
-    setPrevPathname(pathname);
-  }, [pathname]);
-
   const { isCollapsed } = useSidebar();
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(() => {
@@ -55,7 +49,9 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
   });
 
   useEffect(() => {
-    setIsOpen(false);
+    startTransition(() => {
+      setIsOpen(false);
+    });
 
     menuItems.forEach((item) => {
       if (item.subItems) {

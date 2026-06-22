@@ -120,7 +120,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         deskripsi: ev.deskripsi || ""
       };
     });
-  }, [STATUS_UI_MAP]);
+  }, []);
 
   const [dbEvents, setDbEvents] = useState<EventData[]>(() => 
     formatDbData(initialEvents).sort((a, b) => b.id - a.id)
@@ -367,60 +367,60 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
             const isRejected = ev.status === "DITOLAK";
 
             return (
-              <div key={ev.id} className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center justify-between shadow-sm hover:border-slate-300 transition-all">
+              <div key={ev.id} className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm hover:border-slate-300 transition-all">
                 
                 {/* ================= SISI KIRI: GAMBAR & DETAIL INFO ================= */}
-                <div className="flex gap-6 flex-1 min-w-0 pr-6">
-                  <div className="relative w-60 h-32 rounded-2xl overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
+                <div className="flex gap-4 flex-1 min-w-0 pr-4">
+                  <div className="relative w-32 h-20 rounded-xl overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
                     {ev.img ? (
-                      <Image src={ev.img} alt="" fill className={`object-cover ${isRejected ? 'opacity-40 grayscale' : ''}`} sizes="240px" />
+                      <Image src={ev.img} alt="" fill className={`object-cover ${isRejected ? 'opacity-40 grayscale' : ''}`} sizes="128px" />
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
-                        <ImageIcon size={28} className="mb-1" />
+                        <ImageIcon size={20} className="mb-0.5" />
                         <span className="text-nano font-bold uppercase tracking-wider">No Banner</span>
                       </div>
                     )}
                     {isRejected && (
                       <div className="absolute inset-0 flex items-center justify-center bg-slate-900/10">
-                        <Ban size={28} className="text-red-500 opacity-80" />
+                        <Ban size={20} className="text-red-500 opacity-80" />
                       </div>
                     )}
                   </div>
                   
                   <div className="flex flex-col justify-center min-w-0">
-                    <div className="flex items-center gap-2 mb-2 text-xxs font-bold uppercase tracking-wider">
-                      <span className={`px-2 py-0.5 rounded-md border ${
+                    <div className="flex items-center gap-2 mb-1.5 text-xxs font-bold uppercase tracking-wider">
+                      <span className={`px-1.5 py-0.5 rounded border ${
                         isDraft ? 'bg-yellow-50 text-yellow-500 border-yellow-100' : 
                         isRejected ? 'bg-red-50 text-red-400 border-red-100' : 
                         'bg-green-50 text-green-500 border-green-100'
                       }`}>
                         {ev.status}
                       </span>
-                      <span className="text-slate-300">• {ev.sub}</span>
+                      <span className="text-slate-400">• {ev.sub}</span>
                     </div>
-                    <h3 className="font-bold text-sisc-slate text-xl leading-tight mb-1 truncate">{ev.judul}</h3>
-                    <div className="text-[12px] text-slate-400 flex items-center gap-1.5">
-                      {isDraft ? <Edit3 size={12} className="shrink-0" /> : <Calendar size={12} className="shrink-0" />} <span>{ev.tanggal}</span>
+                    <h3 className="font-bold text-sisc-slate text-base leading-tight mb-1 truncate">{ev.judul}</h3>
+                    <div className="text-micro text-slate-500 flex items-center gap-1.5">
+                      {isDraft ? <Edit3 size={11} className="shrink-0" /> : <Calendar size={11} className="shrink-0" />} <span className="text-xxs">{ev.tanggal}</span>
                     </div>
                     {isRejected && (
-                      <div className="flex items-center gap-1 mt-2 text-red-400">
-                        <Info size={12} />
-                        <p className="text-micro font-medium italic text-slate-400">Alasan: {ev.alasan}</p>
+                      <div className="flex items-center gap-1 mt-1.5 text-red-400">
+                        <Info size={11} />
+                        <p className="text-xxs font-medium italic text-slate-400 truncate">Alasan: {ev.alasan}</p>
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-16 shrink-0 px-8 border-l border-slate-50">
-                  <div className="w-20">
-                    <p className="text-xxs text-slate-400 uppercase font-bold tracking-wider mb-1">Peserta</p>
-                    <p className="font-bold text-slate-700 text-base">{ev.peserta}</p>
+                <div className="flex items-center gap-8 shrink-0 px-6 border-l border-slate-50">
+                  <div className="w-16">
+                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-0.5">Peserta</p>
+                    <p className="font-bold text-slate-700 text-sm">{ev.peserta}</p>
                   </div>
-                  <div className="w-28">
-                    <p className="text-xxs text-slate-400 uppercase font-bold tracking-wider mb-1">Harga</p>
-                    <p className="font-bold text-slate-700 text-base">
+                  <div className="w-24">
+                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-0.5">Harga</p>
+                    <p className="font-bold text-slate-700 text-sm">
                       {ev.harga === "0" ? (
-                        <span className="inline-block text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-md text-xs border border-green-100">Gratis</span>
+                        <span className="inline-block text-emerald-600 font-bold">Gratis</span>
                       ) : (
                         `Rp ${ev.harga}`
                       )}

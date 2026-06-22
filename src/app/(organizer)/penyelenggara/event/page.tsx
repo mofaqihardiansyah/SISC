@@ -57,5 +57,5 @@ export default async function KelolaEventPage() {
     participantCount: Number(ev.participantCount || 0)
   }));
 
-  return <KelolaEventClient initialEvents={formattedEvents as any} />;
+  return <KelolaEventClient initialEvents={formattedEvents} />;
 }

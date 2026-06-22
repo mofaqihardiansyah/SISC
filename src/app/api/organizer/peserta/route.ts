@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     const statusCondition =
       status === "semua"
         ? undefined
-        : eq(pendaftaran.status, status as "terdaftar" | "hadir" | "dibatalkan");
+        : eq(pendaftaran.status, status as "terdaftar" | "menunggu_verifikasi" | "lunas" | "dibatalkan" | "hadir");
 
     // Build kondisi search
     const searchCondition = search
@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
         dibuatPada: pendaftaran.dibuatPada,
         buktiPembayaran: pendaftaran.buktiPembayaran,
         namaEvent: event.judul,
+        tipeHarga: event.tipeHarga,
         peserta: {
           id: peserta.id,
           namaLengkap: peserta.namaLengkap,
@@ -86,6 +87,7 @@ export async function GET(req: NextRequest) {
       dibuatPada: row.dibuatPada,
       buktiPembayaran: row.buktiPembayaran,
       namaEvent: row.namaEvent,
+      tipeHarga: row.tipeHarga,
       urlAvatar: row.pendaftarAvatar === "/uploads/avatars/fotodummy.jpg" ? null : row.pendaftarAvatar,
       peserta: row.peserta?.id ? row.peserta : null,
     }));
@@ -114,9 +116,9 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Validasi nilai status
-    const validStatuses = ["terdaftar", "hadir", "dibatalkan"];
+    const validStatuses = ["terdaftar", "menunggu_verifikasi", "lunas", "dibatalkan", "hadir"];
     if (!validStatuses.includes(status)) {
-      return NextResponse.json({ error: "Status tidak valid. Gunakan: terdaftar, hadir, atau dibatalkan" }, { status: 400 });
+      return NextResponse.json({ error: "Status tidak valid." }, { status: 400 });
     }
 
     // Pastikan pendaftaran ini milik event organizer yg login
@@ -129,8 +131,8 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const updateData: { status: "terdaftar" | "hadir" | "dibatalkan"; diperbaruiPada: Date; alasanPenolakan?: string } = {
-      status: status as "terdaftar" | "hadir" | "dibatalkan",
+    const updateData: { status: "terdaftar" | "menunggu_verifikasi" | "lunas" | "dibatalkan" | "hadir"; diperbaruiPada: Date; alasanPenolakan?: string } = {
+      status: status as "terdaftar" | "menunggu_verifikasi" | "lunas" | "dibatalkan" | "hadir",
       diperbaruiPada: new Date(),
     };
 

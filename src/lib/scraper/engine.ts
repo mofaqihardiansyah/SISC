@@ -139,7 +139,7 @@ export const seminarCrawler = new PlaywrightCrawler({
           .values(uniqueValidData.map(r => ({
             sumber: r.websiteSumber,
             urlTarget: r.linkEksternal,
-            data: r as any, // ponytail: jsonb column, legit any
+            data: r as never, // ponytail: jsonb column
             statusIntegrasi: false,
           })))
           .returning({ id: rawScrapedData.id });

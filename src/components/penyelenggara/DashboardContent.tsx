@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Input } from '@/components/ui/input';
+import OrganizerExportSection from './OrganizerExportWrapper';
 
 interface DashboardContentProps {
   allEvents: { 
@@ -59,13 +60,9 @@ export function DashboardContent({
   const [recentParticipants, setRecentParticipants] = useState(initialParticipants);
   const [recentPapers, setRecentPapers] = useState(initialPapers);
 
-  useEffect(() => {
-    if (selectedEventId === "all") {
-      setStats(initialStats);
-      setRecentParticipants(initialParticipants);
-      setRecentPapers(initialPapers);
-    }
-  }, [selectedEventId, initialStats, initialParticipants, initialPapers]);
+  const displayStats = selectedEventId === "all" ? initialStats : stats;
+  const displayParticipants = selectedEventId === "all" ? initialParticipants : recentParticipants;
+  const displayPapers = selectedEventId === "all" ? initialPapers : recentPapers;
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -307,7 +304,7 @@ export function DashboardContent({
             <div className="flex items-center gap-8 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-gray-50">
               <div className="flex flex-col items-center min-w-16">
                 <span className="text-xxs font-bold text-gray-400 uppercase tracking-wider mb-1">Peserta</span>
-                <span className="text-xl font-black text-gray-900">{stats.totalPeserta}</span>
+                <span className="text-xl font-black text-gray-900">{displayStats.totalPeserta}</span>
               </div>
               <div className="w-px h-10 bg-gray-100 hidden md:block" />
               <div className="flex flex-col items-center min-w-20">
@@ -334,20 +331,20 @@ export function DashboardContent({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
         <StatCard
           title="Total Peserta"
-          value={stats.totalPeserta.toLocaleString()}
+          value={displayStats.totalPeserta.toLocaleString()}
           trend={computedTrend}
           icon={Users}
           className="h-full"
         />
         <StatCard
           title="Total Tayangan"
-          value={stats.totalTayangan.toLocaleString("id-ID")}
+          value={displayStats.totalTayangan.toLocaleString("id-ID")}
           icon={Eye}
           className="h-full"
         />
         <StatCard
           title="Total Pendapatan"
-          value={`Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`}
+          value={`Rp ${displayStats.totalPendapatan.toLocaleString("id-ID")}`}
           icon={Coins}
           className="h-full"
         />
@@ -383,8 +380,8 @@ export function DashboardContent({
           </div>
 
           <div className="space-y-3">
-            {recentParticipants.length > 0 ? (
-              recentParticipants.map((p) => (
+            {displayParticipants.length > 0 ? (
+              displayParticipants.map((p) => (
                 <Link
                   key={p.id}
                   href="/penyelenggara/peserta"
@@ -444,8 +441,8 @@ export function DashboardContent({
           </div>
 
           <div className="space-y-3">
-            {recentPapers.length > 0 ? (
-              recentPapers.map((paper) => (
+            {displayPapers.length > 0 ? (
+              displayPapers.map((paper) => (
                 <div
                   key={paper.id}
                   className="flex items-center justify-between p-3 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer"
@@ -488,6 +485,8 @@ export function DashboardContent({
           </div>
         </div>
       </div>
+
+      <OrganizerExportSection />
     </div>
   );
 }

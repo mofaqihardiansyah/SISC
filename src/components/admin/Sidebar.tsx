@@ -12,15 +12,12 @@ import {
   MapPin,
   Database,
   Globe,
-  ScrollText,
-  ShieldCheck
+  ScrollText
 } from 'lucide-react';
 import { Sidebar as SharedSidebar, MenuItem } from '@/components/layout/Sidebar';
 
 const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
-  { icon: FileCheck, label: 'Persetujuan', href: '/admin/persetujuan' },
-  { icon: Users, label: 'Penyelenggara', href: '/admin/penyelenggara' },
   {
     icon: Database,
     label: 'Master Data',
@@ -31,6 +28,8 @@ const menuItems: MenuItem[] = [
       { icon: MapPin, label: 'Wilayah', href: '/admin/locations' },
     ]
   },
+  { icon: Users, label: 'Penyelenggara', href: '/admin/penyelenggara' },
+  { icon: FileCheck, label: 'Persetujuan', href: '/admin/persetujuan' },
   {
     icon: Globe,
     label: 'Scraping',

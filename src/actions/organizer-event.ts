@@ -54,7 +54,7 @@ export async function getDaftarEvent() {
     
     return { 
       success: true, 
-      data: formattedData as any 
+      data: formattedData 
     };
   } catch (error) {
     console.error("🚨 Gagal mengambil data event dari database:", error);

@@ -187,7 +187,7 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
         <div className="space-y-6">
           {/* Logo Upload */}
           <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full border-2 border-slate-100 flex-shrink-0 relative overflow-hidden bg-slate-100">
+            <div className="w-24 h-24 rounded-full border-2 border-slate-100 shrink-0 relative overflow-hidden bg-slate-100">
               <Image 
                 src={avatarPreview} 
                 alt="Logo Organisasi" 

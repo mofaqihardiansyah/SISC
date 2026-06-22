@@ -107,7 +107,7 @@ export async function PUT(req: Request) {
     }
 
     // Jika tidak ada parameter password, berarti update profil biasa
-    const updateData: Record<string, any> = { diperbaruiPada: new Date() };
+    const updateData: Record<string, unknown> = { diperbaruiPada: new Date() };
     if (body.name !== undefined) updateData.namaLengkap = body.name;
     if (body.email !== undefined) updateData.email = body.email;
     if (body.phone !== undefined) updateData.nomorTelepon = body.phone;
