@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Bookmark } from "lucide-react";
 import { getEvents } from "./action"; 
 import EventCard from "@/components/shared/EventCard"; 
+import { UI_TEXT } from "@/lib/constants";
 export const dynamic = 'force-dynamic';
 
 
@@ -108,11 +109,6 @@ export default function EventFavoritPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredEvents.map((item) => {
             
-            // --- LOGIKA DETEKSI POLINES ---
-            const isPolines = 
-              item.eventPolines === true || 
-              item.judul?.toUpperCase().includes("POLINES");
-
             return (
               <EventCard 
                 key={item.id}
@@ -123,12 +119,11 @@ export default function EventFavoritPage() {
                   ? new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
                       day: 'numeric', month: 'long', year: 'numeric'
                     })
-                  : 'Tanggal belum ditentukan'}
+                  : UI_TEXT.NO_DATE_SHORT}
                 price={item.harga ?? 0}
                 category={item.jenisEvent || "Seminar"}
                 
-                // Menerapkan logika deteksi
-                type={isPolines ? "POLINES" : "UMUM"}
+                type={item.eventPolines ? "POLINES" : "UMUM"}
                 
                 tipePlatform={item.tipePlatform || "Offline"}
                 kotaNama={item.namaKota ?? undefined}

@@ -56,18 +56,22 @@ SISC/
 │   │   └── bantuan/                # 1 help component
 │   ├── db/                         # Database layer
 │   │   ├── index.ts                # Koneksi PostgreSQL
-│   │   ├── schema.ts               # 21 tabel + 10 enums + relations
+│   │   ├── schema.ts               # 24 tabel + 10 enums + relations
 │   │   ├── seed.ts                 # Unified seed runner
-│   │   ├── seed-master.ts          # Master data seed
-│   │   ├── seed-event.ts           # Events seed
+│   │   ├── seed-master.ts          # Master data seed (514 kab/kota)
+│   │   ├── seed-event.ts           # Events seed (10 events + penyelenggara)
 │   │   ├── seed-demo.ts            # Demo data seed
 │   │   └── fix-seq.ts              # Sequence fix utility
 │   └── lib/                        # 11 utility files
-│       ├── api.ts, constants.ts, formatters.ts
+│       ├── api.ts, constants.ts (SITE, UI_TEXT, EVENT_TARGET_LABELS, SCRAPER, API, etc.)
 │       ├── route-config.ts, utils.ts
 │       ├── actions/                # Server action utilities
 │       ├── inngest/                # Inngest client + functions
 │       ├── scraper/                # Crawlee/Playwright engine
+│       │   ├── engine.ts           # PlaywrightCrawler wrapper
+│       │   ├── cleaner.ts          # Data normalization + validation
+│       │   ├── pipeline.ts         # Full scraping pipeline
+│       │   └── utils.ts            # Shared utilities (parseIndoDate, sanitizeHtml, isSafeUrl, extractCityFromLocation)
 │       └── utils/                  # Image utilities
 ├── docker-compose.yml              # PostgreSQL 16 Alpine
 ├── drizzle.config.ts               # Drizzle Kit config
@@ -263,3 +267,63 @@ Dipasang di **homepage** (`page.tsx`).
 - Links: FAQ, Kontak
 - Links: Jelajah, Event Polines, Event Umum
 - Copyright: `© {SITE.YEAR} {SITE.NAME}`
+
+---
+
+## Constants (`lib/constants.ts`)
+
+Semua nilai hardcode dipusatkan di sini:
+
+| Group | Isi |
+|-------|-----|
+| `SITE` | Nama, tagline, deskripsi, URL, tahun, kontak, jam operasional |
+| `ROUTES` | Path routes aplikasi |
+| `API` | Endpoint paths |
+| `SCRAPER` | Base URL, default URL, concurrency, timeout |
+| `UI_TEXT` | Teks UI fallback (NO_TITLE, NO_DESCRIPTION, NO_LOCATION_FALLBACK, dll.) |
+| `EVENT_TARGET_LABELS` | Label "Polines (Internal)" / "Umum (Eksternal)" |
+| `PLATFORM_LABELS` | Label platform: Online, Hybrid, Offline |
+| `EVENT_TYPE_LABELS` | Label jenis: Seminar, Conference |
+| `DEFAULT_REGISTRATION_STEPS` | Langkah registrasi default |
+| `DEFAULT_TERMS` | Syarat & ketentuan default |
+| `BANK_LIST`, `E_WALLET_LIST` | Daftar bank & e-wallet |
+| `STATUS_LABEL` | Label status: Menunggu, Disetujui, Ditolak |
+| `ERROR_MESSAGES` | Pesan error umum |
+| `UPLOAD_LIMITS`, `PAGINATION`, `UI` | Batas upload, pagination, UI timing |
+
+---
+
+## Scraper Architecture
+
+### 3 Implementasi Independen
+
+| Implementasi | Trigger | Engine | Lokasi |
+|-------------|---------|--------|--------|
+| Cron | Vercel Cron (harian) | Cheerio | `app/api/cron/scrape/route.ts` |
+| Inngest | Event-driven | PlaywrightCrawler | `lib/inngest/functions.ts` |
+| Manual | Admin button | Cheerio | `actions/admin-scraping.ts` |
+
+### Shared Utilities (`lib/scraper/utils.ts`)
+
+| Fungsi | Fungsi |
+|--------|--------|
+| `parseIndoDate(str)` | Parse tanggal Indonesia ("12 Januari 2025"), return `Date \| null` |
+| `sanitizeHtml(html)` | Hapus script/style/iframe/object/embed + event handlers |
+| `categorizeEvent(judul)` | Deteksi seminar vs conference dari judul |
+| `guessPlatform lokasi)` | Deteksi online/offline/hybrid dari lokasi |
+| `extractCityFromLocation(str)` | Ekstrak nama kota dari string lokasi |
+| `isSafeUrl(url)` | SSRF protection — blokir private IPs, localhost, cloud metadata |
+
+### Data Flow
+
+```
+Scraping Source → Raw HTML → parseIndoDate/categorizeEvent/guessPlatform →
+  Cleaner (normalize, validate) → Raw Scraped Data (DB) →
+  Admin review → Create Event → Published
+```
+
+### Keamanan
+
+- **SSRF Protection**: `isSafeUrl()` memblokir URL yang mengarah ke private IPs (`10.*`, `172.16-31.*`, `192.168.*`), localhost, dan cloud metadata endpoints (`169.254.*`)
+- **`tipeHarga: null`**: Event tanpa info harga default ke `null` (tidak diketahui), bukan `free`
+- **`parseIndoDate` returns null**: Gagal parse = null (bukan `new Date()`), memaksa admin fix manual

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import AuthLayout from '@/components/auth/auth-layout';
+import { SITE } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -45,7 +46,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthLayout leftTitle="Kembalikan akses ke akun POLIVENTS Anda.">
+    <AuthLayout leftTitle={`Kembalikan akses ke akun ${SITE.NAME} Anda.`}>
       <div className="space-y-8">
         <div>
           <h2 className="text-3xl font-bold text-slate-900 tracking-tight">

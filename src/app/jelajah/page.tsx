@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { RotateCcw, ChevronDown, Loader2, SearchX } from 'lucide-react';
+import React, { useState, useEffect, Suspense, useCallback } from 'react';
+import { RotateCcw, ChevronDown, Loader2, SearchX, ArrowUpDown } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -9,22 +9,31 @@ import EventCard from '@/components/shared/EventCard';
 import Footer from '@/components/shared/Footer';
 import EmptyState from '@/components/profile/EmptyState';
 
-import { Event } from '@/types/event';
+import { EventsApiResponse, EventCardItem } from '@/types/event';
+import { UI_TEXT, EVENT_TARGET_LABELS } from '@/lib/constants';
 
-type EventType = Event;
+type DropdownType = "Lokasi" | "Platform" | "Jenis Event" | "Kategori Event" | "Waktu" | "Harga";
 
-type DropdownType = "Lokasi" | "Tipe Event" | "Kategori Event" | "Waktu" | "Harga";
+const SORT_OPTIONS = [
+  { value: "newest", label: "Terbaru" },
+  { value: "oldest", label: "Terlama" },
+  { value: "cheapest", label: "Harga Terendah" },
+  { value: "expensive", label: "Harga Tertinggi" },
+  { value: "nearest", label: "Terdekat" },
+  { value: "popular", label: "Terpopuler" },
+] as const;
 
 function JelajahContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [events, setEvents] = useState<EventType[]>([]);
+  const [events, setEvents] = useState<EventCardItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [kotaList, setKotaList] = useState<string[]>([]);
   const [kategoriList, setKategoriList] = useState<string[]>([]);
+  const [provinsiList, setProvinsiList] = useState<string[]>([]);
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
 
@@ -35,16 +44,19 @@ function JelajahContent() {
   const [filters, setFilters] = useState({
     polines: false,
     price: "" as "" | "Gratis" | "Berbayar",
+    provinsi: "",
     location: "",
-    type: "",
+    platform: "",
+    jenisEvent: "",
     category: searchParams.get("kategori") ?? "",
     time: "",
   });
+  const [sortBy, setSortBy] = useState("newest");
 
   const [searchLocation, setSearchLocation] = useState("");
   const [openDropdown, setOpenDropdown] = useState<DropdownType | null>(searchParams.get("kategori") ? "Kategori Event" : null);
 
-  // Cek Status Login Client-side
+  // Fetch master data
   useEffect(() => {
     fetch('/api/auth/session')
       .then(res => res.json())
@@ -54,12 +66,17 @@ function JelajahContent() {
     fetch('/api/events?mode=kota')
       .then(res => res.json())
       .then(data => setKotaList(data.map((k: { nama: string }) => k.nama)))
-      .catch(err => console.error("Gagal fetch kota:", err));
+      .catch(() => {});
 
     fetch('/api/events?mode=kategori')
       .then(res => res.json())
       .then(data => setKategoriList(data.map((k: { nama: string }) => k.nama)))
-      .catch(err => console.error("Gagal fetch kategori:", err));
+      .catch(() => {});
+
+    fetch('/api/events?mode=provinsi')
+      .then(res => res.json())
+      .then(data => setProvinsiList(data.map((p: { nama: string }) => p.nama)))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -67,51 +84,47 @@ function JelajahContent() {
     setSearchTerm(searchParams.get("q") ?? "");
   }, [searchParams]);
 
+  // Fetch events
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: eventsPerPage.toString(),
+        q: searchTerm,
+        polines: filters.polines.toString(),
+        price: filters.price,
+        provinsi: filters.provinsi,
+        location: filters.location,
+        platform: filters.platform,
+        jenisEvent: filters.jenisEvent,
+        category: filters.category,
+        time: filters.time,
+        sort: sortBy,
+      });
+
+      const res = await fetch(`/api/events?${params.toString()}`);
+      if (!res.ok) throw new Error('Gagal fetch');
+      const data: EventsApiResponse = await res.json();
+
+      setEvents(data.events || []);
+      setTotalEvents(data.total || 0);
+    } catch (err) {
+      setError('Gagal memuat data event.');
+      console.error(err);
+    }
+    setLoading(false);
+  }, [currentPage, filters, searchTerm, sortBy]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-          limit: eventsPerPage.toString(),
-          q: searchTerm,
-          polines: filters.polines.toString(),
-          price: filters.price,
-          location: filters.location,
-          type: filters.type,
-          category: filters.category,
-          time: filters.time,
-        });
-
-        const res = await fetch(`/api/events?${params.toString()}`);
-        if (!res.ok) throw new Error('Gagal fetch');
-        const data = await res.json();
-
-        if (Array.isArray(data)) {
-          setEvents(data);
-          setTotalEvents(data.length);
-        } else {
-          setEvents(data.events || []);
-          setTotalEvents(data.total || 0);
-        }
-      } catch (err) {
-        setError('Gagal memuat data event.');
-        console.error(err);
-      }
-      setLoading(false);
-    };
-
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 300);
-
+    const timer = setTimeout(() => fetchData(), 300);
     return () => clearTimeout(timer);
-  }, [currentPage, filters, searchTerm]);
+  }, [fetchData]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters, searchTerm]);
+  }, [filters, searchTerm, sortBy]);
 
   const timeOptions = [
     "Hari Ini", "Besok", "Akhir Pekan",
@@ -121,10 +134,22 @@ function JelajahContent() {
   const totalPages = Math.ceil(totalEvents / eventsPerPage);
 
   const resetFilter = () => {
-    setFilters({ polines: false, price: "", location: "", type: "", category: "", time: "" });
+    setFilters({ polines: false, price: "", provinsi: "", location: "", platform: "", jenisEvent: "", category: "", time: "" });
+    setSortBy("newest");
     setSearchTerm("");
     router.push('/jelajah');
   };
+
+  const activeFilterCount = [
+    filters.polines,
+    filters.price,
+    filters.provinsi,
+    filters.location,
+    filters.platform,
+    filters.jenisEvent,
+    filters.category,
+    filters.time,
+  ].filter(Boolean).length;
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-slate-50">
@@ -137,13 +162,39 @@ function JelajahContent() {
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-blue-700 font-semibold text-lg">Filter Pencarian</h2>
-              <RotateCcw onClick={resetFilter} className="w-4 h-4 text-blue-700 cursor-pointer" />
+              <div className="flex items-center gap-2">
+                {activeFilterCount > 0 && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                    {activeFilterCount} aktif
+                  </span>
+                )}
+                <RotateCcw onClick={resetFilter} className="w-4 h-4 text-blue-700 cursor-pointer hover:text-blue-900" />
+              </div>
             </div>
             <p className="text-xs text-gray-400 mb-6">Sesuaikan Penemuan Event</p>
 
+            {/* SORT */}
+            <div className="mb-4">
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">Urutkan</label>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full h-9 appearance-none border border-slate-200 rounded-lg px-3 pr-8 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500/20"
+                >
+                  {SORT_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+                <ArrowUpDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+
+            <div className="border-t pt-4 mb-4" />
+
             {/* TOGGLE POLINES */}
             <div className="flex justify-between items-center mb-6">
-              <span className="font-medium text-sm">Polines</span>
+              <span className="font-medium text-sm">{EVENT_TARGET_LABELS.polines.split(' ')[0]}</span>
               <div
                 onClick={() => setFilters({ ...filters, polines: !filters.polines })}
                 className={`w-9 h-5 rounded-full p-1 cursor-pointer transition-colors ${filters.polines ? "bg-blue-600" : "bg-gray-300"}`}
@@ -152,7 +203,7 @@ function JelajahContent() {
               </div>
             </div>
 
-            {(["Lokasi", "Tipe Event", "Kategori Event", "Waktu", "Harga"] as DropdownType[]).map((item) => (
+            {(["Lokasi", "Platform", "Jenis Event", "Kategori Event", "Waktu", "Harga"] as DropdownType[]).map((item) => (
               <div key={item} className="border-t py-4 text-sm">
                 <div
                   onClick={() => setOpenDropdown(openDropdown === item ? null : item)}
@@ -160,8 +211,9 @@ function JelajahContent() {
                 >
                   <span className="flex items-center gap-2">
                     {item}
-                    {((item === "Lokasi" && filters.location) ||
-                      (item === "Tipe Event" && filters.type) ||
+                    {((item === "Lokasi" && (filters.provinsi || filters.location)) ||
+                      (item === "Platform" && filters.platform) ||
+                      (item === "Jenis Event" && filters.jenisEvent) ||
                       (item === "Kategori Event" && filters.category) ||
                       (item === "Waktu" && filters.time) ||
                       (item === "Harga" && filters.price))
@@ -170,54 +222,89 @@ function JelajahContent() {
                   <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === item ? "rotate-180" : ""}`} />
                 </div>
 
-                {/* LOKASI */}
+                {/* LOKASI — Cascading: Provinsi → Kota */}
                 {openDropdown === item && item === "Lokasi" && (
-                  <div className="mt-3 space-y-2">
-                    <Input
-                      type="text"
-                      placeholder="Cari kota..."
-                      value={searchLocation}
-                      onChange={(e) => setSearchLocation(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-                    />
-                    <div className="max-h-48 overflow-y-auto space-y-2 mt-1">
-                      {kotaList
-                        .filter(loc => loc.toLowerCase().includes(searchLocation.toLowerCase()))
-                        .map(loc => (
-                          <div
-                            key={loc}
-                            onClick={() => {
-                              setFilters({ ...filters, location: loc });
-                              setOpenDropdown(null);
-                            }}
-                            className={`cursor-pointer hover:text-blue-600 py-0.5 ${filters.location === loc ? "text-blue-600 font-semibold" : ""}`}
-                          >
-                            {loc}
-                          </div>
-                        ))}
+                  <div className="mt-3 space-y-3">
+                    {/* Provinsi */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Provinsi</label>
+                      <select
+                        value={filters.provinsi}
+                        onChange={(e) => setFilters({ ...filters, provinsi: e.target.value, location: "" })}
+                        className="w-full h-8 appearance-none border border-slate-200 rounded-lg px-2 text-xs text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      >
+                        <option value="">Semua Provinsi</option>
+                        {provinsiList.map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
                     </div>
-                    {filters.location && (
-                      <div onClick={() => setFilters({ ...filters, location: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
+                    {/* Kota (filtered by provinsi) */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Kota / Kabupaten</label>
+                      <Input
+                        type="text"
+                        placeholder="Cari kota..."
+                        value={searchLocation}
+                        onChange={(e) => setSearchLocation(e.target.value)}
+                        className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      />
+                      <div className="max-h-48 overflow-y-auto space-y-2 mt-1">
+                        {kotaList
+                          .filter(loc => loc.toLowerCase().includes(searchLocation.toLowerCase()))
+                          .map(loc => (
+                            <div
+                              key={loc}
+                              onClick={() => {
+                                setFilters({ ...filters, location: loc });
+                                setOpenDropdown(null);
+                              }}
+                              className={`cursor-pointer hover:text-blue-600 py-0.5 ${filters.location === loc ? "text-blue-600 font-semibold" : ""}`}
+                            >
+                              {loc}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                    {(filters.provinsi || filters.location) && (
+                      <div onClick={() => setFilters({ ...filters, provinsi: "", location: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset Lokasi</div>
                     )}
                   </div>
                 )}
 
-                {/* TIPE EVENT */}
-                {openDropdown === item && item === "Tipe Event" && (
+                {/* PLATFORM */}
+                {openDropdown === item && item === "Platform" && (
                   <div className="mt-3 space-y-2">
-                    {["online", "offline", "hybrid"].map(type => (
+                    {["online", "offline", "hybrid"].map(p => (
                       <div
-                        key={type}
+                        key={p}
                         onClick={() => {
-                          setFilters({ ...filters, type });
+                          setFilters({ ...filters, platform: p });
                           setOpenDropdown(null);
                         }}
-                        className={`cursor-pointer hover:text-blue-600 capitalize ${filters.type === type ? "text-blue-600 font-semibold" : ""}`}
+                        className={`cursor-pointer hover:text-blue-600 capitalize ${filters.platform === p ? "text-blue-600 font-semibold" : ""}`}
                       >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                        {p.charAt(0).toUpperCase() + p.slice(1)}
                       </div>
                     ))}
-                    <div onClick={() => setFilters({ ...filters, type: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
+                    <div onClick={() => setFilters({ ...filters, platform: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
+                  </div>
+                )}
+
+                {/* JENIS EVENT */}
+                {openDropdown === item && item === "Jenis Event" && (
+                  <div className="mt-3 space-y-2">
+                    {["seminar", "conference"].map(j => (
+                      <div
+                        key={j}
+                        onClick={() => {
+                          setFilters({ ...filters, jenisEvent: j });
+                          setOpenDropdown(null);
+                        }}
+                        className={`cursor-pointer hover:text-blue-600 capitalize ${filters.jenisEvent === j ? "text-blue-600 font-semibold" : ""}`}
+                      >
+                        {j.charAt(0).toUpperCase() + j.slice(1)}
+                      </div>
+                    ))}
+                    <div onClick={() => setFilters({ ...filters, jenisEvent: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
                   </div>
                 )}
 
@@ -306,8 +393,14 @@ function JelajahContent() {
           )}
 
           {error && !loading && (
-            <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-6 text-sm">
-              {error}
+            <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-6 text-sm flex flex-col items-center gap-3">
+              <p>{error}</p>
+              <button
+                onClick={fetchData}
+                className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+              >
+                Coba Lagi
+              </button>
             </div>
           )}
 
@@ -326,7 +419,7 @@ function JelajahContent() {
                 />
               ) : (
                 <div className="grid grid-cols-3 gap-6">
-                      {events.map((event) => (
+                  {events.map((event) => (
                     <EventCard
                       key={event.id}
                       id={String(event.id)}
@@ -338,7 +431,7 @@ function JelajahContent() {
                               month: "long",
                               year: "numeric",
                             })
-                          : "Tanggal belum diisi"
+                          : UI_TEXT.NO_DATE_SHORT
                       }
                       price={event.tipeHarga === "free" ? 0 : (event.harga ?? null)}
                       category={event.jenisEvent ?? ""}
@@ -347,6 +440,7 @@ function JelajahContent() {
                       tipePlatform={event.tipePlatform ?? undefined}
                       kotaNama={event.kotaNama ?? undefined}
                       kategoriNama={event.kategoriNama ?? undefined}
+                      penyelenggara={event.penyelenggara}
                       isLoggedIn={isLoggedIn}
                     />
                   ))}

@@ -4,6 +4,10 @@ export const SITE = {
   DESCRIPTION: "Hubungkan koneksi anda dan tambah wawasan anda melalui seminar dan conference",
   URL: process.env.NEXT_PUBLIC_URL || "http://localhost:3000",
   YEAR: 2026,
+  CONTACT_EMAIL: "poliventsofficial@gmail.com",
+  CONTACT_WHATSAPP: "https://wa.me/6282327655735",
+  CONTACT_WHATSAPP_DISPLAY: "+62 823-2765-5735",
+  OPERATIONAL_HOURS: "Senin - Jumat: 09:00 - 17:00",
 } as const;
 
 export const ROUTES = {
@@ -96,6 +100,11 @@ export const EVENT_TYPES = {
   UMUM: "UMUM",
 } as const;
 
+export const EVENT_TARGET_LABELS: Record<string, string> = {
+  polines: "Polines (Internal)",
+  umum: "Umum (Eksternal)",
+} as const;
+
 export const PLATFORM_LABELS: Record<string, string> = {
   online: "Online",
   hybrid: "Hybrid",
@@ -184,10 +193,12 @@ export const ERROR_MESSAGES = {
 export const UI_TEXT = {
   SEARCH_PLACEHOLDER: "Cari seminar atau konferensi",
   NO_DESCRIPTION: "Tidak ada deskripsi.",
+  NO_TITLE: "Tanpa Judul",
   NO_DATE: "TANGGAL BELUM DITENTUKAN",
   NO_DATE_SHORT: "Tanggal belum ditentukan",
   NO_DATE_FALLBACK: "TBA",
   NO_LOCATION_FALLBACK: "Lokasi TBA",
+  NO_ORGANIZER_FALLBACK: "-",
   NO_EVENT_FEATURED: "Belum ada event unggulan",
   POPULAR_EVENT: "Paling Banyak Diminati",
   REGISTER_NOW: "Daftar Sekarang",
@@ -201,6 +212,24 @@ export const UI_TEXT = {
   NO_DESCRIPTION_FALLBACK: "Tidak ada deskripsi.",
   DOCUMENT_UPLOADED: "Dokumen Terunggah",
 } as const;
+
+export const DEFAULT_REGISTRATION_STEPS = [
+  "Klik <strong>Daftar</strong> untuk mengisi data diri awal",
+  "Anda akan diarahkan ke formulir pendaftaran eksternal (GForm)",
+  "Isi data yang dibutuhkan pada formulir tersebut hingga selesai",
+  "Kembali ke tab sebelumnya dan klik <strong>Simpan dan Selesai</strong>",
+  "Selamat, pendaftaran Anda telah tercatat!",
+] as const;
+
+export const DEFAULT_TERMS = [
+  "Peserta wajib melakukan registrasi melalui website resmi penyelenggara.",
+  "Peserta diharapkan hadir 15 menit sebelum acara dimulai untuk proses check-in.",
+  "Wajib menunjukkan E-Ticket (QR Code) saat memasuki area acara.",
+  "Menggunakan pakaian yang rapi, sopan, dan sesuai dengan tema acara.",
+  "Peserta wajib menjaga ketertiban dan kebersihan selama acara berlangsung.",
+  "Panitia berhak membatalkan keikutsertaan jika peserta melanggar aturan yang ditetapkan.",
+  "Keputusan panitia bersifat mutlak dan tidak dapat diganggu gugat.",
+] as const;
 
 export const BANNER = {
   HEIGHT: "h-48",

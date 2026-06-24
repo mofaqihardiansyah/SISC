@@ -19,18 +19,19 @@ const DEFAULT_TERMS = `1. Peserta wajib melakukan registrasi melalui website SIS
 7. Panitia berhak membatalkan keikutsertaan jika peserta melanggar aturan yang ditetapkan.
 8. Keputusan panitia bersifat mutlak dan tidak dapat diganggu gugat.`;
 
+const ORGANIZER_NAME = "Politeknik Negeri Semarang";
+
 const eventsData = [
   // === SEMINARS (Professional) ===
   {
     id: 1, organizerId: 2, kategoriId: 1, kotaId: 2,
     judul: "Seminar Nasional Transformasi Digital di Era Industri 5.0", jenisEvent: "seminar" as const,
     tipePlatform: "offline" as const, tipeHarga: "free" as const, harga: 0,
-    eventPolines: true, status: "published" as const, kuota: 300,
+    eventPolines: true, status: "published" as const, kuota: 300, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event1/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Seminar nasional membahas strategi adaptasi industri dalam menyongsong revolusi industri 5.0 yang berfokus pada kolaborasi manusia-mesin.",
     detailLokasi: "Auditorium Utama, Polines, Semarang",
     tanggalMulai: futureDate(30), tanggalSelesai: futureDate(30), batasRegistrasi: futureDate(28),
-    namaKontak: "Panitia Seminar", emailKontak: "seminar@polines.ac.id", teleponKontak: "024-7473417",
     jumlahTayangan: 1250, namaPembicara: "Dr. Eng. Ahmad Zaki", peranPembicara: "Industry 5.0 Specialist",
     urlFotoPembicara: "https://picsum.photos/seed/speaker1/400/400"
   },
@@ -38,12 +39,11 @@ const eventsData = [
     id: 2, organizerId: 2, kategoriId: 4, kotaId: 11,
     judul: "Seminar Strategi Pemasaran Digital untuk UMKM Berdaya Saing", jenisEvent: "seminar" as const,
     tipePlatform: "hybrid" as const, tipeHarga: "paid" as const, harga: 150000,
-    eventPolines: false, status: "published" as const, kuota: 200,
+    eventPolines: false, status: "published" as const, kuota: 200, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event2/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Seminar mendalam mengenai teknik pemasaran digital, optimasi media sosial, dan branding untuk meningkatkan skala bisnis UMKM.",
     detailLokasi: "Grand Ballroom, Jakarta",
     tanggalMulai: futureDate(45), tanggalSelesai: futureDate(45), batasRegistrasi: futureDate(40),
-    namaKontak: "UMKM Center", emailKontak: "info@umkmcenter.id", teleponKontak: "021-5551234",
     jumlahTayangan: 2800, namaPembicara: "Denny Santoso", peranPembicara: "Digital Marketing Mentor",
     urlFotoPembicara: "https://picsum.photos/seed/speaker2/400/400"
   },
@@ -51,12 +51,11 @@ const eventsData = [
     id: 3, organizerId: 2, kategoriId: 5, kotaId: 3,
     judul: "Seminar Global Health Summit: Health Tech Innovation", jenisEvent: "seminar" as const,
     tipePlatform: "online" as const, tipeHarga: "free" as const, harga: 0,
-    eventPolines: false, status: "published" as const, kuota: 1000,
+    eventPolines: false, status: "published" as const, kuota: 1000, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event3/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Membahas inovasi teknologi kesehatan terkini, mulai dari telemedicine hingga pemanfaatan AI dalam diagnosis medis.",
     detailLokasi: "Zoom Virtual Event",
     tanggalMulai: futureDate(60), tanggalSelesai: futureDate(60), batasRegistrasi: futureDate(58),
-    namaKontak: "Global Health Alliance", emailKontak: "summit@health.org", teleponKontak: "031-8888999",
     jumlahTayangan: 4500, namaPembicara: "dr. Tirta", peranPembicara: "Health Influencer & Doctor",
     urlFotoPembicara: "https://picsum.photos/seed/speaker3/400/400"
   },
@@ -66,12 +65,11 @@ const eventsData = [
     id: 4, organizerId: 2, kategoriId: 1, kotaId: 2,
     judul: "International Conference on Artificial Intelligence and Robotics 2026", jenisEvent: "conference" as const,
     tipePlatform: "offline" as const, tipeHarga: "paid" as const, harga: 500000,
-    eventPolines: true, status: "published" as const, kuota: 500,
+    eventPolines: true, status: "published" as const, kuota: 500, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event4/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Konferensi internasional tahunan yang mengundang peneliti, akademisi, dan praktisi AI serta robotika dari seluruh dunia.",
     detailLokasi: "Gedung Pusat Informasi, Polines",
     tanggalMulai: futureDate(90), tanggalSelesai: futureDate(92), batasRegistrasi: futureDate(80),
-    namaKontak: "Conference Chair", emailKontak: "conference@polines.ac.id", teleponKontak: "024-7473426",
     jumlahTayangan: 3200, namaPembicara: "Prof. Andrew Ng", peranPembicara: "AI Professor at Stanford",
     urlFotoPembicara: "https://picsum.photos/seed/speaker4/400/400"
   },
@@ -79,12 +77,11 @@ const eventsData = [
     id: 5, organizerId: 2, kategoriId: 4, kotaId: 3,
     judul: "World Economic Forum: Future of Sustainable Finance", jenisEvent: "conference" as const,
     tipePlatform: "offline" as const, tipeHarga: "paid" as const, harga: 750000,
-    eventPolines: false, status: "published" as const, kuota: 300,
+    eventPolines: false, status: "published" as const, kuota: 300, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event5/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Membahas masa depan keuangan berkelanjutan dan peran ESG (Environmental, Social, and Governance) dalam ekonomi global.",
     detailLokasi: "Shangri-La Hotel, Surabaya",
     tanggalMulai: futureDate(120), tanggalSelesai: futureDate(122), batasRegistrasi: futureDate(110),
-    namaKontak: "Economic Board", emailKontak: "events@wef.org", teleponKontak: "031-77665544",
     jumlahTayangan: 5000, namaPembicara: "Sri Mulyani Indrawati", peranPembicara: "Minister of Finance RI",
     urlFotoPembicara: "https://picsum.photos/seed/speaker5/400/400"
   },
@@ -92,12 +89,11 @@ const eventsData = [
     id: 6, organizerId: 2, kategoriId: 11, kotaId: 12,
     judul: "International Symposium on Renewable Energy and Climate Change", jenisEvent: "conference" as const,
     tipePlatform: "hybrid" as const, tipeHarga: "paid" as const, harga: 300000,
-    eventPolines: false, status: "published" as const, kuota: 400,
+    eventPolines: false, status: "published" as const, kuota: 400, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event6/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Symposium riset inovasi energi terbarukan dan mitigasi perubahan iklim global.",
     detailLokasi: "Menara BCA Grand Indonesia, Jakarta",
     tanggalMulai: futureDate(150), tanggalSelesai: futureDate(152), batasRegistrasi: futureDate(140),
-    namaKontak: "Energy Institute", emailKontak: "symposium@energy.id", teleponKontak: "021-99887766",
     jumlahTayangan: 2100, namaPembicara: "Dr. Eng. Masribah", peranPembicara: "Renewable Energy Researcher",
     urlFotoPembicara: "https://picsum.photos/seed/speaker6/400/400"
   },
@@ -107,12 +103,11 @@ const eventsData = [
     id: 7, organizerId: 2, kategoriId: 4, kotaId: 2,
     judul: "Workshop Nasional Cybersecurity: Ethical Hacking for Beginners", jenisEvent: "seminar" as const,
     tipePlatform: "offline" as const, tipeHarga: "paid" as const, harga: 75000,
-    eventPolines: true, status: "published" as const, kuota: 100,
+    eventPolines: true, status: "published" as const, kuota: 100, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event7/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Workshop intensif selama satu hari tentang dasar-dasar ethical hacking, penetration testing, dan cara mengamankan sistem.",
     detailLokasi: "Laboratorium Komputer, Gedung MST Polines",
     tanggalMulai: futureDate(15), tanggalSelesai: futureDate(15), batasRegistrasi: futureDate(13),
-    namaKontak: "Panitia Cyber", emailKontak: "cyber@polines.ac.id", teleponKontak: "024-7473418",
     jumlahTayangan: 850, namaPembicara: "Budi Santoso, CEH", peranPembicara: "Cybersecurity Analyst",
     urlFotoPembicara: "https://picsum.photos/seed/speaker7/400/400"
   },
@@ -120,12 +115,11 @@ const eventsData = [
     id: 8, organizerId: 2, kategoriId: 1, kotaId: 2,
     judul: "Pelatihan UI/UX Design: From Wireframe to Prototype", jenisEvent: "seminar" as const,
     tipePlatform: "offline" as const, tipeHarga: "paid" as const, harga: 50000,
-    eventPolines: true, status: "published" as const, kuota: 150,
+    eventPolines: true, status: "published" as const, kuota: 150, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event8/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Pelatihan praktis desain UI/UX menggunakan Figma. Peserta akan diajarkan mulai dari research, wireframing, hingga interaktif prototype.",
     detailLokasi: "Ruang Serbaguna, Polines",
     tanggalMulai: futureDate(20), tanggalSelesai: futureDate(21), batasRegistrasi: futureDate(18),
-    namaKontak: "Design Team", emailKontak: "design@polines.ac.id", teleponKontak: "024-7473419",
     jumlahTayangan: 1120, namaPembicara: "Siti Aminah", peranPembicara: "Senior Product Designer",
     urlFotoPembicara: "https://picsum.photos/seed/speaker8/400/400"
   },
@@ -133,12 +127,11 @@ const eventsData = [
     id: 9, organizerId: 2, kategoriId: 11, kotaId: 2,
     judul: "Seminar Technopreneurship: Membangun Startup dari Kampus", jenisEvent: "seminar" as const,
     tipePlatform: "hybrid" as const, tipeHarga: "paid" as const, harga: 35000,
-    eventPolines: true, status: "published" as const, kuota: 250,
+    eventPolines: true, status: "published" as const, kuota: 250, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event9/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Menggali potensi mahasiswa dalam membangun startup berbasis teknologi. Dibahas cara mencari ide, validasi, dan pitching ke investor.",
     detailLokasi: "Auditorium Tata Niaga, Polines",
     tanggalMulai: futureDate(40), tanggalSelesai: futureDate(40), batasRegistrasi: futureDate(35),
-    namaKontak: "Inkubator Bisnis", emailKontak: "inkubator@polines.ac.id", teleponKontak: "024-7473420",
     jumlahTayangan: 940, namaPembicara: "Andi Wijaya", peranPembicara: "Startup Founder & CEO",
     urlFotoPembicara: "https://picsum.photos/seed/speaker9/400/400"
   },
@@ -146,12 +139,11 @@ const eventsData = [
     id: 10, organizerId: 2, kategoriId: 4, kotaId: 2,
     judul: "Polines Career Fest 2026: Siap Kerja di Era Digital", jenisEvent: "seminar" as const,
     tipePlatform: "offline" as const, tipeHarga: "free" as const, harga: 0,
-    eventPolines: true, status: "published" as const, kuota: 1000,
+    eventPolines: true, status: "published" as const, kuota: 1000, penyelenggara: ORGANIZER_NAME,
     urlBanner: "https://picsum.photos/seed/event10/1200/600", syaratDanKetentuan: DEFAULT_TERMS,
     deskripsi: "Festival karir terbesar di Polines yang menghadirkan puluhan perusahaan multinasional dan seminar persiapan karir.",
     detailLokasi: "Lapangan Utama, Polines",
     tanggalMulai: futureDate(60), tanggalSelesai: futureDate(62), batasRegistrasi: futureDate(55),
-    namaKontak: "Career Center", emailKontak: "career@polines.ac.id", teleponKontak: "024-7473421",
     jumlahTayangan: 5200, namaPembicara: "Diana Putri", peranPembicara: "HR Director Tech Co.",
     urlFotoPembicara: "https://picsum.photos/seed/speaker10/400/400"
   }
@@ -167,7 +159,6 @@ async function seedEventsTable() {
     const values = {
       ...eventDataRaw,
       slug: s,
-      satuAkunSatuTransaksi: false,
       hasilScraping: false,
       dibuatPada: new Date(),
       metodePembayaran: e.tipeHarga === 'paid' ? [
@@ -197,6 +188,7 @@ async function seedEventsTable() {
         jenisEvent: e.jenisEvent,
         kategoriId: e.kategoriId,
         kuota: e.kuota,
+        penyelenggara: ORGANIZER_NAME,
         metodePembayaran: values.metodePembayaran,
       }
     });

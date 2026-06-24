@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, kategori } from "@/db/schema";
+import { event, kategori, users, profilPenyelenggara } from "@/db/schema";
 import { eq, desc, isNull, ilike, count, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { PAGINATION } from "@/lib/constants";
@@ -25,8 +25,6 @@ export type PendingEvent = {
   kuota: number | null;
   tipeHarga: string | null;
   hargaNominal: number | null;
-  kontakEmail: string | null;
-  kontakTelepon: string | null;
   linkEksternal: string | null;
   jenisEvent: string | null;
   pembicara: string | null;
@@ -49,14 +47,12 @@ const baseEventSelect = {
   status: event.status,
   dibuatPada: event.dibuatPada,
   deskripsi: event.deskripsi,
-  penyelenggara: event.penyelenggara,
+  penyelenggara: sql<string>`COALESCE(${profilPenyelenggara.namaInstansi}, ${event.penyelenggara}, '-')`,
   tanggalMulai: event.tanggalMulai,
   tanggalSelesai: event.tanggalSelesai,
   batasRegistrasi: event.batasRegistrasi,
   lokasi: event.detailLokasi,
   kuota: event.kuota,
-  kontakEmail: event.emailKontak,
-  kontakTelepon: event.teleponKontak,
   linkEksternal: event.linkEksternal,
   jenisEvent: event.jenisEvent,
   pembicara: sql<string>`(SELECT string_agg(nama, ', ') FROM pembicara WHERE event_id = event.id)`,
@@ -83,8 +79,6 @@ type EventRow = {
   batasRegistrasi: Date | null;
   lokasi: string | null;
   kuota: number | null;
-  kontakEmail: string | null;
-  kontakTelepon: string | null;
   linkEksternal: string | null;
   jenisEvent: string | null;
   pembicara: string | null;
@@ -133,8 +127,6 @@ function mapEvent(r: EventRow): PendingEvent {
     kuota: r.kuota,
     tipeHarga: r.tipeHarga,
     hargaNominal: r.harga,
-    kontakEmail: r.kontakEmail,
-    kontakTelepon: r.kontakTelepon,
     linkEksternal: r.linkEksternal,
     jenisEvent: r.jenisEvent === "seminar" ? "Seminar" : r.jenisEvent === "conference" ? "Conference" : null,
     pembicara: r.pembicara,
@@ -156,6 +148,8 @@ export async function getPendingEvents(page = 1, pageSize = PAGINATION.PAGE_SIZE
         .select(baseEventSelect)
         .from(event)
         .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+        .leftJoin(users, eq(event.organizerId, users.id))
+        .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
         .where(baseWhere)
         .orderBy(desc(event.dibuatPada))
         .limit(pageSize)

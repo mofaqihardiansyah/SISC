@@ -1,5 +1,6 @@
 import EventCard from "./EventCard";
 import EmptyState from "@/components/profile/EmptyState";
+import { UI_TEXT } from "@/lib/constants";
 
 interface EventSectionProps {
   title: string;
@@ -56,7 +57,7 @@ export default function EventSection({
             <EventCard
               key={ev.id}
               id={String(ev.id)}
-              title={ev.judul ?? "Tanpa Judul"}
+              title={ev.judul ?? UI_TEXT.NO_TITLE}
               date={
                 ev.tanggalMulai
                   ? ev.tanggalMulai.toLocaleDateString("id-ID", {
@@ -65,7 +66,7 @@ export default function EventSection({
                       month: "short",
                       year: "numeric",
                     })
-                  : "Tanggal belum diisi"
+                  : UI_TEXT.NO_DATE_SHORT
               }
               price={ev.tipeHarga === "free" ? 0 : (ev.harga ?? null)}
               category={ev.jenisEvent ?? ""}

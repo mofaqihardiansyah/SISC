@@ -18,7 +18,7 @@ export async function getAdminEvents(search?: string, type?: string) {
       conditions.push(
         or(
           ilike(event.judul, `%${search}%`),
-          ilike(event.penyelenggara, `%${search}%`)
+          ilike(profilPenyelenggara.namaInstansi, `%${search}%`)
         )
       );
     }
@@ -41,10 +41,10 @@ export async function getAdminEvents(search?: string, type?: string) {
       .groupBy(event.id, profilPenyelenggara.namaInstansi)
       .orderBy(desc(event.dibuatPada));
 
-    // Flatten the result
+    // Flatten the result — standardize: profile first, then snapshot, then '-'
     const flattened = results.map(r => ({
       ...r.event,
-      penyelenggara: r.event.penyelenggara || r.namaInstansi,
+      penyelenggara: r.namaInstansi || r.event.penyelenggara || '-',
       participantCount: r.participantCount
     }));
 
@@ -164,9 +164,7 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
       'judul', 'penyelenggara', 'deskripsi', 'syaratDanKetentuan', 
       'tanggalMulai', 'tanggalSelesai', 'batasRegistrasi', 
       'jenisEvent', 'tipePlatform', 'tipeHarga', 'harga', 
-      'detailLokasi', 'linkEksternal', 'namaKontak', 'emailKontak', 
-      'teleponKontak', 'kuota', 'maksTiketPerTransaksi', 
-      'satuAkunSatuTransaksi', 'status', 'namaPembicara', 
+      'detailLokasi', 'linkEksternal', 'kuota', 'status', 'namaPembicara', 
       'peranPembicara', 'urlFotoPembicara', 'urlBanner',
       'eventPolines', 'websiteSumber'
     ];
@@ -176,14 +174,14 @@ export async function updateEvent(id: number, data: Record<string, unknown>) {
         let value = data[key];
         
         // Convert boolean fields
-        if (['eventPolines', 'satuAkunSatuTransaksi'].includes(key)) {
+        if (key === 'eventPolines') {
           if (typeof value === 'string') {
             value = value === 'true';
           }
         }
         
         // Convert to number if it should be an integer
-        if (['harga', 'kuota', 'maksTiketPerTransaksi'].includes(key)) {
+        if (['harga', 'kuota'].includes(key)) {
           if (value === null || value === undefined || value === '') {
             value = 0;
           } else {

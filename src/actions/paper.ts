@@ -51,7 +51,7 @@ export async function getSubmissionData() {
       .select({
         id: event.id,
         judul: event.judul,
-        penyelenggara: sql<string>`COALESCE(${event.penyelenggara}, ${profilPenyelenggara.namaInstansi}, ${users.namaLengkap}, '-')`,
+        penyelenggara: sql<string>`COALESCE(${profilPenyelenggara.namaInstansi}, ${event.penyelenggara}, ${users.namaLengkap}, '-')`,
         tanggalMulai: event.tanggalMulai,
       })
       .from(pendaftaran)

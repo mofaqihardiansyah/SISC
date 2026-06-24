@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Star, Plus, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { SITE } from '@/lib/constants';
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -98,7 +99,7 @@ export default function BantuanPage() {
     {
       id: 9,
       question: 'Bagaimana cara menghubungi support?',
-      answer: 'Anda dapat menghubungi tim support kami melalui email poliventsofficial@gmail.com atau menggunakan form kontak di bawah. Tim kami akan merespons dalam waktu 24 jam.',
+      answer: `Anda dapat menghubungi tim support kami melalui email ${SITE.CONTACT_EMAIL} atau menggunakan form kontak di bawah. Tim kami akan merespons dalam waktu 24 jam.`,
     },
   ];
 
@@ -349,15 +350,15 @@ export default function BantuanPage() {
             <div className="contact-info-grid">
               <div>
                 <p className="contact-info-label">Email</p>
-                <a href="mailto:poliventsofficial@gmail.com" className="contact-info-value block">poliventsofficial@gmail.com</a>
+                <a href={`mailto:${SITE.CONTACT_EMAIL}`} className="contact-info-value block">{SITE.CONTACT_EMAIL}</a>
               </div>
               <div>
                 <p className="contact-info-label">Nomor WhatsApp</p>
-                <a href="https://wa.me/6282327655735" target="_blank" rel="noopener noreferrer" className="contact-info-value block">+62 823-2765-5735</a>
+                <a href={SITE.CONTACT_WHATSAPP} target="_blank" rel="noopener noreferrer" className="contact-info-value block">{SITE.CONTACT_WHATSAPP_DISPLAY}</a>
               </div>
               <div>
                 <p className="contact-info-label">Jam Operasional</p>
-                <p className="contact-info-value plain">Senin - Jumat: 09:00 - 17:00</p>
+                <p className="contact-info-value plain">{SITE.OPERATIONAL_HOURS}</p>
               </div>
             </div>
           </div>

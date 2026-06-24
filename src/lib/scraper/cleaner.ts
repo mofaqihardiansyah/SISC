@@ -1,66 +1,17 @@
 import { db } from "@/db";
-import { rawScrapedData, kota, kategori } from "@/db/schema";
-import { eq, ilike } from "drizzle-orm";
+import { rawScrapedData, kota, kategori, scrapingAutoApprovalRules } from "@/db/schema";
+import { eq, ilike, and } from "drizzle-orm";
+import { parseIndoDate, sanitizeHtml, categorizeEvent, guessPlatform, extractCityFromLocation } from "./utils";
 
-const MONTH_MAP: Record<string, number> = {
-  'jan': 0, 'januari': 0,
-  'feb': 1, 'februari': 1,
-  'mar': 2, 'maret': 2,
-  'apr': 3, 'april': 3,
-  'mei': 4,
-  'jun': 5, 'juni': 5,
-  'jul': 6, 'juli': 6,
-  'agu': 7, 'agustus': 7,
-  'sep': 8, 'september': 8,
-  'okt': 9, 'oktober': 9,
-  'nov': 10, 'nopember': 10,
-  'des': 11, 'desember': 11,
-};
-
-function parseIndoDate(str: string): Date | null {
-  if (!str) return null;
-  const cleaned = str.replace(/,/g, '').trim();
-
-  // "12 Jan 2025" or "12 Januari 2025"
-  const dmy = cleaned.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
-  if (dmy) {
-    const month = MONTH_MAP[dmy[2].toLowerCase()];
-    if (month !== undefined) return new Date(+dmy[3], month, +dmy[1]);
-  }
-
-  // ISO
-  const iso = Date.parse(cleaned);
-  if (!isNaN(iso)) return new Date(iso);
-
-  return null;
-}
-
-function categorizeEvent(judul: string): 'seminar' | 'conference' {
-  const kw: [RegExp, 'seminar' | 'conference'][] = [
-    [/konferensi|conference|call\s*for\s*paper|cfp/i, 'conference'],
-  ];
-  for (const [re, cat] of kw) {
-    if (re.test(judul)) return cat;
-  }
-  return 'seminar'; // ponytail: anything else → seminar
-}
-
-function guessPlatform(detailLokasi: string | null): string | null {
-  if (!detailLokasi) return null;
-  const lower = detailLokasi.toLowerCase();
-  if (/online|zoom|meet|daring/i.test(lower)) return 'online';
-  if (/offline|luring/i.test(lower)) return 'offline';
-  return null;
-}
-
-function sanitizeDescriptionHtml(html: string): string {
-  if (!html) return '';
-  return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/\s+on\w+\s*=\s*(["'][^"']*["']|[^\s>]+)/gi, '')
-    .trim();
+async function getAutoApprovalThreshold(): Promise<number> {
+  const [rule] = await db.select({ threshold: scrapingAutoApprovalRules.thresholdValue })
+    .from(scrapingAutoApprovalRules)
+    .where(and(
+      eq(scrapingAutoApprovalRules.conditionType, 'confidence_score'),
+      eq(scrapingAutoApprovalRules.enabled, true),
+    ))
+    .limit(1);
+  return rule?.threshold ?? 85;
 }
 
 export async function cleanRawData(rawId: number) {
@@ -72,13 +23,14 @@ export async function cleanRawData(rawId: number) {
   const judul = String(d.judul || '').trim().replace(/\s+/g, ' ');
   const tanggalMulai = parseIndoDate(String(d.tanggalMentah || ''));
   const tanggalSelesai = parseIndoDate(String(d.tanggalSelesai || d.tanggalMentah || ''));
-  const jenisEvent = String(d.jenisEvent || categorizeEvent(judul) || 'seminar');
+  const jenisEvent = categorizeEvent(judul);
 
   let kotaId: number | null = null;
   const lokasi = String(d.detailLokasi || '');
-  if (lokasi) {
+  const cityGuess = extractCityFromLocation(lokasi);
+  if (cityGuess) {
     const [matched] = await db.select({ id: kota.id }).from(kota)
-      .where(ilike(kota.nama, `%${lokasi.split(',')[0].trim()}%`)).limit(1);
+      .where(ilike(kota.nama, `%${cityGuess}%`)).limit(1);
     if (matched) kotaId = matched.id;
   }
 
@@ -90,21 +42,22 @@ export async function cleanRawData(rawId: number) {
     if (matched) kategoriId = matched.id;
   }
 
-  const tipePlatform = String(d.tipePlatform || guessPlatform(lokasi) || '');
+  const tipePlatform = guessPlatform(lokasi);
 
-  // New detailed fields normalization
-  const deskripsi = sanitizeDescriptionHtml(String(d.deskripsi || ''));
-  const tipeHarga = (d.tipeHarga === 'paid' ? 'paid' : 'free') as 'free' | 'paid';
-  const harga = typeof d.harga === 'number' ? d.harga : 0;
-  const kuota = typeof d.kuota === 'number' ? d.kuota : null;
+  const deskripsi = sanitizeHtml(String(d.deskripsi || ''));
+
+  // ponytail: tipeHarga null = unknown, not 'free'. Only set 'free' if explicitly scraped as free.
+  const tipeHarga = d.tipeHarga === 'paid' ? 'paid' as const
+    : d.tipeHarga === 'free' ? 'free' as const
+    : null;
+  const harga = typeof d.harga === 'number' && d.harga > 0 ? d.harga : 0;
+  const kuota = typeof d.kuota === 'number' && d.kuota > 0 ? d.kuota : null;
   const linkRegistrasi = String(d.linkRegistrasi || '') || null;
   const namaKontak = String(d.namaKontak || '') || null;
   const teleponKontak = String(d.teleponKontak || '') || null;
 
-  // Backup original raw data if not already backed up
   const originalRaw = (d._raw ? d._raw : { ...d }) as Record<string, unknown>;
 
-  // Calculate field-level confidence breakdown
   const fieldConfidence = {
     judul: (judul && judul.length > 5) ? 10 : 0,
     tanggalMulai: tanggalMulai ? 10 : 0,
@@ -116,18 +69,10 @@ export async function cleanRawData(rawId: number) {
     harga: (tipeHarga === 'free' || (tipeHarga === 'paid' && harga > 0)) ? 10 : 0,
   };
 
-  // Hitung confidence score (Max 100)
-  let score = 0;
-  if (judul && judul.length > 5) score += 10;
-  if (tanggalMulai) score += 10;
-  if (tipePlatform) score += 15;
-  if (kotaId) score += 15;
-  if (kategoriId) score += 10;
-  if (deskripsi && deskripsi.length > 20) score += 15;
-  if (linkRegistrasi || teleponKontak) score += 15;
-  if (tipeHarga === 'free' || (tipeHarga === 'paid' && harga > 0)) score += 10;
+  const score = Object.values(fieldConfidence).reduce((a, b) => a + b, 0);
 
-  const autoApproved = score === 100;
+  const threshold = await getAutoApprovalThreshold();
+  const autoApproved = score >= threshold;
 
   const cleaned = {
     ...d,

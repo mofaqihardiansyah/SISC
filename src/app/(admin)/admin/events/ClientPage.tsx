@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
+import { EVENT_TARGET_LABELS } from "@/lib/constants";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import DataEvent from './DataEvent';
@@ -40,8 +41,6 @@ export type Event = {
   participantCount?: number;
   namaPembicara: string | null;
   websiteSumber: string | null;
-  emailKontak: string | null;
-  teleponKontak: string | null;
 };
 
 export type Stats = {
@@ -333,8 +332,8 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                   className="w-full appearance-none bg-white border border-slate-200 text-slate-700 pl-3 pr-8 py-1.5 rounded-xl outline-none text-xs font-medium cursor-pointer focus:border-slate-900/30 focus:ring-2 focus:ring-slate-100 transition-all shadow-xs"
                 >
                   <option value="all">Semua Target</option>
-                  <option value="polines">Polines (Internal)</option>
-                  <option value="umum">Umum (Eksternal)</option>
+                  <option value="polines">{EVENT_TARGET_LABELS.polines}</option>
+                  <option value="umum">{EVENT_TARGET_LABELS.umum}</option>
                 </Select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
@@ -470,7 +469,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                             {event.judul}
                           </div>
                           <div className="text-nano text-slate-500 mt-0.5">
-                            {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'} • {event.eventPolines ? 'Polines' : 'Umum'}
+                             {event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : 'Event'} • {event.eventPolines ? EVENT_TARGET_LABELS.polines.split(' ')[0] : EVENT_TARGET_LABELS.umum.split(' ')[0]}
                           </div>
                         </div>
                       </td>
@@ -478,7 +477,7 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
                       {/* Column 4: Penyelenggara */}
                       <td className="px-3 py-2.5">
                           <div className="flex items-center text-slate-700">
-                            <span className="font-medium text-xs truncate max-w-36">{event.penyelenggara || 'Institusi Polines'}</span>
+                            <span className="font-medium text-xs truncate max-w-36">{event.penyelenggara || '-'}</span>
                           </div>
                       </td>
    

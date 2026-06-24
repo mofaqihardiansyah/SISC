@@ -114,15 +114,10 @@ export const event = pgTable('event', {
   tipeHarga: tipeHargaEnum('tipe_harga'),
   harga: integer('harga').default(0),
   metodePembayaran: jsonb('metode_pembayaran'),
-  detailLokasi: text('detail_lokasi'),
-  linkEksternal: varchar('link_eksternal', { length: 512 }),
-  namaKontak: varchar('nama_kontak', { length: 255 }),
-  emailKontak: varchar('email_kontak', { length: 255 }),
-  teleponKontak: varchar('telepon_kontak', { length: 20 }),
-  kuota: integer('kuota'),
-  maksTiketPerTransaksi: integer('maks_tiket_per_transaksi'),
-  satuAkunSatuTransaksi: boolean('satu_akun_satu_transaksi').default(false),
-  status: eventStatusEnum('status').default('pending'),
+  detailLokasi: text('detail_lokasi'),
+  linkEksternal: varchar('link_eksternal', { length: 512 }),
+  kuota: integer('kuota'),
+  status: eventStatusEnum('status').default('pending'),
   hasilScraping: boolean('hasil_scraping').default(false),
   websiteSumber: varchar('website_sumber', { length: 255 }),
   jumlahTayangan: integer('jumlah_tayangan').default(0),
@@ -265,7 +260,10 @@ export const rawScrapedData = pgTable('raw_scraped_data', {
   statusIntegrasi: boolean('status_integrasi').default(false),
   status: varchar('status', { length: 20 }).default('pending'), // pending, processed, error
   dibuatPada: timestamp('dibuat_pada').defaultNow(),
-});
+}, (table) => [
+  index('raw_scraped_url_target_idx').on(table.urlTarget),
+  index('raw_scraped_status_idx').on(table.status),
+]);
 
 // 21. LOG SCRAPING
 export const logScraping = pgTable('log_scraping', {

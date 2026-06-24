@@ -4,13 +4,9 @@ import { db } from '@/db';
 import { rawScrapedData, logScraping, event } from '@/db/schema';
 import { SCRAPER } from '@/lib/constants';
 import { cleanRawData } from '@/lib/scraper/cleaner';
+import { sanitizeHtml } from '@/lib/scraper/utils';
 
-const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret';
-
-function sanitizeHtml(str: string): string {
-  if (!str) return '';
-  return str.replace(/<[^>]*>/g, '').trim();
-}
+const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function scrapeDetailPage(url: string) {
   let responseText = '';
@@ -95,7 +91,7 @@ export async function scrapeDetailPage(url: string) {
   }
 
   // 4. Ticket price (HTM) guessing
-  let tipeHarga: 'free' | 'paid' = 'free';
+  let tipeHarga: 'free' | 'paid' | null = null;
   let harga = 0;
   const isPaid = /HTM|biaya|bayar|tiket|registrasi\s*:\s*Rp/i.test(descText) && !/FREE|gratis/i.test(descText);
   if (isPaid) {
@@ -235,7 +231,7 @@ export async function GET(request: Request) {
 
     // 3. Slicing to limit detail page fetches (prevent Vercel timeout)
     const limitedData = uniqueScrapedData.slice(0, 15);
-    const finalDataToInsert: { judul: string; urlBanner: string; linkEksternal: string; detailLokasi: string; tanggalMentah: string; websiteSumber: string; deskripsi: string; tipeHarga: string | number; harga: number; kuota: number | null; linkRegistrasi: string | null; namaKontak: string | null; teleponKontak: string | null }[] = [];
+    const finalDataToInsert: { judul: string; urlBanner: string; linkEksternal: string; detailLokasi: string; tanggalMentah: string; websiteSumber: string; deskripsi: string; tipeHarga: string | number | null; harga: number; kuota: number | null; linkRegistrasi: string | null; namaKontak: string | null; teleponKontak: string | null }[] = [];
 
     for (const item of limitedData) {
       console.log(`🔎 Scraping detail page: ${item.linkEksternal}`);

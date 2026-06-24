@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useTransition, useEffect, ComponentType } from "react";
 import { Modal } from "@/components/ui/modal";
+import { UI_TEXT } from "@/lib/constants";
 import { Pagination } from "@/components/ui/pagination";
 import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { toast } from "sonner";
@@ -750,7 +751,7 @@ export function ValidasiAksesPenyelenggaraClient({
                 Tentang / Deskripsi
               </h5>
               <div className="bg-white border border-slate-100 p-4 rounded-2xl text-xs text-slate-600 leading-relaxed min-h-20">
-                {detailItem.deskripsiInstansi || "Tidak ada deskripsi profil instansi yang ditulis oleh penyelenggara."}
+                {detailItem.deskripsiInstansi || UI_TEXT.NO_DESCRIPTION}
               </div>
             </div>
 

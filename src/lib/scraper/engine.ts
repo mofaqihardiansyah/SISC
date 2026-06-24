@@ -1,9 +1,10 @@
 import { PlaywrightCrawler } from "@crawlee/playwright";
 import { db } from "@/db";
 import { rawScrapedData, logScraping, event } from "@/db/schema";
-import { SCRAPER } from "@/lib/constants";
+import { SCRAPER, UI_TEXT } from "@/lib/constants";
 import { z } from "zod";
 import { cleanRawData } from "./cleaner";
+import { sanitizeHtml } from "./utils";
 
 const ScrapedEventSchema = z.object({
   judul: z.string().min(3),
@@ -13,11 +14,6 @@ const ScrapedEventSchema = z.object({
   tanggalMentah: z.string(),
   websiteSumber: z.string().url(),
 });
-
-function sanitizeHtml(str: string): string {
-  if (!str) return '';
-  return str.replace(/<[^>]*>/g, '').trim();
-}
 
 // ponytail: evaluate fns run in browser — must be self-contained, no closure vars.
 // targetUrl is passed as argument from the Node.js side.
@@ -44,7 +40,7 @@ const SOURCE_CONFIGS: Record<string, { waitFor: string; evaluate: (targetUrl: st
           let link = linkEl.getAttribute('href') || "";
           if (link.startsWith('/')) link = new URL(targetUrl).origin + link;
           data.push({
-            judul: titleEl.textContent?.trim() || "Tanpa Judul",
+            judul: titleEl.textContent?.trim() || UI_TEXT.NO_TITLE,
             linkEksternal: link,
             urlBanner: imageEl?.getAttribute('src') || "",
             detailLokasi: location,
@@ -75,7 +71,7 @@ const SOURCE_CONFIGS: Record<string, { waitFor: string; evaluate: (targetUrl: st
         let link = linkEl?.getAttribute('href') || '';
         if (link.startsWith('/')) link = new URL(targetUrl).origin + link;
         return {
-          judul: titleEl?.textContent?.trim() || "Tanpa Judul",
+          judul: titleEl?.textContent?.trim() || UI_TEXT.NO_TITLE,
           linkEksternal: link || targetUrl,
           urlBanner: imageEl?.getAttribute('src') || '',
           detailLokasi: location,

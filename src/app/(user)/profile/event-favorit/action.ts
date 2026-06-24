@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db"; 
-import { event, favorit, kota, kategori } from "@/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { event, favorit, kota, kategori, users, profilPenyelenggara } from "@/db/schema";
+import { eq, and, isNull, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 
 export async function getEvents() {
@@ -20,7 +20,7 @@ export async function getEvents() {
         harga: event.harga,
         tanggalMulai: event.tanggalMulai,
         jenisEvent: event.jenisEvent,
-        penyelenggara: event.penyelenggara,
+        penyelenggara: sql<string>`COALESCE(${profilPenyelenggara.namaInstansi}, ${event.penyelenggara}, '-')`,
         namaKota: kota.nama,
         namaKategori: kategori.nama,
         eventPolines: event.eventPolines,
@@ -30,6 +30,8 @@ export async function getEvents() {
       .innerJoin(event, eq(favorit.eventId, event.id))
       .leftJoin(kota, eq(event.kotaId, kota.id))
       .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+      .leftJoin(users, eq(event.organizerId, users.id))
+      .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
       .where(
         and(
           eq(favorit.userId, userId),

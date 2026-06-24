@@ -13,6 +13,7 @@ import {
 } from "@/actions/admin-scraping";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SCRAPER } from '@/lib/constants';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Modal } from '@/components/ui/modal';
@@ -604,7 +605,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                         <td className="p-4 text-slate-500 max-w-[200px] truncate align-middle">
                           <span className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded text-xs">
                             <Globe className="w-3.5 h-3.5 text-slate-400" />
-                            {new URL(item.sumber || 'https://eventkampus.com').hostname}
+                            {new URL(item.sumber || SCRAPER.DEFAULT_URL).hostname}
                           </span>
                         </td>
                         <td className="p-4 align-middle">

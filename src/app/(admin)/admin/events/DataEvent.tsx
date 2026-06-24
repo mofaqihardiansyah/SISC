@@ -26,6 +26,7 @@ import { id as idLocale } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { updateEvent } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
+import { EVENT_TARGET_LABELS, UI_TEXT } from "@/lib/constants";
 import { Modal } from "@/components/ui/modal";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -147,7 +148,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
     const rows = [
       { label: 'Penyelenggara', value: event.penyelenggara || '-', icon: Building2 },
       { label: 'Jenis Event', value: event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : '-', icon: Layout },
-      { label: 'Target Peserta', value: event.eventPolines ? 'Polines (Internal)' : 'Umum (Eksternal)', icon: Tag },
+      { label: 'Target Peserta', value: event.eventPolines ? EVENT_TARGET_LABELS.polines : EVENT_TARGET_LABELS.umum, icon: Tag },
       { label: 'Tanggal Mulai', value: format(new Date(event.tanggalMulai), 'dd MMMM yyyy HH:mm', { locale: idLocale }) + ' WIB', icon: Clock },
       { label: 'Tanggal Selesai', value: event.tanggalSelesai ? format(new Date(event.tanggalSelesai), 'dd MMMM yyyy HH:mm', { locale: idLocale }) + ' WIB' : '-', icon: Clock },
       { label: 'Platform', value: event.tipePlatform === 'offline' ? 'Luring (Offline)' : event.tipePlatform === 'online' ? 'Daring (Online)' : event.tipePlatform === 'hybrid' ? 'Hybrid' : '-', icon: Globe },
@@ -218,7 +219,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
               <AlignLeft size={12} /> Deskripsi Event
             </h4>
             <div className="text-micro text-slate-600 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
-              {event.deskripsi || 'Tidak ada deskripsi.'}
+              {event.deskripsi || UI_TEXT.NO_DESCRIPTION}
             </div>
           </div>
 
@@ -293,8 +294,8 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
               onChange={(e) => setFormData(prev => ({ ...prev, eventPolines: e.target.value === "true" }))}
               className={selectClasses}
             >
-              <option value="true">Polines (Internal)</option>
-              <option value="false">Umum (Eksternal)</option>
+              <option value="true">{EVENT_TARGET_LABELS.polines}</option>
+              <option value="false">{EVENT_TARGET_LABELS.umum}</option>
             </Select>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { updateEvent } from "@/actions/admin-event";
 import { toast } from "sonner";
 import type { Event } from "./ClientPage";
 import { cn } from "@/lib/utils";
+import { EVENT_TARGET_LABELS } from "@/lib/constants";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +34,6 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
         tipeHarga: event.tipeHarga || "free",
         eventPolines: event.eventPolines ?? false,
         penyelenggara: event.penyelenggara || "",
-        emailKontak: event.emailKontak || "",
-        teleponKontak: event.teleponKontak || "",
       });
     }
   }, [event]);
@@ -136,8 +135,8 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
                    onChange={(e) => setFormData(prev => prev ? ({ ...prev, eventPolines: e.target.value === "true" }) : null)} 
                    className={cn(inputClasses, "appearance-none")}
                 >
-                  <option value="true">Polines (Internal)</option>
-                  <option value="false">Umum (Eksternal)</option>
+                   <option value="true">{EVENT_TARGET_LABELS.polines}</option>
+                   <option value="false">{EVENT_TARGET_LABELS.umum}</option>
                 </Select>
               </div>
             </div>

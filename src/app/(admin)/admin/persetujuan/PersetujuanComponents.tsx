@@ -16,6 +16,7 @@ import {
   formatDateDisplay, formatPlatform, DEBOUNCE_MS, SEARCH_MIN_LENGTH,
 } from "@/constants/persetujuan";
 import { Modal } from "@/components/ui/modal";
+import { UI_TEXT } from "@/lib/constants";
 import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from '@/components/ui/textarea'
@@ -358,7 +359,7 @@ export function ReviewModal({
       <div className="mb-2">
         <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Deskripsi</h3>
         <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-2.5 border border-slate-100 whitespace-pre-wrap">
-          {event.deskripsi || "Tidak ada deskripsi."}
+          {event.deskripsi || UI_TEXT.NO_DESCRIPTION}
         </p>
       </div>
 

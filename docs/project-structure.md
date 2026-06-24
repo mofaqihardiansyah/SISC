@@ -19,6 +19,8 @@ Aplikasi ini menggunakan **Tailwind CSS** untuk *styling*, **Drizzle ORM** denga
 - **`constants/`**: Konstanta statis yang digunakan di berbagai file.
 - **`db/`**: Skema Drizzle ORM, konfigurasi koneksi *database*, dan *seeders* untuk data *dummy*.
 - **`lib/`**: Fungsi utilitas, *helpers*, konfigurasi *scraper* (menggunakan Crawlee), dan integrasi *background jobs* (Inngest).
+  - `lib/scraper/utils.ts`: Shared scraping utilities (`parseIndoDate`, `sanitizeHtml`, `isSafeUrl`, `extractCityFromLocation`, `categorizeEvent`, `guessPlatform`)
+  - `lib/constants.ts`: Centralized constants (`SITE`, `UI_TEXT`, `EVENT_TARGET_LABELS`, `DEFAULT_REGISTRATION_STEPS`, `DEFAULT_TERMS`, `SCRAPER`, `API`)
 - **`types/`**: Definisi antarmuka dan tipe TypeScript global.
 
 ### Root Folder
@@ -38,10 +40,11 @@ Aplikasi ini menggunakan **Tailwind CSS** untuk *styling*, **Drizzle ORM** denga
 - **Visualisasi Data:** Recharts, Chart.js
 
 ## 4. Evaluasi dan Catatan Kesehatan Proyek
-1. **Pemisahan Peran (Role Separation):** Aplikasi sudah memisahkan *route group* dengan baik `(admin)`, `(organizer)`, `(user)`. Ini mempermudah manajemen rute dan *middleware* otorisasi.
+1. **Pemisahan Peran (Role Separation):** Aplikasi sudah memisahkan *route group* dengan baik `(admin)`, `(organizer)`, `(visitor)`. Ini mempermudah manajemen rute dan *middleware* otorisasi.
 2. **Modern Stack:** Menggunakan versi Next.js dan React yang sangat mutakhir (React 19 dan Next 16). 
-3. **Keamanan:** Autentikasi ditangani dengan standar industri (NextAuth), dan *upload* file diintegrasikan ke *cloud storage* secara publik (Vercel Blob) dengan manajemen ukuran/tipe file melalui `route.ts` API.
+3. **Keamanan:** Autentikasi ditangani dengan standar industri (NextAuth), dan *upload* file diintegrasikan ke *cloud storage* secara publik (Vercel Blob) dengan manajemen ukuran/tipe file melalui `route.ts` API. Scraping pipeline dilindungi dari SSRF dengan `isSafeUrl()`.
 4. **Dokumentasi Lengkap:** Folder `docs` memiliki struktur dokumentasi yang komprehensif, mulai dari arsitektur, basis data, *deployment*, hingga DFD/ERD.
+5. **Konsistensi Kode:** Nilai hardcode sudah dipusatkan ke `src/lib/constants.ts` (`SITE`, `UI_TEXT`, `EVENT_TARGET_LABELS`, `DEFAULT_REGISTRATION_STEPS`, `DEFAULT_TERMS`, `SCRAPER`). Shared utilities di `src/lib/scraper/utils.ts` mengurangi duplikasi antara 3 implementasi scraper.
 
 ## Kesimpulan
 Struktur folder dan kode sudah sangat tertata dengan pola arsitektur berbasis fitur (Feature-Driven) menggunakan Next.js App Router. Penggunaan *Server Components*, *Server Actions*, dan ORM seperti Drizzle membuat aplikasi ini memiliki kinerja tinggi dan *type-safe*.

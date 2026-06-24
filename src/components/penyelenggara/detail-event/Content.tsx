@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { UI_TEXT } from "@/lib/constants";
 import { Info, Image as ImageIcon, ClipboardList, Calendar, Link2 } from "lucide-react";
 
 type EventType = {
@@ -180,7 +181,7 @@ export default function Content({ event }: Props) {
             <label className="text-xs font-medium text-slate-500">Deskripsi Event</label>
             <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 min-h-20 whitespace-pre-line leading-relaxed">
               {deskripsiPlain || (
-                <span className="text-slate-400">Tidak ada deskripsi.</span>
+                <span className="text-slate-400">{UI_TEXT.NO_DESCRIPTION}</span>
               )}
             </div>
           </div>

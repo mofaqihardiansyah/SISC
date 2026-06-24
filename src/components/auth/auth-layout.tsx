@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { SITE } from '@/lib/constants';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
             {leftTitle || "Platform Manajemen Event Terbaik."}
           </h2>
           <p className="text-white/80 text-lg font-medium leading-relaxed">
-            Kelola pendaftaran, operasional acara, dan pengalaman peserta dalam satu dasbor pintar. Tingkatkan kualitas acara Anda bersama POLIVENTS.
+            Kelola pendaftaran, operasional acara, dan pengalaman peserta dalam satu dasbor pintar. Tingkatkan kualitas acara Anda bersama {SITE.NAME}.
           </p>
         </div>
       </div>
@@ -38,7 +39,7 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
           <div className="flex items-center justify-center md:justify-start -mb-4">
             <Image 
               src="/logo_sementara.png" 
-              alt="POLIVENTS" 
+              alt={SITE.NAME} 
               width={170} 
               height={55} 
               className="object-contain mix-blend-multiply brightness-[1.08] contrast-[1.15]"
@@ -53,7 +54,7 @@ export default function AuthLayout({ children, leftTitle }: AuthLayoutProps) {
 
           {/* Footer Form */}
           <div className="mt-auto pt-8 pb-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-micro font-medium">
-            <p>© 2026 POLIVENTS.</p>
+            <p>© {SITE.YEAR} {SITE.NAME}.</p>
             <div className="flex gap-4">
               <a href="#" className="hover:text-slate-600 transition-colors">Ketentuan</a>
               <a href="#" className="hover:text-slate-600 transition-colors">Kebijakan Privasi</a>

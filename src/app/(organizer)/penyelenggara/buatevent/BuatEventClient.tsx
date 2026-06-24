@@ -34,11 +34,18 @@ interface KategoriOption {
 interface KotaOption {
   id: number;
   nama: string | null;
+  provinsiId: number | null;
+}
+
+interface ProvinsiOption {
+  id: number;
+  nama: string | null;
 }
 
 interface BuatEventClientProps {
   categories: KategoriOption[];
   cities: KotaOption[];
+  provinces: ProvinsiOption[];
 }
 
 function MetodePembayaranItem({
@@ -190,13 +197,14 @@ function MetodePembayaranItem({
   );
 }
 
-export default function BuatEventClient({ categories, cities }: BuatEventClientProps) {
+export default function BuatEventClient({ categories, cities, provinces }: BuatEventClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const [eventTitle, setEventTitle] = useState("");
   const [location, setLocation] = useState("");
   const [kotaId, setKotaId] = useState("");
+  const [provinsiId, setProvinsiId] = useState("");
   const [speaker, setSpeaker] = useState("");
   const [quota, setQuota] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -212,27 +220,34 @@ export default function BuatEventClient({ categories, cities }: BuatEventClientP
   const [platform, setPlatform] = useState<"online" | "offline" | "hybrid">("offline");
   const [tipeHarga, setTipeHarga] = useState<"free" | "paid">("paid");
   const [fee, setFee] = useState("");
+  const [batasRegistrasi, setBatasRegistrasi] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [metodePembayaranList, setMetodePembayaranList] = useState<MetodePembayaranLocal[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const filteredCities = provinsiId
+    ? cities.filter((c) => c.provinsiId === Number(provinsiId))
+    : [];
+
   const isDirty = useCallback(() => {
     return (
-      eventTitle.trim() !== "" || location.trim() !== "" || kotaId !== "" || speaker.trim() !== "" ||
+      eventTitle.trim() !== "" || location.trim() !== "" || kotaId !== "" || provinsiId !== "" || speaker.trim() !== "" ||
       quota !== "" || startDate !== "" || endDate !== "" ||
       description.trim() !== "" || terms.trim() !== "" ||
-      bannerFile !== null || fee !== "" || metodePembayaranList.length > 0
+      bannerFile !== null || fee !== "" || metodePembayaranList.length > 0 ||
+      batasRegistrasi !== "" 
     );
-  }, [eventTitle, location, kotaId, speaker, quota, startDate, endDate, description, terms, bannerFile, fee, metodePembayaranList]);
+  }, [eventTitle, location, kotaId, provinsiId, speaker, quota, startDate, endDate, description, terms, bannerFile, fee, metodePembayaranList, batasRegistrasi]);
 
   const resetForm = useCallback(() => {
-    setEventTitle(""); setLocation(""); setKotaId(""); setSpeaker(""); setQuota("");
+    setEventTitle(""); setLocation(""); setKotaId(""); setProvinsiId(""); setSpeaker(""); setQuota("");
     setStartDate(""); setEndDate(""); setDescription(""); setTerms("");
     setBannerFile(null); setBannerPreview(null);
     setEventType("seminar"); setEventKind("polines"); setKategoriId("");
     setPlatform("offline"); setTipeHarga("paid"); setFee("");
+    setBatasRegistrasi(""); 
     setMetodePembayaranList([]);
     setError(null); setSuccessMsg(null); setDragOver(false);
   }, []);
@@ -284,6 +299,7 @@ export default function BuatEventClient({ categories, cities }: BuatEventClientP
     formData.append("tanggalMulai", startDate);
     formData.append("tanggalSelesai", endDate);
     formData.append("kuota", quota);
+    formData.append("batasRegistrasi", batasRegistrasi);
     formData.append("linkEksternal", "");
     formData.append("kategoriId", kategoriId);
     formData.append("isDraft", isDraftFlag ? "true" : "false");
@@ -313,6 +329,7 @@ export default function BuatEventClient({ categories, cities }: BuatEventClientP
       if (!kategoriId) return setError("Kategori event wajib dipilih.");
       
       if (platform !== "online") {
+        if (!provinsiId) return setError("Provinsi penyelenggaraan wajib dipilih.");
         if (!kotaId) return setError("Kota penyelenggaraan wajib dipilih.");
         if (!location.trim()) return setError("Detail lokasi wajib diisi.");
       }
@@ -466,16 +483,30 @@ export default function BuatEventClient({ categories, cities }: BuatEventClientP
           </div>
 
           {platform !== "online" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <SelectField label="Kota Penyelenggaraan" value={kotaId} onChange={setKotaId}
-                options={[
-                  { value: "", label: "Pilih Kota" },
-                  ...cities.map(c => ({ value: String(c.id), label: c.nama || "" }))
-                ]} />
+            <div className="space-y-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SelectField label="Provinsi" value={provinsiId}
+                  onChange={(v) => { setProvinsiId(v); setKotaId(""); }}
+                  options={[
+                    { value: "", label: "Pilih Provinsi" },
+                    ...provinces.map(p => ({ value: String(p.id), label: p.nama || "" }))
+                  ]} />
+                <div>
+                  <SelectField label="Kota / Kabupaten" value={kotaId} onChange={setKotaId}
+                    disabled={!provinsiId}
+                    options={[
+                      { value: "", label: provinsiId ? "Pilih Kota" : "— Pilih provinsi terlebih dahulu —" },
+                      ...filteredCities.map(c => ({ value: String(c.id), label: c.nama || "" }))
+                    ]} />
+                  {!provinsiId && (
+                    <p className="text-xs text-slate-400 mt-1 ml-1">Kota akan muncul setelah provinsi dipilih</p>
+                  )}
+                </div>
+              </div>
               <div>
                 <label className="block text-sm text-gray-600 mb-1.5 font-medium">Detail Lokasi</label>
                 <Input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Contoh: Ruang Serbaguna, Gd. Kerjasama Lt. 3"
+                  placeholder="Deskripsi Detail Lokasi"
                   className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 placeholder-slate-400 transition-all" />
               </div>
             </div>
@@ -572,6 +603,12 @@ export default function BuatEventClient({ categories, cities }: BuatEventClientP
             <Input type="number" value={quota} onChange={(e) => setQuota(e.target.value)} min={0}
               className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 placeholder-slate-400 transition-all" />
           </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1.5 font-medium">Batas Registrasi (Opsional)</label>
+            <Input type="datetime-local" value={batasRegistrasi} onChange={(e) => setBatasRegistrasi(e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all" />
+            <p className="text-xs text-slate-400 mt-1 ml-1">Deadline pendaftaran peserta. Kosongkan jika tidak ada batas.</p>
+          </div>
         </div>
 
         {/* Section 6: Metode Pembayaran */}
@@ -627,19 +664,24 @@ function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }
   );
 }
 
-function SelectField({ label, value, onChange, options }: {
+function SelectField({ label, value, onChange, options, disabled }: {
   label: string; value: string; onChange: (v: string) => void;
   options: { value: string; label: string }[];
+  disabled?: boolean;
 }) {
   return (
     <div>
       {label && <label className="block text-sm text-gray-600 mb-1.5 font-medium">{label}</label>}
       <div className="relative">
-        <Select value={value} onChange={(e) => onChange(e.target.value)}
-          className="w-full h-[42px] appearance-none border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all">
+        <Select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}
+          className={`w-full h-[42px] appearance-none border rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all ${
+            disabled
+              ? "border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed"
+              : "border-slate-200 text-slate-700"
+          }`}>
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </Select>
-        <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <div className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 ${disabled ? "text-slate-300" : "text-gray-400"}`}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="6 9 12 15 18 9" />
           </svg>

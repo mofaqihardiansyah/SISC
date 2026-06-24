@@ -17,6 +17,7 @@ interface EventCardProps {
   tipePlatform?: string;
   kotaNama?: string;
   kategoriNama?: string;
+  penyelenggara?: string | null;
   isLoggedIn?: boolean;
   isBookmarked?: boolean;
   onRemove?: () => void; 
@@ -33,6 +34,7 @@ export default function EventCard({
   tipePlatform,
   kotaNama,
   kategoriNama,
+  penyelenggara,
   isLoggedIn = false,
   isBookmarked,
   onRemove,
@@ -74,6 +76,10 @@ export default function EventCard({
           <h3 className="text-sm2 font-bold text-slate-800 mt-1 line-clamp-2">
             {title}
           </h3>
+
+          {penyelenggara && (
+            <p className="text-micro text-slate-500 mt-0.5 truncate">{penyelenggara}</p>
+          )}
 
           <p className="text-micro text-slate-400 mt-1">{date}</p>
 

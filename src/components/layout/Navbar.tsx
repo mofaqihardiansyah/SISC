@@ -9,6 +9,8 @@ import SearchInput from "./SearchInput";
 import { Button } from '@/components/ui/button';
 import { Suspense } from "react";
 
+import { SITE } from '@/lib/constants';
+
 export default function Navbar() {
   const { data: session } = useSession();
   const user = session?.user ?? null;
@@ -23,7 +25,7 @@ export default function Navbar() {
               className="text-2xl font-black tracking-[0.15em] text-white group-hover:opacity-80 transition-opacity duration-300 drop-shadow-sm"
               style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
             >
-              POLIVENTS
+              {SITE.NAME}
             </h1>
           </Link>
 

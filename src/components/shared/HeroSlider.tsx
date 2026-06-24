@@ -66,7 +66,7 @@ export default function HeroSlider({ events }: HeroSliderProps) {
               {/* Konten bawah â€” ini yang bergerak saat slide */}
               <div className="absolute bottom-8 left-6 sm:bottom-12 sm:left-12 text-white z-10 max-w-[80%]">
                 <h1 className="text-3xl sm:text-5xl font-black mb-4 leading-tight drop-shadow-lg">
-                  {ev.judul ?? "Untitled Event"}
+                  {ev.judul ?? UI_TEXT.NO_TITLE}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-2">
                   <Link href={`/event/${ev.id}`}>

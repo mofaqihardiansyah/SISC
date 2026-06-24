@@ -5,8 +5,9 @@ import { event, rawScrapedData, logScraping } from "@/db/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { slugify } from "@/lib/utils";
 import { auth } from "@/auth";
-import { SITE } from "@/lib/constants";
+import { SITE, SCRAPER, UI_TEXT } from "@/lib/constants";
 import { cleanRawData } from "@/lib/scraper/cleaner";
+import { parseIndoDate, sanitizeHtml, isSafeUrl } from "@/lib/scraper/utils";
 import * as cheerio from "cheerio";
 
 interface ScrapedDataField {
@@ -14,9 +15,8 @@ interface ScrapedDataField {
   tanggalMentah?: string; tanggalMulai?: string | null; tanggalSelesai?: string | null;
   jenisEvent?: 'seminar' | 'conference'; tipePlatform?: 'online' | 'offline' | 'hybrid' | null;
   kategoriId?: number | null; kotaId?: number | null;
-  deskripsi?: string; tipeHarga?: 'free' | 'paid'; harga?: number; kuota?: number | null;
+  deskripsi?: string; tipeHarga?: 'free' | 'paid' | null; harga?: number; kuota?: number | null;
   linkRegistrasi?: string | null; linkEksternal?: string;
-  namaKontak?: string | null; teleponKontak?: string | null; emailKontak?: string | null;
   websiteSumber?: string; autoApproved?: boolean;
 }
 
@@ -28,27 +28,6 @@ const checkAdminAuth = async () => {
   return parseInt(session.user.id);
 };
 
-const MONTH_MAP: Record<string, number> = {
-  'jan': 0, 'januari': 0, 'feb': 1, 'februari': 1,
-  'mar': 2, 'maret': 2, 'apr': 3, 'april': 3,
-  'mei': 4, 'jun': 5, 'juni': 5, 'jul': 6, 'juli': 6,
-  'agu': 7, 'agustus': 7, 'sep': 8, 'september': 8,
-  'okt': 9, 'oktober': 9, 'nov': 10, 'nopember': 10,
-  'des': 11, 'desember': 11,
-};
-
-function parseIndoDate(dateStr: string): Date {
-  if (!dateStr) return new Date();
-  const cleaned = dateStr.replace(/,/g, '').trim();
-  const dmy = cleaned.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
-  if (dmy) {
-    const month = MONTH_MAP[dmy[2].toLowerCase()];
-    if (month !== undefined) return new Date(+dmy[3], month, +dmy[1]);
-  }
-  const iso = Date.parse(cleaned);
-  return isNaN(iso) ? new Date() : new Date(iso);
-}
-
 export async function publishManualEvent(editedData: {
   judul?: string; urlBanner?: string; detailLokasi?: string;
   tanggalMulai?: string | null; tanggalSelesai?: string | null;
@@ -56,7 +35,6 @@ export async function publishManualEvent(editedData: {
   kategoriId?: number | null; kotaId?: number | null;
   deskripsi?: string; tipeHarga?: string; harga?: number; kuota?: number | null;
   linkRegistrasi?: string; linkEksternal?: string;
-  namaKontak?: string | null; teleponKontak?: string | null; emailKontak?: string | null;
   websiteSumber?: string;
 }) {
   const adminId = await checkAdminAuth();
@@ -65,7 +43,10 @@ export async function publishManualEvent(editedData: {
   const urlBanner = editedData.urlBanner || '';
   const detailLokasi = editedData.detailLokasi || '';
 
-  const tanggalMulai = editedData.tanggalMulai ? new Date(editedData.tanggalMulai) : new Date();
+  const tanggalMulai = editedData.tanggalMulai ? new Date(editedData.tanggalMulai) : null;
+  if (!tanggalMulai) {
+    return { success: false, error: "Tanggal mulai wajib diisi." };
+  }
   const tanggalSelesai = editedData.tanggalSelesai ? new Date(editedData.tanggalSelesai) : null;
 
   const jenisEvent = (editedData.jenisEvent === 'conference' ? 'conference' : 'seminar') as 'seminar' | 'conference';
@@ -74,12 +55,9 @@ export async function publishManualEvent(editedData: {
   const kotaId = editedData.kotaId || null;
 
   const deskripsi = editedData.deskripsi || "";
-  const tipeHarga = (editedData.tipeHarga === 'paid' ? 'paid' : 'free') as 'free' | 'paid';
-  const harga = editedData.harga || 0;
+  const tipeHarga = (editedData.tipeHarga === 'paid' ? 'paid' : editedData.tipeHarga === 'free' ? 'free' : null) as 'free' | 'paid' | null;
+  const harga = editedData.harga ?? 0;
   const kuota = editedData.kuota || null;
-  const namaKontak = editedData.namaKontak || null;
-  const teleponKontak = editedData.teleponKontak || null;
-  const emailKontak = editedData.emailKontak || null;
 
   const linkEksternal = editedData.linkRegistrasi || editedData.linkEksternal || "";
   const websiteSumber = editedData.websiteSumber || "";
@@ -112,9 +90,6 @@ export async function publishManualEvent(editedData: {
     tipeHarga,
     harga,
     kuota,
-    namaKontak,
-    teleponKontak,
-    emailKontak,
   });
 
   return { success: true };
@@ -132,13 +107,10 @@ export async function publishRawEvent(
     kotaId?: number | null;
     jenisEvent?: 'seminar' | 'conference';
     deskripsi?: string;
-    tipeHarga?: 'free' | 'paid';
+    tipeHarga?: 'free' | 'paid' | null;
     harga?: number;
     kuota?: number | null;
     linkRegistrasi?: string | null;
-    namaKontak?: string | null;
-    teleponKontak?: string | null;
-    emailKontak?: string | null;
   }
 ) {
   const adminId = await checkAdminAuth();
@@ -156,6 +128,10 @@ export async function publishRawEvent(
     ? (editedData.tanggalMulai ? new Date(editedData.tanggalMulai) : parseIndoDate(tanggalMentah))
     : (data.tanggalMulai ? new Date(data.tanggalMulai) : parseIndoDate(tanggalMentah));
 
+  if (!tanggalMulai) {
+    return { success: false, error: "Tanggal mulai tidak valid. Harap edit tanggal secara manual." };
+  }
+
   const tanggalSelesai = editedData?.tanggalSelesai !== undefined
     ? (editedData.tanggalSelesai ? new Date(editedData.tanggalSelesai) : null)
     : (data.tanggalSelesai ? new Date(data.tanggalSelesai) : null);
@@ -165,14 +141,10 @@ export async function publishRawEvent(
   const kategoriId = editedData?.kategoriId !== undefined ? editedData.kategoriId : (data.kategoriId || null);
   const kotaId = editedData?.kotaId !== undefined ? editedData.kotaId : (data.kotaId || null);
 
-  // New detailed fields
   const deskripsi = editedData?.deskripsi !== undefined ? editedData.deskripsi : (data.deskripsi || "");
-  const tipeHarga = editedData?.tipeHarga !== undefined ? editedData.tipeHarga : (data.tipeHarga || 'free');
-  const harga = editedData?.harga !== undefined ? editedData.harga : (data.harga || 0);
+  const tipeHarga = editedData?.tipeHarga !== undefined ? editedData.tipeHarga : (data.tipeHarga ?? null);
+  const harga = editedData?.harga !== undefined ? editedData.harga : (data.harga ?? 0);
   const kuota = editedData?.kuota !== undefined ? editedData.kuota : (data.kuota || null);
-  const namaKontak = editedData?.namaKontak !== undefined ? editedData.namaKontak : (data.namaKontak || null);
-  const teleponKontak = editedData?.teleponKontak !== undefined ? editedData.teleponKontak : (data.teleponKontak || null);
-  const emailKontak = editedData?.emailKontak !== undefined ? editedData.emailKontak : (data.emailKontak || null);
 
   // Prefer original/edited registration link over direct eventkampus link
   const linkEksternal = editedData?.linkRegistrasi !== undefined 
@@ -208,9 +180,6 @@ export async function publishRawEvent(
     tipeHarga,
     harga,
     kuota,
-    namaKontak,
-    teleponKontak,
-    emailKontak,
   });
 
   await db.update(rawScrapedData).set({ statusIntegrasi: true }).where(eq(rawScrapedData.id, rawId));
@@ -313,8 +282,8 @@ export async function publishAllAutoApproved() {
 export async function scrapeSingleUrl(url: string) {
   await checkAdminAuth();
 
-  if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
-    return { success: false, error: "URL tidak valid. Harap sertakan http:// atau https://" };
+  if (!url || !isSafeUrl(url)) {
+    return { success: false, error: "URL tidak valid atau tidak aman. Hanya URL publik yang diizinkan." };
   }
 
   try {
@@ -347,7 +316,7 @@ export async function scrapeSingleUrl(url: string) {
     
     let urlBanner = $('.article-image img, .event-banner img').attr('src') || $('meta[property="og:image"]').attr('content') || '';
     if (urlBanner && urlBanner.startsWith('/')) {
-      urlBanner = 'https://eventkampus.com' + urlBanner;
+      urlBanner = SCRAPER.BASE_URL + urlBanner;
     }
 
     const articleContent = $('.article-content, .event-content, .description');
@@ -361,31 +330,7 @@ export async function scrapeSingleUrl(url: string) {
 
     const descText = articleContent.text() || $('body').text();
 
-    // 1. WhatsApp / Phone contact extraction
-    let teleponKontak: string | null = null;
-    const phoneRegex = /(?:\+62|62|0)8[1-9][0-9]{1,2}[-.\s]?[0-9]{3,4}[-.\s]?[0-9]{3,4}/g;
-    const phones = descText.match(phoneRegex);
-    if (phones && phones.length > 0) {
-      teleponKontak = phones[0].replace(/[-.\s]/g, '');
-    }
-
-    // 2. Name Contact Person extraction
-    let namaKontak: string | null = null;
-    const lines = descText.split('\n');
-    for (const line of lines) {
-      if (phoneRegex.test(line)) {
-        const cleanedLine = line
-          .replace(phoneRegex, '')
-          .replace(/CP|Hubungi|Contact|Person|WA|:|[\/\-]/gi, '')
-          .trim();
-        if (cleanedLine.length > 2 && cleanedLine.length < 35) {
-          namaKontak = cleanedLine;
-          break;
-        }
-      }
-    }
-
-    // 3. Extract registration links
+    // 1. Extract registration links
     let linkRegistrasi: string | null = null;
     $('a').each((_, el) => {
       const href = $(el).attr('href') || '';
@@ -409,7 +354,7 @@ export async function scrapeSingleUrl(url: string) {
     }
 
     // 4. Ticket price (HTM) guessing
-    let tipeHarga: 'free' | 'paid' = 'free';
+    let tipeHarga: 'free' | 'paid' | null = null;
     let harga = 0;
     const isPaid = /HTM|biaya|bayar|tiket|registrasi\s*:\s*Rp/i.test(descText) && !/FREE|gratis/i.test(descText);
     if (isPaid) {
@@ -431,7 +376,7 @@ export async function scrapeSingleUrl(url: string) {
 
     // Generate a basic "ScrapedData" structure so the frontend can reuse the validation modal
     const scrapedResult = {
-      judul: judul || "Judul Tidak Ditemukan",
+      judul: judul || UI_TEXT.NO_TITLE,
       urlBanner: urlBanner,
       linkEksternal: url,
       websiteSumber: url,
@@ -440,8 +385,6 @@ export async function scrapeSingleUrl(url: string) {
       harga,
       kuota,
       linkRegistrasi,
-      namaKontak,
-      teleponKontak,
       tanggalMentah: "",
       detailLokasi: "",
     };

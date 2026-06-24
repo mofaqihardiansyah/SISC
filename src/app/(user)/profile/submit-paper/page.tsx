@@ -12,9 +12,9 @@ export default async function Page() {
     return (
       <div className="p-8 text-center">
         <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-        <p className="text-slate-600">{data.error || "Failed to load submission data"}</p>
+        <p className="text-slate-600">{data.error || "Gagal memuat data submission"}</p>
         <p className="text-sm text-slate-500 mt-4">
-          Please try again later or contact support if the problem persists.
+          Silakan coba lagi nanti atau hubungi support jika masalah berlanjut.
         </p>
       </div>
     );

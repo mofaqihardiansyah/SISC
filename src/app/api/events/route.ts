@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { event, kategori, kota } from '@/db/schema';
-import { eq, and, ilike, desc, isNull, sql, asc, gte, lte } from 'drizzle-orm';
+import { event, kategori, kota, provinsi, users, profilPenyelenggara } from '@/db/schema';
+import { eq, and, ilike, desc, isNull, sql, asc, gte, lte, or } from 'drizzle-orm';
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,14 @@ export async function GET(req: Request) {
         .from(kota)
         .orderBy(asc(kota.nama));
       return NextResponse.json(kotaList);
+    }
+
+    // Mode khusus: return semua provinsi
+    if (mode === 'provinsi') {
+      const provinsiList = await db.select({ id: provinsi.id, nama: provinsi.nama })
+        .from(provinsi)
+        .orderBy(asc(provinsi.nama));
+      return NextResponse.json(provinsiList);
     }
 
     // Mode khusus: return semua kategori
@@ -36,9 +44,12 @@ export async function GET(req: Request) {
     const polines = searchParams.get('polines');
     const price = searchParams.get('price');
     const location = searchParams.get('location');
-    const type = searchParams.get('type');
+    const provinsiFilter = searchParams.get('provinsi');
+    const platform = searchParams.get('platform');
+    const jenisEvent = searchParams.get('jenisEvent');
     const cat = searchParams.get('category');
     const time = searchParams.get('time');
+    const sort = searchParams.get('sort') || 'newest';
 
     // 1. Bangun kondisi pencarian query
     const conditions = [
@@ -46,12 +57,14 @@ export async function GET(req: Request) {
       eq(event.status, 'published')
     ];
 
-    if (q) conditions.push(ilike(event.judul, `%${q}%`));
+    if (q) conditions.push(or(ilike(event.judul, `%${q}%`), ilike(profilPenyelenggara.namaInstansi, `%${q}%`))!);
     if (polines === 'true') conditions.push(eq(event.eventPolines, true));
     if (price === 'Gratis') conditions.push(eq(event.tipeHarga, 'free'));
     if (price === 'Berbayar') conditions.push(eq(event.tipeHarga, 'paid'));
-    if (type) conditions.push(eq(event.tipePlatform, type as 'online' | 'offline' | 'hybrid'));
+    if (platform) conditions.push(eq(event.tipePlatform, platform as 'online' | 'offline' | 'hybrid'));
+    if (jenisEvent) conditions.push(eq(event.jenisEvent, jenisEvent as 'seminar' | 'conference'));
     if (location) conditions.push(eq(kota.nama, location));
+    if (provinsiFilter) conditions.push(eq(provinsi.nama, provinsiFilter));
     if (cat) conditions.push(eq(kategori.nama, cat));
 
     // Filter Waktu
@@ -121,11 +134,21 @@ export async function GET(req: Request) {
       .from(event)
       .leftJoin(kota, eq(event.kotaId, kota.id))
       .leftJoin(kategori, eq(event.kategoriId, kategori.id))
+      .leftJoin(users, eq(event.organizerId, users.id))
+      .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
       .where(and(...conditions));
 
     const total = Number(totalQuery[0].count);
 
-    // 3. Ambil sebagian data event sesuai OFFSET & LIMIT
+    // 3. Sorting
+    const orderClause = sort === 'oldest' ? asc(event.dibuatPada)
+      : sort === 'cheapest' ? asc(event.harga)
+      : sort === 'expensive' ? desc(event.harga)
+      : sort === 'nearest' ? asc(event.tanggalMulai)
+      : sort === 'popular' ? desc(event.jumlahTayangan)
+      : desc(event.dibuatPada); // default: newest
+
+    // 4. Ambil sebagian data event sesuai OFFSET & LIMIT
     const events = await db.select({
       id: event.id,
       judul: event.judul,
@@ -133,19 +156,21 @@ export async function GET(req: Request) {
       harga: event.harga,
       tipeHarga: event.tipeHarga,
       tipePlatform: event.tipePlatform,
-      jenisEvent: event.jenisEvent,        // ← tambahan
+      jenisEvent: event.jenisEvent,
       eventPolines: event.eventPolines,
       tanggalMulai: event.tanggalMulai,
-      tanggalSelesai: event.tanggalSelesai,
       status: event.status,
+      penyelenggara: sql<string>`COALESCE(${profilPenyelenggara.namaInstansi}, ${event.penyelenggara}, '-')`,
       kategoriNama: kategori.nama,
       kotaNama: kota.nama,
     })
     .from(event)
     .leftJoin(kategori, eq(event.kategoriId, kategori.id))
     .leftJoin(kota, eq(event.kotaId, kota.id))
+    .leftJoin(users, eq(event.organizerId, users.id))
+    .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
     .where(and(...conditions))
-    .orderBy(desc(event.dibuatPada))
+    .orderBy(orderClause)
     .limit(limit)
     .offset(offset);
 

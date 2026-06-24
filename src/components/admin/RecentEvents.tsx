@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { normalizeImagePath } from '@/lib/utils/image-utils';
+import { UI_TEXT } from '@/lib/constants';
 import { Image as ImageIcon } from 'lucide-react';
 
 interface EventData {
@@ -51,10 +52,10 @@ export function RecentEvents({ events }: RecentEventProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-bold text-slate-900 truncate mt-4">
-                  {event.judul || "Tanpa Judul"}
+                  {event.judul || UI_TEXT.NO_TITLE}
                 </h4>
                 <p className="text-xxs text-slate-400 font-bold mt-0.5">
-                  {event.detailLokasi || "Lokasi menyusul"} • {event.kuota || 0} Kuota
+                  {event.detailLokasi || UI_TEXT.NO_LOCATION_FALLBACK} • {event.kuota || 0} Kuota
                 </p>
               </div>
               <div className={`w-2 h-2 rounded-full ${statusColor} shadow-sm shadow-black/5`} />

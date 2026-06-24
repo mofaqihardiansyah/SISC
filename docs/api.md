@@ -22,7 +22,11 @@ Daftar event publik dengan filter dan pagination.
 | `type` | string | `online`, `offline`, `hybrid` |
 | `category` | string | Filter by kategori |
 | `time` | string | `Hari Ini`, `Besok`, `Akhir Pekan`, `Minggu Ini`, `Minggu Depan`, `Bulan Ini`, `Bulan Depan` |
-| `mode` | string | `kota` (return semua kota) atau `kategori` (return semua kategori) |
+| `provinsi` | string | Filter by nama provinsi (requires `mode=provinsi`) |
+| `platform` | string | Filter by tipe platform: `online`, `offline`, `hybrid` |
+| `jenisEvent` | string | Filter by jenis event: `seminar`, `conference` |
+| `sort` | string | `popular` — sort by `jumlah_tayangan` descending |
+| `mode` | string | `kota` (return semua kota) atau `provinsi` (return semua provinsi dengan kota) atau `kategori` (return semua kategori) |
 
 **Response**:
 ```json
@@ -33,7 +37,7 @@ Daftar event publik dengan filter dan pagination.
       "judul": "string",
       "urlBanner": "string",
       "harga": 0,
-      "tipeHarga": "free|paid",
+      "tipeHarga": "free|paid|null",
       "tipePlatform": "online|offline|hybrid",
       "jenisEvent": "seminar|conference",
       "eventPolines": true,
@@ -42,10 +46,15 @@ Daftar event publik dengan filter dan pagination.
       "status": "published",
       "kategoriNama": "string",
       "kotaNama": "string",
+      "provinsiNama": "string",
+      "penyelenggara": "string",
       "kuota": 300
     }
   ],
-  "total": 50
+  "total": 50,
+  "kota": [],
+  "provinsi": [],
+  "kategori": []
 }
 ```
 

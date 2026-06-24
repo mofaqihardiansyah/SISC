@@ -6,6 +6,7 @@ import HeroSlider from "@/components/shared/HeroSlider";
 import KategoriCarousel from "@/components/shared/KategoriCarousel";
 import EventSection from "@/components/shared/EventSection";
 import AuthStatus from "@/components/shared/AuthStatus";
+import { EVENT_TYPES } from "@/lib/constants";
 
 export const revalidate = 60;
 
@@ -84,7 +85,7 @@ export default async function BerandaPage() {
           title="Event Polines"
           viewAllHref="/jelajah?type=polines"
           events={eventPolines}
-          type="POLINES"
+          type={EVENT_TYPES.POLINES}
           organizerLabel="Polines"
           emptyMessage="Belum ada event Polines saat ini."
           isLoggedIn={false}
@@ -95,7 +96,7 @@ export default async function BerandaPage() {
           title="Event Umum"
           viewAllHref="/jelajah?type=umum"
           events={eventUmum}
-          type="UMUM"
+          type={EVENT_TYPES.UMUM}
           organizerLabel="Umum"
           emptyMessage="Belum ada event umum saat ini."
           isLoggedIn={false}

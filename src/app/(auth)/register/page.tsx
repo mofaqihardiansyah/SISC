@@ -2,6 +2,7 @@
 
 import React from 'react';
 import AuthLayout from '@/components/auth/auth-layout';
+import { SITE } from '@/lib/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -144,7 +145,7 @@ export default function RegisterPage() {
             Buat Akun
           </h2>
           <p className="text-slate-500 text-sm font-medium">
-            Gabung dengan POLIVENTS dan mulai perjalanan anda hari ini.
+            Gabung dengan {SITE.NAME} dan mulai perjalanan anda hari ini.
           </p>
         </div>
 

@@ -19,12 +19,12 @@ export async function Topbar({ title = "User Profile" }: TopbarProps) {
   }
 
   const user = dbUser ? {
-    name: dbUser.namaLengkap || session?.user?.name || "Demo User",
-    email: dbUser.email || session?.user?.email || "demo@example.com",
+    name: dbUser.namaLengkap || session?.user?.name || "-",
+    email: dbUser.email || session?.user?.email || "-",
     image: dbUser.urlAvatar || session?.user?.image,
   } : session?.user || {
-    name: "Demo User",
-    email: "demo@example.com",
+    name: "-",
+    email: "-",
   };
 
   const menuItems = [

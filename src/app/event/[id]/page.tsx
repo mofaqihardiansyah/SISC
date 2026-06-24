@@ -4,7 +4,7 @@ import { eq, ne, desc, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import DetailEvent from "@/components/event/DetailEvent";
 import ViewTracker from "@/components/event/ViewTracker";
-import { PAGINATION } from "@/lib/constants";
+import { PAGINATION, UI_TEXT, DEFAULT_REGISTRATION_STEPS, DEFAULT_TERMS } from "@/lib/constants";
 import { auth } from "@/auth"; 
 
 export const revalidate = 300;
@@ -83,7 +83,7 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
   const namaPenyelenggara =
     eventData.organizer?.profilPenyelenggara?.namaInstansi ??
     eventData.organizer?.namaLengkap ??
-    "Panitia";
+    UI_TEXT.NO_ORGANIZER_FALLBACK;
 
   // Lokasi lengkap
   const lokasiLengkap =
@@ -93,12 +93,12 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
       eventData.kota?.provinsi?.nama,
     ]
       .filter(Boolean)
-      .join(", ") || "Lokasi belum ditentukan";
+      .join(", ") || UI_TEXT.NO_LOCATION_FALLBACK;
 
   // Format data untuk komponen
   const eventFormatted = {
     id: eventData.id,
-    nama: eventData.judul ?? "Tanpa Judul",
+    nama: eventData.judul ?? UI_TEXT.NO_TITLE,
     lokasi: lokasiLengkap,
     tanggal: eventData.tanggalMulai,
     kategori: eventData.kategori?.nama ?? "Umum",
@@ -113,25 +113,13 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
     websiteSumber: eventData.websiteSumber,
     linkEksternal: eventData.linkEksternal,
     loket: [],
-    langkahPendaftaran: [
-      "Klik <strong>Daftar</strong> untuk mengisi data diri awal",
-      "Anda akan diarahkan ke formulir pendaftaran eksternal (GForm)",
-      "Isi data yang dibutuhkan pada formulir tersebut hingga selesai",
-      "Kembali ke tab sebelumnya dan klik <strong>Simpan dan Selesai</strong>",
-      "Selamat, pendaftaran Anda telah tercatat!",
-    ],
+    langkahPendaftaran: [...DEFAULT_REGISTRATION_STEPS],
     syaratKetentuan: eventData.syaratDanKetentuan
       ? eventData.syaratDanKetentuan.split("\n").filter(Boolean)
-      : [
-          "Kegiatan bersifat offline yang dilaksanakan di Politeknik Negeri Semarang.",
-          "Mohon mengecek kembali kebenaran dan kesesuaian data pemesan sebelum check out.",
-          "Nama lengkap yang tercantum di data pemesan akan dijadikan acuan penulisan nama pada e-certificate.",
-          "E-certificate akan dikirimkan paling lambat H+7 hari pelaksanaan kegiatan.",
-          "Dengan melakukan registrasi ini, peserta sudah dianggap memahami seluruh syarat dan ketentuan.",
-        ],
+      : [...DEFAULT_TERMS],
     eventTerkait: eventTerkait.map((ev) => ({
       id: ev.id.toString(),
-      title: ev.judul ?? "Tanpa Judul",
+      title: ev.judul ?? UI_TEXT.NO_TITLE,
       date: ev.tanggalMulai
         ? new Intl.DateTimeFormat("id-ID", {
             day: "numeric",
@@ -144,7 +132,7 @@ export default async function HalamanDetailEvent({ params }: PageProps) {
       type: ev.eventPolines ? "POLINES" : ("UMUM" as "POLINES" | "UMUM"),
       imageUrl: ev.urlBanner ?? "",
       tipePlatform: ev.tipePlatform ?? "offline",
-      kotaNama: ev.kota?.nama ?? "-",
+      kotaNama: ev.kota?.nama ?? UI_TEXT.NO_ORGANIZER_FALLBACK,
       kategoriNama: ev.kategori?.nama ?? "Umum",
     })),
   };

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { SITE } from '@/lib/constants';
 
 export async function POST(req: Request) {
   try {
@@ -17,15 +18,15 @@ export async function POST(req: Request) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER || 'poliventsofficial@gmail.com', // fallback
+        user: process.env.EMAIL_USER || SITE.CONTACT_EMAIL,
         pass: process.env.EMAIL_PASS || '', 
       },
     });
 
     const mailOptions = {
-      from: email, // This might be overridden by Gmail to the authenticated user, but we set replyTo
+      from: email,
       replyTo: email,
-      to: 'poliventsofficial@gmail.com', // Destination email
+      to: SITE.CONTACT_EMAIL,
       subject: `Laporan ${subjek} - ${nama}`,
       text: `Nama: ${nama}\nEmail: ${email}\n\nPesan:\n${pesan}`,
       html: `

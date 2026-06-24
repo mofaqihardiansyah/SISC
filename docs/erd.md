@@ -100,12 +100,7 @@ erDiagram
         int harga
         text detail_lokasi
         varchar link_eksternal
-        varchar nama_kontak
-        varchar email_kontak
-        varchar telepon_kontak
         int kuota
-        int maks_tiket_per_transaksi
-        boolean satu_akun_satu_transaksi
         enum status
         boolean hasil_scraping
         varchar website_sumber
@@ -240,6 +235,7 @@ erDiagram
         varchar url_target
         jsonb data
         boolean status_integrasi
+        varchar status
         timestamp dibuat_pada
     }
 
@@ -253,6 +249,37 @@ erDiagram
         text error_message
         timestamp mulai_pada
         timestamp selesai_pada
+    }
+
+    %% 22. SCRAPING SOURCES
+    scraping_sources {
+        int id PK
+        varchar nama
+        varchar url
+        varchar tipe
+        int interval_menit
+        boolean aktif
+        timestamp dibuat_pada
+        timestamp diperbarui_pada
+    }
+
+    %% 23. SCRAPING VALIDATION RULES
+    scraping_validation_rules {
+        int id PK
+        varchar field
+        varchar operator
+        varchar value
+        boolean aktif
+        timestamp dibuat_pada
+    }
+
+    %% 24. SCRAPING AUTO APPROVAL RULES
+    scraping_auto_approval_rules {
+        int id PK
+        int min_skor
+        varchar aksi
+        boolean aktif
+        timestamp dibuat_pada
     }
 
     %% ── RELATIONS ──
@@ -290,7 +317,7 @@ erDiagram
 
 ---
 
-## Ringkasan Relasi (24)
+## Ringkasan Relasi (22)
 
 | # | Tabel | Relasi | Target | Keterangan |
 |---|-------|--------|--------|------------|
@@ -322,6 +349,10 @@ erDiagram
 | Tabel | Keterangan |
 |-------|-----------|
 | `otp_codes` | Kode OTP verifikasi email (relasi via email string) |
+| `info_pembayaran` | Info pembayaran global (di-FK dari pendaftaran) |
+| `scraping_sources` | Konfigurasi sumber scraping |
+| `scraping_validation_rules` | Aturan validasi data scraped |
+| `scraping_auto_approval_rules` | Aturan auto-approval berdasarkan skor |
 
 ## Tabel Junction (Composite PK)
 

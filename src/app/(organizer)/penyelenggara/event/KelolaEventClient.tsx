@@ -6,7 +6,7 @@ import { Search, ChevronRight, Ban, Info, MapPin, Image as ImageIcon, Calendar, 
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 import { Modal } from '@/components/ui/modal';
 import { Pagination } from '@/components/ui/pagination';
-import { STATUS_LABEL } from "@/lib/constants";
+import { STATUS_LABEL, UI_TEXT } from "@/lib/constants";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -102,11 +102,11 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
       const uiStatus = STATUS_UI_MAP[rawStatus] || "Draft";
 
       const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
-      const tglString = ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', options) : "Belum diatur";
+      const tglString = ev.tanggalMulai ? new Date(ev.tanggalMulai).toLocaleDateString('id-ID', options) : UI_TEXT.NO_DATE_SHORT;
 
       return {
         id: ev.id,
-        judul: ev.judul || "Untitled Event",
+        judul: ev.judul || UI_TEXT.NO_TITLE,
         status: uiStatus,
         kategori: ev.jenisEvent === "seminar" ? "Seminar" : "Conference",
         sub: ev.tipePlatform ? ev.tipePlatform.toUpperCase() : "ONLINE",

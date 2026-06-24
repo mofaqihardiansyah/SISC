@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { users, profilPenyelenggara } from "@/db/schema";
+import { users, profilPenyelenggara, event } from "@/db/schema";
 import { auth } from "@/auth";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -47,6 +47,11 @@ export async function updateProfilPenyelenggara(data: {
         urlDokumenLegalitas: data.urlDokumenLegalitas,
       });
     }
+
+    // Sync event.penyelenggara for all events by this organizer
+    await db.update(event)
+      .set({ penyelenggara: data.namaInstansi })
+      .where(eq(event.organizerId, userId));
     
     revalidatePath("/penyelenggara/profil");
     return { success: true };

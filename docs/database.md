@@ -36,7 +36,7 @@ export default defineConfig({
 | `event_status` | `draft`, `pending`, `published`, `rejected` |
 | `jenis_event` | `seminar`, `conference` |
 | `tipe_platform` | `online`, `offline`, `hybrid` |
-| `tipe_harga` | `free`, `paid` |
+| `tipe_harga` | `free`, `paid` — kolom nullable, `null` = tidak diketahui |
 | `paper_status` | `review`, `accepted`, `rejected` |
 | `user_role` | `admin`, `organizer`, `visitor` |
 | `pendaftaran_status` | `terdaftar`, `menunggu_verifikasi`, `lunas`, `dibatalkan`, `hadir` |
@@ -46,7 +46,7 @@ export default defineConfig({
 
 ---
 
-## Tabel (21)
+## Tabel (24)
 
 ### 1. `users`
 | Kolom | Tipe | Keterangan |
@@ -115,10 +115,7 @@ Tabel utama menyimpan seluruh data event:
 | harga | integer | |
 | detail_lokasi | text | |
 | link_eksternal | varchar(512) | |
-| nama_kontak, email_kontak, telepon_kontak | | Kontak person |
 | kuota | integer | Batas kuota pendaftar |
-| maks_tiket_per_transaksi | integer | |
-| satu_akun_satu_transaksi | boolean | |
 | status | enum | draft / pending / published / rejected |
 | hasil_scraping | boolean | Dari EventKampus |
 | website_sumber | varchar(255) | |
@@ -202,10 +199,21 @@ Field: `paper_submission_id` (FK, not null), `nama` (not null), `email`, `instit
 Jadwal acara event. Field: `event_id` (FK), `waktu_mulai`, `waktu_selesai`, `deskripsi`, `dibuat_pada`.
 
 ### 20. `raw_scraped_data`
-Data mentah hasil scraping. Field: `id` (PK), `sumber` (not null), `url_target`, `data` (jsonb, not null), `status_integrasi` (boolean), `status` (varchar(20) - pending/processed/error), `dibuat_pada`.
+Data mentah hasil scraping. Field: `id` (PK), `sumber` (not null), `url_target`, `data` (jsonb, not null), `status_integrasi` (boolean), `status` (varchar(20) — pending/processed/error), `dibuat_pada`.
+
+Index: `raw_scraped_url_target_idx` (url_target), `raw_scraped_status_idx` (status).
 
 ### 21. `log_scraping`
 Log proses scraping. Field: `id` (PK), `target_url`, `sumber`, `status` (pending/processing/success/failed), `jumlah_data`, `error_message`, `mulai_pada`, `selesai_pada`.
+
+### 22. `scraping_sources`
+Konfigurasi sumber scraping. Field: `id` (PK), `nama` (not null), `url` (not null), `tipe` (varchar — cheerio/playwright), `interval_menit` (integer), `aktif` (boolean, default true), `dibuat_pada`, `diperbarui_pada`.
+
+### 23. `scraping_validation_rules`
+Aturan validasi data scraped. Field: `id` (PK), `field` (varchar, not null), `operator` (varchar — required/min_length/contains), `value` (varchar), `aktif` (boolean, default true), `dibuat_pada`.
+
+### 24. `scraping_auto_approval_rules`
+Aturan auto-approval berdasarkan skor. Field: `id` (PK), `min_skor` (integer, not null), `aksi` (varchar — auto_approve/auto_reject), `aktif` (boolean, default true), `dibuat_pada`.
 
 ---
 
@@ -248,6 +256,9 @@ kategori ── event (1:N)
 |-------|-----------|
 | `otp_codes` | Kode OTP verifikasi email (relasi via email string) |
 | `info_pembayaran` | Info pembayaran global (di-FK dari pendaftaran) |
+| `scraping_sources` | Konfigurasi sumber scraping |
+| `scraping_validation_rules` | Aturan validasi data scraped |
+| `scraping_auto_approval_rules` | Aturan auto-approval berdasarkan skor |
 
 ## Tabel Junction (Composite PK)
 

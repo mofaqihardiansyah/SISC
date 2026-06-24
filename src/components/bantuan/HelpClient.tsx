@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Star, Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { ERROR_MESSAGES } from '@/lib/constants';
+import { ERROR_MESSAGES, SITE } from '@/lib/constants';
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -212,17 +212,17 @@ export default function HelpClient() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <p className="font-semibold text-slate-400 mb-1">Email Dukungan</p>
-            <p className="text-blue-400 font-medium">poliventsofficial@gmail.com</p>
+            <p className="text-blue-400 font-medium">{SITE.CONTACT_EMAIL}</p>
           </div>
 
           <div>
             <p className="font-semibold text-slate-400 mb-1">Nomor Telepon</p>
-            <p className="text-slate-300">+6282327655735</p>
+            <p className="text-slate-300">{SITE.CONTACT_WHATSAPP_DISPLAY}</p>
           </div>
 
           <div>
             <p className="font-semibold text-slate-400 mb-1">Jam Operasional</p>
-            <p className="text-slate-300">Senin - Jumat: 09:00 - 17:00</p>
+            <p className="text-slate-300">{SITE.OPERATIONAL_HOURS}</p>
           </div>
         </div>
       </section>

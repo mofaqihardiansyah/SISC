@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { event, pembicara } from "@/db/schema";
+import { event, pembicara, profilPenyelenggara } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
@@ -34,12 +35,18 @@ export async function createEvent(formData: FormData) {
   const syaratDanKetentuan = (formData.get("syaratDanKetentuan") as string)?.trim() || null;
   const tanggalMulaiRaw = formData.get("tanggalMulai") as string;
   const tanggalSelesaiRaw = formData.get("tanggalSelesai") as string;
+  const batasRegistrasiRaw = formData.get("batasRegistrasi") as string;
   const kuota = parseInt(formData.get("kuota") as string) || null;
   const linkEksternal = (formData.get("linkEksternal") as string)?.trim() || null;
   const kategoriId = parseInt(formData.get("kategoriId") as string) || null;
   const kotaId = parseInt(formData.get("kotaId") as string) || null;
   const isDraft = formData.get("isDraft") === "true";
   const bannerFile = formData.get("banner") as File | null;
+
+  // ── Ambil nama penyelenggara dari profil organizer ────────────────
+  const [profil] = await db.select().from(profilPenyelenggara)
+    .where(eq(profilPenyelenggara.userId, userId)).limit(1);
+  const penyelenggara = profil?.namaInstansi || null;
 
   // ── Parse metode pembayaran ──────────────────────────────────────
   const metodePembayaranRaw = formData.get("metodePembayaran") as string;
@@ -56,6 +63,7 @@ export async function createEvent(formData: FormData) {
 
   const tanggalMulai = new Date(tanggalMulaiRaw);
   const tanggalSelesai = tanggalSelesaiRaw ? new Date(tanggalSelesaiRaw) : null;
+  const batasRegistrasi = batasRegistrasiRaw ? new Date(batasRegistrasiRaw) : null;
   if (isNaN(tanggalMulai.getTime())) return { error: "Format tanggal mulai tidak valid." };
 
   // ── Upload banner ─────────────────────────────────────────────────
@@ -95,10 +103,12 @@ export async function createEvent(formData: FormData) {
       syaratDanKetentuan,
       tanggalMulai,
       tanggalSelesai: tanggalSelesai ?? undefined,
+      batasRegistrasi: batasRegistrasi ?? undefined,
       kuota,
       linkEksternal,
       kategoriId,
       kotaId,
+      penyelenggara,
       metodePembayaran: metodePembayaranList.length > 0 ? metodePembayaranList : null,
       urlBanner,
       status: isDraft ? "draft" : "pending",
