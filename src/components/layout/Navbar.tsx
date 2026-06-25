@@ -21,12 +21,11 @@ export default function Navbar() {
       <div className="px-4 sm:px-8 lg:px-16 py-4 flex justify-between items-center">
         <div className="flex items-center gap-8">
           <Link href="/" className="group flex items-center focus:outline-none">
-            <h1 
-              className="text-2xl font-black tracking-[0.15em] text-white group-hover:opacity-80 transition-opacity duration-300 drop-shadow-sm"
-              style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-            >
-              {SITE.NAME}
-            </h1>
+            <img 
+              src="/logo-light.svg" 
+              alt={SITE.NAME} 
+              className="h-7 w-auto group-hover:opacity-80 transition-opacity duration-300 drop-shadow-sm"
+            />
           </Link>
 
           <Suspense fallback={<div className="w-[300px] h-9 bg-white/20 rounded-full animate-pulse hidden md:block"></div>}>

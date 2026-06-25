@@ -95,9 +95,11 @@ export function Sidebar({ roleTitle, menuItems }: SidebarProps) {
       >
         {/* Logo Section */}
         <div className="pt-5 pb-3 px-5 hidden md:block overflow-hidden whitespace-nowrap">
-          <h1 className={cn("text-lg font-extrabold text-white tracking-wider", isCollapsed ? "opacity-0" : "opacity-100")}>
-            POLIVENTS
-          </h1>
+          <img 
+            src="/logo-light.svg" 
+            alt="POLIVENTS" 
+            className={cn("h-6 w-auto transition-opacity duration-300", isCollapsed ? "opacity-0" : "opacity-100")}
+          />
           <p className={cn("text-nano text-slate-500 font-semibold uppercase tracking-widest mt-0.5", isCollapsed ? "opacity-0" : "opacity-100")}>{roleTitle}</p>
         </div>
         
