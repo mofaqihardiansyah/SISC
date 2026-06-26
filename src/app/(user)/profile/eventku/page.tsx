@@ -1,8 +1,9 @@
 import React from 'react';
-import { Search, ChevronDown, X, CalendarDays, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronDown, RotateCcw, CalendarDays, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getUserEvents } from '@/actions/user-event';
 import EventCard from '@/components/profile/EventCard';
 import Link from 'next/link';
+import { auth } from '@/auth';
 
 interface EventkuPageProps {
   searchParams: Promise<{ q?: string; status?: string; page?: string }>;
@@ -30,6 +31,9 @@ const statusOptions = [
 ];
 
 export default async function EventkuPage({ searchParams }: EventkuPageProps) {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   const params = await searchParams;
   const searchQuery = params.q || '';
   const statusFilter = (params.status as EventStatus) || 'all';
@@ -70,6 +74,7 @@ export default async function EventkuPage({ searchParams }: EventkuPageProps) {
                 key={`${event.id}-${event.kodePendaftaran}`}
                 {...event}
                 image={event.image || undefined}
+                isLoggedIn={isLoggedIn}
                 variant="list"
               />
             ))
@@ -182,10 +187,10 @@ function FilterSection({ currentSearch, currentStatus }: FilterSectionProps) {
         {(currentSearch || currentStatus !== 'all') && (
           <Link
             href="/profile/eventku"
-            className="flex items-center justify-center aspect-square bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 rounded-xl transition-all shadow-sm"
+            className="text-slate-400 hover:text-red-500 transition-all translate-y-[0.2cm]"
             title="Reset Filter"
           >
-            <X size={20} />
+            <RotateCcw size={20} />
           </Link>
         )}
       </div>

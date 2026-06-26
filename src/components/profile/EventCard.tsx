@@ -4,7 +4,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, MapPin, User, Star, ImageOff } from 'lucide-react';
+import { Calendar, MapPin, User, ImageOff } from 'lucide-react';
+import BookmarkButton from '@/components/shared/BookmarkButton';
 
 interface EventCardProps {
   id: string | number;
@@ -15,8 +16,8 @@ interface EventCardProps {
   timeLeft?: string;
   image?: string;
   status?: 'upcoming' | 'registered' | 'completed' | 'favorited';
-  onFavoriteToggle?: () => void;
   isFavorited?: boolean;
+  isLoggedIn?: boolean;
   priority?: boolean;
   variant?: 'list' | 'grid'; // list view untuk dashboard, grid untuk favorites
 }
@@ -30,8 +31,8 @@ export default function EventCard({
   timeLeft,
   image,
   status,
-  onFavoriteToggle,
   isFavorited = false,
+  isLoggedIn = false,
   priority = false,
   variant = 'list',
 }: EventCardProps) {
@@ -55,16 +56,11 @@ export default function EventCard({
             </div>
           )}
           <div className="absolute top-3 right-3">
-            <button
-              onClick={(e) => { e.preventDefault(); onFavoriteToggle?.(); }}
-              className={`p-2 rounded-full backdrop-blur-md transition-all ${
-                isFavorited 
-                  ? 'bg-yellow-400 text-white shadow-lg shadow-yellow-200' 
-                  : 'bg-white/70 text-slate-400 hover:bg-white hover:text-yellow-500'
-              }`}
-            >
-              <Star className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
-            </button>
+            <BookmarkButton 
+              eventId={String(id)} 
+              isLoggedIn={isLoggedIn ?? false} 
+              initialBookmarked={isFavorited} 
+            />
           </div>
         </div>
 
@@ -93,7 +89,7 @@ export default function EventCard({
                  status === 'completed' ? 'Selesai' : 'Favorit'}
               </span>
             )}
-            <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 line-clamp-2 transition-colors">
+            <h3 className="text-lg font-bold text-slate-900 line-clamp-2">
               {title}
             </h3>
           </div>
@@ -129,8 +125,6 @@ export default function EventCard({
   // List variant (default)
   return (
     <div className="flex flex-col md:flex-row gap-6 p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 group relative overflow-hidden">
-      {/* Background Accent */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-blue-100/50 transition-colors"></div>
       
       {/* Event Image */}
       <div className="relative w-full md:w-48 h-36 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner">
@@ -177,7 +171,7 @@ export default function EventCard({
               </span>
             )}
           </div>
-          <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors mb-4">
+          <h3 className="text-xl font-extrabold text-slate-900 mb-4">
             {title}
           </h3>
 
@@ -201,16 +195,11 @@ export default function EventCard({
       {/* Countdown & CTA */}
       <div className="flex flex-col justify-between gap-4 md:items-end z-10">
         <div className="flex items-start justify-end gap-2">
-           <button
-            onClick={(e) => { e.preventDefault(); onFavoriteToggle?.(); }}
-            className={`p-3 rounded-2xl transition-all ${
-              isFavorited 
-                ? 'bg-yellow-50 text-yellow-500 border border-yellow-100 shadow-sm' 
-                : 'bg-slate-50 text-slate-300 hover:text-yellow-500 border border-slate-100 hover:border-yellow-100'
-            }`}
-          >
-            <Star className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
-          </button>
+           <BookmarkButton 
+             eventId={String(id)} 
+             isLoggedIn={isLoggedIn ?? false} 
+             initialBookmarked={isFavorited} 
+           />
         </div>
 
         <div className="flex flex-col gap-3">

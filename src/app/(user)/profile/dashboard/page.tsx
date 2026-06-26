@@ -4,7 +4,7 @@ import { Activity, Megaphone, MapPin, Calendar, Bookmark, History } from 'lucide
 import { db } from '@/db'; 
 import { auth } from '@/auth';
 import { event, bookmark, pendaftaran } from '@/db/schema'; 
-import { desc, eq, and } from 'drizzle-orm';
+import { desc, eq, and, gte, asc, inArray, notInArray } from 'drizzle-orm';
 
 function StatsCard({ label, value, bg, renderIcon }: { 
   label: string; 
@@ -39,13 +39,74 @@ export default async function UserDashboard() {
     .from(event)
     .where(eq(event.status, 'published'));
 
-  const upcomingEventsData = await db.select().from(event).limit(3);
+  const upcomingEventsData = userId
+    ? await db
+        .select({
+          id: event.id,
+          judul: event.judul,
+          slug: event.slug,
+          bannerUrl: event.bannerUrl,
+          tanggalMulai: event.tanggalMulai,
+          detailLokasi: event.detailLokasi,
+          penyelenggara: event.penyelenggara,
+        })
+        .from(event)
+        .innerJoin(pendaftaran, eq(pendaftaran.eventId, event.id))
+        .where(
+          and(
+            eq(pendaftaran.userId, userId),
+            eq(event.status, 'published'),
+            gte(event.tanggalMulai, new Date()),
+            eq(pendaftaran.status, 'terdaftar'),
+          ),
+        )
+        .orderBy(asc(event.tanggalMulai))
+        .limit(3)
+    : [];
 
-  const latestEventsData = await db.select()
-    .from(event)
-    .where(eq(event.status, 'published'))
-    .orderBy(desc(event.dibuatPada))
-    .limit(4);
+  // Cari kategori favorit user dari event yg pernah diikuti/di-bookmark
+  let preferredKategoriIds: number[] = [];
+  if (userId) {
+    const userEventIds = [
+      ...new Set([
+        ...userRegistrations.map(r => r.eventId).filter((id): id is number => id !== null),
+        ...userBookmarks.map(b => b.eventId).filter((id): id is number => id !== null),
+      ]),
+    ];
+    if (userEventIds.length > 0) {
+      const userEvents = await db
+        .select({ kategoriId: event.kategoriId })
+        .from(event)
+        .where(inArray(event.id, userEventIds));
+      preferredKategoriIds = [
+        ...new Set(
+          userEvents
+            .map(e => e.kategoriId)
+            .filter((id): id is number => id !== null),
+        ),
+      ];
+    }
+  }
+
+  const latestEventsData = preferredKategoriIds.length > 0
+    ? await db.select()
+        .from(event)
+        .where(
+          and(
+            eq(event.status, 'published'),
+            inArray(event.kategoriId, preferredKategoriIds),
+            ...(userRegistrations.length > 0
+              ? [notInArray(event.id, userRegistrations.map(r => r.eventId).filter((id): id is number => id !== null))]
+              : []),
+          ),
+        )
+        .orderBy(desc(event.dibuatPada))
+        .limit(4)
+    : await db.select()
+        .from(event)
+        .where(eq(event.status, 'published'))
+        .orderBy(desc(event.dibuatPada))
+        .limit(4);
 
   const stats = [
     {
@@ -103,11 +164,11 @@ export default async function UserDashboard() {
             upcomingEventsData.map((data) => (
               <EventCard 
                 key={data.id} 
+                id={data.id}
                 judul={data.judul}
-                slug={data.slug ?? ''}
-                date={'TBA'} 
-                location={'TBA'} 
-                organizer={`Penyelenggara ID: ${data.organizerId}`} 
+                date={data.tanggalMulai ? new Date(data.tanggalMulai).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'TBA'}
+                location={data.detailLokasi ?? 'TBA'}
+                organizer={data.penyelenggara ?? 'Penyelenggara'} 
                 bannerUrl={data.bannerUrl}
               />
             ))
@@ -136,7 +197,11 @@ export default async function UserDashboard() {
                   <span className="px-2 py-1 rounded text-[10px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">
                     Event Baru
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Baru Saja</span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    {data.dibuatPada
+                      ? `${String(new Date(data.dibuatPada).getDate()).padStart(2, '0')}-${String(new Date(data.dibuatPada).getMonth() + 1).padStart(2, '0')}-${new Date(data.dibuatPada).getFullYear()}`
+                      : ''}
+                  </span>
                 </div>
                 <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900">
                   <span className="font-bold text-[#0E215D]">{data.judul}</span> telah dibuka pendaftarannya! Jangan sampai kehabisan kuota.
@@ -154,16 +219,16 @@ export default async function UserDashboard() {
   );
 }
 
-function EventCard({ judul, slug, date, location, organizer, bannerUrl }: {
+function EventCard({ judul, id, date, location, organizer, bannerUrl }: {
   judul: string;
-  slug: string;
+  id: number;
   date: string;
   location: string;
   organizer: string;
   bannerUrl: string | null;
 }) {
   return (
-    <Link href={`/events/${slug}`} className="block flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group bg-white">
+    <div className="flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all bg-white">
       <div className="w-full md:w-40 h-32 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-200">
         {bannerUrl ? (
           <img src={bannerUrl} alt={judul} className="w-full h-full object-cover" />
@@ -173,7 +238,7 @@ function EventCard({ judul, slug, date, location, organizer, bannerUrl }: {
       </div>
       <div className="flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors uppercase">
+          <h3 className="text-lg font-bold text-slate-900 uppercase">
             {judul}
           </h3>
           <div className="space-y-1 mt-2 text-sm text-slate-500">
@@ -182,9 +247,11 @@ function EventCard({ judul, slug, date, location, organizer, bannerUrl }: {
           </div>
         </div>
         <div className="mt-4 md:mt-0 flex md:justify-end">
-          <span className="text-sm font-bold text-blue-600 group-hover:underline">Detail Acara</span>
+          <Link href={`/event/${id}`} className="text-sm font-bold text-blue-600 hover:underline">
+            Lihat Detail
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
