@@ -9,7 +9,9 @@ import {
   cleanRawDataAction, 
   bulkCleanRawData, 
   getLogScraping, 
-  scrapeSingleUrl
+  scrapeSingleUrl,
+  scrapeSourceAction,
+  type ScrapedDataField
 } from "@/actions/admin-scraping";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +19,8 @@ import { SCRAPER } from '@/lib/constants';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Modal } from '@/components/ui/modal';
+import BulkPublishModal from './BulkPublishModal';
+import ScrapeResultModal from './ScrapeResultModal';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Pagination } from '@/components/ui/pagination';
@@ -39,7 +43,8 @@ import {
   Coins,
   User,
   FileText,
-  Activity
+  Activity,
+  Settings
 } from 'lucide-react';
 
 export interface RawScrapedObject {
@@ -75,7 +80,6 @@ export interface ScrapedData {
     kotaId?: number | null;
     cleanedAt?: string;
     confidenceScore?: number;
-    autoApproved?: boolean;
     deskripsi?: string;
     tipeHarga?: 'free' | 'paid';
     harga?: number;
@@ -117,15 +121,21 @@ interface ScrapingManagementProps {
   initialLogs: LogScraping[];
   cities: { id: number; nama: string | null }[];
   categories: { id: number; nama: string | null; slug: string | null; urlIkon: string | null }[];
+  sources: { id: number; name: string; baseUrl: string; scraperType: 'cheerio' | 'crawlee_playwright' | null }[];
+  validationRules: { id: number; fieldName: string; isRequired: boolean | null; minLength: number | null; maxLength: number | null; regexPattern: string | null; confidenceThreshold: number | null }[];
 }
 
-export default function ScrapingManagement({ initialData, initialLogs, cities, categories }: ScrapingManagementProps) {
+export default function ScrapingManagement({ initialData, initialLogs, cities, categories, sources, validationRules }: ScrapingManagementProps) {
   const [data, setData] = useState<ScrapedData[]>(initialData);
   const [logs, setLogs] = useState<LogScraping[]>(initialLogs);
   const [isScraping, setIsScraping] = useState(false);
   const [targetUrl, setTargetUrl] = useState("");
+  const [selectedSourceId, setSelectedSourceId] = useState<string>("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [previewItem, setPreviewItem] = useState<ScrapedData | null>(null);
+  const [bulkModalItems, setBulkModalItems] = useState<ScrapedData[]>([]);
+  const [scrapeResults, setScrapeResults] = useState<ScrapedDataField[] | null>(null);
+  const [scrapeSourceName, setScrapeSourceName] = useState("");
 
   // Search & filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -154,6 +164,11 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
   const [editEmailKontak, setEditEmailKontak] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
 
+  const isFieldRequired = (fieldName: string) => {
+    const rule = validationRules.find(r => r.fieldName === fieldName);
+    return rule?.isRequired ?? false;
+  };
+
   const allSelected = data.length > 0 && selected.size === data.length;
   const toggleAll = () => {
     if (allSelected) setSelected(new Set());
@@ -171,23 +186,36 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
     
     setIsScraping(true);
     try {
-      const res = await scrapeSingleUrl(targetUrl);
-      if (res.success && res.data) {
-        toast.success("Berhasil mengekstrak data! Silakan tinjau dan lengkapi.");
-        // Mock a ScrapedData object to reuse the existing modal
-        const mockItem: ScrapedData = {
-          id: 0, // 0 indicates it's purely manual and not saved in rawScrapedData
-          sumber: targetUrl,
-          urlTarget: targetUrl,
-          data: res.data as ScrapedData['data'],
-          statusIntegrasi: false,
-          status: 'processed',
-          dibuatPada: new Date(),
-        };
-        handleOpenPreview(mockItem);
-        setTargetUrl("");
+      // Source-based bulk scraping
+      if (selectedSourceId) {
+        const source = sources.find(s => s.id === Number(selectedSourceId));
+        const res = await scrapeSourceAction(Number(selectedSourceId));
+        if (res.success && res.data) {
+          toast.success(`${res.count} event ditemukan dari ${source?.name || 'sumber'}!`);
+          setScrapeSourceName(source?.name || 'Sumber');
+          setScrapeResults(res.data as ScrapedDataField[]);
+        } else {
+          toast.error("Gagal scraping: " + res.error);
+        }
       } else {
-        toast.error("Gagal mengekstrak: " + res.error);
+        // Manual URL scrape (single event)
+        const res = await scrapeSingleUrl(targetUrl);
+        if (res.success && res.data) {
+          toast.success("Berhasil mengekstrak data! Silakan tinjau dan lengkapi.");
+          const mockItem: ScrapedData = {
+            id: 0,
+            sumber: targetUrl,
+            urlTarget: targetUrl,
+            data: res.data as ScrapedData['data'],
+            statusIntegrasi: false,
+            status: 'processed',
+            dibuatPada: new Date(),
+          };
+          handleOpenPreview(mockItem);
+          setTargetUrl("");
+        } else {
+          toast.error("Gagal mengekstrak: " + res.error);
+        }
       }
       } catch {
       toast.error("Terjadi kesalahan jaringan.");
@@ -357,9 +385,32 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
           <span className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xxs font-bold text-teal-700 tracking-wider mb-3">SCRAPING</span>
           <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-[1.1]">Scraping Event</h1>
           <p className="text-sm text-slate-500 mt-2 leading-relaxed">Tempelkan URL detail event, validasi, lalu terbitkan langsung.</p>
+          <a href="/admin/scraping/sources" className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-800 mt-2 transition-colors">
+            <Settings className="w-3 h-3" /> Kelola Sumber & Aturan Validasi
+          </a>
         </div>
         
         <form onSubmit={handleTargetedScrape} className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
+          {sources.length > 0 && (
+            <Select 
+              value={selectedSourceId} 
+              onChange={(e) => {
+                const id = e.target.value;
+                setSelectedSourceId(id);
+                if (id) {
+                  const src = sources.find(s => s.id === Number(id));
+                  if (src) setTargetUrl(src.baseUrl);
+                }
+              }}
+              className="w-full sm:w-56 border-slate-200 bg-white/80 backdrop-blur-sm"
+              disabled={isScraping}
+            >
+              <option value="">Pilih Sumber...</option>
+              {sources.map(src => (
+                <option key={src.id} value={src.id}>{src.name}</option>
+              ))}
+            </Select>
+          )}
           <div className="relative flex-1 min-w-[320px]">
             <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <Input 
@@ -381,8 +432,8 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
         </form>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-2">
-        <div className="sm:col-span-2 bg-white p-6 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] flex items-center justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+        <div className="sm:col-span-1 bg-white p-6 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] flex items-center justify-between">
           <div className="space-y-1.5">
             <span className="text-xxs font-bold text-slate-400 tracking-wider block">Total Data Terkumpul</span>
             <div className="flex items-baseline gap-1.5">
@@ -398,24 +449,24 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
         
         <div className="bg-white p-6 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] flex items-center justify-between">
           <div className="space-y-1.5">
-            <span className="text-xxs font-bold text-slate-400 tracking-wider block">Siap Terbit</span>
+            <span className="text-xxs font-bold text-slate-400 tracking-wider block">Siap Tinjau</span>
             <span className="text-4xl font-black text-emerald-600 tracking-tight">
-              {data.filter(d => d.data.autoApproved).length}
+              {data.filter(d => d.status === 'processed').length}
             </span>
-            <p className="text-xs text-slate-400">Auto-approved</p>
+            <p className="text-xs text-slate-400">Data sudah dibersihkan</p>
           </div>
           <div className="p-3.5 bg-emerald-50 text-emerald-500 rounded-xl">
-            <Sparkles className="w-5 h-5" />
+            <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] flex items-center justify-between">
           <div className="space-y-1.5">
-            <span className="text-xxs font-bold text-slate-400 tracking-wider block">Perlu Tinjauan</span>
+            <span className="text-xxs font-bold text-slate-400 tracking-wider block">Perlu Dibersihkan</span>
             <span className="text-4xl font-black text-amber-500 tracking-tight">
-              {data.filter(d => !d.data.autoApproved).length}
+              {data.filter(d => d.status !== 'processed').length}
             </span>
-            <p className="text-xs text-slate-400">Butuh validasi manual</p>
+            <p className="text-xs text-slate-400">Data mentah perlu diproses</p>
           </div>
           <div className="p-3.5 bg-amber-50 text-amber-500 rounded-xl">
             <AlertCircle className="w-5 h-5" />
@@ -466,8 +517,15 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
             {selected.size > 0 && (
               <div className="flex items-center gap-2 bg-teal-50/60 p-1.5 rounded-lg w-full md:w-auto justify-end">
                 <span className="text-xs font-semibold text-teal-700 px-2">{selected.size} Item Terpilih</span>
+                <Button size="sm" variant="default" onClick={() => {
+                  const items = data.filter(d => selected.has(d.id));
+                  if (!items.length) return toast.error('Pilih data terlebih dahulu');
+                  setBulkModalItems(items);
+                }} className="active:scale-[0.97] transition-all duration-200">
+                  <Eye className="w-3.5 h-3.5 mr-1" /> Review & Publish
+                </Button>
                 <Button size="sm" variant="default" onClick={handleBulkPublish} className="active:scale-[0.97] transition-all duration-200">
-                  <Check className="w-3.5 h-3.5 mr-1" /> Terbitkan
+                  <Check className="w-3.5 h-3.5 mr-1" /> Terbitkan (Tanpa Edit)
                 </Button>
                 <Button size="sm" variant="success" onClick={handleBulkClean} className="active:scale-[0.97] transition-all duration-200">
                   <Sparkles className="w-3.5 h-3.5 mr-1" /> Bersihkan
@@ -544,12 +602,6 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                               <span className={`inline-flex items-center gap-1 text-xxs font-bold px-1.5 py-0.5 rounded border ${confidenceColor}`}>
                                 <ConfidenceIcon className="w-3 h-3" /> {confidence}%
                               </span>
-
-                              {item.data.autoApproved && (
-                                <span className="inline-flex items-center gap-0.5 bg-emerald-50 text-emerald-700 text-xxs font-bold px-1.5 py-0.5 rounded border border-emerald-100 uppercase tracking-wider">
-                                  <Sparkles className="w-2.5 h-2.5 text-amber-500" /> Auto-Approved
-                                </span>
-                              )}
                             </div>
 
                             {/* Metadata Subtitle */}
@@ -761,60 +813,92 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
               {/* Confidence Summary & Warning Alerts */}
               {previewItem.status === 'processed' && (
-                <div className={`p-5 rounded-2xl border ${
-                  previewItem.data.autoApproved
-                    ? 'bg-emerald-50/40 border-emerald-100 text-emerald-950'
-                    : 'bg-amber-50/40 border-amber-100 text-amber-950'
-                } space-y-3`}>
+                <div className="p-5 rounded-2xl border bg-amber-50/40 border-amber-100 text-amber-950 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
                       <span className="text-sm font-bold text-slate-700">Skor Keyakinan Data (Confidence):</span>
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full border shadow-sm ${
-                        previewItem.data.autoApproved
-                          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                          : 'bg-amber-100 text-amber-800 border-amber-200'
-                      }`}>
-                        {previewItem.data.autoApproved ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />} {previewItem.data.confidenceScore ?? 0} / 100
+                      <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full border shadow-sm bg-amber-100 text-amber-800 border-amber-200">
+                        <AlertTriangle className="w-4 h-4" /> {previewItem.data.confidenceScore ?? 0} / 100
                       </span>
                     </div>
-                    {previewItem.data.autoApproved && (
-                      <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 uppercase tracking-wider shadow-sm">
-                          <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Auto-Approved
-                      </span>
-                    )}
                   </div>
 
                   {/* Validation Warnings Checklist */}
                   {previewItem.data.confidenceScore !== undefined && previewItem.data.confidenceScore < 100 && (
                     <div className="bg-white/80 border border-amber-100 p-4 rounded-xl text-xs space-y-2 text-slate-700 shadow-sm">
-                      <span className="font-bold flex items-center gap-1.5 text-amber-800">
-                        <AlertCircle className="w-4 h-4 text-amber-600" /> Rekomendasi Tindakan & Checklist Validasi:
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold flex items-center gap-1.5 text-amber-800">
+                          <AlertCircle className="w-4 h-4 text-amber-600" /> Rekomendasi Tindakan & Checklist Validasi:
+                        </span>
+                        <a href="/admin/scraping/sources#rules" className="text-teal-600 hover:text-teal-800 font-semibold flex items-center gap-1">
+                          <Settings className="w-3 h-3" /> Ubah Aturan
+                        </a>
+                      </div>
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 list-disc list-inside pl-1 text-slate-600 font-medium">
-                        {(!previewItem.data.judul || previewItem.data.judul.length <= 5) && (
-                          <li>Judul event terlalu pendek / kosong</li>
-                        )}
-                        {!previewItem.data.tanggalMulai && (
-                          <li>Tanggal mulai event tidak terdeteksi otomatis</li>
-                        )}
-                        {!previewItem.data.tipePlatform && (
-                          <li>Platform event (Online/Offline) gagal dipetakan</li>
-                        )}
-                        {!previewItem.data.kotaId && (
-                          <li>Kota asal tidak cocok dengan database</li>
-                        )}
-                        {!previewItem.data.kategoriId && (
-                          <li>Kategori event gagal dipetakan</li>
-                        )}
-                        {(!previewItem.data.deskripsi || previewItem.data.deskripsi.length <= 20) && (
-                          <li>Deskripsi event kosong atau terlalu ringkas</li>
-                        )}
-                        {!previewItem.data.linkRegistrasi && !previewItem.data.teleponKontak && (
-                          <li>Link registrasi & nomor kontak CP kosong</li>
-                        )}
-                        {previewItem.data.tipeHarga === 'paid' && !previewItem.data.harga && (
-                          <li>Harga tiket bernilai Rp 0 (padahal Event Berbayar)</li>
-                        )}
+                        {validationRules.map(rule => {
+                          const dataRecord = previewItem.data as Record<string, unknown>;
+                          if (!(rule.fieldName in dataRecord)) return null;
+                          const value = dataRecord[rule.fieldName];
+                          const strValue = typeof value === 'string' ? value : String(value ?? '');
+                          const numValue = typeof value === 'number' ? value : null;
+                          
+                          const fieldLabels: Record<string, string> = {
+                            judul: 'Judul event',
+                            tanggalMulai: 'Tanggal mulai',
+                            tanggalSelesai: 'Tanggal selesai',
+                            tipePlatform: 'Platform',
+                            kotaId: 'Kota',
+                            kategoriId: 'Kategori',
+                            detailLokasi: 'Lokasi',
+                            deskripsi: 'Deskripsi',
+                            linkRegistrasi: 'Link registrasi',
+                            namaKontak: 'Nama kontak',
+                            teleponKontak: 'Telepon kontak',
+                            emailKontak: 'Email kontak',
+                            harga: 'Harga',
+                            tipeHarga: 'Tipe harga',
+                            kuota: 'Kuota',
+                            jenisEvent: 'Jenis event',
+                          };
+                          const label = fieldLabels[rule.fieldName] || rule.fieldName;
+                          
+                          let isInvalid = false;
+                          let message = '';
+                          
+                          if (rule.isRequired) {
+                            if (numValue !== null) {
+                              isInvalid = numValue === 0 || numValue === undefined;
+                              message = `${label} wajib diisi`;
+                            } else {
+                              isInvalid = !strValue || strValue === 'null' || strValue === 'undefined';
+                              message = `${label} wajib diisi`;
+                            }
+                          }
+                          
+                          if (!isInvalid && rule.minLength && strValue && strValue.length < rule.minLength) {
+                            isInvalid = true;
+                            message = `${label} minimal ${rule.minLength} karakter`;
+                          }
+                          
+                          if (!isInvalid && rule.maxLength && strValue && strValue.length > rule.maxLength) {
+                            isInvalid = true;
+                            message = `${label} maksimal ${rule.maxLength} karakter`;
+                          }
+                          
+                          if (!isInvalid && rule.regexPattern && strValue) {
+                            try {
+                              const regex = new RegExp(rule.regexPattern);
+                              if (!regex.test(strValue)) {
+                                isInvalid = true;
+                                message = `${label} format tidak sesuai`;
+                              }
+                            } catch {}
+                          }
+                          
+                          return isInvalid ? (
+                            <li key={rule.id}>{message}</li>
+                          ) : null;
+                        })}
                       </ul>
                     </div>
                   )}
@@ -846,7 +930,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                     {/* Judul */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center">
-                        Judul Event <span className="text-rose-500 ml-0.5">*</span>
+                        Judul Event {isFieldRequired('judul') && <span className="text-rose-500 ml-0.5">*</span>}
                         {renderConfidenceBadge(previewItem.data.fieldConfidence?.judul)}
                       </label>
                       <Input 
@@ -861,7 +945,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Tanggal Mulai */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> Tanggal Mulai <span className="text-rose-500 ml-0.5">*</span>
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> Tanggal Mulai {isFieldRequired('tanggalMulai') && <span className="text-rose-500 ml-0.5">*</span>}
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.tanggalMulai)}
                         </label>
                         <Input 
@@ -897,7 +981,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Platform */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center">
-                          Platform <span className="text-rose-500 ml-0.5">*</span>
+                          Platform {isFieldRequired('tipePlatform') && <span className="text-rose-500 ml-0.5">*</span>}
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.tipePlatform)}
                         </label>
                         <Select 
@@ -915,7 +999,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Detail Lokasi */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                          Detail Lokasi <span className="text-rose-500 ml-0.5">*</span>
+                          Detail Lokasi {isFieldRequired('detailLokasi') && <span className="text-rose-500 ml-0.5">*</span>}
                         </label>
                         <Input 
                           value={editDetailLokasi}
@@ -930,7 +1014,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Kota */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                          Kota (Database) <span className="text-rose-500 ml-0.5">*</span>
+                          Kota (Database) {isFieldRequired('kotaId') && <span className="text-rose-500 ml-0.5">*</span>}
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.kotaId)}
                         </label>
                         <Select 
@@ -948,7 +1032,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Kategori */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                          Kategori (Database) <span className="text-rose-500 ml-0.5">*</span>
+                          Kategori (Database) {isFieldRequired('kategoriId') && <span className="text-rose-500 ml-0.5">*</span>}
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.kategoriId)}
                         </label>
                         <Select 
@@ -965,7 +1049,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
                       {/* Jenis Event */}
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Jenis Event <span className="text-rose-500 ml-0.5">*</span></label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Jenis Event {isFieldRequired('jenisEvent') && <span className="text-rose-500 ml-0.5">*</span>}</label>
                         <Select 
                           value={editJenisEvent} 
                           onChange={(e) => setEditJenisEvent(e.target.value as 'seminar' | 'conference')}
@@ -988,7 +1072,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Tipe Harga */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                          Tipe Harga <span className="text-rose-500 ml-0.5">*</span>
+                          Tipe Harga {isFieldRequired('tipeHarga') && <span className="text-rose-500 ml-0.5">*</span>}
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.harga)}
                         </label>
                         <Select
@@ -1007,7 +1091,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
                       {/* Harga */}
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Harga (Rp)</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Harga (Rp) {isFieldRequired('harga') && <span className="text-rose-500 ml-0.5">*</span>}</label>
                         <Input
                           type="number"
                           value={editHarga}
@@ -1020,7 +1104,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
                       {/* Kuota */}
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Kuota Peserta</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Kuota Peserta {isFieldRequired('kuota') && <span className="text-rose-500 ml-0.5">*</span>}</label>
                         <Input
                           type="number"
                           value={editKuota}
@@ -1042,7 +1126,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                       {/* Link Registrasi */}
                       <div className="space-y-1.5 sm:col-span-1">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                          Link Registrasi Asli <span className="text-rose-500 ml-0.5">*</span>
+                          Link Registrasi Asli {isFieldRequired('linkRegistrasi') && <span className="text-rose-500 ml-0.5">*</span>}
                           {renderConfidenceBadge(previewItem.data.fieldConfidence?.kontak)}
                         </label>
                         <Input
@@ -1055,7 +1139,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
                       {/* Nama CP */}
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Nama Kontak (CP)</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Nama Kontak (CP) {isFieldRequired('namaKontak') && <span className="text-rose-500 ml-0.5">*</span>}</label>
                         <Input
                           value={editNamaKontak}
                           onChange={(e) => setEditNamaKontak(e.target.value)}
@@ -1066,7 +1150,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
                       {/* Telepon CP */}
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">No Telepon CP</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">No Telepon CP {isFieldRequired('teleponKontak') && <span className="text-rose-500 ml-0.5">*</span>}</label>
                         <Input
                           value={editTeleponKontak}
                           onChange={(e) => setEditTeleponKontak(e.target.value)}
@@ -1079,7 +1163,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                     <div className="grid grid-cols-1 gap-4 pt-2">
                       {/* Email CP */}
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Email CP (Opsional)</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700">Email CP (Opsional) {isFieldRequired('emailKontak') && <span className="text-rose-500 ml-0.5">*</span>}</label>
                         <Input
                           type="email"
                           value={editEmailKontak}
@@ -1100,7 +1184,7 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                     {/* Deskripsi */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center">
-                        Deskripsi Event (HTML/Teks)
+                        Deskripsi Event (HTML/Teks) {isFieldRequired('deskripsi') && <span className="text-rose-500 ml-0.5">*</span>}
                         {renderConfidenceBadge(previewItem.data.fieldConfidence?.deskripsi)}
                       </label>
                       <Textarea
@@ -1219,6 +1303,25 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
         })()}
       </Modal>
 
+      <BulkPublishModal
+        open={bulkModalItems.length > 0}
+        onClose={() => setBulkModalItems([])}
+        items={bulkModalItems}
+        validationRules={validationRules}
+        onPublished={(ids) => {
+          setData(data.filter(d => !ids.includes(d.id)));
+          setSelected(new Set());
+          setBulkModalItems([]);
+        }}
+      />
+
+      <ScrapeResultModal
+        open={scrapeResults !== null}
+        onClose={() => { setScrapeResults(null); setScrapeSourceName(""); }}
+        results={scrapeResults ?? []}
+        sourceName={scrapeSourceName}
+        onSaved={() => window.location.reload()}
+      />
 
     </div>
   );

@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from "@/db";
-import { scrapingSources, scrapingValidationRules, scrapingAutoApprovalRules } from "@/db/schema";
+import { scrapingSources, scrapingValidationRules } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 
@@ -167,71 +167,5 @@ export async function updateValidationRule(id: number, data: {
   } catch (error) {
     console.error("Error updating validation rule:", error);
     return { success: false, error: error instanceof Error ? error.message : "Gagal memperbarui aturan validasi" };
-  }
-}
-
-export async function getAutoApprovalRules() {
-  await checkAdminAuth();
-  try {
-    const data = await db.select().from(scrapingAutoApprovalRules).orderBy(scrapingAutoApprovalRules.ruleName);
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error fetching auto-approval rules:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Gagal mengambil aturan persetujuan otomatis" };
-  }
-}
-
-export async function createAutoApprovalRule(data: {
-  ruleName: string;
-  conditionType: string;
-  thresholdValue?: number;
-  autoPublish?: boolean;
-  enabled?: boolean;
-}) {
-  await checkAdminAuth();
-  try {
-    const [rule] = await db.insert(scrapingAutoApprovalRules).values({
-      ruleName: data.ruleName,
-      conditionType: data.conditionType,
-      thresholdValue: data.thresholdValue,
-      autoPublish: data.autoPublish,
-      enabled: data.enabled,
-    }).returning();
-    return { success: true, data: rule };
-  } catch (error) {
-    console.error("Error creating auto-approval rule:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Gagal membuat aturan persetujuan otomatis" };
-  }
-}
-
-export async function deleteAutoApprovalRule(id: number) {
-  await checkAdminAuth();
-  try {
-    await db.delete(scrapingAutoApprovalRules).where(eq(scrapingAutoApprovalRules.id, id));
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting auto-approval rule:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Gagal menghapus aturan persetujuan otomatis" };
-  }
-}
-
-export async function updateAutoApprovalRule(id: number, data: {
-  ruleName?: string;
-  conditionType?: string;
-  thresholdValue?: number;
-  autoPublish?: boolean;
-  enabled?: boolean;
-}) {
-  await checkAdminAuth();
-  try {
-    const [rule] = await db.update(scrapingAutoApprovalRules)
-      .set(data)
-      .where(eq(scrapingAutoApprovalRules.id, id))
-      .returning();
-    if (!rule) return { success: false, error: "Aturan persetujuan otomatis tidak ditemukan" };
-    return { success: true, data: rule };
-  } catch (error) {
-    console.error("Error updating auto-approval rule:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Gagal memperbarui aturan persetujuan otomatis" };
   }
 }

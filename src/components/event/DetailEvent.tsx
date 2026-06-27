@@ -187,7 +187,7 @@ export default function DetailEvent({ event, isLoggedIn, isRegistered }: DetailE
   if (event.eventPolines) {
     urlPendaftaran = `/registrasi-event/${event.id}`;
   } else if (event.hasilScraping) {
-    urlPendaftaran = event.websiteSumber || event.linkEksternal || "#";
+    urlPendaftaran = event.linkEksternal || event.websiteSumber || "#";
     isExternalUrl = true;
   } else if (event.linkEksternal) {
     urlPendaftaran = event.linkEksternal;

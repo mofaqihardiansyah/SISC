@@ -5,7 +5,7 @@ import { getScrapingPageData } from "./shared";
 export const dynamic = 'force-dynamic';
 
 export default async function ScrapingPage() {
-  const { initialData, initialLogs, cities, categories } = await getScrapingPageData();
+  const { initialData, initialLogs, cities, categories, sources, validationRules } = await getScrapingPageData();
 
   return (
     <ScrapingClient
@@ -13,6 +13,8 @@ export default async function ScrapingPage() {
       initialLogs={initialLogs}
       cities={cities}
       categories={categories}
+      sources={sources}
+      validationRules={validationRules}
     />
   );
 }

@@ -1,23 +1,27 @@
 'use server';
 
 import { db } from "@/db";
-import { event, rawScrapedData, logScraping } from "@/db/schema";
+import { event, rawScrapedData, logScraping, scrapingSources } from "@/db/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { slugify } from "@/lib/utils";
 import { auth } from "@/auth";
 import { SITE, SCRAPER, UI_TEXT } from "@/lib/constants";
 import { cleanRawData } from "@/lib/scraper/cleaner";
 import { parseIndoDate, sanitizeHtml, isSafeUrl } from "@/lib/scraper/utils";
+import { scrapeDetailPage } from "@/app/api/cron/scrape/route";
 import * as cheerio from "cheerio";
+import { chromium } from "playwright";
+import type { Browser } from "playwright";
 
-interface ScrapedDataField {
+export interface ScrapedDataField {
   judul?: string; urlBanner?: string; detailLokasi?: string;
   tanggalMentah?: string; tanggalMulai?: string | null; tanggalSelesai?: string | null;
   jenisEvent?: 'seminar' | 'conference'; tipePlatform?: 'online' | 'offline' | 'hybrid' | null;
   kategoriId?: number | null; kotaId?: number | null;
   deskripsi?: string; tipeHarga?: 'free' | 'paid' | null; harga?: number; kuota?: number | null;
   linkRegistrasi?: string | null; linkEksternal?: string;
-  websiteSumber?: string; autoApproved?: boolean;
+  websiteSumber?: string;
+  [key: string]: unknown;
 }
 
 const checkAdminAuth = async () => {
@@ -45,7 +49,7 @@ export async function publishManualEvent(editedData: {
 
   const tanggalMulai = editedData.tanggalMulai ? new Date(editedData.tanggalMulai) : null;
   if (!tanggalMulai) {
-    return { success: false, error: "Tanggal mulai wajib diisi." };
+    return { success: false, error: "Tanggal mulai tidak valid. Harap edit tanggal secara manual." };
   }
   const tanggalSelesai = editedData.tanggalSelesai ? new Date(editedData.tanggalSelesai) : null;
 
@@ -59,7 +63,7 @@ export async function publishManualEvent(editedData: {
   const harga = editedData.harga ?? 0;
   const kuota = editedData.kuota || null;
 
-  const linkEksternal = editedData.linkRegistrasi || editedData.linkEksternal || "";
+  const linkEksternal = editedData.linkEksternal || editedData.linkRegistrasi || "";
   const websiteSumber = editedData.websiteSumber || "";
 
   if (linkEksternal) {
@@ -146,10 +150,7 @@ export async function publishRawEvent(
   const harga = editedData?.harga !== undefined ? editedData.harga : (data.harga ?? 0);
   const kuota = editedData?.kuota !== undefined ? editedData.kuota : (data.kuota || null);
 
-  // Prefer original/edited registration link over direct eventkampus link
-  const linkEksternal = editedData?.linkRegistrasi !== undefined 
-    ? editedData.linkRegistrasi 
-    : (data.linkRegistrasi || data.linkEksternal);
+  const linkEksternal = data.linkEksternal || data.linkRegistrasi;
 
   // Pengecekan duplikasi sebelum memasukkan data ke tabel event
   if (linkEksternal) {
@@ -194,6 +195,30 @@ export async function bulkPublishRawEvents(ids: number[]) {
     results.push(r);
   }
   return { success: results.every(r => r.success), count: results.filter(r => r.success).length };
+}
+
+export async function bulkPublishRawEventsWithEdits(
+  items: { id: number; editedData?: {
+    judul?: string; tanggalMulai?: string | null; tanggalSelesai?: string | null;
+    detailLokasi?: string; tipePlatform?: 'online' | 'offline' | 'hybrid' | null;
+    kategoriId?: number | null; kotaId?: number | null; jenisEvent?: 'seminar' | 'conference';
+    deskripsi?: string; tipeHarga?: 'free' | 'paid' | null; harga?: number;
+    kuota?: number | null; linkRegistrasi?: string | null;
+  }}[]
+) {
+  await checkAdminAuth();
+  const results: { id: number; success: boolean; error?: string }[] = [];
+  for (const item of items) {
+    const r = await publishRawEvent(item.id, item.editedData);
+    results.push({ id: item.id, success: r.success, error: r.error });
+  }
+  const succeeded = results.filter(r => r.success);
+  const failed = results.filter(r => !r.success);
+  return {
+    success: failed.length === 0,
+    count: succeeded.length,
+    failed: failed.map(f => ({ id: f.id, error: f.error })),
+  };
 }
 
 export async function bulkDeleteRawEvents(ids: number[]) {
@@ -251,31 +276,230 @@ export async function getScrapedItemsByIds(ids: number[]) {
   return { success: true, data: items };
 }
 
-export async function publishAllAutoApproved() {
+export async function scrapeSourceAction(sourceId: number) {
   await checkAdminAuth();
 
-  try {
-    const rawEvents = await db.select()
-      .from(rawScrapedData)
-      .where(and(
-        eq(rawScrapedData.status, 'processed'),
-        eq(rawScrapedData.statusIntegrasi, false)
-      ));
+  const [source] = await db.select().from(scrapingSources).where(eq(scrapingSources.id, sourceId));
+  if (!source || !source.isActive) return { success: false, error: "Sumber tidak ditemukan atau tidak aktif" };
 
-    let count = 0;
-    for (const raw of rawEvents) {
-      const data = raw.data as ScrapedDataField;
-      if (data?.autoApproved === true) {
-        const res = await publishRawEvent(raw.id);
-        if (res.success) {
-          count++;
-        }
+  const hostname = new URL(source.baseUrl).hostname;
+  const maxResults = source.maxResultsPerRun ?? 100;
+  const maxPages = 3;
+  const startTime = new Date();
+
+  // ponytail: Per-site extractor configs mirror engine.ts SOURCE_CONFIGS.
+  // Add a new entry here when onboarding a new source site.
+  type CardExtractor = ($: cheerio.CheerioAPI, el: cheerio.Cheerio<any>, sourceUrl: string) => ScrapedDataField | null;
+
+  const siteExtractors: Record<string, { cardSelector: string; extract: CardExtractor }> = {
+    'eventkampus.com': {
+      cardSelector: '.col-md-4, .card',
+      extract: ($, el, sourceUrl) => {
+        const title = sanitizeHtml($(el).find('.card-title, h3, h4').first().text().trim());
+        const linkEl = $(el).find('a').first();
+        let link = linkEl.attr('href') || '';
+        if (!link || !title) return null;
+        if (link.startsWith('/')) link = new URL(sourceUrl).origin + link;
+        let date = '';
+        let location = '';
+        $(el).find('i.material-icons').each((_, icon) => {
+          const text = $(icon).text().trim();
+          const parentText = $(icon).parent().text().replace(text, '').trim();
+          if (text === 'date_range') date = sanitizeHtml(parentText);
+          if (text === 'place') location = sanitizeHtml(parentText);
+        });
+        return {
+          judul: title.slice(0, 100),
+          linkEksternal: link,
+          websiteSumber: sourceUrl,
+          urlBanner: $(el).find('img').first().attr('src') || '',
+          tanggalMentah: date,
+          detailLokasi: location,
+        };
+      },
+    },
+    'infoseminar.id': {
+      cardSelector: '.seminar-card',
+      extract: ($, el, sourceUrl) => {
+        const title = sanitizeHtml($(el).find('h3').first().text().trim());
+        const linkEl = $(el).find('a').first();
+        let link = linkEl.attr('href') || '';
+        if (!link || !title) return null;
+        if (link.startsWith('/')) link = new URL(sourceUrl).origin + link;
+        let date = '';
+        let location = '';
+        $(el).find('.meta-row').each((_, row) => {
+          const text = $(row).text().trim();
+          if (/\d{1,2}\s+[A-Za-z]+\s+\d{4}/.test(text)) date = text;
+          else if (!/Gratis|Rp/i.test(text) && text.length > 3) location = text;
+        });
+        return {
+          judul: title.slice(0, 100),
+          linkEksternal: link,
+          websiteSumber: sourceUrl,
+          urlBanner: $(el).find('.seminar-img img, img').first().attr('src') || '',
+          tanggalMentah: date,
+          detailLokasi: location,
+        };
+      },
+    },
+  };
+
+  const matchedKey = Object.keys(siteExtractors).find(k => hostname.includes(k));
+  const extractor = matchedKey ? siteExtractors[matchedKey] : null;
+
+  const scrapedOnListing: ScrapedDataField[] = [];
+  const extractedLinks: string[] = [];
+
+  // Phase 1: Crawl listing pages
+  for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+    if (scrapedOnListing.length >= maxResults) break;
+    const pageUrl = pageNum === 1
+      ? `${source.baseUrl}${source.urlPattern || ''}`
+      : `${source.baseUrl}${source.urlPattern || ''}?page=${pageNum}`;
+
+    try {
+      const res = await fetch(pageUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9,id;q=0.8',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Sec-Fetch-User': '?1',
+          'Upgrade-Insecure-Requests': '1',
+        },
+      });
+      if (!res.ok) break;
+
+      const html = await res.text();
+      const $ = cheerio.load(html);
+
+      if (extractor) {
+        $(extractor.cardSelector).each((_, el) => {
+          if (scrapedOnListing.length >= maxResults) return false;
+          const item = extractor.extract($, $(el), source.baseUrl);
+          if (item) {
+            scrapedOnListing.push(item);
+            if (item.linkEksternal) extractedLinks.push(item.linkEksternal);
+          }
+        });
+      } else {
+        // ponytail: Best-effort fallback for unknown sites.
+        // Ceiling: may miss events with non-obvious selectors. Upgrade by adding a siteExtractors entry.
+        $('a[href*="event"], a[href*="seminar"], a[href*="conference"], .card, article, [class*="event"]').each((_, el) => {
+          if (scrapedOnListing.length >= maxResults) return false;
+          const $el = $(el);
+          const href = $el.is('a') ? $el.attr('href') : $el.find('a').first().attr('href');
+          if (!href) return;
+          const title = $el.is('a') ? $el.text().trim() : $el.find('h2, h3, h4, .title').first().text().trim();
+          if (!title || title.length < 3) return;
+          let fullLink = href.startsWith('http') ? href : `${source.baseUrl.replace(/\/+$/, '')}/${href.replace(/^\//, '')}`;
+          if (extractedLinks.includes(fullLink)) return;
+          scrapedOnListing.push({
+            judul: title.slice(0, 100),
+            linkEksternal: fullLink,
+            websiteSumber: source.baseUrl,
+            urlBanner: $el.find('img').first().attr('src') || '',
+            tanggalMentah: $el.find('.date, .tanggal, time').first().text().trim(),
+            detailLokasi: $el.find('.location, .lokasi, .place').first().text().trim(),
+          });
+          extractedLinks.push(fullLink);
+        });
       }
+
+      await new Promise(r => setTimeout(r, source.rateLimitDelayMs ?? 1000));
+    } catch {
+      break;
     }
-    return { success: true, count };
-  } catch (error) {
-    console.error("Error publishing auto-approved events:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Terjadi kesalahan internal" };
+  }
+
+  // Phase 2: Skip duplicate check — let saveScrapedResultsAction handle it
+
+  // Phase 3: Deep-scrape each event's detail page for richer data
+  const finalResults: ScrapedDataField[] = [];
+  for (const item of scrapedOnListing.slice(0, maxResults)) {
+    if (!item.linkEksternal) { finalResults.push(item); continue; }
+    try {
+      const detail = await scrapeDetailPage(item.linkEksternal);
+      finalResults.push({ ...item, ...detail });
+    } catch {
+      finalResults.push(item);
+    }
+  }
+
+  await db.update(scrapingSources).set({
+    lastScrapedAt: new Date(),
+    lastSuccessfulCount: finalResults.length,
+  }).where(eq(scrapingSources.id, sourceId));
+
+  await db.insert(logScraping).values({
+    targetUrl: source.baseUrl,
+    sumber: source.baseUrl,
+    status: 'success',
+    jumlahData: finalResults.length,
+    mulaiPada: startTime,
+    selesaiPada: new Date(),
+  });
+
+  return { success: true, data: finalResults, count: finalResults.length };
+}
+
+export async function saveScrapedResultsAction(results: ScrapedDataField[]) {
+  await checkAdminAuth();
+  const inserted: { id: number; judul: string }[] = [];
+
+  for (const r of results) {
+    const [row] = await db.insert(rawScrapedData).values({
+      sumber: r.websiteSumber || 'manual',
+      data: r as never,
+      status: 'pending',
+      urlTarget: r.linkEksternal || null,
+    }).returning({ id: rawScrapedData.id });
+    inserted.push({ id: row.id, judul: r.judul || '' });
+  }
+
+  return { success: true, count: inserted.length, items: inserted };
+}
+
+// ponytail: Singleton browser instance for Playwright fallback.
+// Ceiling: browser stays alive process-wide. If it crashes, next call re-launches.
+let _playwrightBrowser: Browser | null = null;
+async function getPlaywrightBrowser(): Promise<Browser> {
+  if (_playwrightBrowser?.isConnected()) return _playwrightBrowser;
+  _playwrightBrowser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
+  return _playwrightBrowser;
+}
+
+async function fetchWithPlaywrightFallback(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9,id;q=0.8',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1',
+      }
+    });
+    if (res.ok) return await res.text();
+    // 4xx/5xx → fall back to Playwright below
+  } catch {
+    // network error → fall back to Playwright below
+  }
+
+  const browser = await getPlaywrightBrowser();
+  const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36' });
+  const page = await context.newPage();
+  try {
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+    return await page.content();
+  } finally {
+    await context.close();
   }
 }
 
@@ -288,19 +512,11 @@ export async function scrapeSingleUrl(url: string) {
 
   try {
     let responseText = '';
-    let retries = 3;
+    let retries = 2;
     while (retries > 0) {
       try {
-        const res = await fetch(url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          }
-        });
-        if (res.ok) {
-          responseText = await res.text();
-          break;
-        }
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        responseText = await fetchWithPlaywrightFallback(url);
+        break;
       } catch (err) {
         retries--;
         if (retries === 0) throw err;
