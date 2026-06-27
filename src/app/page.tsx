@@ -11,106 +11,47 @@ import { EVENT_TYPES } from "@/lib/constants";
 export const revalidate = 60;
 
 export default async function BerandaPage() {
+  let categories: { id: number; nama: string | null; slug: string | null; urlIkon: string | null }[] = [];
+  let heroEvents: { id: number; judul: string | null; urlBanner: string | null; tanggalMulai: Date | null; detailLokasi: string | null }[] = [];
+  let eventPolines: { id: number; judul: string | null; urlBanner: string | null; tanggalMulai: Date | null; tipeHarga: string | null; harga: number | null; jenisEvent: string | null; tipePlatform: string | null; kotaNama: string | null; kategoriNama: string | null }[] = [];
+  let eventUmum: typeof eventPolines = [];
+
   try {
-    const [categories, heroEvents, eventPolines, eventUmum] = await Promise.all([
-      db
-        .select({
-          id: kategori.id,
-          nama: kategori.nama,
-          slug: kategori.slug,
-          urlIkon: kategori.urlIkon,
-        })
-        .from(kategori),
-
-      db
-        .select({
-          id: event.id,
-          judul: event.judul,
-          urlBanner: event.urlBanner,
-          tanggalMulai: event.tanggalMulai,
-          detailLokasi: event.detailLokasi,
-        })
-        .from(event)
-        .where(and(isNull(event.dihapusPada), eq(event.status, 'published')))
-        .orderBy(desc(event.jumlahTayangan))
-        .limit(5),
-
-      db
-        .select({
-          id: event.id,
-          judul: event.judul,
-          urlBanner: event.urlBanner,
-          tanggalMulai: event.tanggalMulai,
-          tipeHarga: event.tipeHarga,
-          harga: event.harga,
-          jenisEvent: event.jenisEvent,
-          tipePlatform: event.tipePlatform,
-          kotaNama: kota.nama,
-          kategoriNama: kategori.nama,
-        })
-        .from(event)
-        .leftJoin(kota, eq(event.kotaId, kota.id))
-        .leftJoin(kategori, eq(event.kategoriId, kategori.id))
-        .where(and(eq(event.eventPolines, true), isNull(event.dihapusPada), eq(event.status, 'published')))
-        .limit(8),
-
-      db
-        .select({
-          id: event.id,
-          judul: event.judul,
-          urlBanner: event.urlBanner,
-          tanggalMulai: event.tanggalMulai,
-          tipeHarga: event.tipeHarga,
-          harga: event.harga,
-          jenisEvent: event.jenisEvent,
-          tipePlatform: event.tipePlatform,
-          kotaNama: kota.nama,
-          kategoriNama: kategori.nama,
-        })
-        .from(event)
-        .leftJoin(kota, eq(event.kotaId, kota.id))
-        .leftJoin(kategori, eq(event.kategoriId, kategori.id))
-        .where(and(eq(event.eventPolines, false), isNull(event.dihapusPada), eq(event.status, 'published')))
-        .limit(8),
+    const results = await Promise.all([
+      db.select({ id: kategori.id, nama: kategori.nama, slug: kategori.slug, urlIkon: kategori.urlIkon }).from(kategori),
+      db.select({ id: event.id, judul: event.judul, urlBanner: event.urlBanner, tanggalMulai: event.tanggalMulai, detailLokasi: event.detailLokasi })
+        .from(event).where(and(isNull(event.dihapusPada), eq(event.status, 'published'))).orderBy(desc(event.jumlahTayangan)).limit(5),
+      db.select({ id: event.id, judul: event.judul, urlBanner: event.urlBanner, tanggalMulai: event.tanggalMulai, tipeHarga: event.tipeHarga, harga: event.harga, jenisEvent: event.jenisEvent, tipePlatform: event.tipePlatform, kotaNama: kota.nama, kategoriNama: kategori.nama })
+        .from(event).leftJoin(kota, eq(event.kotaId, kota.id)).leftJoin(kategori, eq(event.kategoriId, kategori.id))
+        .where(and(eq(event.eventPolines, true), isNull(event.dihapusPada), eq(event.status, 'published'))).limit(8),
+      db.select({ id: event.id, judul: event.judul, urlBanner: event.urlBanner, tanggalMulai: event.tanggalMulai, tipeHarga: event.tipeHarga, harga: event.harga, jenisEvent: event.jenisEvent, tipePlatform: event.tipePlatform, kotaNama: kota.nama, kategoriNama: kategori.nama })
+        .from(event).leftJoin(kota, eq(event.kotaId, kota.id)).leftJoin(kategori, eq(event.kategoriId, kategori.id))
+        .where(and(eq(event.eventPolines, false), isNull(event.dihapusPada), eq(event.status, 'published'))).limit(8),
     ]);
-
-    return (
-      <div className="bg-gray-50 min-h-screen font-sans">
-        <AuthStatus />
-
-        <section className="px-4 sm:px-8 lg:px-16 mt-6 animate-in fade-in zoom-in-95 duration-1000">
-          <HeroSlider events={heroEvents} />
-        </section>
-
-        <main className="px-4 sm:px-8 lg:px-16 py-10">
-          <div className="mb-10">
-            <h2 className="text-2xl font-extrabold mb-5 text-slate-800">Kategori Event</h2>
-            <KategoriCarousel categories={categories} />
-          </div>
-
-          <EventSection
-            title="Event Polines"
-            viewAllHref="/jelajah?type=polines"
-            events={eventPolines}
-            type={EVENT_TYPES.POLINES}
-            organizerLabel="Polines"
-            emptyMessage="Belum ada event Polines saat ini."
-          />
-
-          <EventSection
-            title="Event Umum"
-            viewAllHref="/jelajah?type=umum"
-            events={eventUmum}
-            type={EVENT_TYPES.UMUM}
-            organizerLabel="Umum"
-            emptyMessage="Belum ada event umum saat ini."
-          />
-        </main>
-        <Footer />
-      </div>
-    );
+    categories = results[0];
+    heroEvents = results[1];
+    eventPolines = results[2];
+    eventUmum = results[3];
   } catch (error) {
     console.error("DATABASE_ERROR_DI_BERANDA:", error);
     throw error;
   }
+
+  return (
+    <div className="bg-gray-50 min-h-screen font-sans">
+      <AuthStatus />
+      <section className="px-4 sm:px-8 lg:px-16 mt-6 animate-in fade-in zoom-in-95 duration-1000">
+        <HeroSlider events={heroEvents} />
+      </section>
+      <main className="px-4 sm:px-8 lg:px-16 py-10">
+        <div className="mb-10">
+          <h2 className="text-2xl font-extrabold mb-5 text-slate-800">Kategori Event</h2>
+          <KategoriCarousel categories={categories} />
+        </div>
+        <EventSection title="Event Polines" viewAllHref="/jelajah?type=polines" events={eventPolines} type={EVENT_TYPES.POLINES} organizerLabel="Polines" emptyMessage="Belum ada event Polines saat ini." />
+        <EventSection title="Event Umum" viewAllHref="/jelajah?type=umum" events={eventUmum} type={EVENT_TYPES.UMUM} organizerLabel="Umum" emptyMessage="Belum ada event umum saat ini." />
+      </main>
+      <Footer />
+    </div>
+  );
 }
