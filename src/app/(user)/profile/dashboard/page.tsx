@@ -2,22 +2,19 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Activity, Megaphone, MapPin, Calendar, Bookmark, History } from 'lucide-react';
-import { db } from '@/db'; 
+import { db } from '@/db';
 import { auth } from '@/auth';
-import { event, favorit, pendaftaran } from '@/db/schema'; 
-import { desc, eq, asc, gte, and, type InferSelectModel } from 'drizzle-orm';
+import { event, favorit, pendaftaran } from '@/db/schema';
+import { desc, eq, and, gte, asc, inArray, notInArray, type InferSelectModel } from 'drizzle-orm';
 export const dynamic = 'force-dynamic';
 
-
 type EventRow = InferSelectModel<typeof event>;
-type BookmarkRow = InferSelectModel<typeof favorit>;
-type PendaftaranRow = InferSelectModel<typeof pendaftaran>;
 
-function StatsCard({ label, value, bg, renderIcon }: { 
-  label: string; 
-  value: number | string; 
-  bg: string; 
-  renderIcon: () => React.ReactNode; 
+function StatsCard({ label, value, bg, renderIcon }: {
+  label: string;
+  value: number | string;
+  bg: string;
+  renderIcon: () => React.ReactNode;
 }) {
   return (
     <div className={`bg-gradient-to-br ${bg} p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all`}>
@@ -36,16 +33,15 @@ export default async function UserDashboard() {
   const session = await auth();
   const userId = session?.user?.id ? Number(session.user.id) : null;
 
-  // Safe DB queries with fallback on error to avoid runtime crash
-  let userBookmarks: BookmarkRow[] = [];
-  let userRegistrations: PendaftaranRow[] = [];
+  let userBookmarks: { eventId: number | null }[] = [];
+  let userRegistrations: { eventId: number | null; userId: number | null; status: string | null }[] = [];
   let activeEvents: EventRow[] = [];
   let upcomingEventsData: EventRow[] = [];
   let latestEventsData: EventRow[] = [];
 
   try {
     userBookmarks = userId
-      ? await db.select().from(favorit).where(eq(favorit.userId, userId))
+      ? await db.select({ eventId: favorit.eventId }).from(favorit).where(eq(favorit.userId, userId))
       : [];
 
     userRegistrations = userId
@@ -56,17 +52,74 @@ export default async function UserDashboard() {
       .from(event)
       .where(eq(event.status, 'published'));
 
-    upcomingEventsData = await db.select()
-      .from(event)
-      .where(and(eq(event.status, 'published'), gte(event.tanggalMulai, new Date())))
-      .orderBy(asc(event.tanggalMulai))
-      .limit(3);
+    upcomingEventsData = userId
+      ? await db
+          .select()
+          .from(event)
+          .innerJoin(pendaftaran, eq(pendaftaran.eventId, event.id))
+          .where(
+            and(
+              eq(pendaftaran.userId, userId),
+              eq(event.status, 'published'),
+              gte(event.tanggalMulai, new Date()),
+              eq(pendaftaran.status, 'terdaftar'),
+            ),
+          )
+          .orderBy(asc(event.tanggalMulai))
+          .limit(3)
+          .then(rows => rows.map(r => r.event))
+      : [];
 
-    latestEventsData = await db.select()
-      .from(event)
-      .where(eq(event.status, 'published'))
-      .orderBy(desc(event.dibuatPada))
-      .limit(4);
+    if (upcomingEventsData.length === 0) {
+      upcomingEventsData = await db.select()
+        .from(event)
+        .where(and(eq(event.status, 'published'), gte(event.tanggalMulai, new Date())))
+        .orderBy(asc(event.tanggalMulai))
+        .limit(3);
+    }
+
+    let preferredKategoriIds: number[] = [];
+    if (userId) {
+      const userEventIds = [
+        ...new Set([
+          ...userRegistrations.map(r => r.eventId).filter((id): id is number => id !== null),
+          ...userBookmarks.map(b => b.eventId).filter((id): id is number => id !== null),
+        ]),
+      ];
+      if (userEventIds.length > 0) {
+        const userEvents = await db
+          .select({ kategoriId: event.kategoriId })
+          .from(event)
+          .where(inArray(event.id, userEventIds));
+        preferredKategoriIds = [
+          ...new Set(
+            userEvents
+              .map(e => e.kategoriId)
+              .filter((id): id is number => id !== null),
+          ),
+        ];
+      }
+    }
+
+    latestEventsData = preferredKategoriIds.length > 0
+      ? await db.select()
+          .from(event)
+          .where(
+            and(
+              eq(event.status, 'published'),
+              inArray(event.kategoriId, preferredKategoriIds),
+              ...(userRegistrations.length > 0
+                ? [notInArray(event.id, userRegistrations.map(r => r.eventId).filter((id): id is number => id !== null))]
+                : []),
+            ),
+          )
+          .orderBy(desc(event.dibuatPada))
+          .limit(4)
+      : await db.select()
+          .from(event)
+          .where(eq(event.status, 'published'))
+          .orderBy(desc(event.dibuatPada))
+          .limit(4);
   } catch (err) {
     console.error('Database query failed in UserDashboard:', err);
   }
@@ -80,13 +133,13 @@ export default async function UserDashboard() {
     },
     {
       label: 'Event Favorit',
-      value: userBookmarks.length, 
+      value: userBookmarks.length,
       bg: 'from-violet-100 to-violet-50 border-violet-200',
       icon: <Bookmark className="w-8 h-8 text-violet-600" />
     },
     {
       label: 'Event Diikuti',
-      value: userRegistrations.length, 
+      value: userRegistrations.length,
       bg: 'from-blue-100 to-blue-50 border-blue-200',
       icon: <History className="w-8 h-8 text-blue-600" />
     },
@@ -94,7 +147,7 @@ export default async function UserDashboard() {
 
   return (
     <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
-      
+
       {/* PAGE HEADER */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pusat Aktivitas Anda</h1>
@@ -103,7 +156,7 @@ export default async function UserDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((item, index) => (
-          <StatsCard 
+          <StatsCard
             key={index}
             label={item.label}
             value={item.value}
@@ -127,12 +180,12 @@ export default async function UserDashboard() {
         <div className="space-y-4">
           {upcomingEventsData.length > 0 ? (
             upcomingEventsData.map((data) => (
-              <EventCard 
-                key={data.id} 
-                id={data.id}
+              <EventCard
+                key={data.id}
                 judul={data.judul}
-                date={data.tanggalMulai ? new Date(data.tanggalMulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'TBA'} 
-                location={data.detailLokasi || 'TBA'} 
+                id={data.id}
+                date={data.tanggalMulai ? new Date(data.tanggalMulai).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA'}
+                location={data.detailLokasi ?? 'TBA'}
                 urlBanner={data.urlBanner}
               />
             ))
@@ -161,7 +214,11 @@ export default async function UserDashboard() {
                   <span className="px-2 py-1 rounded text-xxs font-black bg-blue-100 text-blue-600 uppercase tracking-wider">
                     Event Baru
                   </span>
-                  <span className="text-xxs text-slate-400 font-medium">Baru Saja</span>
+                  <span className="text-xxs text-slate-400 font-medium">
+                    {data.dibuatPada
+                      ? `${String(new Date(data.dibuatPada).getDate()).padStart(2, '0')}-${String(new Date(data.dibuatPada).getMonth() + 1).padStart(2, '0')}-${new Date(data.dibuatPada).getFullYear()}`
+                      : ''}
+                  </span>
                 </div>
                 <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900">
                   <span className="font-bold text-sisc-navy">{data.judul}</span> telah dibuka pendaftarannya! Jangan sampai kehabisan kuota.
@@ -180,7 +237,7 @@ export default async function UserDashboard() {
 }
 
 function EventCard({ judul, id, date, location, urlBanner }: {
-  judul: string;
+  judul: string | null;
   id: number;
   date: string;
   location: string;
@@ -188,25 +245,23 @@ function EventCard({ judul, id, date, location, urlBanner }: {
 }) {
   return (
     <Link href={`/event/${id}`} className="block flex flex-col md:flex-row gap-6 p-5 border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-md transition-all group bg-white">
-      <div className="w-full md:w-40 h-32 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-200 relative">
+      <div className="w-full md:w-40 h-32 bg-slate-100 rounded-xl overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 relative">
         {urlBanner ? (
-          <Image src={urlBanner} alt={judul} fill className="object-cover" sizes="(max-width: 768px) 100vw, 160px" />
+          <Image src={urlBanner} alt={judul ?? ''} fill className="object-cover" sizes="(max-width: 768px) 100vw, 160px" />
         ) : (
           <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs p-2 text-center italic">Tanpa Banner</div>
         )}
       </div>
       <div className="flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors uppercase">
-            {judul}
-          </h3>
+          <h3 className="text-lg font-bold text-slate-900 uppercase">{judul}</h3>
           <div className="space-y-1 mt-2 text-sm text-slate-500">
             <p className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {date}</p>
             <p className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {location}</p>
           </div>
         </div>
         <div className="mt-4 md:mt-0 flex md:justify-end">
-          <span className="text-sm font-bold text-blue-600 group-hover:underline">Detail Acara</span>
+          <span className="text-sm font-bold text-blue-600 hover:underline group-hover:underline">Lihat Detail</span>
         </div>
       </div>
     </Link>

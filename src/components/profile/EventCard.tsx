@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, MapPin, User, Bookmark, ImageOff, Palette } from 'lucide-react';
+import BookmarkButton from '@/components/shared/BookmarkButton';
 
 interface EventCardProps {
   id: string | number;
@@ -17,6 +18,7 @@ interface EventCardProps {
   status?: 'pending' | 'registered' | 'completed' | 'favorited';
   onFavoriteToggle?: () => void;
   isFavorited?: boolean;
+  isLoggedIn?: boolean;
   priority?: boolean;
   variant?: 'list' | 'grid';
 }
@@ -30,9 +32,10 @@ export default function EventCard({
   timeLeft,
   image,
   status,
-  onFavoriteToggle,
   isFavorited = false,
+  isLoggedIn = false,
   priority = false,
+  onFavoriteToggle,
   variant = 'list',
 }: EventCardProps) {
   const [bookmarked, setBookmarked] = useState(isFavorited);
@@ -63,6 +66,11 @@ export default function EventCard({
             </div>
           )}
           <div className="absolute top-3 right-3">
+            <BookmarkButton 
+              eventId={String(id)} 
+              isLoggedIn={isLoggedIn ?? false} 
+              initialBookmarked={isFavorited} 
+            />
             <button
               onClick={handleBookmarkToggle}
               className={`p-2 rounded-full backdrop-blur-md transition-all ${
@@ -221,11 +229,15 @@ export default function EventCard({
             </p>
           </div>
         </div>
-      </div>
 
       {/* Countdown & CTA */}
       <div className="flex flex-col justify-between gap-4 md:items-end z-10">
         <div className="flex items-start justify-end gap-2">
+           <BookmarkButton 
+             eventId={String(id)} 
+             isLoggedIn={isLoggedIn ?? false} 
+             initialBookmarked={isFavorited} 
+           />
           <button
             onClick={handleBookmarkToggle}
             className={`p-3 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 ${
@@ -254,6 +266,7 @@ export default function EventCard({
             Lihat Detail
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );
