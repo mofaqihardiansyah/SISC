@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { LogOut, LayoutDashboard, Settings, Home } from "lucide-react";
+import { LogOut, LayoutDashboard, Settings, Home, User } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
@@ -17,6 +17,7 @@ interface UserMenuProps {
 
 export default function UserMenu({ user }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -37,13 +38,18 @@ export default function UserMenu({ user }: UserMenuProps) {
         className="flex items-center justify-center bg-white/10 w-10 h-10 rounded-full transition-all duration-300 hover:bg-white/20 active:scale-95 overflow-hidden border border-white/20"
         title={user.name || "Profil"}
       >
-        <Image 
-          src={user.image || "/uploads/avatars/fotodummy.jpg"} 
-          alt="Profile" 
-          width={40}
-          height={40}
-          className="w-full h-full object-cover"
-        />
+        {!imgError ? (
+          <Image 
+            src={user.image || "/uploads/avatars/fotodummy.jpg"} 
+            alt="Profile" 
+            width={40}
+            height={40}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <User className="w-5 h-5 text-white/80" />
+        )}
       </button>
 
       {isOpen && (

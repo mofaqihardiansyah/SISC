@@ -24,6 +24,7 @@ interface SharedDashboardUserMenuProps {
 
 export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: SharedDashboardUserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,13 +54,14 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
           </p>
         </div>
         <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden transition-all group-hover:border-blue-400 group-active:scale-95 shadow-sm">
-          {user.image ? (
+          {user.image && !imgError ? (
             <Image 
               src={user.image} 
               alt="Profile" 
               width={32}
               height={32}
               className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
             />
           ) : (
             <User className="w-5 h-5 text-blue-600" />

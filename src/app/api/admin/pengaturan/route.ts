@@ -37,7 +37,7 @@ export async function GET() {
   }
 }
 
-// PATCH — update nama & email admin
+// PATCH — update nama & email admin (partial: urlAvatar alone also allowed)
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth();
@@ -49,6 +49,15 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { namaLengkap, email, urlAvatar } = await req.json();
+
+    // Allow avatar-only update without requiring nama/email
+    if (urlAvatar !== undefined && namaLengkap === undefined && email === undefined) {
+      await db
+        .update(users)
+        .set({ urlAvatar, diperbaruiPada: new Date() })
+        .where(eq(users.email, session.user.email));
+      return NextResponse.json({ message: 'Avatar berhasil diperbarui' });
+    }
 
     if (!namaLengkap || !email) {
       return NextResponse.json({ error: 'Nama dan email wajib diisi' }, { status: 400 });

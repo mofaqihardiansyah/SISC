@@ -363,6 +363,15 @@ export function ReviewModal({
         </p>
       </div>
 
+      {event.syaratKetentuan && (
+        <div className="mb-2">
+          <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Syarat &amp; Ketentuan</h3>
+          <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-2.5 border border-slate-100 whitespace-pre-wrap">
+            {event.syaratKetentuan}
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
         <div className="space-y-1">
           <h3 className="text-xxs font-bold text-slate-500 uppercase tracking-wider mb-1">Waktu & Lokasi</h3>
@@ -378,6 +387,9 @@ export function ReviewModal({
           <InfoRow icon={<Monitor size={12} />} label="Platform" value={formatPlatform(event.platform)} />
           <InfoRow icon={<UsersIcon size={12} />} label="Kuota" value={event.kuota ? `${event.kuota.toLocaleString("id-ID")} orang` : "-"} />
           <InfoRow icon={<Wallet size={12} />} label="Harga" value={event.harga} />
+          <InfoRow icon={<Tag size={12} />} label="Target" value={event.eventPolines ? 'Polines' : 'Umum'} />
+          <InfoRow icon={<MapPin size={12} />} label="Provinsi" value={event.provinsiNama || '-'} />
+          <InfoRow icon={<MapPin size={12} />} label="Kota" value={event.kotaNama || '-'} />
           <InfoRow icon={<Globe size={12} />} label="Link" value={event.linkEksternal || "-"} />
         </div>
       </div>

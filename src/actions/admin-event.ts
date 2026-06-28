@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, pendaftaran, users, peserta, profilPenyelenggara } from "@/db/schema";
+import { event, pendaftaran, users, peserta, profilPenyelenggara, kota, provinsi, kategori } from "@/db/schema";
 import { eq, and, desc, sql, ilike, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -32,20 +32,29 @@ export async function getAdminEvents(search?: string, type?: string) {
         event: event,
         participantCount: sql<number>`count(${pendaftaran.id})`.mapWith(Number),
         namaInstansi: profilPenyelenggara.namaInstansi,
+        kotaNama: kota.nama,
+        provinsiNama: provinsi.nama,
+        kategoriNama: kategori.nama,
       })
       .from(event)
       .leftJoin(pendaftaran, eq(event.id, pendaftaran.eventId))
       .leftJoin(users, eq(event.organizerId, users.id))
       .leftJoin(profilPenyelenggara, eq(users.id, profilPenyelenggara.userId))
+      .leftJoin(kota, eq(event.kotaId, kota.id))
+      .leftJoin(provinsi, eq(kota.provinsiId, provinsi.id))
+      .leftJoin(kategori, eq(event.kategoriId, kategori.id))
       .where(and(...conditions))
-      .groupBy(event.id, profilPenyelenggara.namaInstansi)
+      .groupBy(event.id, profilPenyelenggara.namaInstansi, kota.nama, provinsi.nama, kategori.nama)
       .orderBy(desc(event.dibuatPada));
 
     // Flatten the result — standardize: profile first, then snapshot, then '-'
     const flattened = results.map(r => ({
       ...r.event,
       penyelenggara: r.namaInstansi || r.event.penyelenggara || '-',
-      participantCount: r.participantCount
+      participantCount: r.participantCount,
+      kotaNama: r.kotaNama,
+      provinsiNama: r.provinsiNama,
+      kategoriNama: r.kategoriNama,
     }));
 
     return { success: true, data: flattened };

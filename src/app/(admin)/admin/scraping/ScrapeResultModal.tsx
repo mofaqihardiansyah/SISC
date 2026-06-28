@@ -52,7 +52,10 @@ export default function ScrapeResultModal({
     setSaving(true);
     const res = await saveScrapedResultsAction(toSave);
     if (res.success) {
-      toast.success(`${res.count} event disimpan ke tabel!`);
+      const msg = res.skipped
+        ? `${res.count} disimpan, ${res.skipped} dilewati (URL sudah diterbitkan)`
+        : `${res.count} event disimpan ke tabel!`;
+      toast.success(msg);
       onSaved();
       onClose();
     } else {

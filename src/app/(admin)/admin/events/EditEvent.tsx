@@ -175,6 +175,22 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               </div>
             </div>
 
+            <div>
+              <label className={labelClasses}><MapPin size={12} /> Provinsi</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <Input type="text" value={event.provinsiNama || '-'} className={cn(inputClasses, "bg-slate-100")} disabled />
+              </div>
+            </div>
+
+            <div>
+              <label className={labelClasses}><MapPin size={12} /> Kota</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <Input type="text" value={event.kotaNama || '-'} className={cn(inputClasses, "bg-slate-100")} disabled />
+              </div>
+            </div>
+
             <div className="md:col-span-2">
               <label className={labelClasses}><Mic size={12} /> Pembicara / Pemateri</label>
               <div className="relative">
@@ -229,6 +245,14 @@ export default function EditEvent({ isOpen, onClose, event, onSuccess }: EditEve
               <div className="relative">
                 <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                 <Input type="number" name="kuota" value={formData.kuota || 0} onChange={handleChange} className={inputClasses} />
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className={labelClasses}><Clock size={12} /> Batas Registrasi</label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <Input type="datetime-local" name="batasRegistrasi" value={formData.batasRegistrasi ? new Date(formData.batasRegistrasi).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('batasRegistrasi', e.target.value)} className={inputClasses} />
               </div>
             </div>
 

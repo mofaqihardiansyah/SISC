@@ -139,7 +139,6 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
   // Search & filter states
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -305,12 +304,14 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
     const ids = [...selected];
     if (!ids.length) return toast.error("Pilih data terlebih dahulu");
     const res = await bulkPublishRawEvents(ids);
-    if (res.success) {
+    if (res.count > 0) {
       toast.success(`${res.count} event dipublikasikan!`);
       setData(data.filter(d => !selected.has(d.id)));
       setSelected(new Set());
-    } else {
-      toast.error("Terjadi masalah saat menerbitkan beberapa event");
+    }
+    if (res.failed?.length) {
+      const reasons = [...new Set(res.failed.map(f => f.error))].join('; ');
+      toast.error(`${res.failed.length} event gagal: ${reasons}`);
     }
   };
 
@@ -358,10 +359,8 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
 
   // Search and filter logic
   const filteredData = data.filter(item => {
-    const matchesSearch = item.data.judul?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.sumber?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return item.data.judul?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           item.sumber?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   // Pagination logic
@@ -503,15 +502,6 @@ export default function ScrapingManagement({ initialData, initialLogs, cities, c
                   className="pl-9"
                 />
               </div>
-              <Select 
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-44"
-              >
-                <option value="all">Semua Status</option>
-                <option value="processed">Processed (Bersih)</option>
-                <option value="pending">Pending (Mentah)</option>
-              </Select>
             </div>
 
             {selected.size > 0 && (

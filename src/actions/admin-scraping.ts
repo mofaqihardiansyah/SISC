@@ -189,12 +189,47 @@ export async function publishRawEvent(
 
 export async function bulkPublishRawEvents(ids: number[]) {
   await checkAdminAuth();
-  const results = [];
+  const results: { id: number; success: boolean; error?: string }[] = [];
+  const publishedLinks = new Set<string>();
+
+  // Pre-check all items' URLs against existing event table
+  const existingEvents = await db.select({ url: event.linkEksternal }).from(event);
+  const existingLinkUrls = new Set(existingEvents.map(r => r.url).filter(Boolean));
+
   for (const id of ids) {
+    const [raw] = await db.select().from(rawScrapedData).where(eq(rawScrapedData.id, id));
+    if (!raw || raw.statusIntegrasi) {
+      results.push({ id, success: false, error: "Data tidak ditemukan atau sudah terintegrasi" });
+      continue;
+    }
+
+    const data = raw.data as ScrapedDataField;
+    const link = data.linkEksternal || data.linkRegistrasi;
+    if (link && existingLinkUrls.has(link)) {
+      results.push({ id, success: false, error: "Event dengan URL ini sudah diterbitkan sebelumnya." });
+      continue;
+    }
+    if (link && publishedLinks.has(link)) {
+      results.push({ id, success: false, error: "Duplikat URL dalam satu batch" });
+      continue;
+    }
+    if (link) publishedLinks.add(link);
+
+    // Auto-clean raw data before publish so tanggalMulai gets parsed from tanggalMentah
+    if (raw.status !== 'processed') {
+      await cleanRawData(id);
+    }
+
     const r = await publishRawEvent(id);
-    results.push(r);
+    results.push({ ...r, id });
   }
-  return { success: results.every(r => r.success), count: results.filter(r => r.success).length };
+  const succeeded = results.filter(r => r.success);
+  const failed = results.filter(r => !r.success);
+  return {
+    success: failed.length === 0,
+    count: succeeded.length,
+    failed: failed.map(f => ({ id: f.id, error: f.error })),
+  };
 }
 
 export async function bulkPublishRawEventsWithEdits(
@@ -348,6 +383,25 @@ export async function scrapeSourceAction(sourceId: number) {
   const matchedKey = Object.keys(siteExtractors).find(k => hostname.includes(k));
   const extractor = matchedKey ? siteExtractors[matchedKey] : null;
 
+  // ponytail: skip links that point to listing/tag/archive pages, not event detail pages
+  const isEventUrl = (url: string): boolean => {
+    try {
+      const path = new URL(url).pathname;
+      if (/\/tag[s]?\//i.test(path)) return false;
+      if (/\/category\//i.test(path)) return false;
+      if (/\/kategori\//i.test(path)) return false;
+      if (/\/author\//i.test(path)) return false;
+      if (/\/penulis\//i.test(path)) return false;
+      if (/\/archive\//i.test(path)) return false;
+      if (/\/arsip\//i.test(path)) return false;
+      if (/\/search\//i.test(path)) return false;
+      if (/(\?|&)s=/i.test(url)) return false;
+      return true;
+    } catch {
+      return true;
+    }
+  };
+
   const scrapedOnListing: ScrapedDataField[] = [];
   const extractedLinks: string[] = [];
 
@@ -380,7 +434,7 @@ export async function scrapeSourceAction(sourceId: number) {
         $(extractor.cardSelector).each((_, el) => {
           if (scrapedOnListing.length >= maxResults) return false;
           const item = extractor.extract($, $(el), source.baseUrl);
-          if (item) {
+          if (item && item.linkEksternal && isEventUrl(item.linkEksternal)) {
             scrapedOnListing.push(item);
             if (item.linkEksternal) extractedLinks.push(item.linkEksternal);
           }
@@ -397,6 +451,7 @@ export async function scrapeSourceAction(sourceId: number) {
           if (!title || title.length < 3) return;
           let fullLink = href.startsWith('http') ? href : `${source.baseUrl.replace(/\/+$/, '')}/${href.replace(/^\//, '')}`;
           if (extractedLinks.includes(fullLink)) return;
+          if (!isEventUrl(fullLink)) return;
           scrapedOnListing.push({
             judul: title.slice(0, 100),
             linkEksternal: fullLink,
@@ -429,28 +484,55 @@ export async function scrapeSourceAction(sourceId: number) {
     }
   }
 
+  // ponytail: filter out events with clearly old dates (>1 year ago).
+  // Tries new Date(), parseIndoDate(), then year regex fallback.
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - 1);
+  const recentResults = finalResults.filter(item => {
+    const rawDate = item.tanggalMulai || item.tanggalMentah;
+    if (!rawDate || typeof rawDate !== 'string') return true;
+    // Try JS native parse (handles ISO, "Jan 12 2022", etc.)
+    const native = new Date(rawDate);
+    if (!isNaN(native.getTime())) return native >= cutoff;
+    // Try Indonesian date format parser
+    const indo = parseIndoDate(rawDate);
+    if (indo) return indo >= cutoff;
+    // Fallback: extract year via regex
+    const yearMatch = rawDate.match(/\b(20\d{2})\b/);
+    if (yearMatch) return parseInt(yearMatch[1], 10) >= cutoff.getFullYear();
+    return true;
+  });
+
   await db.update(scrapingSources).set({
     lastScrapedAt: new Date(),
-    lastSuccessfulCount: finalResults.length,
+    lastSuccessfulCount: recentResults.length,
   }).where(eq(scrapingSources.id, sourceId));
 
   await db.insert(logScraping).values({
     targetUrl: source.baseUrl,
     sumber: source.baseUrl,
     status: 'success',
-    jumlahData: finalResults.length,
+    jumlahData: recentResults.length,
     mulaiPada: startTime,
     selesaiPada: new Date(),
   });
 
-  return { success: true, data: finalResults, count: finalResults.length };
+  return { success: true, data: recentResults, count: recentResults.length };
 }
 
 export async function saveScrapedResultsAction(results: ScrapedDataField[]) {
   await checkAdminAuth();
-  const inserted: { id: number; judul: string }[] = [];
 
-  for (const r of results) {
+  // Skip items whose link already exists in the published event table
+  const existingEvents = await db.select({ url: event.linkEksternal }).from(event);
+  const existingUrls = new Set(existingEvents.map(e => e.url).filter(Boolean));
+  const filtered = results.filter(r => {
+    const link = r.linkEksternal || r.linkRegistrasi;
+    return !(link && existingUrls.has(link));
+  });
+
+  const inserted: { id: number; judul: string }[] = [];
+  for (const r of filtered) {
     const [row] = await db.insert(rawScrapedData).values({
       sumber: r.websiteSumber || 'manual',
       data: r as never,
@@ -460,7 +542,7 @@ export async function saveScrapedResultsAction(results: ScrapedDataField[]) {
     inserted.push({ id: row.id, judul: r.judul || '' });
   }
 
-  return { success: true, count: inserted.length, items: inserted };
+  return { success: true, count: inserted.length, items: inserted, skipped: results.length - filtered.length };
 }
 
 // ponytail: Singleton browser instance for Playwright fallback.

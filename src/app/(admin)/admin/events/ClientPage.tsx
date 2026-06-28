@@ -27,6 +27,7 @@ export type Event = {
   penyelenggara: string | null;
   tanggalMulai: Date;
   tanggalSelesai: Date | null;
+  batasRegistrasi: Date | null;
   status: 'pending' | 'published' | 'rejected';
   urlBanner: string | null;
   deskripsi: string | null;
@@ -41,6 +42,12 @@ export type Event = {
   participantCount?: number;
   namaPembicara: string | null;
   websiteSumber: string | null;
+  kategoriId: number | null;
+  kotaId: number | null;
+  metodePembayaran: unknown;
+  kotaNama?: string | null;
+  provinsiNama?: string | null;
+  kategoriNama?: string | null;
 };
 
 export type Stats = {

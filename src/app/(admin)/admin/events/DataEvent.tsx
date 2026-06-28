@@ -147,16 +147,21 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
   const renderViewMode = () => {
     const rows = [
       { label: 'Penyelenggara', value: event.penyelenggara || '-', icon: Building2 },
+      { label: 'Kategori', value: event.kategoriNama || '-', icon: Tag },
       { label: 'Jenis Event', value: event.jenisEvent === 'conference' ? 'Konferensi' : event.jenisEvent === 'seminar' ? 'Seminar' : '-', icon: Layout },
       { label: 'Target Peserta', value: event.eventPolines ? EVENT_TARGET_LABELS.polines : EVENT_TARGET_LABELS.umum, icon: Tag },
       { label: 'Tanggal Mulai', value: format(new Date(event.tanggalMulai), 'dd MMMM yyyy HH:mm', { locale: idLocale }) + ' WIB', icon: Clock },
       { label: 'Tanggal Selesai', value: event.tanggalSelesai ? format(new Date(event.tanggalSelesai), 'dd MMMM yyyy HH:mm', { locale: idLocale }) + ' WIB' : '-', icon: Clock },
       { label: 'Platform', value: event.tipePlatform === 'offline' ? 'Luring (Offline)' : event.tipePlatform === 'online' ? 'Daring (Online)' : event.tipePlatform === 'hybrid' ? 'Hybrid' : '-', icon: Globe },
-      { label: 'Lokasi / Platform', value: event.detailLokasi || '-', icon: MapPin },
+      { label: 'Lokasi', value: event.detailLokasi || '-', icon: MapPin },
+      { label: 'Provinsi', value: event.provinsiNama || '-', icon: MapPin },
+      { label: 'Kota', value: event.kotaNama || '-', icon: MapPin },
       { label: 'Pembicara', value: event.namaPembicara || '-', icon: Mic },
       { label: 'Kuota Peserta', value: `${event.kuota || 0} Orang`, icon: Users },
       { label: 'Jumlah Pendaftar', value: `${event.participantCount || 0} Orang`, icon: Users },
       { label: 'Harga Tiket', value: event.tipeHarga === 'free' ? 'Gratis' : `Rp ${(event.harga || 0).toLocaleString('id-ID')}`, icon: Ticket },
+      { label: 'Batas Registrasi', value: event.batasRegistrasi ? format(new Date(event.batasRegistrasi), 'dd MMMM yyyy HH:mm', { locale: idLocale }) + ' WIB' : '-', icon: Clock },
+      { label: 'Metode Bayar', value: event.metodePembayaran ? Array.isArray(event.metodePembayaran) ? `${(event.metodePembayaran as Record<string, unknown>[]).length} metode` : '-' : '-', icon: Ticket },
     ];
 
     if (!event.eventPolines && event.websiteSumber) {
@@ -322,6 +327,14 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
             <label className={labelClasses}><MapPin size={12} /> Lokasi / Link Platform</label>
             <Input type="text" name="detailLokasi" value={formData.detailLokasi || ''} onChange={handleChange} className={inputClasses} placeholder="Alamat atau Link Zoom/GMeet" />
           </div>
+          <div>
+            <label className={labelClasses}><MapPin size={12} /> Provinsi</label>
+            <Input type="text" value={event.provinsiNama || '-'} className={cn(inputClasses, "bg-slate-100")} disabled />
+          </div>
+          <div>
+            <label className={labelClasses}><MapPin size={12} /> Kota</label>
+            <Input type="text" value={event.kotaNama || '-'} className={cn(inputClasses, "bg-slate-100")} disabled />
+          </div>
           <div className="md:col-span-2">
             <label className={labelClasses}><Mic size={12} /> Pembicara / Pemateri</label>
             <Input type="text" name="namaPembicara" value={formData.namaPembicara || ''} onChange={handleChange} className={inputClasses} placeholder="Nama pembicara (pisahkan dengan koma)" />
@@ -357,6 +370,10 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
             <label className={labelClasses}><Users size={12} /> Batas Kuota Peserta</label>
             <Input type="number" name="kuota" value={formData.kuota || 0} onChange={handleChange} className={inputClasses} />
           </div>
+          <div className="md:col-span-2">
+            <label className={labelClasses}><Clock size={12} /> Batas Registrasi</label>
+            <Input type="datetime-local" name="batasRegistrasi" value={formData.batasRegistrasi ? new Date(formData.batasRegistrasi).toISOString().slice(0, 16) : ''} onChange={(e) => handleDateChange('batasRegistrasi', e.target.value)} className={inputClasses} />
+          </div>
         </div>
 
         {/* Section: Registrasi & Konten */}
@@ -385,6 +402,21 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
           <div>
             <label className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><ShieldCheck size={12} /> Syarat & Ketentuan</label>
             <Textarea name="syaratDanKetentuan" value={formData.syaratDanKetentuan || ''} onChange={handleChange} rows={3} className={cn(inputClasses, "resize-none")} />
+          </div>
+          <div>
+            <label className="text-xxs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5"><Ticket size={12} /> Metode Pembayaran</label>
+            {event.metodePembayaran && Array.isArray(event.metodePembayaran) ? (
+              <div className="space-y-1.5">
+                {(event.metodePembayaran as { jenis: string; namaPenyedia?: string; nomorAkun?: string; atasNama?: string }[]).map((mp, i) => (
+                  <div key={i} className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 text-micro text-slate-700 font-medium">
+                    <p>{mp.jenis === 'bank_transfer' ? 'Bank Transfer' : 'E-Wallet'} — {mp.namaPenyedia || '-'}</p>
+                    <p className="text-slate-400">{mp.atasNama || '-'} ({mp.nomorAkun || '-'})</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-micro text-slate-400 font-medium bg-slate-50 rounded-xl p-2.5 border border-slate-100">Gratis / Tidak ada metode</p>
+            )}
           </div>
         </div>
       </div>

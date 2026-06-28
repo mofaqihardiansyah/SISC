@@ -101,11 +101,11 @@ export default function AdminSettingsPage() {
       const data = await res.json();
       setAvatarUrl(data.url);
       
-      // Auto-save the avatar URL to the database
+      // Auto-save only the avatar URL to the database
       await fetch("/api/admin/pengaturan", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ namaLengkap, email, urlAvatar: data.url }),
+        body: JSON.stringify({ urlAvatar: data.url }),
       });
       
       router.refresh();
@@ -215,7 +215,7 @@ export default function AdminSettingsPage() {
             </div>
             
             <div className="md:col-span-1">
-              <label className="text-sm font-semibold mb-2 block text-slate-700">Email Kerja</label>
+              <label className="text-sm font-semibold mb-2 block text-slate-700">Email</label>
               <Input 
                 type="email" 
                 value={email}

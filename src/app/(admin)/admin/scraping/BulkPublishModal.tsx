@@ -59,7 +59,8 @@ export default function BulkPublishModal({
       onPublished(toPublish.map(i => i.id));
     }
     if (res.failed?.length) {
-      toast.error(`${res.failed.length} event gagal`);
+      const reasons = [...new Set(res.failed.map(f => f.error))].join('; ');
+      toast.error(`${res.failed.length} event gagal: ${reasons}`);
     }
     setPublishing(false);
     onClose();
