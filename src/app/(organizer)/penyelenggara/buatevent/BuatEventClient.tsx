@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Landmark, Wallet } from "lucide-react";
 import { ConfirmationModal } from '@/components/feedback/ConfirmationModal';
-import { createEvent, type MetodePembayaranInput } from "@/actions/create-event";
+import { createEvent, updateEvent, type MetodePembayaranInput } from "@/actions/create-event";
 import { BANK_LIST, E_WALLET_LIST, UPLOAD_LIMITS } from "@/lib/constants";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +46,29 @@ interface BuatEventClientProps {
   categories: KategoriOption[];
   cities: KotaOption[];
   provinces: ProvinsiOption[];
+  initialData?: {
+    id: number;
+    judul: string;
+    jenisEvent: "seminar" | "conference";
+    eventPolines: boolean;
+    tipePlatform: "online" | "offline" | "hybrid";
+    tipeHarga: "free" | "paid";
+    harga: number;
+    detailLokasi: string | null;
+    deskripsi: string | null;
+    syaratDanKetentuan: string | null;
+    tanggalMulai: Date;
+    tanggalSelesai: Date | null;
+    batasRegistrasi: Date | null;
+    kuota: number | null;
+    kategoriId: number | null;
+    kotaId: number | null;
+    urlBanner: string | null;
+    metodePembayaran: MetodePembayaranInput[] | null;
+    status: string;
+    pembicara: { nama: string }[];
+    kota?: { provinsiId: number | null } | null;
+  };
 }
 
 function MetodePembayaranItem({
@@ -197,34 +220,49 @@ function MetodePembayaranItem({
   );
 }
 
-export default function BuatEventClient({ categories, cities, provinces }: BuatEventClientProps) {
+export default function BuatEventClient({ categories, cities, provinces, initialData }: BuatEventClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [eventTitle, setEventTitle] = useState("");
-  const [location, setLocation] = useState("");
-  const [kotaId, setKotaId] = useState("");
-  const [provinsiId, setProvinsiId] = useState("");
-  const [speaker, setSpeaker] = useState("");
-  const [quota, setQuota] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [description, setDescription] = useState("");
-  const [terms, setTerms] = useState("");
+  const formatDateForInput = (d: Date | string | null | undefined): string => {
+    if (!d) return "";
+    const date = typeof d === "string" ? new Date(d) : d;
+    if (isNaN(date.getTime())) return "";
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
+
+  const pembicaraText = initialData?.pembicara?.map((p) => p.nama).join(", ") ?? "";
+
+  const isEditMode = !!initialData;
+  const eventId = initialData?.id ?? 0;
+
+  const [eventTitle, setEventTitle] = useState(initialData?.judul ?? "");
+  const [location, setLocation] = useState(initialData?.detailLokasi ?? "");
+  const [kotaId, setKotaId] = useState(String(initialData?.kotaId ?? ""));
+  const [provinsiId, setProvinsiId] = useState(String(initialData?.kota?.provinsiId ?? ""));
+  const [speaker, setSpeaker] = useState(pembicaraText);
+  const [quota, setQuota] = useState(String(initialData?.kuota ?? ""));
+  const [startDate, setStartDate] = useState(formatDateForInput(initialData?.tanggalMulai));
+  const [endDate, setEndDate] = useState(formatDateForInput(initialData?.tanggalSelesai));
+  const [description, setDescription] = useState(initialData?.deskripsi ?? "");
+  const [terms, setTerms] = useState(initialData?.syaratDanKetentuan ?? "");
   const [dragOver, setDragOver] = useState(false);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [eventType, setEventType] = useState<"seminar" | "conference">("seminar");
-  const [eventKind, setEventKind] = useState<"polines" | "umum">("polines");
-  const [kategoriId, setKategoriId] = useState("");
-  const [platform, setPlatform] = useState<"online" | "offline" | "hybrid">("offline");
-  const [tipeHarga, setTipeHarga] = useState<"free" | "paid">("paid");
-  const [fee, setFee] = useState("");
-  const [batasRegistrasi, setBatasRegistrasi] = useState("");
+  const [bannerPreview, setBannerPreview] = useState<string | null>(initialData?.urlBanner ?? null);
+  const [eventType, setEventType] = useState<"seminar" | "conference">(initialData?.jenisEvent ?? "seminar");
+  const [eventKind, setEventKind] = useState<"polines" | "umum">(initialData?.eventPolines ? "polines" : "umum");
+  const [kategoriId, setKategoriId] = useState(String(initialData?.kategoriId ?? ""));
+  const [platform, setPlatform] = useState<"online" | "offline" | "hybrid">(initialData?.tipePlatform ?? "offline");
+  const [tipeHarga, setTipeHarga] = useState<"free" | "paid">(initialData?.tipeHarga ?? "paid");
+  const [fee, setFee] = useState(String(initialData?.harga ?? ""));
+  const [batasRegistrasi, setBatasRegistrasi] = useState(formatDateForInput(initialData?.batasRegistrasi));
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [showDraftModal, setShowDraftModal] = useState(false);
-  const [metodePembayaranList, setMetodePembayaranList] = useState<MetodePembayaranLocal[]>([]);
+  const [metodePembayaranList, setMetodePembayaranList] = useState<MetodePembayaranLocal[]>(
+    (initialData?.metodePembayaran as MetodePembayaranLocal[]) ?? []
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filteredCities = provinsiId
@@ -247,7 +285,7 @@ export default function BuatEventClient({ categories, cities, provinces }: BuatE
     setBannerFile(null); setBannerPreview(null);
     setEventType("seminar"); setEventKind("polines"); setKategoriId("");
     setPlatform("offline"); setTipeHarga("paid"); setFee("");
-    setBatasRegistrasi(""); 
+    setBatasRegistrasi("");
     setMetodePembayaranList([]);
     setError(null); setSuccessMsg(null); setDragOver(false);
   }, []);
@@ -285,6 +323,7 @@ export default function BuatEventClient({ categories, cities, provinces }: BuatE
 
   const buildFormData = (isDraftFlag: boolean) => {
     const formData = new FormData();
+    if (isEditMode) formData.append("eventId", String(eventId));
     formData.append("judul", eventTitle);
     formData.append("jenisEvent", eventType);
     formData.append("eventPolines", eventKind === "polines" ? "true" : "false");
@@ -372,7 +411,8 @@ export default function BuatEventClient({ categories, cities, provinces }: BuatE
     setIsSubmitting(true);
     startTransition(async () => {
       try {
-        const result = await createEvent(buildFormData(isDraftFlag));
+        const action = isEditMode ? updateEvent : createEvent;
+        const result = await action(buildFormData(isDraftFlag));
         if (result?.error) {
           setError(result.error);
           setIsSubmitting(false);
@@ -401,7 +441,8 @@ export default function BuatEventClient({ categories, cities, provinces }: BuatE
     if (!eventTitle.trim()) { setShowDraftModal(false); resetForm(); return; }
     setIsSubmitting(true);
     startTransition(async () => {
-      await createEvent(buildFormData(true));
+      const action = isEditMode ? updateEvent : createEvent;
+      await action(buildFormData(true));
       setShowDraftModal(false);
       resetForm();
       router.push("/penyelenggara/buatevent?reset=" + Date.now());

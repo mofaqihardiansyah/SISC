@@ -433,7 +433,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
                 <div className="shrink-0 pl-4">
                   <Button 
-                    onClick={() => isDraft ? router.push(`/penyelenggara/detail-event/${ev.id}`) : openEditModal(ev)}
+                    onClick={() => isDraft ? router.push(`/penyelenggara/buatevent?edit=${ev.id}`) : openEditModal(ev)}
                     variant={isRejected ? "ghost" : "default"}
                     disabled={isRejected}
                     className={isRejected ? "text-slate-300 cursor-not-allowed" : ""}
