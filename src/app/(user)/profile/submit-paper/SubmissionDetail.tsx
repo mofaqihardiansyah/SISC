@@ -87,7 +87,7 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
               </div>
             )}
 
-            {/* Judul Section (Dominant & Clear) */}
+            {/* Judul Section */}
             <div className="space-y-2">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
@@ -98,7 +98,18 @@ export function SubmissionDetail({ paper, onBack }: SubmissionDetailProps) {
               </p>
             </div>
 
-
+            {/* Abstrak Section */}
+            {paper.abstrak && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Abstrak
+                </h4>
+                <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-line">
+                  {paper.abstrak}
+                </p>
+              </div>
+            )}
 
             {/* Penulis Section */}
             <div className="space-y-2">

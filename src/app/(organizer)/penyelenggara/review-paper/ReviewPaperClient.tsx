@@ -566,6 +566,16 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
                   {selectedPaper.judul}
                 </p>
               </div>
+              {selectedPaper.abstrak && (
+                <div className="space-y-1.5">
+                  <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <BookText size={12} /> Abstrak
+                  </p>
+                  <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-line">
+                    {selectedPaper.abstrak}
+                  </p>
+                </div>
+              )}
               {(selectedPaper.track || selectedPaper.kataKunci) && (
                 <div className="grid grid-cols-2 gap-4">
                   {selectedPaper.track && (

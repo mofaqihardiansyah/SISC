@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 import { submitNewPaper } from '@/actions/paper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea'
+import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
 
 type SubmissionFormProps = {
   selectedEvent: { id: number; judul: string } | undefined;
@@ -19,6 +20,7 @@ type AuthorInput = { namaDepan: string; namaBelakang: string; email: string; afi
 export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionFormProps) {
   const [step, setStep] = useState(1);
   const [paperTitle, setPaperTitle] = useState('');
+  const [abstrak, setAbstrak] = useState('');
   
   const [kataKunci, setKataKunci] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState('');
@@ -88,7 +90,9 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
   const handleNextStep = () => {
     if (step === 1) {
       if (paperTitle.trim().length < 5) return toast.error('Judul minimal 5 karakter');
+      if (abstrak.trim().length < 10) return toast.error('Abstrak minimal 10 karakter');
       if (kataKunci.length === 0) return toast.error('Minimal 1 kata kunci');
+      if (!track.trim()) return toast.error('Track/Topik harus diisi');
       setStep(2);
     } else if (step === 2) {
       if (authors.length === 0) return toast.error('Tambahkan minimal 1 penulis');
@@ -138,8 +142,9 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
       await submitNewPaper({
         eventId: selectedEvent.id,
         judul: paperTitle.trim(),
+        abstrak: abstrak.trim(),
         kataKunci: kataKunci.join(', '),
-        track: track.trim() || undefined,
+        track: track.trim(),
         penulis: authors.map(a => ({
           nama: `${a.namaDepan} ${a.namaBelakang}`.trim(),
           email: a.email,
@@ -241,19 +246,32 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
 
                   <div className="space-y-3">
                     <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-400" /> Track / Topik (Opsional)
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-400" /> Abstrak
                     </label>
-                    <Input
-                      type="text"
-                      list="topicsList"
-                      value={track}
-                      onChange={(e) => setTrack(e.target.value)}
-                      placeholder="Topik (contoh: AI)"
-                      className="w-full h-[50px] p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white outline-none text-sm text-slate-700 transition-all placeholder:text-slate-400"
+                    <Textarea
+                      rows={5}
+                      value={abstrak}
+                      onChange={(e) => setAbstrak(e.target.value)}
+                      placeholder="Abstrak paper (min. 10 karakter)"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white outline-none text-sm text-slate-700 transition-all placeholder:text-slate-400"
                     />
                   </div>
 
-
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-400" /> Track / Topik
+                    </label>
+                    <Select
+                      value={track}
+                      onChange={(e) => setTrack(e.target.value)}
+                      className="w-full h-[50px] px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm text-slate-700 cursor-pointer focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white"
+                    >
+                      <option value="" disabled>Pilih Track / Topik</option>
+                      {predefinedTopics.map((topic) => (
+                        <option key={topic} value={topic}>{topic}</option>
+                      ))}
+                    </Select>
+                  </div>
 
                   <div className="space-y-3">
                     <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -276,7 +294,6 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                     <div className="relative">
                       <Input
                         type="text"
-                        list="topicsList"
                         placeholder="Kata kunci (Enter untuk tambah)"
                         className="w-full h-[46px] pl-4 pr-16 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm text-slate-700 focus:border-primary transition-all shadow-sm"
                         value={keywordInput}
@@ -286,11 +303,6 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 bg-slate-100 rounded text-slate-400 text-nano font-bold tracking-wider">ENTER ↵</div>
                     </div>
                   </div>
-                  
-                  {/* Combobox Datalist */}
-                  <datalist id="topicsList">
-                    {predefinedTopics.map((topic, i) => <option key={i} value={topic} />)}
-                  </datalist>
                 </>
               )}
               {/* STEP 2 */}

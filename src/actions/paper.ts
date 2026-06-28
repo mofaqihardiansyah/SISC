@@ -10,6 +10,7 @@ import { z } from "zod";
 export interface SubmittedPaper {
   id: number;
   judul: string;
+  abstrak: string | null;
   kataKunci: string | null;
   track: string | null;
   penulis: {
@@ -29,8 +30,9 @@ export interface SubmittedPaper {
 const paperSchema = z.object({
   eventId: z.number(),
   judul: z.string().min(5),
+  abstrak: z.string().min(10, "Abstrak minimal 10 karakter"),
   kataKunci: z.string().optional(),
-  track: z.string().optional(),
+  track: z.string().min(2, "Track/Topik harus diisi"),
   penulis: z.array(z.object({
     nama: z.string().min(3, "Nama penulis harus diisi"),
     email: z.string().email("Email penulis tidak valid").or(z.literal("")),
@@ -71,6 +73,7 @@ export async function getSubmissionData() {
       .select({
         id: paperSubmission.id,
         judul: paperSubmission.judul,
+        abstrak: paperSubmission.abstrak,
         kataKunci: paperSubmission.kataKunci,
         track: paperSubmission.track,
         penulis: sql<{ nama: string; email: string; afiliasi: string; isCorresponding: boolean }[]>`COALESCE(

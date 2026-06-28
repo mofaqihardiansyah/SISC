@@ -16,6 +16,7 @@ export type Author = {
 export type PaperData = {
   id: number;
   judul: string;
+  abstrak: string | null;
   kataKunci: string | null;
   track: string | null;
   penulis: Author[];
@@ -56,6 +57,7 @@ export async function getOrganizerPapers(): Promise<PapersResult> {
     .select({
       id: paperSubmission.id,
       judul: paperSubmission.judul,
+      abstrak: paperSubmission.abstrak,
       kataKunci: paperSubmission.kataKunci,
       track: paperSubmission.track,
       penulis: sql<{ nama: string; email: string; afiliasi: string; isCorresponding: boolean }[]>`COALESCE(

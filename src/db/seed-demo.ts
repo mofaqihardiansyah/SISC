@@ -101,6 +101,7 @@ async function seedPapers() {
     {
       eventId: 4,
       judul: "Implementasi Edge Computing untuk Deteksi Kepadatan Parkir Real-time di Kampus",
+      abstrak: "Penelitian ini mengimplementasikan edge computing untuk mendeteksi kepadatan parkir secara real-time di lingkungan kampus. Sistem menggunakan sensor kamera yang terintegrasi dengan perangkat edge untuk memproses data secara lokal, mengurangi latensi, dan meningkatkan efisiensi bandwidth.",
       penulis: "Ahmad Rizki, Dr. Sujatmiko, Sarah Amelia",
       urlFile: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       status: "accepted" as const,
@@ -109,6 +110,7 @@ async function seedPapers() {
     {
       eventId: 5,
       judul: "Analisis Forensik Digital pada Serangan Ransomware di Infrastruktur Cloud",
+      abstrak: "Penelitian ini menganalisis teknik forensik digital untuk mengidentifikasi dan melacak serangan ransomware pada infrastruktur cloud. Metode yang digunakan mencakup analisis log, memory forensics, dan network traffic analysis untuk mengungkap vektor serangan.",
       penulis: "Ahmad Rizki, Prof. Budi Santoso",
       urlFile: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       status: "review" as const,
@@ -117,6 +119,7 @@ async function seedPapers() {
     {
       eventId: 6,
       judul: "Pemanfaatan Blockchain untuk Keamanan Data Rekam Medis di Puskesmas",
+      abstrak: "Penelitian ini mengeksplorasi penggunaan teknologi blockchain untuk mengamankan data rekam medis di Puskesmas. Sistem yang diusulkan menggunakan smart contract untuk mengontrol akses dan memastikan integritas data pasien.",
       penulis: "Ahmad Rizki, dr. Tirta",
       urlFile: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       status: "rejected" as const,
@@ -131,6 +134,7 @@ async function seedPapers() {
       userId: visitor.id,
       eventId: p.eventId,
       judul: p.judul,
+      abstrak: p.abstrak,
       urlFile: p.urlFile,
       status: p.status,
       komentarPenolakan: p.komentarPenolakan,
