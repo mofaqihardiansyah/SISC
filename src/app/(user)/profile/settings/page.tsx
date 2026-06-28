@@ -191,6 +191,7 @@ export default function SettingsPage() {
                 alt="Profile" 
                 width={96}
                 height={96}
+                unoptimized
                 className="w-full h-full object-cover"
               />
             </div>

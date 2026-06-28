@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { pendaftaran, peserta, event, users } from "@/db/schema";
-import { eq, and, ilike, or, desc, count } from "drizzle-orm";
+import { eq, and, ilike, or, asc, desc, count, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 
 // ── GET: Ambil daftar peserta milik organizer yang login ──────
@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const search   = searchParams.get("search") ?? "";
     const status   = searchParams.get("status") ?? "semua";
+    const sort     = searchParams.get("sort") ?? "newest";
     const page     = parseInt(searchParams.get("page") ?? "1");
     const perPage  = parseInt(searchParams.get("perPage") ?? "10");
     const offset   = (page - 1) * perPage;
@@ -66,7 +67,12 @@ export async function GET(req: NextRequest) {
       .leftJoin(peserta, eq(pendaftaran.id, peserta.pendaftaranId))
       .leftJoin(users, eq(pendaftaran.userId, users.id))
       .where(whereCondition)
-      .orderBy(desc(pendaftaran.dibuatPada))
+      .orderBy(
+        sort === "oldest" ? asc(pendaftaran.dibuatPada)
+        : sort === "name_asc" ? asc(peserta.namaLengkap)
+        : sort === "name_desc" ? desc(peserta.namaLengkap)
+        : desc(pendaftaran.dibuatPada)
+      )
       .limit(perPage)
       .offset(offset);
 

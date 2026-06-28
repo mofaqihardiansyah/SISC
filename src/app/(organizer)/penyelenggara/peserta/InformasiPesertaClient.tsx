@@ -278,6 +278,7 @@ export default function InformasiPesertaClient() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("semua");
+  const [sortBy, setSortBy] = useState("newest");
   const [page, setPage] = useState(1);
   const [totalData, setTotalData] = useState(0);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
@@ -294,6 +295,7 @@ export default function InformasiPesertaClient() {
       const params = new URLSearchParams({
         search,
         status: filterStatus,
+        sort: sortBy,
         page: String(page),
         perPage: String(PER_PAGE),
       });
@@ -306,7 +308,7 @@ export default function InformasiPesertaClient() {
     } finally {
       setLoading(false);
     }
-  }, [search, filterStatus, page]);
+  }, [search, filterStatus, sortBy, page]);
 
   useEffect(() => {
     fetchData();
@@ -315,7 +317,7 @@ export default function InformasiPesertaClient() {
   // Reset ke hal 1 saat filter/search berubah
   useEffect(() => {
     setPage(1);
-  }, [search, filterStatus]);
+  }, [search, filterStatus, sortBy]);
 
   // ── Update status ──────────────────────────────────────────────
   const updateStatus = async (pendaftaranId: number, newStatus: StatusPendaftaran, alasanPenolakan?: string) => {
@@ -353,6 +355,7 @@ export default function InformasiPesertaClient() {
       const params = new URLSearchParams({
         search,
         status: filterStatus,
+        sort: sortBy,
         page: "1",
         perPage: "99999",
       });
@@ -412,6 +415,16 @@ export default function InformasiPesertaClient() {
           <option value="hadir">Terverifikasi</option>
           <option value="menunggu_verifikasi">Menunggu</option>
           <option value="dibatalkan">Ditolak</option>
+        </Select>
+        <Select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="px-4 py-2.5 flex-1 text-sm border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-600 font-semibold cursor-pointer"
+        >
+          <option value="newest">Terbaru</option>
+          <option value="oldest">Terlama</option>
+          <option value="name_asc">Nama A-Z</option>
+          <option value="name_desc">Nama Z-A</option>
         </Select>
       </div>
 

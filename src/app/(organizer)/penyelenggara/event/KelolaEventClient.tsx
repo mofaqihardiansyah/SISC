@@ -302,9 +302,9 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
               className="border border-slate-100 bg-white rounded-xl px-4 py-2.5 text-sm2 text-slate-600 outline-none w-full cursor-pointer"
             >
               <option value="Semua Status">Semua Status</option>
-              <option value="DIPUBLIKASI">Dipublikasi</option>
-              <option value="DRAFT">{STATUS_LABEL.draft}</option>
-              <option value="DITOLAK">{STATUS_LABEL.rejected}</option>
+              <option value="Dipublikasi">Dipublikasi</option>
+              <option value="Draft">{STATUS_LABEL.draft}</option>
+              <option value="Ditolak">{STATUS_LABEL.rejected}</option>
             </Select>
           </div>
 
@@ -363,8 +363,8 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
           <div className="text-center py-12 text-slate-400 text-sm">Memuat data...</div>
         ) : currentEvents.length > 0 ? (
           currentEvents.map((ev) => {
-            const isDraft = ev.status === "DRAFT";
-            const isRejected = ev.status === "DITOLAK";
+            const isDraft = ev.status === "Draft";
+            const isRejected = ev.status === "Ditolak";
 
             return (
               <div key={ev.id} className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm hover:border-slate-300 transition-all">
