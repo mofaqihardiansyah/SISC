@@ -1,10 +1,10 @@
 // File: src/components/profile/EventCard.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, MapPin, User, Bookmark, ImageOff, Palette } from 'lucide-react';
+import { Calendar, MapPin, User, ImageOff, Palette } from 'lucide-react';
 import BookmarkButton from '@/components/shared/BookmarkButton';
 
 interface EventCardProps {
@@ -38,14 +38,6 @@ export default function EventCard({
   onFavoriteToggle,
   variant = 'list',
 }: EventCardProps) {
-  const [bookmarked, setBookmarked] = useState(isFavorited);
-
-  const handleBookmarkToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setBookmarked((prev) => !prev);
-    onFavoriteToggle?.();
-  };
-
   if (variant === 'grid') {
     return (
       <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
@@ -71,16 +63,6 @@ export default function EventCard({
               isLoggedIn={isLoggedIn ?? false} 
               initialBookmarked={isFavorited} 
             />
-            <button
-              onClick={handleBookmarkToggle}
-              className={`p-2 rounded-full backdrop-blur-md transition-all ${
-                bookmarked
-                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-200'
-                  : 'bg-white/70 text-slate-400 hover:bg-white hover:text-slate-900'
-              }`}
-            >
-              <Bookmark className={`w-4 h-4 ${bookmarked ? 'fill-current' : ''}`} />
-            </button>
           </div>
         </div>
 
@@ -238,16 +220,6 @@ export default function EventCard({
              isLoggedIn={isLoggedIn ?? false} 
              initialBookmarked={isFavorited} 
            />
-          <button
-            onClick={handleBookmarkToggle}
-            className={`p-3 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 ${
-              bookmarked
-                ? 'bg-slate-900 text-white border border-slate-900 shadow-sm'
-                : 'bg-slate-50 text-slate-300 hover:text-slate-900 border border-slate-100 hover:border-slate-900'
-            }`}
-          >
-            <Bookmark className={`w-5 h-5 ${bookmarked ? 'fill-current' : ''}`} />
-          </button>
         </div>
 
         <div className="flex flex-col gap-3">
