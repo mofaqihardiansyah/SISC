@@ -60,3 +60,50 @@ export async function updateProfilPenyelenggara(data: {
     return { success: false, error: "Gagal menyimpan perubahan." };
   }
 }
+
+export async function updateOrganisasiInfo(data: {
+  urlAvatar: string;
+  namaInstansi: string;
+  deskripsiInstansi: string;
+  urlWebsite: string;
+}) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    const userId = parseInt(session.user.id, 10);
+
+    await db.update(users).set({
+      urlAvatar: data.urlAvatar || "/uploads/avatars/fotodummy.jpg",
+      diperbaruiPada: new Date(),
+    }).where(eq(users.id, userId));
+
+    const [existingProfil] = await db.select().from(profilPenyelenggara).where(eq(profilPenyelenggara.userId, userId));
+
+    if (existingProfil) {
+      await db.update(profilPenyelenggara).set({
+        namaInstansi: data.namaInstansi,
+        deskripsiInstansi: data.deskripsiInstansi,
+        urlWebsite: data.urlWebsite,
+        diperbaruiPada: new Date(),
+      }).where(eq(profilPenyelenggara.userId, userId));
+    } else {
+      await db.insert(profilPenyelenggara).values({
+        userId,
+        namaInstansi: data.namaInstansi,
+        deskripsiInstansi: data.deskripsiInstansi,
+        urlWebsite: data.urlWebsite,
+      });
+    }
+
+    await db.update(event)
+      .set({ penyelenggara: data.namaInstansi })
+      .where(eq(event.organizerId, userId));
+
+    revalidatePath("/penyelenggara/profil");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating organisasi info:", error);
+    return { success: false, error: "Gagal menyimpan informasi organisasi." };
+  }
+}

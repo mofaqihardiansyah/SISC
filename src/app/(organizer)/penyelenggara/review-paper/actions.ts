@@ -88,7 +88,7 @@ export async function getOrganizerPapers(): Promise<PapersResult> {
 
 export async function updatePaperStatus(
   paperId: number,
-  status: "accepted" | "rejected",
+  status: "accepted" | "rejected" | "review",
   komentarPenolakan?: string
 ): Promise<void> {
   const session = await auth();

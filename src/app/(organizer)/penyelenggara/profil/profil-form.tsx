@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Globe, Mail, Phone, FileText, Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
-import { updateProfilPenyelenggara } from './actions';
+import { updateProfilPenyelenggara, updateOrganisasiInfo } from './actions';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ interface ProfilFormProps {
 
 export default function ProfilForm({ initialData }: ProfilFormProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingOrg, setIsSavingOrg] = useState(false);
   const [passLama, setPassLama] = useState('');
   const [passBaru, setPassBaru] = useState('');
   const [passKonfirm, setPassKonfirm] = useState('');
@@ -125,6 +126,28 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
       toast.error('Terjadi kesalahan');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveOrganisasi = async () => {
+    setIsSavingOrg(true);
+    try {
+      const res = await updateOrganisasiInfo({
+        urlAvatar: formData.urlAvatar,
+        namaInstansi: formData.namaInstansi,
+        deskripsiInstansi: formData.deskripsiInstansi,
+        urlWebsite: formData.urlWebsite,
+      });
+      if (res.success) {
+        toast.success('Informasi organisasi berhasil diperbarui!');
+      } else {
+        toast.error(res.error || 'Gagal menyimpan perubahan');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Terjadi kesalahan');
+    } finally {
+      setIsSavingOrg(false);
     }
   };
 
@@ -259,6 +282,18 @@ export default function ProfilForm({ initialData }: ProfilFormProps) {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <Button 
+            type="button"
+            onClick={handleSaveOrganisasi}
+            loading={isSavingOrg}
+            variant="default"
+            className="w-full sm:w-auto"
+          >
+            Simpan Informasi Organisasi
+          </Button>
         </div>
       </section>
 

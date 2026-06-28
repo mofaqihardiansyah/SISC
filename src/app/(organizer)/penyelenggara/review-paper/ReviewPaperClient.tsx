@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   Search,
   ChevronLeft,
@@ -14,8 +15,9 @@ import {
   BookText,
   User,
   Calendar,
-  ThumbsUp,
-  ThumbsDown,
+  Check,
+  X,
+  MoreVertical,
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -88,6 +90,29 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
   // Reject modal
   const [rejectPaper, setRejectPaper] = useState<PaperData | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  // Status dropdown (rendered at root level to avoid overflow clipping)
+  const [statusDropdown, setStatusDropdown] = useState<{
+    paper: PaperData;
+    rect: { top: number; right: number; bottom: number };
+    dropUp: boolean;
+  } | null>(null);
+
+  // Helper: compute dropdown position, flips to drop-up if space below is tight
+  const DROPDOWN_HEIGHT = 200;
+  const buildStatusDropdown = (paper: PaperData, btn: DOMRect) => {
+    const spaceBelow = window.innerHeight - btn.bottom;
+    const dropUp = spaceBelow < DROPDOWN_HEIGHT;
+    return {
+      paper,
+      rect: {
+        top: btn.bottom + 4,
+        right: window.innerWidth - btn.right,
+        bottom: window.innerHeight - btn.top + 4,
+      },
+      dropUp,
+    };
+  };
 
   // Notification
   const [notif, setNotif] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -162,6 +187,78 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleStatusChange = async (paperId: number, newStatus: "accepted" | "rejected" | "review") => {
+    setActionLoading({ id: paperId, type: newStatus });
+    setStatusDropdown(null);
+    try {
+      await updatePaperStatus(paperId, newStatus, newStatus === "rejected" ? "Ditolak oleh penyelenggara" : undefined);
+      const label = newStatus === "accepted" ? "diterima" : newStatus === "rejected" ? "ditolak" : "dikembalikan ke review";
+      showNotif("success", `Paper berhasil ${label}`);
+      setPapers(prev => prev.map(p => p.id === paperId ? { ...p, status: newStatus, komentarPenolakan: newStatus === "rejected" ? "Ditolak oleh penyelenggara" : null } : p));
+    } catch (err: unknown) {
+      showNotif("error", err instanceof Error ? err.message : "Gagal mengubah status");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Dropdown menu content — rendered via Portal ke document.body biar ga kena overflow parent
+  const renderStatusDropdown = () => {
+    if (!statusDropdown) return null;
+    const { paper, rect, dropUp } = statusDropdown;
+    const status = paper.status || "review";
+    return createPortal(
+      <>
+        <div className="fixed inset-0 z-30" onClick={() => setStatusDropdown(null)} />
+        <div
+          className="fixed z-40 w-48 bg-white rounded-xl border border-slate-200 shadow-lg py-1"
+          style={dropUp ? { bottom: rect.bottom, right: rect.right } : { top: rect.top, right: rect.right }}
+        >
+          {/* Arrow pointing toward trigger */}
+          <div className={`absolute ${dropUp ? 'top-[-5px]' : 'bottom-[-5px]'} right-6 w-3 h-3 bg-white border-l border-t border-slate-200 rotate-45`} />
+          <div className="flex items-center justify-between px-3.5 py-2 border-b border-slate-100">
+            <span className="text-xs font-bold text-slate-500">Ubah Status</span>
+            <button type="button" onClick={() => setStatusDropdown(null)} className="text-slate-300 hover:text-slate-500">
+              <X size={14} />
+            </button>
+          </div>
+          {status === "accepted" ? (
+            <button
+              type="button"
+              onClick={() => handleStatusChange(paper.id, "rejected")}
+              disabled={actionLoading?.id === paper.id}
+              className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-rose-50 hover:text-rose-700 disabled:opacity-40"
+            >
+              <span className="w-2 h-2 rounded-full bg-rose-500" />
+              Tolak
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleStatusChange(paper.id, "accepted")}
+              disabled={actionLoading?.id === paper.id}
+              className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-40"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              Terima
+            </button>
+          )}
+          <div className="border-t border-slate-100 my-1" />
+          <button
+            type="button"
+            onClick={() => handleStatusChange(paper.id, "review")}
+            disabled={actionLoading?.id === paper.id}
+            className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-amber-50 hover:text-amber-700 disabled:opacity-40"
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            Kembalikan ke Review
+          </button>
+        </div>
+      </>,
+      document.body
+    );
   };
 
   const formatDate = (date: Date | null) => {
@@ -319,7 +416,7 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
                                     size="icon"
                                     aria-label="Terima Paper"
                                   >
-                                    <ThumbsUp size={14} />
+                                    <Check size={14} />
                                   </Button>
                                   <Button
                                     onClick={() => { setRejectPaper(paper); setRejectReason(""); }}
@@ -328,17 +425,21 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
                                     size="icon"
                                     aria-label="Tolak Paper"
                                   >
-                                    <ThumbsDown size={14} />
+                                    <X size={14} />
                                   </Button>
                                 </>
                               ) : (
-                                <span className={`text-xxs font-bold px-2.5 py-1 rounded-md border ${
-                                  status === "accepted"
-                                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                    : "bg-rose-50 text-rose-600 border-rose-200"
-                                }`}>
-                                  {status === "accepted" ? "Diterima" : "Ditolak"}
-                                </span>
+                                <Button
+                                  type="button"
+                                  onClick={(e) => {
+                                    const btn = e.currentTarget.getBoundingClientRect();
+                                    setStatusDropdown(statusDropdown?.paper.id === paper.id ? null : buildStatusDropdown(paper, btn));
+                                  }}
+                                  variant="ghost"
+                                  size="icon"
+                                >
+                                  <MoreVertical size={14} />
+                                </Button>
                               )}
                               <Button
                                 onClick={() => setSelectedPaper(paper)}
@@ -379,13 +480,25 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
                         <span>{formatDate(paper.dibuatPada)}</span>
                       </div>
                       <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-50" onClick={(e) => e.stopPropagation()}>
-                        {status === "review" && (
+                        {status === "review" ? (
                           <>
                             <Button onClick={() => handleAccept(paper)} disabled={actionLoading?.id === paper.id}
                               variant="success" size="sm">Terima</Button>
                             <Button onClick={() => { setRejectPaper(paper); setRejectReason(""); }} disabled={actionLoading?.id === paper.id}
                               variant="destructive" size="sm">Tolak</Button>
                           </>
+                        ) : (
+                          <Button
+                            type="button"
+                            onClick={(e) => {
+                              const btn = e.currentTarget.getBoundingClientRect();
+                              setStatusDropdown(statusDropdown?.paper.id === paper.id ? null : buildStatusDropdown(paper, btn));
+                            }}
+                            variant="ghost"
+                            size="icon"
+                          >
+                            <MoreVertical size={14} />
+                          </Button>
                         )}
                         <Button onClick={() => setSelectedPaper(paper)}
                           variant="ghost" size="sm">Detail</Button>
@@ -581,7 +694,7 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
                      selectedPaper.status === "accepted" ? "Paper telah diterima" : "Paper telah ditolak"}
                   </p>
                   <div className="flex items-center gap-3">
-                    {selectedPaper.status === "review" && (
+                    {selectedPaper.status === "review" ? (
                       <>
                         <Button
                           onClick={() => { setSelectedPaper(null); setRejectPaper(selectedPaper); setRejectReason(""); }}
@@ -589,7 +702,7 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
                           variant="destructive"
                           loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "reject"}
                         >
-                          <ThumbsDown size={14} />
+                          <X size={14} />
                           Tolak
                         </Button>
                         <Button
@@ -598,10 +711,22 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
                           variant="success"
                           loading={actionLoading?.id === selectedPaper.id && actionLoading.type === "accept"}
                         >
-                          <ThumbsUp size={14} />
+                          <Check size={14} />
                           Terima Paper
                         </Button>
                       </>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          const btn = e.currentTarget.getBoundingClientRect();
+                          setStatusDropdown(statusDropdown?.paper.id === selectedPaper.id ? null : buildStatusDropdown(selectedPaper, btn));
+                        }}
+                        variant="ghost"
+                        size="icon"
+                      >
+                        <MoreVertical size={14} />
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -610,6 +735,9 @@ export default function ReviewPaperClient({ initialPapers, initialEvents }: Revi
           </div>
         </Modal>
       )}
+
+      {/* STATUS DROPDOWN (rendered at root level to avoid overflow clipping) */}
+      {renderStatusDropdown()}
 
       {/* REJECT MODAL */}
       <Modal
