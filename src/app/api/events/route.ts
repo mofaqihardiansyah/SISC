@@ -59,6 +59,7 @@ export async function GET(req: Request) {
 
     if (q) conditions.push(or(ilike(event.judul, `%${q}%`), ilike(profilPenyelenggara.namaInstansi, `%${q}%`))!);
     if (polines === 'true') conditions.push(eq(event.eventPolines, true));
+    if (polines === 'false') conditions.push(eq(event.eventPolines, false));
     if (price === 'Gratis') conditions.push(eq(event.tipeHarga, 'free'));
     if (price === 'Berbayar') conditions.push(eq(event.tipeHarga, 'paid'));
     if (platform) conditions.push(eq(event.tipePlatform, platform as 'online' | 'offline' | 'hybrid'));

@@ -1,0 +1,52 @@
+@startuml Statechart_Pendaftaran
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+skinparam defaultFontSize 10
+
+title Statechart Diagram — Pendaftaran
+
+[*] --> terdaftar : daftar event gratis
+
+[*] --> menunggu_verifikasi : daftar event berbayar\n+ upload bukti bayar
+
+terdaftar --> hadir : admin/penyelenggara\nkonfirmasi kehadiran
+
+menunggu_verifikasi --> terdaftar : pembayaran terverifikasi
+menunggu_verifikasi --> lunas : pembayaran lunas
+menunggu_verifikasi --> dibatalkan : pembayaran ditolak
+
+terdaftar --> lunas : pembayaran terverifikasi\n(upgrade status)
+
+lunas --> hadir : admin/penyelenggara\nkonfirmasi kehadiran
+
+dibatalkan --> [*]
+
+hadir --> [*]
+
+note right of terdaftar
+  Untuk event gratis,
+  langsung terdaftar
+end note
+
+note right of menunggu_verifikasi
+  Menunggu verifikasi
+  bukti pembayaran
+end note
+
+note right of lunas
+  Pembayaran terverifikasi,
+  peserta terkonfirmasi
+end note
+
+note right of dibatalkan
+  Pembayaran ditolak
+  atau batal manual
+end note
+
+note right of hadir
+  Peserta hadir di
+  acara
+end note
+
+@enduml

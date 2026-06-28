@@ -1,0 +1,65 @@
+@startuml DFD_Level1_POLIVENTS
+!theme plain
+skinparam shadowing false
+skinparam dpi 100
+skinparam defaultFontSize 9
+
+title DFD Level 1 — POLIVENTS
+
+rectangle "**Visitor**" as visitor #D6EAF8
+rectangle "**Organizer**" as organizer #D5F5E3
+rectangle "**Admin**" as admin #FADBD8
+
+rectangle "1.0\nManajemen Akun\n& Autentikasi" as P1 #FFF9C4
+rectangle "2.0\nManajemen\nEvent" as P2 #C8E6C9
+rectangle "3.0\nPendaftaran\n& Pembayaran" as P3 #BBDEFB
+rectangle "4.0\nManajemen\nPaper" as P4 #E1BEE7
+rectangle "5.0\nManajemen\nFavorit" as P5 #FFE0B2
+rectangle "6.0\nVerifikasi &\nAdministrasi" as P6 #FFCDD2
+rectangle "7.0\nWeb Scraping\n& Integrasi Data" as P7 #B2DFDB
+
+database "D1 Users" as D1
+database "D2 Event & Master" as D2
+database "D3 Pendaftaran & Peserta" as D3
+database "D4 Paper" as D4
+database "D5 Scraping" as D5
+
+visitor --> P1 : "data registrasi, login"
+P1 --> visitor : "status akun, kode OTP"
+
+visitor --> P2 : "cari event, jelajah"
+P2 --> visitor : "daftar event, info event"
+
+visitor --> P3 : "pendaftaran, bukti bayar"
+P3 --> visitor : "kode pendaftaran, status"
+
+visitor --> P4 : "submit paper"
+P4 --> visitor : "status paper"
+
+visitor --> P5 : "toggle favorit"
+P5 --> visitor : "daftar favorit"
+
+organizer --> P2 : "buat event, jadwal, lampiran"
+P2 --> organizer : "status event"
+
+organizer --> P4 : "review paper"
+P4 --> organizer : "daftar paper"
+
+P3 --> organizer : "daftar pendaftar"
+
+admin --> P6 : "verifikasi event,\nverifikasi penyelenggara,\nmanajemen user"
+P6 --> admin : "antrean pengajuan,\ninfo user, info event"
+
+admin --> P7 : "konfigurasi scraping,\ntrigger scrape"
+P7 --> admin : "raw data, log scraping"
+
+P1 --> D1
+P2 --> D2
+P3 --> D3
+P4 --> D4
+P5 --> D2
+P6 --> D1
+P6 --> D2
+P7 --> D5
+
+@enduml

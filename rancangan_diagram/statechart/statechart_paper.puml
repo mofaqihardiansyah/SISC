@@ -1,0 +1,35 @@
+@startuml Statechart_Paper
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+skinparam defaultFontSize 10
+
+title Statechart Diagram — Paper Submission
+
+[*] --> review : paper disubmit
+
+review --> accepted : organizer terima
+review --> rejected : organizer tolak
+
+accepted --> [*]
+
+rejected --> review : penulis submit ulang
+
+note right of review
+  Paper menunggu
+  review dari organizer
+end note
+
+note right of accepted
+  Paper diterima,
+  penulis mendapat
+  notifikasi
+end note
+
+note right of rejected
+  Paper ditolak,
+  ada komentar
+  penolakan
+end note
+
+@enduml

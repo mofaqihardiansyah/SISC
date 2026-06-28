@@ -1,0 +1,24 @@
+@startuml DFD_Level0_POLIVENTS
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+skinparam defaultFontSize 10
+
+title DFD Level 0 — Context Diagram POLIVENTS
+
+rectangle "**Visitor**" as visitor #D6EAF8
+rectangle "**Organizer**" as organizer #D5F5E3
+rectangle "**Admin**" as admin #FADBD8
+
+circle "**SISTEM INFORMASI\nSEMINAR & CONFERENCE\nPOLIVENTS**" as sistem #FEF9E7
+
+visitor --> sistem : "data registrasi, data login,\npendaftaran, bukti bayar,\ndata peserta, submit paper, favorit"
+sistem --> visitor : "informasi event,\nkode pendaftaran,\nstatus pendaftaran, status paper"
+
+sistem --> organizer : "status verifikasi akun,\nstatus verifikasi event,\ndaftar pendaftar"
+organizer --> sistem : "data event baru,\njadwal, lampiran"
+
+admin --> sistem : "keputusan verifikasi,\nmanajemen user,\nkelola info pembayaran,\nkonfigurasi scraping"
+sistem --> admin : "data antrean pengajuan,\ninfo seluruh data,\nlog sistem,\nraw data scraping"
+
+@enduml

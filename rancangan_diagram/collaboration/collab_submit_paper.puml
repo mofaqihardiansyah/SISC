@@ -1,0 +1,53 @@
+@startuml Collaboration_Submit_Paper
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+
+title Collaboration Diagram — 4.1 Submit Paper
+
+object ":Visitor" as Visitor {
+}
+
+object ":UI" as UI {
+}
+
+object ":PaperController" as Ctrl {
+}
+
+object ":PaperDB" as PaperDB {
+}
+
+object ":PendaftaranDB" as RegDB {
+}
+
+object ":BlobStorage" as Blob {
+}
+
+object ":Organizer" as Organizer {
+}
+
+Visitor --> UI : 1: klik "Submit Paper"
+UI --> Ctrl : 2: getSubmissionData(userId, eventId)
+Ctrl --> RegDB : 3: cek status pendaftaran
+RegDB --> Ctrl : 4: status lunas
+Ctrl --> UI : 5: form submit paper
+UI --> Visitor : 6: tampilkan form
+
+Visitor --> UI : 7: isi data paper + upload PDF
+UI --> Blob : 8: upload file paper
+Blob --> UI : 9: url file
+UI --> Ctrl : 10: submitPaper(data)
+Ctrl --> PaperDB : 11: insert paper (status: review)
+PaperDB --> Ctrl : 12: paper tersimpan
+Ctrl --> UI : 13: paper dikirim
+UI --> Visitor : 14: sukses
+
+Organizer --> UI : 15: review paper, accept
+UI --> Ctrl : 16: updateStatus(id, "accepted")
+Ctrl --> PaperDB : 17: update status
+PaperDB --> Ctrl : 18: terupdate
+Ctrl --> UI : 19: terupdate
+UI --> Visitor : 20: notifikasi "paper diterima"
+
+@enduml

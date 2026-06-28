@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title 3.0 Pendaftaran Event
+
+actor "Visitor" as V
+participant "System" as S
+database "Database" as D
+actor "Organizer" as O
+
+== Daftar Event ==
+
+V -> S : Klik "Daftar Event"
+S -> D : Cek kuota & batas registrasi
+D --> S : Info event
+S -> D : Simpan pendaftaran (status: menunggu_verifikasi)
+D --> S : Pendaftaran tersimpan
+S --> V : Tampilkan kode pendaftaran (REG-xxx)
+
+== Upload Bukti Bayar ==
+
+V -> S : Upload bukti pembayaran
+S -> D : Simpan bukti pembayaran
+D --> S : Bukti tersimpan
+S --> V : Tampilkan status upload
+
+== Verifikasi Pembayaran ==
+
+O -> S : Review bukti pembayaran
+S -> D : Update status pendaftaran → lunas
+D --> S : Status terupdate
+S -> D : Buat data peserta baru
+D --> S : Peserta terbuat
+S --> V : Kirim notifikasi "Pembayaran lunas"
+
+@enduml

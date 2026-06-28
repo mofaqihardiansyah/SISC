@@ -10,7 +10,7 @@ import Footer from '@/components/shared/Footer';
 import EmptyState from '@/components/profile/EmptyState';
 
 import { EventsApiResponse, EventCardItem } from '@/types/event';
-import { UI_TEXT, EVENT_TARGET_LABELS } from '@/lib/constants';
+import { UI_TEXT } from '@/lib/constants';
 
 type DropdownType = "Lokasi" | "Platform" | "Jenis Event" | "Kategori Event" | "Waktu" | "Harga";
 
@@ -42,7 +42,7 @@ function JelajahContent() {
   const eventsPerPage = 6;
 
   const [filters, setFilters] = useState({
-    polines: false,
+    polines: "",
     price: "" as "" | "Gratis" | "Berbayar",
     provinsi: "",
     location: "",
@@ -82,6 +82,9 @@ function JelajahContent() {
   useEffect(() => {
     setFilters(prev => ({ ...prev, category: searchParams.get("kategori") ?? "" }));
     setSearchTerm(searchParams.get("q") ?? "");
+    const type = searchParams.get("type");
+    if (type === "polines") setFilters(prev => ({ ...prev, polines: "true" }));
+    else if (type === "umum") setFilters(prev => ({ ...prev, polines: "false" }));
   }, [searchParams]);
 
   // Fetch events
@@ -134,7 +137,7 @@ function JelajahContent() {
   const totalPages = Math.ceil(totalEvents / eventsPerPage);
 
   const resetFilter = () => {
-    setFilters({ polines: false, price: "", provinsi: "", location: "", platform: "", jenisEvent: "", category: "", time: "" });
+    setFilters({ polines: "", price: "", provinsi: "", location: "", platform: "", jenisEvent: "", category: "", time: "" });
     setSortBy("newest");
     setSearchTerm("");
     router.push('/jelajah');
@@ -192,14 +195,23 @@ function JelajahContent() {
 
             <div className="border-t pt-4 mb-4" />
 
-            {/* TOGGLE POLINES */}
-            <div className="flex justify-between items-center mb-6">
-              <span className="font-medium text-sm">{EVENT_TARGET_LABELS.polines.split(' ')[0]}</span>
-              <div
-                onClick={() => setFilters({ ...filters, polines: !filters.polines })}
-                className={`w-9 h-5 rounded-full p-1 cursor-pointer transition-colors ${filters.polines ? "bg-blue-600" : "bg-gray-300"}`}
-              >
-                <div className={`w-3 h-3 bg-white rounded-full transition-transform ${filters.polines ? "translate-x-4" : ""}`} />
+            {/* TARGET EVENT: Polines / Umum */}
+            <div className="mb-6">
+              <span className="font-medium text-sm">Target Event</span>
+              <div className="flex gap-2 mt-2">
+                {(["", "true", "false"] as const).map(val => (
+                  <button
+                    key={val}
+                    onClick={() => setFilters({ ...filters, polines: val })}
+                    className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
+                      filters.polines === val
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {val === "" ? "Semua" : val === "true" ? "Polines" : "Umum"}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -292,6 +304,15 @@ function JelajahContent() {
                 {/* JENIS EVENT */}
                 {openDropdown === item && item === "Jenis Event" && (
                   <div className="mt-3 space-y-2">
+                    <div
+                      onClick={() => {
+                        setFilters({ ...filters, jenisEvent: "" });
+                        setOpenDropdown(null);
+                      }}
+                      className={`cursor-pointer hover:text-blue-600 ${filters.jenisEvent === "" ? "text-blue-600 font-semibold" : "text-gray-400"}`}
+                    >
+                      Seminar / Conference
+                    </div>
                     {["seminar", "conference"].map(j => (
                       <div
                         key={j}
@@ -304,7 +325,6 @@ function JelajahContent() {
                         {j.charAt(0).toUpperCase() + j.slice(1)}
                       </div>
                     ))}
-                    <div onClick={() => setFilters({ ...filters, jenisEvent: "" })} className="text-xs text-gray-400 cursor-pointer hover:text-red-400">Reset</div>
                   </div>
                 )}
 

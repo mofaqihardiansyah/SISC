@@ -1,0 +1,43 @@
+@startuml Activity_Pendaftaran_Akun
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 1.1 Pendaftaran Akun Pengunjung
+
+|Pengunjung|
+start
+:Buka halaman registrasi;
+:Isi data registrasi
+(nama, email, password, role);
+:Klik "Daftar";
+
+|Sistem|
+:Validasi input;
+if (Input valid?) then (ya)
+  :Buat user baru
+  (status: belum verifikasi);
+  :Kirim kode OTP ke email;
+else (tidak)
+  :Tampilkan pesan error;
+  stop
+endif
+
+|Pengunjung|
+:Buka email, masukkan kode OTP;
+
+|Sistem|
+:Validasi OTP;
+if (OTP valid?) then (ya)
+  :Update status email_terverifikasi;
+  :Tampilkan pesan "Akun berhasil dibuat";
+else (tidak)
+  :Tampilkan pesan "OTP salah/kedaluwarsa";
+endif
+
+|Pengunjung|
+:Login dengan akun baru;
+
+stop
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+!theme plain
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontSize 11
+
+title 4.0 Submit Paper
+
+actor "Visitor" as V
+participant "System" as S
+database "Database" as D
+actor "Organizer" as O
+
+== Cek Kelayakan ==
+
+V -> S : Klik Submit Paper
+S -> D : Cek status pendaftaran user
+D --> S : Status pendaftaran lunas
+
+== Submit Paper ==
+
+V -> S : Isi data paper dan upload file PDF
+S -> D : Simpan paper submission dengan status review
+D --> S : Paper tersimpan
+S --> V : Tampilkan pesan Paper berhasil dikirim
+
+== Review Paper ==
+
+O -> S : Review paper, accept atau reject
+S -> D : Update status paper
+D --> S : Status terupdate
+S --> V : Kirim notifikasi status paper
+
+@enduml

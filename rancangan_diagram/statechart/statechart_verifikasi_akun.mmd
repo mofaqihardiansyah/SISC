@@ -1,0 +1,13 @@
+stateDiagram-v2
+    state "Terdaftar\n(disetujui: false)" as registered
+    state "Ditolak\n(disetujui: false)" as rejected
+    state "Disetujui\n(disetujui: true)" as approved
+
+    [*] --> registered : Penyelenggara melakukan registrasi
+
+    registered --> approved : Admin menyetujui
+    registered --> rejected : Admin menolak
+
+    rejected --> registered : Penyelenggara mendaftar ulang
+
+    approved --> [*]

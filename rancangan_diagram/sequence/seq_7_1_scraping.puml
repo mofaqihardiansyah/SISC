@@ -1,0 +1,39 @@
+@startuml
+!theme plain
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title 7.0 Web Scraping
+
+actor "Admin" as A
+participant "System" as S
+database "Database" as D
+
+== Trigger Scrape ==
+
+A -> S : Pilih sumber scraping, klik "Trigger Scrape"
+S -> D : Baca konfigurasi dari scraping_sources
+D --> S : Konfigurasi: baseUrl, scraperType, rateLimit
+
+== Proses Scraping ==
+
+S -> S : Scrape data dari website target
+S -> D : Simpan raw data hasil scrape (status: pending)
+D --> S : Data tersimpan
+S -> D : Catat log scraping
+D --> S : Log tersimpan
+S --> A : Tampilkan jumlah data hasil scrape
+
+== Publish Data ==
+
+A -> S : Review raw data, klik "Publish"
+S -> D : Buat event baru dari data scrape
+D --> S : Event baru tersimpan (status: pending)
+S -> D : Update status_integrasi = true
+D --> S : Status terupdate
+S --> A : Tampilkan "Data berhasil dipublish sebagai event"
+
+@enduml

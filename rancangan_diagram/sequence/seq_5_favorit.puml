@@ -1,0 +1,40 @@
+@startuml
+!theme plain
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title 5.0 Manajemen Favorit
+
+actor "Visitor" as V
+participant "System" as S
+database "Database" as D
+
+== Tambah Favorit ==
+
+V -> S : Klik ikon favorit di detail event
+S -> D : Cek status favorit
+D --> S : Belum favorit
+S -> D : Simpan data favorit
+D --> S : Favorit tersimpan
+S --> V : Tampilkan ikon hati terisi
+
+== Hapus Favorit ==
+
+V -> S : Klik ikon favorit lagi
+S -> D : Cek status favorit
+D --> S : Sudah favorit
+S -> D : Hapus data favorit
+D --> S : Favorit terhapus
+S --> V : Tampilkan ikon hati kosong
+
+== Lihat Daftar Favorit ==
+
+V -> S : Buka halaman "Event Favorit"
+S -> D : Query event favorit milik user
+D --> S : Daftar event
+S --> V : Tampilkan daftar event favorit
+
+@enduml

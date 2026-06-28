@@ -1,0 +1,51 @@
+@startuml Activity_Buat_Event
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 2.1 Buat Event
+
+|Penyelenggara|
+start
+:Buka halaman buat event;
+:Isi data event
+(judul, deskripsi, tanggal, lokasi,
+kategori, tipe, harga, kuota);
+:Upload banner;
+:Tambah pembicara;
+:Tambah jadwal;
+:Klik "Simpan";
+
+|Sistem|
+:Validasi input;
+if (Input valid?) then (ya)
+  :Simpan event
+  (status: pending);
+  :Simpan banner ke storage;
+  :Tampilkan pesan "Event berhasil dibuat";
+else (tidak)
+  :Tampilkan pesan error;
+  stop
+endif
+
+|Admin|
+:Terima notifikasi event baru;
+:Buka daftar event pending;
+:Tinjau data event;
+
+if (Event disetujui?) then (ya)
+  |Sistem|
+  :Update status → published;
+  |Penyelenggara|
+  :Terima notifikasi "Event disetujui";
+else (tidak)
+  |Sistem|
+  :Update status → rejected;
+  :Simpan alasan penolakan;
+  |Penyelenggara|
+  :Terima notifikasi "Event ditolak";
+endif
+
+stop
+
+@enduml

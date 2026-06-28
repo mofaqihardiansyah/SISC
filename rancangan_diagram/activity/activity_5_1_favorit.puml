@@ -1,0 +1,34 @@
+@startuml Activity_Favorit
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 5.1 Manajemen Favorit
+
+|Pengunjung|
+start
+:Buka halaman event / detail event;
+:Klik ikon favorit (hati);
+
+|Sistem|
+:Cek status favorit;
+
+if (Sudah favorit?) then (ya)
+  :Hapus dari tabel favorit;
+  :Tampilkan ikon favorit kosong;
+else (tidak)
+  :Simpan ke tabel favorit
+  (user_id, event_id);
+  :Tampilkan ikon favorit terisi;
+endif
+
+|Pengunjung|
+:Klik "Lihat Event Favorit";
+
+|Sistem|
+:Query event berdasarkan favorit user;
+:Tampilkan daftar event favorit;
+
+stop
+
+@enduml

@@ -1,0 +1,66 @@
+@startuml Object_Scenario_Scraping
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+
+title Object Diagram — Skenario: Hasil Scraping
+
+object ":ScrapingSource" as Source {
+  id = 1
+  name = "eventkampus.com"
+  baseUrl = "https://eventkampus.com"
+  scraperType = "cheerio"
+  cronSchedule = "0 2 * * *"
+  isActive = true
+  lastScrapedAt = "2025-02-01 02:00:00"
+  lastSuccessfulCount = 15
+}
+
+object ":RawScrapedData" as Raw1 {
+  id = 101
+  sumber = "eventkampus.com"
+  urlTarget = "https://eventkampus.com/event/123"
+  data = "{judul: 'Workshop Python', ...}"
+  statusIntegrasi = false
+  status = "pending"
+}
+
+object ":RawScrapedData" as Raw2 {
+  id = 102
+  sumber = "eventkampus.com"
+  urlTarget = "https://eventkampus.com/event/456"
+  data = "{judul: 'Seminar Data Science', ...}"
+  statusIntegrasi = true
+  status = "processed"
+}
+
+object ":LogScraping" as Log {
+  id = 50
+  targetUrl = "https://eventkampus.com/events"
+  sumber = "eventkampus.com"
+  status = "success"
+  jumlahData = 15
+  mulaiPada = "2025-02-01 02:00:00"
+  selesaiPada = "2025-02-01 02:05:30"
+}
+
+object ":Event" as Event {
+  id = 20
+  judul = "Seminar Data Science"
+  hasilScraping = true
+  websiteSumber = "eventkampus.com"
+  status = "pending"
+}
+
+Source --> Raw1 : "menghasilkan"
+Source --> Raw2 : "menghasilkan"
+Source --> Log : "mencatat log"
+Raw2 --> Event : "dipublish sebagai"
+
+note bottom of Source
+  Konfigurasi sumber scraping
+  dengan jadwal harian jam 2 pagi
+end note
+
+@enduml

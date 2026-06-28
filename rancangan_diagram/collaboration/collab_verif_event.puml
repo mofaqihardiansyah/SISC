@@ -1,0 +1,43 @@
+@startuml Collaboration_Verifikasi_Event
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+
+title Collaboration Diagram — 6.1 Verifikasi Event
+
+object ":Admin" as Admin {
+}
+
+object ":UI" as UI {
+}
+
+object ":AdminController" as Ctrl {
+}
+
+object ":EventDB" as EventDB {
+}
+
+object ":LogAdminDB" as LogDB {
+}
+
+object ":Organizer" as Organizer {
+}
+
+Admin --> UI : 1: buka daftar event pending
+UI --> Ctrl : 2: getPendingEvents()
+Ctrl --> EventDB : 3: query status=pending
+EventDB --> Ctrl : 4: daftar event
+Ctrl --> UI : 5: list event
+UI --> Admin : 6: tampilkan daftar
+
+Admin --> UI : 7: pilih event, klik approve
+UI --> Ctrl : 8: approveEvent(id)
+Ctrl --> LogDB : 9: insert log admin
+LogDB --> Ctrl : 10: log tersimpan
+Ctrl --> EventDB : 11: update status=published
+EventDB --> Ctrl : 12: terupdate
+Ctrl --> UI : 13: pesan "disetujui"
+UI --> Organizer : 14: notifikasi "event disetujui"
+
+@enduml

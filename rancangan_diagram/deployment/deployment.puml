@@ -1,0 +1,61 @@
+@startuml Deployment_POLIVENTS
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+skinparam nodeFontSize 10
+
+title Deployment Diagram — POLIVENTS
+
+node "Client (Browser)" as Client {
+  artifact "Browser" as Browser
+}
+
+node "Vercel (Cloud)" as Vercel {
+  artifact "Next.js App" as NextJS
+  artifact "Server Actions" as Actions
+  artifact "Inngest Server" as Inngest
+}
+
+node "Docker Container" as Docker {
+  database "PostgreSQL 16" as DB {
+    artifact "sisc-postgres" as Postgres
+  }
+}
+
+node "External Services" as External {
+  artifact "Vercel Blob Storage" as BlobStorage
+  artifact "Gmail SMTP" as Gmail
+  artifact "eventkampus.com" as EventKampus
+  artifact "infoseminar.id" as InfoSeminar
+}
+
+' Client → Vercel
+Browser --> NextJS : HTTPS (Port 443)
+
+' Vercel → Database
+NextJS --> Postgres : TCP (Port 5433)
+
+' Vercel → External
+NextJS --> BlobStorage : HTTPS
+NextJS --> Gmail : SMTP (Port 587)
+Inngest --> EventKampus : HTTPS (Scraping)
+Inngest --> InfoSeminar : HTTPS (Scraping)
+
+note top of Client
+  User mengakses
+  melalui browser
+end note
+
+note bottom of Vercel
+  Deploy otomatis
+  dari GitHub
+end note
+
+note bottom of Docker
+  Running di
+  local development
+  Port 5433
+end note
+
+@enduml

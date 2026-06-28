@@ -1,0 +1,397 @@
+@startuml ClassDiagram_POLIVENTS
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam classFontSize 11
+skinparam classAttributeFontSize 9
+skinparam defaultFontSize 10
+
+title Class Diagram — POLIVENTS
+
+' ══════════════════════════════════════════════════════════════
+' ENTITAS INTI
+' ══════════════════════════════════════════════════════════════
+
+class User {
+  +id: int <<PK>>
+  +namaLengkap: varchar
+  +email: varchar <<UK>>
+  +nomorTelepon: varchar
+  +institusi: varchar
+  +pekerjaan: varchar
+  +password: varchar
+  +emailTerverifikasi: timestamp
+  +tanggalLahir: timestamp
+  +jenisKelamin: enum
+  +role: enum
+  +disetujui: boolean
+  +diblokir: boolean
+  +terakhirAktifPada: timestamp
+  +urlAvatar: varchar
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+  +dihapusPada: timestamp
+  --
+  +register(): void
+  +login(): JWT
+  +verifyEmail(): void
+  +resetPassword(): void
+  +updateProfile(): void
+  +softDelete(): void
+}
+
+class OtpCode {
+  +id: int <<PK>>
+  +email: varchar
+  +code: varchar
+  +kedaluwarsaPada: timestamp
+  +dibuatPada: timestamp
+  --
+  +generate(): string
+  +validate(): boolean
+  +isExpired(): boolean
+}
+
+class ProfilPenyelenggara {
+  +id: int <<PK>>
+  +userId: int <<FK, UK>>
+  +namaInstansi: varchar
+  +deskripsiInstansi: text
+  +urlDokumenLegalitas: varchar
+  +urlWebsite: varchar
+  +alasanPenolakan: text
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+  --
+  +approve(): void
+  +reject(): void
+}
+
+' ══════════════════════════════════════════════════════════════
+' MASTER DATA
+' ══════════════════════════════════════════════════════════════
+
+class Provinsi {
+  +id: int <<PK>>
+  +nama: varchar <<UK>>
+  --
+  +getKota(): List<Kota>
+}
+
+class Kota {
+  +id: int <<PK>>
+  +provinsiId: int <<FK>>
+  +nama: varchar
+  --
+  +getProvinsi(): Provinsi
+  +getEvents(): List<Event>
+}
+
+class Kategori {
+  +id: int <<PK>>
+  +nama: varchar
+  +slug: varchar <<UK>>
+  +urlIkon: varchar
+  --
+  +getEvents(): List<Event>
+}
+
+class Tag {
+  +id: int <<PK>>
+  +nama: varchar <<UK>>
+  --
+  +getEvents(): List<Event>
+}
+
+' ══════════════════════════════════════════════════════════════
+' EVENT
+' ══════════════════════════════════════════════════════════════
+
+class Event {
+  +id: int <<PK>>
+  +organizerId: int <<FK>>
+  +kategoriId: int <<FK>>
+  +kotaId: int <<FK>>
+  +judul: varchar
+  +slug: varchar <<UK>>
+  +deskripsi: text
+  +syaratDanKetentuan: text
+  +urlBanner: varchar
+  +penyelenggara: varchar
+  +tanggalMulai: timestamp
+  +tanggalSelesai: timestamp
+  +batasRegistrasi: timestamp
+  +eventPolines: boolean
+  +jenisEvent: enum
+  +tipePlatform: enum
+  +tipeHarga: enum
+  +harga: int
+  +metodePembayaran: jsonb
+  +detailLokasi: text
+  +linkEksternal: varchar
+  +kuota: int
+  +status: enum
+  +hasilScraping: boolean
+  +websiteSumber: varchar
+  +jumlahTayangan: int
+  +alasanPenolakan: text
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+  +dihapusPada: timestamp
+  --
+  +create(): void
+  +update(): void
+  +softDelete(): void
+  +approve(): void
+  +reject(): void
+  +incrementViews(): void
+}
+
+class EventTag {
+  +eventId: int <<PK, FK>>
+  +tagId: int <<PK, FK>>
+}
+
+class Pembicara {
+  +id: int <<PK>>
+  +eventId: int <<FK>>
+  +nama: varchar
+  +peran: varchar
+  +urlFoto: varchar
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+}
+
+class LampiranEvent {
+  +id: int <<PK>>
+  +eventId: int <<FK>>
+  +urlFile: varchar
+  +tipeFile: varchar
+  +urutan: int
+  +dibuatPada: timestamp
+}
+
+class JadwalEvent {
+  +id: int <<PK>>
+  +eventId: int <<FK>>
+  +waktuMulai: timestamp
+  +waktuSelesai: timestamp
+  +deskripsi: text
+  +dibuatPada: timestamp
+}
+
+' ══════════════════════════════════════════════════════════════
+' PEMBAYARAN
+' ══════════════════════════════════════════════════════════════
+
+class InfoPembayaran {
+  +id: int <<PK>>
+  +tipe: enum
+  +namaBank: varchar
+  +nomorRekening: varchar
+  +pemilikRekening: varchar
+  +urlGambarQris: varchar
+  +aktif: boolean
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+  --
+  +activate(): void
+  +deactivate(): void
+}
+
+' ══════════════════════════════════════════════════════════════
+' PENDAFTARAN
+' ══════════════════════════════════════════════════════════════
+
+class Pendaftaran {
+  +id: int <<PK>>
+  +eventId: int <<FK>>
+  +userId: int <<FK>>
+  +kodePendaftaran: varchar <<UK>>
+  +status: enum
+  +metodePembayaranId: int <<FK>>
+  +buktiPembayaran: text
+  +totalHarga: int
+  +alasanPenolakan: text
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+  +dihapusPada: timestamp
+  --
+  +register(): void
+  +verifyPayment(): void
+  +cancel(): void
+  +generateCode(): string
+}
+
+class Peserta {
+  +id: int <<PK>>
+  +pendaftaranId: int <<FK>>
+  +userId: int <<FK>>
+  +kodePeserta: varchar <<UK>>
+  +namaLengkap: varchar
+  +email: varchar
+  +nomorTelepon: varchar
+  +jenisKelamin: enum
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+  --
+  +generateCode(): string
+}
+
+' ══════════════════════════════════════════════════════════════
+' PAPER
+' ══════════════════════════════════════════════════════════════
+
+class PaperSubmission {
+  +id: int <<PK>>
+  +eventId: int <<FK>>
+  +userId: int <<FK>>
+  +judul: varchar
+  +kataKunci: varchar
+  +track: varchar
+  +urlFile: varchar
+  +status: enum
+  +komentarPenolakan: text
+  +dibuatPada: timestamp
+  +diperbaruiPada: timestamp
+  --
+  +submit(): void
+  +accept(): void
+  +reject(): void
+}
+
+class PenulisPaper {
+  +id: int <<PK>>
+  +paperSubmissionId: int <<FK>>
+  +nama: varchar
+  +email: varchar
+  +institusi: varchar
+  +isCorresponding: boolean
+  +urutan: int
+  +dibuatPada: timestamp
+}
+
+' ══════════════════════════════════════════════════════════════
+' FAVORIT & LOG
+' ══════════════════════════════════════════════════════════════
+
+class Favorit {
+  +userId: int <<PK, FK>>
+  +eventId: int <<PK, FK>>
+  +dibuatPada: timestamp
+  --
+  +toggle(): void
+}
+
+class LogAdmin {
+  +id: int <<PK>>
+  +adminId: int <<FK>>
+  +eventId: int <<FK>>
+  +aksi: varchar
+  +dataSebelumnya: jsonb
+  +dibuatPada: timestamp
+  --
+  +log(): void
+}
+
+' ══════════════════════════════════════════════════════════════
+' WEB SCRAPING
+' ══════════════════════════════════════════════════════════════
+
+class RawScrapedData {
+  +id: int <<PK>>
+  +sumber: varchar
+  +urlTarget: varchar
+  +data: jsonb
+  +statusIntegrasi: boolean
+  +status: varchar
+  +dibuatPada: timestamp
+  --
+  +publish(): void
+  +delete(): void
+}
+
+class LogScraping {
+  +id: int <<PK>>
+  +targetUrl: varchar
+  +sumber: varchar
+  +status: enum
+  +jumlahData: int
+  +errorMessage: text
+  +mulaiPada: timestamp
+  +selesaiPada: timestamp
+  --
+  +start(): void
+  +finish(): void
+  +fail(): void
+}
+
+class ScrapingSource {
+  +id: int <<PK>>
+  +name: varchar
+  +baseUrl: varchar
+  +urlPattern: varchar
+  +scraperType: enum
+  +cronSchedule: varchar
+  +maxResultsPerRun: int
+  +rateLimitDelayMs: int
+  +maxConcurrentRequests: int
+  +isActive: boolean
+  +lastScrapedAt: timestamp
+  +lastSuccessfulCount: int
+  +lastErrorMessage: text
+  +createdAt: timestamp
+  +updatedAt: timestamp
+  --
+  +activate(): void
+  +deactivate(): void
+}
+
+class ScrapingValidationRule {
+  +id: int <<PK>>
+  +fieldName: varchar
+  +isRequired: boolean
+  +minLength: int
+  +maxLength: int
+  +regexPattern: varchar
+  +confidenceThreshold: int
+  +createdAt: timestamp
+  --
+  +validate(): boolean
+}
+
+' ══════════════════════════════════════════════════════════════
+' RELATIONSHIPS
+' ══════════════════════════════════════════════════════════════
+
+User "1" -- "0..1" ProfilPenyelenggara : memiliki profil >
+User "1" -- "0..*" Event : membuat >
+User "1" -- "0..*" LogAdmin : melakukan >
+User "1" -- "0..*" Pendaftaran : mendaftar >
+User "1" -- "0..*" PaperSubmission : menulis >
+User "1" -- "0..*" Favorit : menyukai >
+User "1" -- "0..*" Peserta : terdaftar sebagai >
+
+Provinsi "1" -- "0..*" Kota : memiliki >
+Kategori "1" -- "0..*" Event : kategori >
+Tag "1" -- "0..*" EventTag : ditandai >
+
+Event "1" -- "0..*" EventTag : punya tag >
+Event "1" -- "0..*" Pembicara : mengundang >
+Event "1" -- "0..*" LampiranEvent : melampirkan >
+Event "1" -- "0..*" JadwalEvent : punya jadwal >
+Event "1" -- "0..*" LogAdmin : dikelola >
+Event "1" -- "0..*" Pendaftaran : didaftarkan >
+Event "1" -- "0..*" PaperSubmission : menerima paper >
+Event "1" -- "0..*" Favorit : difavoritkan >
+
+InfoPembayaran "1" -- "0..*" Pendaftaran : metode bayar >
+Pendaftaran "1" -- "0..*" Peserta : punya peserta >
+
+PaperSubmission "1" -- "0..*" PenulisPaper : ditulis oleh >
+
+ScrapingSource "1" -- "0..*" RawScrapedData : menghasilkan >
+ScrapingSource "1" -- "0..*" LogScraping : mencatat log >
+ScrapingSource "1" -- "0..*" ScrapingValidationRule : punya aturan >
+
+@enduml

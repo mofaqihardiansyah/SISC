@@ -1,0 +1,93 @@
+@startuml Component_POLIVENTS
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+skinparam componentFontSize 10
+
+title Component Diagram — POLIVENTS
+
+package "Frontend (Next.js App Router)" {
+  [Landing Page] as LP
+  [Auth Pages] as AuthP
+  [Event Pages] as EventP
+  [Admin Pages] as AdminP
+  [Organizer Pages] as OrgP
+  [User Profile Pages] as UserP
+}
+
+package "API Layer (Route Handlers)" {
+  [NextAuth API] as NextAuth
+  [Events API] as EventAPI
+  [Upload API] as UploadAPI
+  [Admin API] as AdminAPI
+  [Organizer API] as OrgAPI
+  [Contact API] as ContactAPI
+}
+
+package "Server Actions" {
+  [auth.ts] as AuthAction
+  [create-event.ts] as CreateEvent
+  [peserta.ts] as PesertaAction
+  [paper.ts] as PaperAction
+  [admin-scraping.ts] as ScrapingAction
+  [export-data.ts] as ExportAction
+}
+
+package "Core Services" {
+  [Drizzle ORM] as ORM
+  [Inngest (Background Jobs)] as Inngest
+  [Nodemailer (Email)] as Email
+  [Vercel Blob (Storage)] as Blob
+  [Crawlee/Playwright (Scraper)] as Scraper
+}
+
+database "PostgreSQL" as DB
+
+' Frontend → API
+LP --> EventAPI
+AuthP --> NextAuth
+EventP --> EventAPI
+AdminP --> AdminAPI
+OrgP --> OrgAPI
+UserP --> EventAPI
+
+' API → Server Actions
+NextAuth --> AuthAction
+EventAPI --> CreateEvent
+EventAPI --> PesertaAction
+AdminAPI --> ScrapingAction
+AdminAPI --> ExportAction
+OrgAPI --> PesertaAction
+OrgAPI --> PaperAction
+
+' Server Actions → Core
+AuthAction --> ORM
+CreateEvent --> ORM
+CreateEvent --> Blob
+PesertaAction --> ORM
+PaperAction --> ORM
+PaperAction --> Blob
+ScrapingAction --> ORM
+ScrapingAction --> Scraper
+ScrapingAction --> Blob
+ExportAction --> ORM
+AuthAction --> Email
+
+' Core → DB
+ORM --> DB
+
+' Inngest
+Inngest --> Scraper
+
+note bottom of DB
+  PostgreSQL 16
+  24 tabel
+end note
+
+note right of Scraper
+  Cheerio (HTML parsing)
+  Playwright (browser fallback)
+end note
+
+@enduml

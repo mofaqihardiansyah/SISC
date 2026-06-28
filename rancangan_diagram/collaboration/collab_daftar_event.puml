@@ -1,0 +1,55 @@
+@startuml Collaboration_Daftar_Event
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+
+title Collaboration Diagram — 3.1 Daftar Event
+
+object ":Visitor" as Visitor {
+}
+
+object ":UI" as UI {
+}
+
+object ":PendaftaranController" as Ctrl {
+}
+
+object ":EventDB" as EventDB {
+}
+
+object ":PendaftaranDB" as PendaftaranDB {
+}
+
+object ":BlobStorage" as Blob {
+}
+
+object ":Organizer" as Organizer {
+}
+
+Visitor --> UI : 1: klik "Daftar Event"
+UI --> Ctrl : 2: daftarEvent(eventId, userId)
+Ctrl --> EventDB : 3: cek kuota & batas registrasi
+EventDB --> Ctrl : 4: info event
+Ctrl --> PendaftaranDB : 5: insert pendaftaran
+PendaftaranDB --> Ctrl : 6: pendaftaran terbuat
+Ctrl --> UI : 7: kode pendaftaran
+UI --> Visitor : 8: tampilkan kode + instruksi
+
+Visitor --> UI : 9: upload bukti bayar
+UI --> Blob : 10: upload bukti
+Blob --> UI : 11: url bukti
+UI --> Ctrl : 12: updateBuktiBayar(id, bukti)
+Ctrl --> PendaftaranDB : 13: update bukti_pembayaran
+PendaftaranDB --> Ctrl : 14: terupdate
+
+Organizer --> UI : 15: verifikasi pembayaran
+UI --> Ctrl : 16: verifyPayment(id, status)
+Ctrl --> PendaftaranDB : 17: update status → lunas
+PendaftaranDB --> Ctrl : 18: terupdate
+Ctrl --> PendaftaranDB : 19: insert peserta baru
+PendaftaranDB --> Ctrl : 20: peserta terbuat
+Ctrl --> UI : 21: verifikasi berhasil
+UI --> Visitor : 22: notifikasi "pembayaran lunas"
+
+@enduml

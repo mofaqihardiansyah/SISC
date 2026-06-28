@@ -1,0 +1,72 @@
+@startuml Object_Scenario_Daftar_Event
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+
+title Object Diagram — Skenario: Pendaftaran Event Berbayar
+
+object ":User" as User {
+  id = 1
+  namaLengkap = "Budi Santoso"
+  email = "budi@email.com"
+  role = "visitor"
+  emailTerverifikasi = "2025-01-15"
+}
+
+object ":Event" as Event {
+  id = 10
+  judul = "Seminar Nasional AI 2025"
+  jenisEvent = "seminar"
+  tipePlatform = "hybrid"
+  tipeHarga = "paid"
+  harga = 150000
+  kuota = 200
+  status = "published"
+  tanggalMulai = "2025-03-15"
+}
+
+object ":Pendaftaran" as Pendaftaran {
+  id = 50
+  eventId = 10
+  userId = 1
+  kodePendaftaran = "REG-2025-00050"
+  status = "lunas"
+  metodePembayaranId = 2
+  totalHarga = 150000
+  buktiPembayaran = "https://blob.store/bukti-001.jpg"
+}
+
+object ":Peserta" as Peserta {
+  id = 30
+  pendaftaranId = 50
+  userId = 1
+  kodePeserta = "PES-2025-00030"
+  namaLengkap = "Budi Santoso"
+  email = "budi@email.com"
+  nomorTelepon = "081234567890"
+  jenisKelamin = "Laki-laki"
+}
+
+object ":InfoPembayaran" as Pembayaran {
+  id = 2
+  tipe = "bank_transfer"
+  namaBank = "BCA"
+  nomorRekening = "1234567890"
+  pemilikRekening = "POLIVENTS"
+  aktif = true
+}
+
+User --> Pendaftaran : "mendaftar"
+Event --> Pendaftaran : "didaftarkan"
+Pembayaran --> Pendaftaran : "metode bayar"
+Pendaftaran --> Peserta : "memiliki peserta"
+
+note bottom of Pendaftaran
+  Skenario ini menunjukkan
+  data pada saat pendaftaran
+  event berbayar sudah lunas
+  dan peserta terkonfirmasi
+end note
+
+@enduml

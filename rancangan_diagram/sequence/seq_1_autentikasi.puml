@@ -1,0 +1,46 @@
+@startuml
+!theme plain
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title 1.0 Autentikasi
+
+actor "Visitor" as V
+actor "Organizer" as O
+participant "System" as S
+database "Database" as D
+
+== Pendaftaran Akun ==
+
+V -> S : isi form registrasi
+S -> D : Simpan data user
+D --> S : Data Tersimpan
+S -> D : Catat data histori OTP
+D --> S : OTP Tersimpan
+S --> V : Kirim kode OTP ke email
+
+V -> S : Masukan kode OTP
+S -> D : Cek kode OTP
+D --> S : Status kecocokan OTP
+S -> D : Update status akun terverifikasi
+D --> S : Akun terverifikasi
+S --> V : Registrasi Berhasil
+
+== Login ==
+
+V -> S : Login (Kredensial Login)
+S -> D : Cek Data User
+D --> S : Status kecocokan kredensial
+S --> V : Login berhasil
+
+== Update Profil Organizer ==
+
+O -> S : Update data instansi & dokumen legalitas
+S -> D : Simpan data profil terbaru
+D --> S : Data user terkini
+S --> O : Tampilkan data diri revisi
+
+@enduml

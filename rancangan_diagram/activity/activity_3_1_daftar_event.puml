@@ -1,0 +1,62 @@
+@startuml Activity_Daftar_Event
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 3.1 Daftar Event
+
+|Pengunjung|
+start
+:Buka detail event;
+:Klik "Daftar Event";
+
+|Sistem|
+:Cek batas registrasi;
+if (Masih buka?) then (ya)
+  :Cek kuota;
+  if (Kuota tersedia?) then (ya)
+    :Buat pendaftaran
+    (status: menunggu_verifikasi);
+    :Generate kode pendaftaran;
+  else (tidak)
+    :Tampilkan pesan "Kuota penuh";
+    stop
+  endif
+else (tidak)
+  :Tampilkan pesan "Batas registrasi habis";
+  stop
+endif
+
+|Pengunjung|
+:Terima kode pendaftaran;
+if (Event berbayar?) then (ya)
+  :Transfer sesuai nominal;
+  :Upload bukti pembayaran;
+else (tidak)
+endif
+
+|Sistem|
+:Simpan bukti pembayaran;
+
+|Penyelenggara|
+:Buka daftar pendaftar;
+:Tinjau bukti pembayaran;
+
+if (Pembayaran valid?) then (ya)
+  |Sistem|
+  :Update status → lunas;
+  :Buat data peserta
+  (kode_peserta, nama, email);
+  |Pengunjung|
+  :Terima notifikasi "Terdaftar";
+else (tidak)
+  |Sistem|
+  :Update status → dibatalkan;
+  :Simpan alasan penolakan;
+  |Pengunjung|
+  :Terima notifikasi "Pembayaran ditolak";
+endif
+
+stop
+
+@enduml

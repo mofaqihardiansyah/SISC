@@ -1,0 +1,57 @@
+@startuml Activity_Submit_Paper
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 4.1 Submit Paper
+
+|Pengunjung|
+start
+:Buka halaman submit paper;
+:Cek status pendaftaran;
+
+|Sistem|
+if (Pendaftaran lunas?) then (ya)
+  |Pengunjung|
+  :Isi data paper
+  (judul, kata kunci, track);
+  :Tambah data penulis;
+  :Upload file paper (PDF);
+  :Klik "Submit";
+
+  |Sistem|
+  :Validasi input;
+  if (Input valid?) then (ya)
+    :Simpan paper submission
+    (status: review);
+    :Tampilkan pesan "Paper berhasil dikirim";
+  else (tidak)
+    :Tampilkan pesan error;
+    stop
+  endif
+else (tidak)
+  :Tampilkan pesan
+  "Belum terdaftar/belum lunas";
+  stop
+endif
+
+|Penyelenggara|
+:Buka daftar paper;
+:Tinjau paper;
+
+if (Paper diterima?) then (ya)
+  |Sistem|
+  :Update status → accepted;
+  |Pengunjung|
+  :Terima notifikasi "Paper diterima";
+else (tidak)
+  |Sistem|
+  :Update status → rejected;
+  :Simpan komentar penolakan;
+  |Pengunjung|
+  :Terima notifikasi "Paper ditolak";
+endif
+
+stop
+
+@enduml

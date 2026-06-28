@@ -1,0 +1,43 @@
+@startuml Statechart_Event
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+skinparam defaultFontSize 10
+
+title Statechart Diagram — Event
+
+[*] --> draft : event baru dibuat
+
+draft --> pending : penyelenggara simpan
+draft --> draft : penyelenggara edit
+
+pending --> published : admin approve
+pending --> rejected : admin reject
+
+published --> pending : admin unpublish
+
+rejected --> pending : admin re-review
+
+published --> draft : penyelenggara edit
+
+note right of draft
+  Status awal saat event
+  pertama kali dibuat
+end note
+
+note right of pending
+  Menunggu verifikasi
+  dari admin
+end note
+
+note right of published
+  Event tampil di
+  halaman publik
+end note
+
+note right of rejected
+  Ditolak oleh admin,
+  ada alasan penolakan
+end note
+
+@enduml

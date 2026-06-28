@@ -1,0 +1,57 @@
+@startuml Activity_Scraping
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 7.1 Web Scraping
+
+|Admin|
+start
+:Buka halaman scraping;
+:Pilih sumber scraping;
+:Klik "Trigger Scrape";
+
+|Sistem|
+:Baca konfigurasi scraping_sources;
+:Hitung jumlah data yang akan diambil;
+
+while (Masih ada halaman?) is (ya)
+  :Scrape halaman;
+  :Ekstrak data event
+  (judul, tanggal, lokasi, harga);
+  :Simpan ke raw_scraped_data
+  (status: pending);
+  :Catat log scraping;
+endwhile (tidak)
+
+:Tampilkan jumlah data hasil scrape;
+
+|Admin|
+:Buka daftar raw_scraped_data;
+:Review data hasil scrape;
+
+if (Data valid?) then (ya)
+  :Klik "Publish";
+else (tidak)
+  :Hapus data tidak valid;
+endif
+
+|Sistem|
+if (Publish?) then (ya)
+  :Buat event baru dari data scrape;
+  :Set hasil_scraping = true;
+  :Update status_integrasi = true;
+  :Update status → pending;
+else (tidak)
+  :Update status → error;
+endif
+
+:Simpan log_scraping
+(status: selesai);
+
+|Admin|
+:Terima notifikasi "Scraping selesai";
+
+stop
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml DFD_Level2_Tambahan
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+skinparam defaultFontSize 10
+
+title DFD Level 2 — Proses 7.0 Web Scraping & Integrasi Data
+
+rectangle "**Admin**" as admin #FADBD8
+
+database "scraping_sources" as DS1
+database "raw_scraped_data" as DS2
+database "log_scraping" as DS3
+database "scraping_validation_rules" as DS4
+database "event" as DEvent #C8E6C9
+
+rectangle "7.1\nScrape Data\nSumber Eksternal" as P71 #B2DFDB
+rectangle "7.2\nValidasi &\nProses Data" as P72 #B2DFDB
+rectangle "7.3\nPublish Data\nsebagai Event" as P73 #B2DFDB
+
+admin --> P71 : "perintah scrape"
+P71 --> DS1 : "konfigurasi sumber"
+DS1 --> P71 : "url_target,\nscraper_type,\nrate_limit"
+
+P71 --> DS2 : "data mentah hasil scrape"
+P71 --> DS3 : "log scraping"
+
+P71 --> P72 : "data mentah hasil scrape"
+DS4 --> P72 : "aturan validasi"
+P72 --> DS2 : "status proses update"
+DS2 --> P72 : "data mentah"
+
+P72 --> P73 : "data tervalidasi"
+P73 --> DEvent : "data event baru"
+P73 --> DS2 : "status_integrasi update"
+P73 --> DS3 : "status selesai"
+P73 --> admin : "status publish"
+
+@enduml

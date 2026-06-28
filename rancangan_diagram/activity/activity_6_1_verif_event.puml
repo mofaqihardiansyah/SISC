@@ -1,0 +1,37 @@
+@startuml Activity_Verifikasi_Event
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 6.1 Verifikasi Event
+
+|Admin|
+start
+:Buka daftar event pending;
+:Tinjau data event
+(judul, deskripsi, tanggal, lokasi,
+banner, pembicara, kuota, harga);
+
+if (Event layak publish?) then (ya)
+  :Klik "Approve";
+else (tidak)
+  :Isi alasan penolakan;
+  :Klik "Reject";
+endif
+
+|Sistem|
+if (Approve?) then (ya)
+  :Update status → published;
+else (tidak)
+  :Update status → rejected;
+  :Simpan alasan_penolakan;
+endif
+
+:Kirim notifikasi ke Penyelenggara;
+
+|Penyelenggara|
+:Terima notifikasi status event;
+
+stop
+
+@enduml

@@ -1,0 +1,42 @@
+@startuml Activity_Login
+!theme plain
+skinparam shadowing false
+skinparam dpi 120
+
+title Activity Diagram — 1.2 Login
+
+|Pengguna|
+start
+:Buka halaman login;
+:Masukkan email & password;
+:Klik "Login";
+
+|Sistem|
+:Cari user berdasarkan email;
+if (User ditemukan?) then (ya)
+  :Verifikasi password (bcrypt);
+  if (Password cocok?) then (ya)
+    if (Email terverifikasi?) then (ya)
+      if (Akun diblokir?) then (tidak)
+        :Generate JWT token;
+        :Redirect ke dashboard;
+      else (ya)
+        :Tampilkan pesan "Akun diblokir";
+        stop
+      endif
+    else (tidak)
+      :Tampilkan pesan "Email belum terverifikasi";
+      stop
+    endif
+  else (tidak)
+    :Tampilkan pesan "Password salah";
+    stop
+  endif
+else (tidak)
+  :Tampilkan pesan "Email tidak terdaftar";
+  stop
+endif
+
+stop
+
+@enduml

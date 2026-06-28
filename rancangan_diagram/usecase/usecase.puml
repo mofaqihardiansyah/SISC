@@ -1,0 +1,124 @@
+@startuml UseCase_POLIVENTS
+!theme plain
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontSize 11
+skinparam usecaseFontSize 10
+skinparam actorFontSize 12
+skinparam actorFontStyle bold
+skinparam rectangleFontSize 12
+skinparam rectangleFontStyle bold
+
+left to right direction
+
+title Use Case Diagram — POLIVENTS
+
+' ══════════════════════════════════════════════════════════════
+' AKTOR
+' ══════════════════════════════════════════════════════════════
+
+actor "Visitor" as V #D6EAF8
+actor "Organizer" as O #D5F5E3
+actor "Admin" as A #FADBD8
+
+' ══════════════════════════════════════════════════════════════
+' SISTEM
+' ══════════════════════════════════════════════════════════════
+
+rectangle "POLIVENTS" {
+
+  ' ── Autentikasi ──
+  usecase "Registrasi Akun" as UC1
+  usecase "Login" as UC2
+  usecase "Verifikasi Email (OTP)" as UC3
+  usecase "Reset Password" as UC4
+  usecase "Edit Profil" as UC5
+
+  ' ── Event ──
+  usecase "Cari & Jelajahi Event" as UC6
+  usecase "Lihat Detail Event" as UC7
+  usecase "Buat Event" as UC8
+  usecase "Edit/Hapus Event" as UC9
+
+  ' ── Pendaftaran & Pembayaran ──
+  usecase "Daftar Event" as UC10
+  usecase "Upload Bukti Pembayaran" as UC11
+  usecase "Verifikasi Pembayaran" as UC12
+  usecase "Lihat Status Pendaftaran" as UC13
+
+  ' ── Paper ──
+  usecase "Submit Paper" as UC14
+  usecase "Review Paper" as UC15
+  usecase "Lihat Status Paper" as UC16
+
+  ' ── Favorit ──
+  usecase "Tambah/Hapus Favorit" as UC17
+
+  ' ── Dashboard ──
+  usecase "Lihat Dashboard Statistik" as UC18
+  usecase "Lihat Daftar Peserta" as UC19
+
+  ' ── Admin ──
+  usecase "Kelola Data User" as UC20
+  usecase "Verifikasi Penyelenggara" as UC21
+  usecase "Verifikasi Event" as UC22
+  usecase "Kelola Kategori" as UC23
+  usecase "Kelola Lokasi" as UC24
+  usecase "Kelola Info Pembayaran" as UC25
+  usecase "Kelola Scraping" as UC26
+  usecase "Publish Data Scraping" as UC27
+  usecase "Export Data" as UC28
+}
+
+' ══════════════════════════════════════════════════════════════
+' VISITOR
+' ══════════════════════════════════════════════════════════════
+
+V --> UC1
+V --> UC2
+V --> UC6
+V --> UC7
+V --> UC10
+V --> UC13
+V --> UC14
+V --> UC16
+V --> UC17
+
+' ══════════════════════════════════════════════════════════════
+' ORGANIZER
+' ══════════════════════════════════════════════════════════════
+
+O --> UC2
+O --> UC8
+O --> UC9
+O --> UC12
+O --> UC15
+O --> UC18
+O --> UC19
+
+' ══════════════════════════════════════════════════════════════
+' ADMIN
+' ══════════════════════════════════════════════════════════════
+
+A --> UC2
+A --> UC20
+A --> UC21
+A --> UC22
+A --> UC23
+A --> UC24
+A --> UC25
+A --> UC26
+A --> UC27
+A --> UC28
+
+' ══════════════════════════════════════════════════════════════
+' RELATIONSHIPS
+' ══════════════════════════════════════════════════════════════
+
+UC1 ..> UC3 : <<include>>
+UC5 ..> UC2 : <<extend>>
+UC4 ..> UC3 : <<include>>
+UC11 ..> UC10 : <<extend>>
+UC14 ..> UC10 : <<include>>
+
+@enduml

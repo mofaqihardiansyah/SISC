@@ -1,0 +1,318 @@
+@startuml ERD_POLIVENTS
+!theme plain
+skinparam shadowing false
+skinparam dpi 110
+skinparam defaultFontSize 9
+skinparam classFontSize 10
+
+title ERD — POLIVENTS (24 Tabel)
+
+package "Autentikasi" {
+  class users {
+    +id : int <<PK>>
+    +nama_lengkap : varchar
+    +email : varchar <<UK>>
+    +nomor_telepon : varchar
+    +institusi : varchar
+    +pekerjaan : varchar
+    +password : varchar
+    +email_terverifikasi : timestamp
+    +tanggal_lahir : timestamp
+    +jenis_kelamin : enum
+    +role : enum
+    +disetujui : boolean
+    +diblokir : boolean
+    +terakhir_aktif_pada : timestamp
+    +url_avatar : varchar
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+    +dihapus_pada : timestamp
+  }
+
+  class otp_codes {
+    +id : int <<PK>>
+    +email : varchar
+    +code : varchar
+    +kedaluwarsa_pada : timestamp
+    +dibuat_pada : timestamp
+  }
+}
+
+package "Master Data" {
+  class profil_penyelenggara {
+    +id : int <<PK>>
+    +user_id : int <<FK, UK>>
+    +nama_instansi : varchar
+    +deskripsi_instansi : text
+    +url_dokumen_legalitas : varchar
+    +url_website : varchar
+    +alasan_penolakan : text
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+  }
+
+  class provinsi {
+    +id : int <<PK>>
+    +nama : varchar <<UK>>
+  }
+
+  class kota {
+    +id : int <<PK>>
+    +provinsi_id : int <<FK>>
+    +nama : varchar
+  }
+
+  class kategori {
+    +id : int <<PK>>
+    +nama : varchar
+    +slug : varchar <<UK>>
+    +url_ikon : varchar
+  }
+
+  class tag {
+    +id : int <<PK>>
+    +nama : varchar <<UK>>
+  }
+}
+
+package "Event" {
+  class event {
+    +id : int <<PK>>
+    +organizer_id : int <<FK>>
+    +kategori_id : int <<FK>>
+    +kota_id : int <<FK>>
+    +judul : varchar
+    +slug : varchar <<UK>>
+    +deskripsi : text
+    +syarat_dan_ketentuan : text
+    +url_banner : varchar
+    +penyelenggara : varchar
+    +tanggal_mulai : timestamp
+    +tanggal_selesai : timestamp
+    +batas_registrasi : timestamp
+    +event_polines : boolean
+    +jenis_event : enum
+    +tipe_platform : enum
+    +tipe_harga : enum
+    +harga : int
+    +metode_pembayaran : jsonb
+    +detail_lokasi : text
+    +link_eksternal : varchar
+    +kuota : int
+    +status : enum
+    +hasil_scraping : boolean
+    +website_sumber : varchar
+    +jumlah_tayangan : int
+    +alasan_penolakan : text
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+    +dihapus_pada : timestamp
+  }
+
+  class event_tag {
+    +event_id : int <<PK, FK>>
+    +tag_id : int <<PK, FK>>
+  }
+
+  class pembicara {
+    +id : int <<PK>>
+    +event_id : int <<FK>>
+    +nama : varchar
+    +peran : varchar
+    +url_foto : varchar
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+  }
+
+  class lampiran_event {
+    +id : int <<PK>>
+    +event_id : int <<FK>>
+    +url_file : varchar
+    +tipe_file : varchar
+    +urutan : int
+    +dibuat_pada : timestamp
+  }
+
+  class jadwal_event {
+    +id : int <<PK>>
+    +event_id : int <<FK>>
+    +waktu_mulai : timestamp
+    +waktu_selesai : timestamp
+    +deskripsi : text
+    +dibuat_pada : timestamp
+  }
+}
+
+package "Pendaftaran & Pembayaran" {
+  class info_pembayaran {
+    +id : int <<PK>>
+    +tipe : enum
+    +nama_bank : varchar
+    +nomor_rekening : varchar
+    +pemilik_rekening : varchar
+    +url_gambar_qris : varchar
+    +aktif : boolean
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+  }
+
+  class pendaftaran {
+    +id : int <<PK>>
+    +event_id : int <<FK>>
+    +user_id : int <<FK>>
+    +kode_pendaftaran : varchar <<UK>>
+    +status : enum
+    +metode_pembayaran_id : int <<FK>>
+    +bukti_pembayaran : text
+    +total_harga : int
+    +alasan_penolakan : text
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+    +dihapus_pada : timestamp
+  }
+
+  class peserta {
+    +id : int <<PK>>
+    +pendaftaran_id : int <<FK>>
+    +user_id : int <<FK>>
+    +kode_peserta : varchar <<UK>>
+    +nama_lengkap : varchar
+    +email : varchar
+    +nomor_telepon : varchar
+    +jenis_kelamin : enum
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+  }
+}
+
+package "Paper" {
+  class paper_submission {
+    +id : int <<PK>>
+    +event_id : int <<FK>>
+    +user_id : int <<FK>>
+    +judul : varchar
+    +kata_kunci : varchar
+    +track : varchar
+    +url_file : varchar
+    +status : enum
+    +komentar_penolakan : text
+    +dibuat_pada : timestamp
+    +diperbarui_pada : timestamp
+  }
+
+  class penulis_paper {
+    +id : int <<PK>>
+    +paper_submission_id : int <<FK>>
+    +nama : varchar
+    +email : varchar
+    +institusi : varchar
+    +is_corresponding : boolean
+    +urutan : int
+    +dibuat_pada : timestamp
+  }
+}
+
+package "Favorit & Log" {
+  class favorit {
+    +user_id : int <<PK, FK>>
+    +event_id : int <<PK, FK>>
+    +dibuat_pada : timestamp
+  }
+
+  class log_admin {
+    +id : int <<PK>>
+    +admin_id : int <<FK>>
+    +event_id : int <<FK>>
+    +aksi : varchar
+    +data_sebelumnya : jsonb
+    +dibuat_pada : timestamp
+  }
+}
+
+package "Web Scraping" {
+  class raw_scraped_data {
+    +id : int <<PK>>
+    +sumber : varchar
+    +url_target : varchar
+    +data : jsonb
+    +status_integrasi : boolean
+    +status : varchar
+    +dibuat_pada : timestamp
+  }
+
+  class log_scraping {
+    +id : int <<PK>>
+    +target_url : varchar
+    +sumber : varchar
+    +status : enum
+    +jumlah_data : int
+    +error_message : text
+    +mulai_pada : timestamp
+    +selesai_pada : timestamp
+  }
+
+  class scraping_sources {
+    +id : int <<PK>>
+    +name : varchar
+    +base_url : varchar
+    +url_pattern : varchar
+    +scraper_type : enum
+    +cron_schedule : varchar
+    +max_results_per_run : int
+    +rate_limit_delay_ms : int
+    +max_concurrent_requests : int
+    +is_active : boolean
+    +last_scraped_at : timestamp
+    +last_successful_count : int
+    +last_error_message : text
+    +created_at : timestamp
+    +updated_at : timestamp
+  }
+
+  class scraping_validation_rules {
+    +id : int <<PK>>
+    +field_name : varchar
+    +is_required : boolean
+    +min_length : int
+    +max_length : int
+    +regex_pattern : varchar
+    +confidence_threshold : int
+    +created_at : timestamp
+  }
+}
+
+' ══════════════════════════════════════════════════════════════
+' RELATIONSHIPS
+' ══════════════════════════════════════════════════════════════
+
+users ||--o| profil_penyelenggara
+users ||--o{ event
+users ||--o{ log_admin
+users ||--o{ pendaftaran
+users ||--o{ paper_submission
+users ||--o{ favorit
+users ||--o{ peserta
+
+provinsi ||--o{ kota
+kategori ||--o{ event
+tag ||--o{ event_tag
+
+event ||--o{ event_tag
+event ||--o{ pembicara
+event ||--o{ lampiran_event
+event ||--o{ jadwal_event
+event ||--o{ log_admin
+event ||--o{ pendaftaran
+event ||--o{ paper_submission
+event ||--o{ favorit
+
+info_pembayaran ||--o{ pendaftaran
+pendaftaran ||--o{ peserta
+
+paper_submission ||--o{ penulis_paper
+
+scraping_sources ||--o{ raw_scraped_data
+scraping_sources ||--o{ log_scraping
+scraping_sources ||--o{ scraping_validation_rules
+
+@enduml
