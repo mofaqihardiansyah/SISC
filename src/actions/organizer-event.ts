@@ -113,3 +113,29 @@ export async function updateEventDatabase(id: number | string, data: Partial<typ
     };
   }
 }
+
+export async function submitDraftToAdmin(eventId: number) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Sesi telah berakhir.");
+
+    const userId = parseInt(session.user.id, 10);
+    const [eventData] = await db
+      .select({ organizerId: event.organizerId, status: event.status })
+      .from(event)
+      .where(eq(event.id, eventId))
+      .limit(1);
+
+    if (!eventData) throw new Error("Event tidak ditemukan.");
+    if (eventData.organizerId !== userId) throw new Error("Forbidden.");
+    if (eventData.status !== "draft") throw new Error("Hanya event draft yang bisa diajukan.");
+
+    await db.update(event)
+      .set({ status: "pending", diperbaruiPada: new Date() })
+      .where(eq(event.id, eventId));
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Gagal mengajukan event." };
+  }
+}

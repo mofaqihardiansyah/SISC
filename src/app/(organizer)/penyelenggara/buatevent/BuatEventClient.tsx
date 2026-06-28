@@ -606,7 +606,7 @@ export default function BuatEventClient({ categories, cities, provinces }: BuatE
           <div>
             <label className="block text-sm text-gray-600 mb-1.5 font-medium">Batas Registrasi (Opsional)</label>
             <Input type="datetime-local" value={batasRegistrasi} onChange={(e) => setBatasRegistrasi(e.target.value)}
-              max={startDate || undefined}
+              max={startDate ? new Date(new Date(startDate).getTime() - 86400000).toISOString().slice(0, 16) : undefined}
               className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all" />
             <p className="text-xs text-slate-400 mt-1 ml-1">Deadline pendaftaran peserta. Tidak boleh melebihi tanggal mulai event. Kosongkan jika tidak ada batas.</p>
           </div>

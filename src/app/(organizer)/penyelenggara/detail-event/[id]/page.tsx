@@ -7,6 +7,7 @@ import Header from "@/components/penyelenggara/detail-event/Header";
 import Sidebar from "@/components/penyelenggara/detail-event/Sidebar";
 import Content from "@/components/penyelenggara/detail-event/Content";
 import SetMainOverflow from "@/components/penyelenggara/detail-event/SetMainOverflow";
+import DraftActions from "./DraftActions";
 export const dynamic = 'force-dynamic';
 
 
@@ -32,25 +33,28 @@ export default async function DetailEventPage({ params }: Props) {
 
   if (!detailEvent) notFound();
 
+  const isDraft = detailEvent.status === "draft";
+
   return (
   <>
     <SetMainOverflow />
     <div className="flex flex-col h-full bg-slate-50">
 
-      {/* HEADER â€” diam */}
+      {/* HEADER — diam */}
       <div className="flex-shrink-0 pb-3">
         <Header event={detailEvent} />
+        {isDraft && <DraftActions eventId={detailEvent.id} />}
       </div>
 
       {/* BODY */}
       <div className="flex flex-1 gap-4 min-h-0">
 
-        {/* SIDEBAR â€” diam */}
+        {/* SIDEBAR — diam */}
         <div className="w-48 flex-shrink-0">
           <Sidebar />
         </div>
 
-        {/* CONTENT â€” satu-satunya yang scroll */}
+        {/* CONTENT — satu-satunya yang scroll */}
         <div className="flex-1 overflow-y-auto pb-8 min-w-0" id="detail-scroll">
           <Content event={detailEvent} />
         </div>

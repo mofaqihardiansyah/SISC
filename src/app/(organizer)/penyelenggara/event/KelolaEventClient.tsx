@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Search, ChevronRight, Ban, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
 import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
 import { Modal } from '@/components/ui/modal';
@@ -125,6 +126,8 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
   const [dbEvents, setDbEvents] = useState<EventData[]>(() => 
     formatDbData(initialEvents).sort((a, b) => b.id - a.id)
   );
+
+  const router = useRouter();
 
   async function loadEvents() {
     setIsLoading(true);
@@ -430,7 +433,7 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
 
                 <div className="shrink-0 pl-4">
                   <Button 
-                    onClick={() => !isRejected && openEditModal(ev)}
+                    onClick={() => isDraft ? router.push(`/penyelenggara/detail-event/${ev.id}`) : openEditModal(ev)}
                     variant={isRejected ? "ghost" : "default"}
                     disabled={isRejected}
                     className={isRejected ? "text-slate-300 cursor-not-allowed" : ""}
