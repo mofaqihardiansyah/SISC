@@ -19,7 +19,7 @@ export default async function BuatEventPage({ searchParams }: Props) {
   ]);
 
   const { edit } = await searchParams;
-  let initialData = null;
+  let initialData = undefined;
 
   if (edit) {
     const editId = Number(edit);
@@ -29,7 +29,7 @@ export default async function BuatEventPage({ searchParams }: Props) {
         with: { kota: true, pembicara: true },
       });
       if (detailEvent && detailEvent.status === "draft") {
-        initialData = detailEvent;
+        initialData = detailEvent as any;
       } else if (!detailEvent) {
         notFound();
       }

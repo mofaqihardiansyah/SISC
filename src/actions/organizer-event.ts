@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { event, users, pendaftaran } from "@/db/schema";
+import { event, users, pendaftaran, pembicara } from "@/db/schema";
 import { eq, and, count } from "drizzle-orm";
 import { auth } from "@/auth";
 
@@ -33,13 +33,21 @@ export async function getDaftarEvent() {
         status: event.status,
         jenisEvent: event.jenisEvent,
         tipePlatform: event.tipePlatform,
+        tipeHarga: event.tipeHarga,
+        eventPolines: event.eventPolines,
         kuota: event.kuota,
         harga: event.harga,
         tanggalMulai: event.tanggalMulai,
+        tanggalSelesai: event.tanggalSelesai,
+        batasRegistrasi: event.batasRegistrasi,
+        kategoriId: event.kategoriId,
+        kotaId: event.kotaId,
         urlBanner: event.urlBanner,
         alasanPenolakan: event.alasanPenolakan,
         detailLokasi: event.detailLokasi,
         deskripsi: event.deskripsi,
+        syaratDanKetentuan: event.syaratDanKetentuan,
+        metodePembayaran: event.metodePembayaran,
         participantCount: count(pendaftaran.id),
       })
       .from(event)

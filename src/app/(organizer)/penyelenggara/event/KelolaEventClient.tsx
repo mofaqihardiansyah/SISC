@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Search, ChevronRight, Ban, Info, MapPin, Image as ImageIcon, Calendar, Edit3 } from "lucide-react";
-import { getDaftarEvent, updateEventDatabase } from '@/actions/organizer-event'; 
+import { getDaftarEvent } from '@/actions/organizer-event'; 
+import { updateEvent } from '@/actions/create-event'; 
 import { Modal } from '@/components/ui/modal';
 import { Pagination } from '@/components/ui/pagination';
 import { STATUS_LABEL, UI_TEXT } from "@/lib/constants";
@@ -20,14 +21,22 @@ interface RawEventData {
   status: string | null;
   jenisEvent: string | null;
   tipePlatform: string | null;
+  tipeHarga: string | null;
+  eventPolines: boolean | null;
   kuota: number | null;
   participantCount: number;
   harga: number | null;
   tanggalMulai: Date | null;
+  tanggalSelesai: Date | null;
+  batasRegistrasi: Date | null;
+  kategoriId: number | null;
+  kotaId: number | null;
   urlBanner: string | null;
   alasanPenolakan: string | null;
   detailLokasi: string | null;
   deskripsi: string | null;
+  syaratDanKetentuan: string | null;
+  metodePembayaran: unknown;
 }
 
 interface EventData {
@@ -40,6 +49,15 @@ interface EventData {
   harga: string;
   tanggal: string;
   rawTanggal?: string | Date;
+  rawTanggalSelesai?: Date | null;
+  rawBatasRegistrasi?: Date | null;
+  rawKategoriId?: number | null;
+  rawKotaId?: number | null;
+  rawKuota?: number | null;
+  rawTipeHarga?: string | null;
+  rawEventPolines?: boolean | null;
+  rawSyaratKetentuan?: string | null;
+  rawMetodePembayaran?: unknown;
   img: string;
   alasan?: string;
   venue?: string;
@@ -55,6 +73,12 @@ interface EventFormData {
   tipeTiket: string;
   harga: string;
   deskripsi: string;
+  syaratKetentuan: string;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+  batasRegistrasi: string;
+  kuota: string;
+  jenisEventPolines: string;
 }
 
 interface KelolaEventClientProps {
@@ -92,8 +116,22 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     venue: "",
     tipeTiket: "Free",
     harga: "0",
-    deskripsi: ""
+    deskripsi: "",
+    syaratKetentuan: "",
+    tanggalMulai: "",
+    tanggalSelesai: "",
+    batasRegistrasi: "",
+    kuota: "",
+    jenisEventPolines: "polines",
   });
+
+  const formatDateForInput = (d: Date | string | null | undefined): string => {
+    if (!d) return "";
+    const date = typeof d === "string" ? new Date(d) : d;
+    if (isNaN(date.getTime())) return "";
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
 
   const formatDbData = React.useCallback((rawData: RawEventData[]) => {
     if (!rawData || rawData.length === 0) return [];
@@ -114,7 +152,16 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
         peserta: ev.participantCount ? ev.participantCount.toLocaleString('id-ID') : "0",
         harga: ev.harga ? ev.harga.toLocaleString('id-ID') : "0",
         tanggal: tglString,
-        rawTanggal: ev.tanggalMulai || "", 
+        rawTanggal: ev.tanggalMulai || "",
+        rawTanggalSelesai: ev.tanggalSelesai,
+        rawBatasRegistrasi: ev.batasRegistrasi,
+        rawKategoriId: ev.kategoriId,
+        rawKotaId: ev.kotaId,
+        rawKuota: ev.kuota,
+        rawTipeHarga: ev.tipeHarga,
+        rawEventPolines: ev.eventPolines,
+        rawSyaratKetentuan: ev.syaratDanKetentuan,
+        rawMetodePembayaran: ev.metodePembayaran,
         img: ev.urlBanner || "",
         alasan: ev.alasanPenolakan || "Tidak ada alasan spesifik.",
         venue: ev.detailLokasi || "",
@@ -189,7 +236,13 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
       venue: event.venue || "",
       tipeTiket: event.harga && event.harga !== "0" ? "Paid" : "Free",
       harga: event.harga ? event.harga.replace(/\./g, '') : "0", 
-      deskripsi: event.deskripsi || ""
+      deskripsi: event.deskripsi || "",
+      syaratKetentuan: event.rawSyaratKetentuan ?? "",
+      tanggalMulai: formatDateForInput(event.rawTanggal),
+      tanggalSelesai: formatDateForInput(event.rawTanggalSelesai),
+      batasRegistrasi: formatDateForInput(event.rawBatasRegistrasi),
+      kuota: String(event.rawKuota ?? ""),
+      jenisEventPolines: event.rawEventPolines ? "polines" : "umum",
     });
     setIsModalOpen(true);
   };
@@ -198,19 +251,31 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
     if (!selectedEvent?.id) return;
     setIsSaving(true);
     try {
-      const hargaStr = String(formData.harga).replace(/\./g, '').replace(/,/g, '');
-      const payload = {
-        judul: formData.judul,
-        jenisEvent: formData.tipeEvent.toLowerCase() as 'seminar' | 'conference',
-        tipePlatform: formData.platform.toLowerCase() as 'online' | 'offline' | 'hybrid',
-        detailLokasi: formData.venue,
-        harga: formData.tipeTiket === "Free" ? 0 : parseInt(hargaStr || "0", 10),
-        deskripsi: formData.deskripsi,
-      };
+      const fd = new FormData();
+      fd.append("eventId", String(selectedEvent.id));
+      fd.append("judul", formData.judul);
+      fd.append("jenisEvent", formData.tipeEvent.toLowerCase());
+      fd.append("eventPolines", formData.jenisEventPolines === "polines" ? "true" : "false");
+      fd.append("tipePlatform", formData.platform.toLowerCase());
+      fd.append("tipeHarga", formData.tipeTiket.toLowerCase() === "free" ? "free" : "paid");
+      fd.append("harga", formData.tipeTiket.toLowerCase() === "free" ? "0" : String(formData.harga).replace(/\./g, '').replace(/,/g, ''));
+      fd.append("detailLokasi", formData.venue);
+      fd.append("kotaId", String(selectedEvent.rawKotaId ?? ""));
+      fd.append("namaPembicara", "");
+      fd.append("deskripsi", formData.deskripsi);
+      fd.append("syaratDanKetentuan", formData.syaratKetentuan);
+      fd.append("tanggalMulai", formData.tanggalMulai);
+      fd.append("tanggalSelesai", formData.tanggalSelesai);
+      fd.append("kuota", formData.kuota);
+      fd.append("batasRegistrasi", formData.batasRegistrasi);
+      fd.append("linkEksternal", "");
+      fd.append("kategoriId", String(selectedEvent.rawKategoriId ?? ""));
+      fd.append("isDraft", "false");
+      fd.append("metodePembayaran", "[]");
 
-      const res = await updateEventDatabase(selectedEvent.id, payload);
-      if (!res?.success) {
-        toast.error("Gagal menyimpan perubahan: " + (res?.error || "Terjadi kesalahan"));
+      const res = await updateEvent(fd);
+      if (res?.error) {
+        toast.error("Gagal menyimpan: " + res.error);
         return;
       }
       toast.success("Event berhasil diperbarui");
@@ -486,11 +551,32 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
               </Select>
             </div>
             <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Jenis Event</label>
+              <Select value={formData.jenisEventPolines} onChange={(e) => setFormData({...formData, jenisEventPolines: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
+                <option value="polines">Polines</option>
+                <option value="umum">Umum</option>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-600">Platform</label>
               <Select value={formData.platform} onChange={(e) => setFormData({...formData, platform: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
                 <option value="ONLINE">Online</option>
                 <option value="OFFLINE">Offline</option>
                 <option value="HYBRID">Hybrid</option>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Kategori</label>
+              <Select value={formData.kategori} onChange={(e) => setFormData({...formData, kategori: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
+                <option>Teknologi & Informasi</option>
+                <option>Bisnis & Ekonomi</option>
+                <option>Kreatif & Desain</option>
+                <option>Sains & Akademik</option>
+                <option>Kesehatan & Medis</option>
+                <option>Umum</option>
               </Select>
             </div>
           </div>
@@ -501,22 +587,25 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-600">Kategori</label>
-            <Select value={formData.kategori} onChange={(e) => setFormData({...formData, kategori: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white outline-none">
-              <option>Teknologi & Informasi</option>
-              <option>Bisnis & Ekonomi</option>
-              <option>Kreatif & Desain</option>
-              <option>Sains & Akademik</option>
-              <option>Kesehatan & Medis</option>
-              <option>Umum</option>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-600">Lokasi / Venue</label>
             <div className="relative">
               <Input type="text" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm outline-none" />
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Tanggal Mulai</label>
+              <Input type="datetime-local" value={formData.tanggalMulai}
+                onChange={(e) => setFormData({...formData, tanggalMulai: e.target.value})}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Tanggal Selesai</label>
+              <Input type="datetime-local" value={formData.tanggalSelesai}
+                onChange={(e) => setFormData({...formData, tanggalSelesai: e.target.value})}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
             </div>
           </div>
 
@@ -537,9 +626,29 @@ export default function KelolaEventClient({ initialEvents }: KelolaEventClientPr
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Kuota Peserta</label>
+              <Input type="number" value={formData.kuota}
+                onChange={(e) => setFormData({...formData, kuota: e.target.value})} min={0}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600">Batas Registrasi</label>
+              <Input type="datetime-local" value={formData.batasRegistrasi}
+                onChange={(e) => setFormData({...formData, batasRegistrasi: e.target.value})}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none" />
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-600">Deskripsi Event</label>
-            <Textarea rows={4} value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none resize-none"></Textarea>
+            <Textarea rows={3} value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none resize-none" />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-600">Syarat &amp; Ketentuan</label>
+            <Textarea rows={3} value={formData.syaratKetentuan} onChange={(e) => setFormData({...formData, syaratKetentuan: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none resize-none" />
           </div>
         </div>
 

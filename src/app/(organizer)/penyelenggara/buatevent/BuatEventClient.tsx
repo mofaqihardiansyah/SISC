@@ -600,7 +600,7 @@ export default function BuatEventClient({ categories, cities, provinces, initial
               <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
               {bannerPreview ? (
                 <div className="relative w-full h-40 rounded-xl overflow-hidden">
-                  <Image src={bannerPreview} alt="Banner Preview" fill className="object-cover" sizes="100vw" />
+                  <Image src={bannerPreview} alt="Banner Preview" fill className="object-cover" sizes="100vw" unoptimized />
                   <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                     <p className="text-white text-sm font-medium">Klik untuk ganti</p>
                   </div>
