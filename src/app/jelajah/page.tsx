@@ -56,6 +56,17 @@ function JelajahContent() {
   const [searchLocation, setSearchLocation] = useState("");
   const [openDropdown, setOpenDropdown] = useState<DropdownType | null>(searchParams.get("kategori") ? "Kategori Event" : null);
 
+  const fetchKotaList = useCallback(async (provinsi: string) => {
+    try {
+      const url = provinsi
+        ? `/api/events?mode=kota&provinsi=${encodeURIComponent(provinsi)}`
+        : '/api/events?mode=kota';
+      const res = await fetch(url);
+      const data = await res.json();
+      setKotaList(data.map((k: { nama: string }) => k.nama));
+    } catch {}
+  }, []);
+
   // Fetch master data
   useEffect(() => {
     fetch('/api/auth/session')
@@ -63,10 +74,7 @@ function JelajahContent() {
       .then(data => setIsLoggedIn(!!data?.user))
       .catch(() => setIsLoggedIn(false));
 
-    fetch('/api/events?mode=kota')
-      .then(res => res.json())
-      .then(data => setKotaList(data.map((k: { nama: string }) => k.nama)))
-      .catch(() => {});
+    fetchKotaList("");
 
     fetch('/api/events?mode=kategori')
       .then(res => res.json())
@@ -86,6 +94,10 @@ function JelajahContent() {
     if (type === "polines") setFilters(prev => ({ ...prev, polines: "true" }));
     else if (type === "umum") setFilters(prev => ({ ...prev, polines: "false" }));
   }, [searchParams]);
+
+  useEffect(() => {
+    fetchKotaList(filters.provinsi);
+  }, [filters.provinsi, fetchKotaList]);
 
   // Fetch events
   const fetchData = useCallback(async () => {
@@ -242,7 +254,7 @@ function JelajahContent() {
                       <label className="block text-xs text-gray-500 mb-1">Provinsi</label>
                       <select
                         value={filters.provinsi}
-                        onChange={(e) => setFilters({ ...filters, provinsi: e.target.value, location: "" })}
+                        onChange={(e) => { setFilters({ ...filters, provinsi: e.target.value, location: "" }); setSearchLocation(""); }}
                         className="w-full h-8 appearance-none border border-slate-200 rounded-lg px-2 text-xs text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
                       >
                         <option value="">Semua Provinsi</option>

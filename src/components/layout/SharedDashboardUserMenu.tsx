@@ -54,9 +54,9 @@ export default function SharedDashboardUserMenu({ user, roleTitle, menuItems }: 
           </p>
         </div>
         <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden transition-all group-hover:border-blue-400 group-active:scale-95 shadow-sm">
-          {user.image && !imgError ? (
+          {!imgError ? (
             <Image 
-              src={user.image} 
+              src={user.image || "/uploads/avatars/fotodummy.jpg"} 
               alt="Profile" 
               width={32}
               height={32}

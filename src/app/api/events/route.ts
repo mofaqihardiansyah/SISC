@@ -12,9 +12,12 @@ export async function GET(req: Request) {
 
     // Mode khusus: return semua kota
     if (mode === 'kota') {
-      const kotaList = await db.select({ id: kota.id, nama: kota.nama })
+      const p = searchParams.get('provinsi');
+      const query = db.select({ id: kota.id, nama: kota.nama })
         .from(kota)
-        .orderBy(asc(kota.nama));
+        .leftJoin(provinsi, eq(kota.provinsiId, provinsi.id));
+      if (p) query.where(eq(provinsi.nama, p));
+      const kotaList = await query.orderBy(asc(kota.nama));
       return NextResponse.json(kotaList);
     }
 
