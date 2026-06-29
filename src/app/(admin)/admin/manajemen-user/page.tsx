@@ -10,7 +10,7 @@ import Image from "next/image";
 import { Modal } from "@/components/ui/modal";
 import { Pagination } from "@/components/ui/pagination";
 import { ConfirmationModal } from "@/components/feedback/ConfirmationModal";
-import { PAGINATION } from "@/lib/constants";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -66,7 +66,7 @@ const formatDate = (iso: string | null) =>
 const formatDateTime = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-";
 
-const ROWS_PER_PAGE = PAGINATION.ROWS_PER_PAGE;
+const ROWS_PER_PAGE = 10;
 
 //  Sub-components 
 
@@ -226,6 +226,7 @@ export default function ManajemenUserPage() {
     try {
       const params = new URLSearchParams({
         page: String(currentPage),
+        limit: String(ROWS_PER_PAGE),
         search,
         role: tipe === "Semua Tipe" ? "" : tipe,
         sortBy,

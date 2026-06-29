@@ -101,7 +101,7 @@ export async function GET(req: Request) {
     const page = Math.max(1, Number(searchParams.get('page') ?? '1'));
     const sortBy = searchParams.get('sortBy') ?? 'dibuatPada';
     const sortDir = searchParams.get('sortDir') ?? 'desc';
-    const limit = PAGINATION.ROWS_PER_PAGE;
+    const limit = Number(searchParams.get('limit')) || PAGINATION.ROWS_PER_PAGE;
     const offset = (page - 1) * limit;
 
     const conditions = [isNull(users.dihapusPada), ne(users.role, 'admin')];
