@@ -57,6 +57,7 @@ export default function HeroSlider({ events }: HeroSliderProps) {
                 src={normalizeImagePath(ev.urlBanner)}
                 alt={ev.judul ?? ""}
                 fill
+                unoptimized
                 priority={index === 0}
                 loading={index === 0 ? "eager" : "lazy"}
                 className="object-cover"

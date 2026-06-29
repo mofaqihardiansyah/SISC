@@ -49,6 +49,7 @@ export default function EventCard({
             src={normalizeImagePath(imageUrl)}
             alt={title}
             fill
+            unoptimized
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             className="object-cover"
           />
