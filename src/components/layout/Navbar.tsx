@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import UserMenu from "./UserMenu";
 import SearchInput from "./SearchInput";
@@ -13,8 +13,20 @@ import { SITE } from '@/lib/constants';
 
 export default function Navbar() {
   const { data: session } = useSession();
-  const user = session?.user ?? null;
+  const [latestAvatar, setLatestAvatar] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    fetch('/api/user/profile')
+      .then(res => res.json())
+      .then(data => { if (data.urlAvatar) setLatestAvatar(data.urlAvatar); })
+      .catch(() => {});
+  }, [session?.user?.id]);
+
+  const user = session?.user
+    ? { ...session.user, image: latestAvatar || session.user.image || null }
+    : null;
 
   return (
     <nav className="sticky top-0 z-50 bg-[var(--brand-dark)] text-white shadow-md">
