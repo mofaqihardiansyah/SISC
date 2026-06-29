@@ -7,7 +7,6 @@ import {
   Save, 
   Pencil, 
   Eye,
-  Check,
   MapPin,
   Users,
   Clock,
@@ -38,16 +37,12 @@ type DataEventProps = {
   isOpen: boolean;
   onClose: () => void;
   event: Event;
-  onUpdateStatus: (id: number, status: 'published' | 'rejected', reason?: string) => Promise<void>;
   onEditSuccess: () => void;
   initialMode?: 'view' | 'edit';
 };
 
-export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEditSuccess, initialMode = 'view' }: DataEventProps) {
+export default function DataEvent({ isOpen, onClose, event, onEditSuccess, initialMode = 'view' }: DataEventProps) {
   const [mode, setMode] = useState<'view' | 'edit'>(initialMode);
-  const [showRejectForm, setShowRejectForm] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  const [actionLoading, setActionLoading] = useState<'approve' | 'reject' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<Partial<Event>>({});
@@ -70,34 +65,6 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
   }, [initialMode, isOpen]);
 
   if (!isOpen) return null;
-
-  const handleApproveAction = async () => {
-    setActionLoading('approve');
-    try {
-      await onUpdateStatus(event.id, 'published');
-      onClose();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleRejectAction = async () => {
-    if (!rejectReason.trim()) {
-      toast.error('Alasan penolakan tidak boleh kosong.');
-      return;
-    }
-    setActionLoading('reject');
-    try {
-      await onUpdateStatus(event.id, 'rejected', rejectReason);
-      onClose();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setActionLoading(null);
-    }
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -494,64 +461,7 @@ export default function DataEvent({ isOpen, onClose, event, onUpdateStatus, onEd
                 )}
               </Button>
             </div>
-          ) : (
-            /* View Mode Footer - Moderation for pending events */
-            event.status === 'pending' && (
-              <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between shrink-0">
-                <span className="text-micro font-semibold text-slate-400">Moderasi Event ini:</span>
-                {!showRejectForm ? (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={handleApproveAction}
-                      disabled={actionLoading !== null}
-                    >
-                      {actionLoading === 'approve' ? (
-                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : <><Check className="w-3.5 h-3.5 mr-1" /> Setujui Event</>}
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setShowRejectForm(true)}
-                      disabled={actionLoading !== null}
-                    >
-                      <X className="w-3.5 h-3.5 mr-1" /> Tolak Event
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex-1 ml-4 flex items-center gap-2">
-                    <Input
-                      type="text"
-                      value={rejectReason}
-                      onChange={(e) => setRejectReason(e.target.value)}
-                      placeholder="Alasan penolakan..."
-                      className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-slate-100 text-slate-700 font-medium"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleRejectAction}
-                      disabled={actionLoading !== null}
-                    >
-                      Konfirmasi Tolak
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setShowRejectForm(false);
-                        setRejectReason('');
-                      }}
-                    >
-                      Batal
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )
-          )}
+          ) : null}
     </Modal>
   );
 }

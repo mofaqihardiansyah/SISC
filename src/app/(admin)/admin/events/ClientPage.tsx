@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { deleteEvent, updateEventStatus } from '@/actions/admin-event';
+import { deleteEvent } from '@/actions/admin-event';
 import { cn } from "@/lib/utils";
 import { EVENT_TARGET_LABELS } from "@/lib/constants";
 import { Button } from '@/components/ui/button';
@@ -210,21 +210,6 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
       executeBulkDelete();
     }
     setConfirmModal({ isOpen: false, type: null, eventId: null });
-  };
-
-  const handleStatusUpdate = async (id: number, status: 'published' | 'rejected', reason?: string) => {
-    try {
-      const res = await updateEventStatus(id, status, reason);
-      if (res.success) {
-        toast.success(res.message || 'Status berhasil diperbarui');
-        setEvents(events.map(e => e.id === id ? { ...e, status } : e));
-      } else {
-        toast.error(res.error || 'Gagal update status');
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Terjadi kesalahan');
-    }
   };
 
   const openDetail = (event: Event) => {
@@ -607,7 +592,6 @@ export default function ClientPage({ initialEvents: initialEventsData }: ClientP
           isOpen={isDetailOpen}
           onClose={() => setIsDetailOpen(false)}
           event={selectedEvent}
-          onUpdateStatus={handleStatusUpdate}
           onEditSuccess={handleEditSuccess}
         />
       )}

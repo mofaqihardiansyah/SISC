@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Search, Trash2,
-  Users, UserCheck, UserX, Clock, TrendingUp, Loader2,
+  Users, UserCheck, Clock, TrendingUp, Loader2,
   ChevronUp, ChevronDown, ChevronsUpDown, X, Eye,
 } from "lucide-react";
 import Image from "next/image";
@@ -317,15 +317,13 @@ export default function ManajemenUserPage() {
       <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Manajemen User</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-3 gap-4 mb-5">
         <StatCard icon={Users} label="Total Users" value={stats?.total ?? 0}
           sub={stats ? `Total: ${stats.total}` : "-"} subColor="#22c55e" iconColor="#3b82f6" iconBg="#eff6ff" subIcon={TrendingUp} loading={statsLoading} />
         <StatCard icon={UserCheck} label="Aktif 30 Hari" value={stats?.active ?? 0}
           sub="Pengguna aktif bulan ini" subColor="#6b7280" iconColor="#22c55e" iconBg="#f0fdf4" loading={statsLoading} />
         <StatCard icon={Clock} label="Menunggu Persetujuan" value={stats?.pending ?? 0}
           sub="Organizer belum disetujui" subColor="#f59e0b" iconColor="#f59e0b" iconBg="#fffbeb" loading={statsLoading} />
-        <StatCard icon={UserX} label="User Suspended" value={stats?.suspended ?? 0}
-          sub="Pelanggaran Ketentuan" subColor="#ef4444" iconColor="#ef4444" iconBg="#fef2f2" loading={statsLoading} />
       </div>
 
       {/* Main Card */}
