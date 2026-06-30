@@ -35,7 +35,7 @@ const paperSchema = z.object({
   track: z.string().min(2, "Track/Topik harus diisi"),
   penulis: z.array(z.object({
     nama: z.string().min(3, "Nama penulis harus diisi"),
-    email: z.string().email("Email penulis tidak valid").or(z.literal("")),
+    email: z.string().email("Email penulis tidak valid"),
     afiliasi: z.string().min(3, "Afiliasi penulis harus diisi"),
     isCorresponding: z.boolean()
   })).min(1, "Minimal harus ada 1 penulis"),

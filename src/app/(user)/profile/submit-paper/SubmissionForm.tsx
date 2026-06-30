@@ -100,11 +100,11 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
       const invalidName = authors.some((a) => !nameRegex.test(a.namaDepan.trim()) || !nameRegex.test(a.namaBelakang.trim()));
       if (invalidName) return toast.error('Nama Depan & Nama Belakang: minimal 2 karakter, hanya huruf, spasi, titik, apostrof, dan tanda hubung');
 
-      const incomplete = authors.some((a) => !a.namaDepan.trim() || !a.namaBelakang.trim() || (a.isCorresponding && !a.email.trim()) || !a.afiliasi.trim());
-      if (incomplete) return toast.error('Lengkapi semua data penulis (Nama Depan, Nama Belakang, Email untuk Penulis Utama, Afiliasi)');
+      const incomplete = authors.some((a) => !a.namaDepan.trim() || !a.namaBelakang.trim() || !a.email.trim() || !a.afiliasi.trim());
+      if (incomplete) return toast.error('Lengkapi semua data penulis (Nama Depan, Nama Belakang, Email, Afiliasi)');
       
-      const invalidEmail = authors.some((a) => a.isCorresponding && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email.trim()));
-      if (invalidEmail) return toast.error('Masukkan format email yang valid untuk Penulis Utama');
+      const invalidEmail = authors.some((a) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email.trim()));
+      if (invalidEmail) return toast.error('Masukkan format email yang valid untuk semua penulis');
 
       setStep(3);
     }
@@ -332,9 +332,7 @@ export function SubmissionForm({ selectedEvent, onBack, onSuccess }: SubmissionF
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <Input type="text" placeholder="Nama Depan" value={author.namaDepan} onChange={(e) => updateAuthor(idx, 'namaDepan', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
                               <Input type="text" placeholder="Nama Belakang" value={author.namaBelakang} onChange={(e) => updateAuthor(idx, 'namaBelakang', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary" />
-                              {author.isCorresponding && (
-                                <Input type="email" placeholder="Email" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
-                              )}
+                              <Input type="email" placeholder="Email" value={author.email} onChange={(e) => updateAuthor(idx, 'email', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
                               <Input type="text" placeholder="Instansi / Afiliasi" value={author.afiliasi} onChange={(e) => updateAuthor(idx, 'afiliasi', e.target.value)} className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-primary md:col-span-2" />
                             </div>
                           
